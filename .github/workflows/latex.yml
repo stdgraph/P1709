@@ -1,0 +1,27 @@
+name: LaTeX
+
+on:
+  push:
+    branches: [ main ]
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Compile LaTeX document
+        uses: xu-cheng/latex-action@v2
+        with:
+          root_file: D1709R4.tex
+          latexmk_shell_escape: true
+          
+      - name: Upload PDF as an artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: P1709
+          path: P1709.pdf

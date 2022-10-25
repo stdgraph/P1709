@@ -1,0 +1,251 @@
+\section{Technical Specifications}
+This section is woefully incomplete and likely has errors when considering what needs to be included in the Standard. The intention is to give additional detailed information that isn't covered in earlier sections, for those who wish to know more.
+
+We anticipate getting direction from the Library Working Group to fill this out more completely and acurately.
+
+\subsection{Header \tcode{<graph>} synopsis [graph.syn]}
+
+\subsection{Functions}
+All functions are customization points.
+
+\begin{lstlisting}
+namespace std::graph {
+
+template <typename G>
+auto vertices(G&& g);
+
+template <typename G>
+auto vertex_id(G&& g, vertex_iterator_t<G>);
+
+template <typename G>
+auto vertex_value(G&& g, vertex_reference_t<G>);
+
+} // namespace std::graph
+\end{lstlisting}
+
+\subsection{Type Aliases}
+\begin{lstlisting}
+namespace std::graph {
+
+// ...
+
+} // namespace std::graph
+\end{lstlisting}
+
+\subsection{Traits}
+\begin{lstlisting}
+namespace std::graph {
+
+template <class G>
+concept has_degree = requires(G&& g, vertex_reference_t<G> u) {
+  {degree(g, u)};
+};
+
+template <class G>
+concept has_find_vertex = requires(G&& g, vertex_id_t<G> uid) {
+  { find_vertex(g, uid) } -> forward_iterator;
+};
+
+template <class G>
+concept has_find_vertex_edge = requires(G&& g, vertex_id_t<G> uid, vertex_id_t<G> vid, vertex_reference_t<G> u) {
+  { find_vertex_edge(g, u, vid) } -> forward_iterator;
+  { find_vertex_edge(g, uid, vid) } -> forward_iterator;
+};
+
+template <class G>
+concept has_contains_edge = requires(G&& g, vertex_id_t<G> uid, vertex_id_t<G> vid) {
+  { contains_edge(g, uid, vid) } -> convertible_to<bool>;
+} // namespace std::graph
+\end{lstlisting}
+
+\subsection{Concepts}
+\begin{lstlisting}
+namespace std::graph {
+
+template <class G>
+concept vertex_range = ranges::forward_range<vertex_range_t<G>> && 
+                       ranges::sized_range<vertex_range_t<G>> &&
+requires(G&& g, vertex_iterator_t<G> ui) {
+  { vertices(g) } -> ranges::forward_range;
+  vertex_id(g, ui);
+};
+
+template <class G, class ER>
+concept targeted_edge = ranges::forward_range<ER> && 
+requires(G&& g, ranges::range_reference_t<ER> uv) {
+  target_id(g, uv);
+  target(g, uv);
+};
+
+template <class G, class ER>
+concept sourced_edge = 
+requires(G&& g, ranges::range_reference_t<ER> uv) {
+  source_id(g, uv);
+  source(g, uv);
+};
+
+template <class G>
+concept adjacency_list = vertex_range<G> && targeted_edge<G, edge_t<G>> &&
+      requires(G&& g, vertex_reference_t<G> u, vertex_id_t<G> uid) {
+  { edges(g, u) } -> ranges::forward_range;
+  { edges(g, uid) } -> ranges::forward_range;
+};
+
+template <class G>
+concept sourced_adjacency_list = adjacency_list<G> && sourced_edge<G, edge_t<G>> &&
+      requires(G&& g, edge_reference_t<G> uv) {
+  edge_id(g, uv);
+};
+} // namespace std::graph
+\end{lstlisting}
+
+%\vspace{10pt}
+
+\subsection{Header \tcode{<graph_view>} synopsis [graph.syn]}
+
+\begin{lstlisting}
+namespace std::graph {
+
+... // view classes go here
+
+} // namespace std::graph
+
+namespace std::graph::views {
+
+template <typename G>
+auto vertexlist(G&& g);
+
+template <typename G>
+auto incidence(G&& g, vertex_reference_t<G>);
+
+template <typename G>
+auto neighbors(G&& g, vertex_reference_t<G>);
+
+template <typename G>
+auto edgelist(G&& g);
+
+// vertices_depth_first_search
+// edges_depth_first_search
+// sourced_edges_depth_first_search
+
+// vertices_breadth_first_search
+// edges_breadth_first_search
+// sourced_edges_breadth_first_search
+
+// vertices_topological_sort
+// edges_toplological_sort
+// sourced_edges_topological_sort
+} // namespace std::graph::views
+\end{lstlisting}
+
+\subsection{Header \tcode{<graph_algorithm>} synopsis [graph.syn]}
+
+\begin{lstlisting}
+namespace std::graph {
+
+} // namespace std::graph
+\end{lstlisting}
+
+\subsection{Header \tcode{<csr_graph>} synopsis [graph.syn]}
+
+The \tcode{ERng} template parameter is assumed to be a range of \tcode{copyable_edge_t<VId,EV>}. If it isn't, an \tcode{EProj} projection function must be passed to to convert the ERng value type to a \tcode{copyable_edge_t<VId,EV>}.
+
+Likewise, the \tcode{VRng} template parameter is assumed to be a range of \tcode{copyable_vertex_t<VId,VV>}. If it isn't, a \tcode{VProj} projection function must be passed to convert the VRng value type to a \tcode{copyable_vertex_t<VId,VV>}.
+
+%\vspace{10pt}
+
+\begin{lstlisting}
+namespace std::graph {
+
+template <class EV        = void,                // edge value type
+          class VV        = void,                // vertex value type
+          class GV        = void,                // graph value type
+          integral VId    = uint32_t,            // vertex id type
+          integral EIndex = uint32_t,            // edge index type
+          class Alloc     = allocator<uint32_t>> // for internal containers
+class csr_graph {
+public: // Types
+  using graph_type = csr_graph<EV, VV, GV, VId, EIndex, Alloc>;
+  
+  using edge_value_type   = EV;
+  using vertex_value_type = VV;
+  using graph_value_type  = GV;
+  using value_type        = GV;
+
+  using vertex_id_type = VId;
+
+public: // Construction/Destruction
+  constexpr csr_graph()                 = default;
+  constexpr csr_graph(const csr_graph&) = default;
+  constexpr csr_graph(csr_graph&&)      = default;
+  constexpr ~csr_graph()                = default;
+
+  constexpr csr_graph& operator=(const csr_graph&) = default;
+  constexpr csr_graph& operator=(csr_graph&&)      = default;
+
+  template <ranges::forward_range ERng, class EProj = identity>
+  requires copyable_edge<invoke_result<EProj, ranges::range_value_t<ERng>>, VId, EV>
+  constexpr csr_graph(const ERng&  erng, 
+                      EProj        eprojection, 
+                      const Alloc& alloc = Alloc());
+
+  template <ranges::forward_range ERng, ranges::forward_range VRng,
+            class EProj = identity,     class VProj = identity>
+  requires copyable_edge<invoke_result<EProj, ranges::range_value_t<ERng>>, VId, EV> &&
+           copyable_vertex<invoke_result<VProj, ranges::range_value_t<VRng>>, VId, VV>
+  constexpr csr_graph(const ERng&  erng,
+                      const VRng&  vrng,
+                      EProj        eprojection = {},
+                      VProj        vprojection = {},
+                      const Alloc& alloc       = Alloc());
+
+  constexpr csr_graph(const initializer_list<copyable_edge_t<VId, EV>>& ilist, 
+                      const Alloc& alloc = Alloc());
+
+};
+
+} // namespace std::graph
+\end{lstlisting}
+
+When \tcode{GV} is not \tcode{void} the following constructors are also available.
+
+\begin{lstlisting}
+  template <ranges::forward_range ERng, class EProj = identity>
+  requires copyable_edge<invoke_result<EProj, ranges::range_value_t<ERng>>, VId, EV>
+  constexpr csr_graph(const graph_value_type& value, 
+                      const ERng&             erng, 
+                      EProj                   eprojection, 
+                      const Alloc&            alloc = Alloc());
+  
+  template <ranges::forward_range ERng, class EProj = identity>
+  requires copyable_edge<invoke_result<EProj, ranges::range_value_t<ERng>>, VId, EV>
+  constexpr csr_graph(graph_value_type&& value,
+                      const ERng&        erng, 
+                      EProj              eprojection, 
+                      const Alloc&       alloc = Alloc());
+
+
+  template <ranges::forward_range ERng, ranges::forward_range VRng,
+            class EProj = identity,     class VProj = identity>
+  requires copyable_edge<invoke_result<EProj, ranges::range_value_t<ERng>>, VId, EV> &&
+           copyable_vertex<invoke_result<VProj, ranges::range_value_t<VRng>>, VId, VV>
+  constexpr csr_graph(const graph_value_type& value,
+                      const ERng&             erng,
+                      const VRng&             vrng,
+                      EProj                   eprojection = {},
+                      VProj                   vprojection = {},
+                      const Alloc&            alloc       = Alloc());
+
+  template <ranges::forward_range ERng, ranges::forward_range VRng,
+            class EProj = identity,     class VProj = identity>
+  requires copyable_edge<invoke_result<EProj, ranges::range_value_t<ERng>>, VId, EV> &&
+           copyable_vertex<invoke_result<VProj, ranges::range_value_t<VRng>>, VId, VV>
+  constexpr csr_graph(graph_value_type&& value,
+                      const ERng&        erng,
+                      const VRng&        vrng,
+                      EProj              eprojection = {},
+                      VProj              vprojection = {},
+                      const Alloc&       alloc       = Alloc());
+
+
+\end{lstlisting}

@@ -1,3 +1,6 @@
+## Specific files:
+D1709R4.pdf
+
 ## Core latex/pdflatex auxiliary files:
 *.aux
 *.lof
@@ -274,3 +277,9 @@ TSWLatexianTemp*
 
 # Makeindex log files
 *.lpz
+
+# Avoid vscode files
+.vscode
+
+# Avoid Mac files
+.DS_Store

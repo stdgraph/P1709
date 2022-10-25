@@ -1,0 +1,10 @@
+\section{Design - Graph Container Author}
+\subsection{Customization Points}
+Customization Points can be implemented in one of three ways:
+\begin{enumerate}
+\item A static function object that can be overridden by using ADL. This is the current technique used in existing standard libraries.
+\item \href{https://wg21.link/P2547}{P2547 Language Support for Customisable Functions}, an active proposal for C++26.
+\item \href{https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2019/p1895r0.pdf}{P1895 tag\_invoke: A general pattern for supporting customisable functions}. This has been dismissed as a viable solution for use in the standard for a variety of reasons identified in P2547.
+\end{enumerate}
+
+We are monitoring the progress of P2547 and will use that if is accepted into the Standard. In the interim, the current library prototype implementation is using \tcode{tag_invoke} for convenience, but it will be replaced with the function object or P2547 functionality at a future date.
