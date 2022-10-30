@@ -1,7 +1,11 @@
+#
+# Simple Makefile to compile prototypes.cpp
+#
 
-
-CXX    := c++
-
+CXX    := g++-11
 
 default:
-	c++ -std=c++20 prototypes.cpp
+	$(CXX) -c -std=c++20 -fconcepts-diagnostics-depth=4 prototypes.cpp
+
+clean:
+	/bin/rm -f prototypes.o

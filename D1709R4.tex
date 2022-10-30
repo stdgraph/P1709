@@ -10,6 +10,8 @@
 \usepackage[scaled=.90]{helvet} % Use helvetica for sf and scale to proper size
 \usepackage{amssymb} % for checkmark
 
+\usepackage{comment}
+
 %% \usepackage{url}  %% use hyperref instead
 
 %% Define colors
@@ -27,7 +29,7 @@
 \definecolor{bs_highlight_background}{HTML}{F2F2F2}
 \definecolor{bs_h1_h2_h3}{HTML}{005A9C}
 \definecolor{bs_a_href}{HTML}{034575}
-\definecolor{comment}{HTML}{0000A0}
+\definecolor{xcomment}{HTML}{0000A0}
 
 %% Customize section headings
 \usepackage{titlesec}
@@ -100,11 +102,11 @@
 %% Shortcut for inline code
 \newcommand{\tcode}[1]{\lstinline[breaklines=true]{#1}}
 
-\newcommand{\comment}[2]{{\color{comment}[{\sc #1:} \textsf{#2}]}}
-\newcommand{\phil}[1]{\comment{Phil}{#1}}
-\newcommand{\andrew}[1]{\comment{Andrew}{#1}}
-\newcommand{\kevin}[1]{\comment{Kevin}{#1}}
-\newcommand{\muhammad}[1]{\comment{Muhammad}{#1}}
+\newcommand{\xcomment}[2]{{\color{xcomment}[{\sc #1:} \textsf{#2}]}}
+\newcommand{\phil}[1]{\xcomment{Phil}{#1}}
+\newcommand{\andrew}[1]{\xcomment{Andrew}{#1}}
+\newcommand{\kevin}[1]{\xcomment{Kevin}{#1}}
+\newcommand{\muhammad}[1]{\xcomment{Muhammad}{#1}}
 
 
 
@@ -158,7 +160,10 @@
 
 \input{tex/introduction}
 \input{tex/design_intro}
-\input{tex/design_user}
+% \input{tex/design_user}
+\input{tex/algorithms}
+\input{tex/views}
+\input{tex/containers}
 \input{tex/design_author}
 \input{tex/technical_spec}
 
