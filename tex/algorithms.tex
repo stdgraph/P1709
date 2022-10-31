@@ -614,6 +614,16 @@ from vertex \lstinline{source} then \lstinline{predecessors[i]} will contain
 \paragraph{Dijkstra Single Source}
 
 \begin{lstlisting}
+template <class DistanceValue>
+auto dijkstra_invalid_distance() {
+  return numeric_limits<DistanceValue>::max(); // exposition only
+}
+
+template <class DistanceValue>
+auto dijkstra_zero() {
+  return {};                                   // exposition only
+}
+
 template <property P, property D>
 void init_dijkstra_shortest_paths(P&& predecessors, D&& distances);
 
@@ -722,8 +732,14 @@ undirected.
 \begin{itemize}
 \item[]
 The return type of weight function \lstinline{w} must be able to
-  be combined with the distance type \lstinline{D}.  The argument type for the weight
-  function \lstinline{w} must be convertible from the edge type.
+  be combined with the distance type \lstinline{D}.  
+\item[]
+The argument type for the weight
+function \lstinline{w} must be convertible from the edge type.
+\item[]
+  The weight function \lstinline{w} must return a non-negative value (that is
+  a value \lstinline{x} such that \lstinline{dijkstra_zero() <= x},
+  for any edge in \lstinline{graph}.
 \end{itemize}
 \item[] 
 Effects: Compute the shortest path and associated distance from vertex
@@ -892,6 +908,7 @@ from vertex \lstinline{source} then \lstinline{predecessors[i]} will contain
 %
 \item[] Complexity $\mathcal{O}(|E| \cdot |V|)$ \andrew{This really is atrocious.  Suitable only for really small graphs.}
 \item[] Throws: none. \andrew{Throw if \lstinline{source} out of range?}
+\item[] Note:  Unlike Dijkstra's algorithm, Bellman-Ford allows negative edge weights.
 \end{itemize}
 
 
@@ -1045,6 +1062,10 @@ undirected.
 The return type of weight function \lstinline{w} must be able to
   be combined with the distance type \lstinline{D}.  The argument type for the weight
   function \lstinline{w} must be convertible from the edge type.
+\item[]
+  The weight function \lstinline{w} must return a non-negative value (that is
+  a value \lstinline{x} such that \lstinline{dijkstra_zero() <= x},
+  for any edge in \lstinline{graph}.
 \end{itemize}
 \item[] 
 Effects: Compute the shortest path and associated distance from vertex
