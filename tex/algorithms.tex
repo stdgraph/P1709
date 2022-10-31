@@ -1,4 +1,4 @@
-\section{Algorithms}
+\section{Tier 1 Algorithms}
 
 \subsection{Algorithm Concepts}
 Additional concepts used by algorithms.
@@ -469,6 +469,33 @@ void shortest_distances(ExecutionPolicy&& policy,
 \subsubsection{Unweighted Shortest Paths: Breadth-First Search}
 
 \paragraph{Breadth-First Search, Single Source}
+
+\begin{lstlisting}
+template <property P, property D>
+void init_breadth_first_search(P&& predecessors, D&& distances);
+
+template <property P, property D>
+void init_breadth_first_search(P&& predecessors, D&& distances, ranges::range_value_type<D> init);
+
+template <property D>
+void init_breadth_first_distances(D&& distances);
+
+template <property D>
+void init_breadth_first_distances(D&& distances, ranges::range_value_type<D> init);
+\end{lstlisting}
+
+\begin{itemize}
+\item[] 
+Effects:
+\begin{itemize}
+\item[]
+  Each \lstinline{predessors[i]} is initialized to \lstinline{i}.
+\item[] Each 
+\lstinline{distance[i]} is initialized to \lstinline{std::numeric_limits::max()}
+or to \lstinline{init}.
+\end{itemize}
+\end{itemize}
+
 \begin{lstlisting}
 template <adjacency_list_graph G, property D, property P>
 void breadth_first_search(const G&       graph,
@@ -587,6 +614,35 @@ from vertex \lstinline{source} then \lstinline{predecessors[i]} will contain
 \paragraph{Dijkstra Single Source}
 
 \begin{lstlisting}
+template <property P, property D>
+void init_dijkstra_shortest_paths(P&& predecessors, D&& distances);
+
+template <property P, property D>
+void init_dijkstra_shortest_paths(P&& predecessors, D&& distances, ranges::range_value_type<D> init);
+
+template <property D>
+void init_dijkstra_shortest_distances(D&& distances);
+
+template <property D>
+void init_dijkstra_shortest_distances(D&& distances, ranges::range_value_type<D> init);
+
+\end{lstlisting}
+
+\begin{itemize}
+\item[] 
+Effects:
+\begin{itemize}
+\item[]
+  Each \lstinline{predessors[i]} is initialized to \lstinline{i}.
+\item[] Each 
+\lstinline{distance[i]} is initialized to \lstinline{std::numeric_limits::max()}
+or to \lstinline{init}.
+\end{itemize}
+\end{itemize}
+
+
+\begin{lstlisting}
+
 template <adjacency_list_graph G, class W, property D, property P>
 requires weight_function<W, edge_t<G>>
 void dijkstra_shortest_paths(const G&       graph,
@@ -643,7 +699,6 @@ typename D::value_type >> void dijkstra_shortest_distances(const G&       graph,
 
 
 \end{lstlisting}
-
 
 \begin{itemize}
 \item Preconditions:
@@ -1023,7 +1078,18 @@ from vertex \lstinline{source} then \lstinline{predecessors[i]} will contain
 \andrew{I've used NetworkX as inspiration for organization.  Oddly, NetworkX only has DFS as an adaptor (view).}
 
 
+\section{Tier 2 and Tier 3 Algorithms}
+
+
 \subsection{Shortest Paths}
+\subsubsection{Single Source, Single Target}
+\andrew{Tier X}
+\subsubsection{Multiple Source}
+\andrew{Tier X}
+\subsubsection{Multiple Source, Single Target}
+\andrew{Tier X}
+
+\begin{comment}
 \subsubsection{BFS Single Source, Single Target}
 \andrew{Tier X}
 \subsubsection{Dijkstra Single Source, Single Target}
@@ -1050,6 +1116,8 @@ from vertex \lstinline{source} then \lstinline{predecessors[i]} will contain
 \andrew{Tier X}
 \subsubsection{Delta Stepping Multiple Source, Single Target}
 \andrew{Tier X}
+
+\end{comment}
 
 \subsubsection{All Pairs}
 \andrew{Tier 2?  People bring this up alot -- but it is very computationally expensive.}
@@ -1094,7 +1162,7 @@ from vertex \lstinline{source} then \lstinline{predecessors[i]} will contain
 \subsubsection{k-truss}
 \andrew{Tier 3}
 
-\subsection{DAG}
+\subsection{Directed Acyclic Graphs}
 \subsubsection{Topological Sort}
 \andrew{Tier 1}
 \subsubsection{Transitive Closure}
@@ -1129,18 +1197,21 @@ from vertex \lstinline{source} then \lstinline{predecessors[i]} will contain
 \andrew{Tier 1}
 
 \subsection{Operators}
-\subsubsection{Transpose}
+\subsubsection{Degree}
 \andrew{Tier 1}
 \subsubsection{Join}
 \andrew{Tier 1}
-\subsubsection{Degree}
+\subsubsection{Relabel}
 \andrew{Tier 1}
-
+\subsubsection{Sort}
+\andrew{Tier 1}
+\andrew{Need to be able to sort edge lists along source or target column as well as to sort lists of neighbors in an adjacency list.  The former is necessary for efficiently building CSR from an edge list.  The second is necessary for preconditions on various algorithms.}
+\subsubsection{Transpose}
+\andrew{Tier 1}
 
 
 
 \begin{comment}
-
 
 %Algorithms with [TBD] are candidates to consider but having been decided for being in the paper
 %We are targeting the paper to be under 50pp
