@@ -547,13 +547,14 @@ undirected.
 \item[]
 \lstinline{0 <= source < num_vertices(graph)}.
 \item[]
-  The \lstinline{distance} range must be initialized so that \lstinline{distance[i] ==
-    \lstinline{std::numeric_limits<range_value_t<D>>::max()} for all \lstinline{i}
-    such that 0 <= i < num_vertices(graph)}.  \andrew{invalid_distance?}
+  The \lstinline{distance} range must be initialized so that 
+    \lstinline{distance[i] == \lstinline{std::numeric_limits<range_value_t<D>>::max()} 
+    for all \lstinline{i}
+    such that \lstinline{0 <= i < num_vertices(graph)}.  \andrew{invalid distance?}
 \item[]
   The \lstinline{predecessors} range must be initialized so that
-  \lstinline{precessors[i] == i} for all \lstinline{i} such that 0 <= i <
-  num_vertices(graph)}.
+  \lstinline{precessors[i] == i} for all \lstinline{i} such that 
+  \lstinline{0 <= i <  num_vertices(graph)}.
 \end{itemize}
 \item[] 
 Effects: Compute the breadth-first path and associated distance from vertex
@@ -645,6 +646,7 @@ typename D::value_type >> void dijkstra_shortest_distances(const G&       graph,
 
 
 \begin{itemize}
+\item Preconditions:
 \begin{itemize}
 \item[]
 \lstinline{graph} is an \lstinline{adjacency_list}, which may be directed or
@@ -652,13 +654,14 @@ undirected.
 \item[]
 \lstinline{0 <= source < num_vertices(graph)}.
 \item[]
-  The \lstinline{distance} range must be initialized so that \lstinline{distance[i] ==
-    \lstinline{std::numeric_limits<range_value_t<D>>::max()} for all \lstinline{i}
-    such that 0 <= i < num_vertices(graph)}.  \andrew{invalid_distance?}
+  The \lstinline{distance} range must be initialized so that 
+    \lstinline{distance[i] == \lstinline{std::numeric_limits<range_value_t<D>>::max()} 
+    for all \lstinline{i}
+    such that \lstinline{0 <= i < num_vertices(graph)}.  \andrew{invalid distance?}
 \item[]
   The \lstinline{predecessors} range must be initialized so that
-  \lstinline{precessors[i] == i} for all \lstinline{i} such that 0 <= i <
-  num_vertices(graph)}.
+  \lstinline{precessors[i] == i} for all \lstinline{i} such that 
+  \lstinline{0 <= i <  num_vertices(graph)}.
 \end{itemize}
 \item[] Requirements: 
 \begin{itemize}
@@ -788,6 +791,7 @@ void bellman_ford_shortest_distances(ExecutionPolicy&& e,
 
 
 \begin{itemize}
+\item[] Preconditions:
 \begin{itemize}
 \item[]
 \lstinline{graph} is an \lstinline{adjacency_list}, which may be directed or
@@ -795,13 +799,14 @@ undirected.
 \item[]
 \lstinline{0 <= source < num_vertices(graph)}.
 \item[]
-  The \lstinline{distance} range must be initialized so that \lstinline{distance[i] ==
-    \lstinline{std::numeric_limits<range_value_t<D>>::max()} for all \lstinline{i}
-    such that 0 <= i < num_vertices(graph)}.  \andrew{invalid_distance?}
+  The \lstinline{distance} range must be initialized so that 
+  \lstinline{distance[i] ==  \lstinline{std::numeric_limits<range_value_t<D>>::max()} 
+  for all \lstinline{i}
+  such that \lstinline{0 <= i < num_vertices(graph)}.  \andrew{invalid distance?}
 \item[]
   The \lstinline{predecessors} range must be initialized so that
-  \lstinline{precessors[i] == i} for all \lstinline{i} such that 0 <= i <
-  num_vertices(graph)}.
+  \lstinline{precessors[i] == i} for all \lstinline{i} such that 
+  \lstinline{0 <= i < num_vertices(graph)}.
 \end{itemize}
 \item[] Requirements: 
 \begin{itemize}
@@ -970,13 +975,14 @@ undirected.
 \item[]
 \lstinline{0 <= source < num_vertices(graph)}.
 \item[]
-  The \lstinline{distance} range must be initialized so that \lstinline{distance[i] ==
-    \lstinline{std::numeric_limits<range_value_t<D>>::max()} for all \lstinline{i}
-    such that 0 <= i < num_vertices(graph)}.  \andrew{invalid_distance?}
+  The \lstinline{distance} range must be initialized so that 
+    \lstinline{distance[i] == \lstinline{std::numeric_limits<range_value_t<D>>::max()} 
+      for all \lstinline{i}
+      such that \lstinline{0 <= i < num_vertices(graph)}.  \andrew{invalid distance?}
 \item[]
   The \lstinline{predecessors} range must be initialized so that
-  \lstinline{precessors[i] == i} for all \lstinline{i} such that 0 <= i <
-  num_vertices(graph)}.
+  \lstinline{precessors[i] == i} for all \lstinline{i} such that 
+  \lstinline{0 <= i < num_vertices(graph)}.
 \end{itemize}
 \item[] Requirements: 
 \begin{itemize}
@@ -1007,8 +1013,6 @@ from vertex \lstinline{source} then \lstinline{predecessors[i]} will contain
 %
 \item[] Complexity $\mathcal{O}(|E| + |V| + d\cdot L)$, where d is maximum vertex degree in the graph and $L = \max_{v\in V} dist(v)$.
 \item[] Throws: none. \andrew{Throw if \lstinline{source} out of range?}
-\end{itemize}
-
 \end{itemize}
 
 
