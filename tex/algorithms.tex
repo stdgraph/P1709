@@ -105,40 +105,35 @@ void breadth_first_search(ExecutionPolicy&& policy,
                           D&&               distances,
                           Q&&               q);
 
-template <adjacency_list_graph G, property D, property P>
+template <adjacency_list_graph G, property D>
 void breadth_first_distances(const G&       graph,
-                          vertex_id_t<G> source,
-                          D&&            distances,
-                          P&&            predecessors);
+                             vertex_id_t<G> source,
+                             P&&            predecessors);
 
 
-template <adjacency_list_graph G, property D, property P, queueable Q>
+template <adjacency_list_graph G, property D, queueable Q>
 void breadth_first_distances(const G&       graph,
-                          vertex_id_t<G> source,
-                          D&&            distances,
-                          P&&            predecessors,
-                          Q&&            q);
+                             vertex_id_t<G> source,
+                             D&&            distances,
+                             Q&&            q);
 
 
 template <class ExecutionPolicy, adjacency_list_graph G, property D, property P>
 void breadth_first_distances(ExecutionPolicy&& policy,
-                          const G&          graph,
-                          vertex_id_t<G>    source,
-                          D&&               distances,
-                          P&&               predecessors);
+                             const G&          graph,
+                             vertex_id_t<G>    source,
+                             D&&               distances);
 
 
 template <class ExecutionPolicy,
           adjacency_list_graph G,
-          property             P,
           property             D,
           queueable            Q>
 void breadth_first_distances(ExecutionPolicy&& policy,
-                          const G&          graph,
-                          vertex_id_t<G>    source,
-                          D&&               distances,
-                          P&&               predecessors,
-                          Q&&               q);
+                             const G&          graph,
+                             vertex_id_t<G>    source,
+                             D&&               distances,
+                             Q&&               q);
 
 
 
@@ -454,6 +449,18 @@ void shortest_paths(ExecutionPolicy&& policy,
                     P&&               predecessors,
                     D&&               distances);
 
+template <adjacency_list_graph G, property D>
+void shortest_distances(const G&       graph,
+                    vertex_id_t<G> source,
+                    D&&            distances);
+
+template <class ExecutionPolicy, adjacency_list_graph G, property D>
+void shortest_distances(ExecutionPolicy&& policy,
+                    const G&          graph,
+                    vertex_id_t<G>    source,
+                    D&&               distances);
+
+
 \end{lstlisting}
 
 
@@ -498,18 +505,79 @@ void breadth_first_search(ExecutionPolicy&& policy,
                           D&&               distances,
                           Q&&               q);
 
+
+template <adjacency_list_graph G, property D>
+void breadth_first_distances(const G&       graph,
+                             vertex_id_t<G> source,
+                             P&&            predecessors);
+
+
+template <adjacency_list_graph G, property D, queueable Q>
+void breadth_first_distances(const G&       graph,
+                             vertex_id_t<G> source,
+                             D&&            distances,
+                             Q&&            q);
+
+
+template <class ExecutionPolicy, adjacency_list_graph G, property D, property P>
+void breadth_first_distances(ExecutionPolicy&& policy,
+                             const G&          graph,
+                             vertex_id_t<G>    source,
+                             D&&               distances);
+
+
+template <class ExecutionPolicy,
+          adjacency_list_graph G,
+          property             D,
+          queueable            Q>
+void breadth_first_distances(ExecutionPolicy&& policy,
+                             const G&          graph,
+                             vertex_id_t<G>    source,
+                             D&&               distances,
+                             Q&&               q);
+
 \end{lstlisting}
 
 \begin{itemize}
-\item[] Preconditions: g is an \lstinline{adjacency_list}, which may be directed or undirected.  \lstinline{0 <= seed < num_vertices(G)}.
-\item[] 
-Effects: Compute the breadth-first path and associated distance from vertex seed to all reachable vertices in g.
-\item[] 
-Returns: If vertex with index i is reachable from vertex seed, then predecessors[i] will contain the predecessor to vertex i in the breadth-first path from seed to vertex i.  Distances[I] will contain the distance from seed to vertex i.  Otherwise, predecessors[I] will contain i and distances[I] will contain \lstinline{std::numeric_limits<range_value_t<D>>::max()}.
-\item[] Complexity $\mathcal{O}(|E| + |V|)$
-\item[] Throws: none. \andrew{Throw if seed out of range?}
+\item[] Preconditions:
+\begin{itemize}
+\item[]
+\lstinline{graph} is an \lstinline{adjacency_list}, which may be directed or
+undirected.
+\item[]
+\lstinline{0 <= source < num_vertices(graph)}.
+\item[]
+  The \lstinline{distance} range must be initialized so that \lstinline{distance[i] ==
+    \lstinline{std::numeric_limits<range_value_t<D>>::max()} for all \lstinline{i}
+    such that 0 <= i < num_vertices(graph)}.  \andrew{invalid_distance?}
+\item[]
+  The \lstinline{predecessors} range must be initialized so that
+  \lstinline{precessors[i] == i} for all \lstinline{i} such that 0 <= i <
+  num_vertices(graph)}.
 \end{itemize}
-
+\item[] 
+Effects: Compute the breadth-first path and associated distance from vertex
+\lstinline{source} to all reachable vertices in \lstinline{graph}.
+\item[] 
+Returns:
+\begin{itemize}
+\item[] For \lstinline{breadth_first_search} and \lstinline{breadth_first_distance},
+  if vertex with index \lstinline{i} is reachable from vertex \lstinline{source}, then
+  \lstinline{distances[i]} will contain the distance from \lstinline{source} to vertex
+  \lstinline{i}.  If vertex \lstinline{i} is not reachable from vertex
+  \lstinline{source} then \lstinline{distances[i]} will contain
+  \lstinline{std::numeric_limits<range_value_t<D>>::max()}.
+\item[]
+For \lstinline{breadth_first_search} if vertex with index \lstinline{i} is reachable
+from vertex \lstinline{source}, then \lstinline{predecessor[i]} will contain the
+predecessor vertex of vertex \lstinline{i}.  If vertex \lstinline{i} is not reachable
+from vertex \lstinline{source} then \lstinline{predecessors[i]} will contain
+\lstinline{i}.
+\end{itemize}
+%
+\item[] Complexity $\mathcal{O}(|E| + |V|)$
+\item[] Throws: none. \andrew{Throw if \lstinline{source} out of range?}
+\end{itemize}
 
 
 
@@ -546,10 +614,83 @@ typename D::value_type >> void dijkstra_shortest_paths(const G&       graph,
                                                        Compare&& comp,
                                                        Combine&& comb) {}
 
+
+template <adjacency_list_graph G, class W, property D>
+requires weight_function<W, edge_t<G>>
+void dijkstra_shortest_distances(const G&       graph,
+                             vertex_id_t<G> source,
+                             W&&            w,
+                             D&&            distances) {}
+
+template <adjacency_list_graph G,
+          class W,
+          property D,
+          class Compare,
+          class Combine>
+requires weight_function<W, edge_t<G>> &&
+      std::strict_weak_order<Compare,
+                             typename D::value_type,
+                             typename D::value_type> &&
+      std::assignable_from < typename D::reference,
+      std::invoke_result_t < Combine, std::invoke_result_t<W, edge_t<G>>,
+typename D::value_type >> void dijkstra_shortest_distances(const G&       graph,
+                                                       vertex_id_t<G> source,
+                                                       W&&            w,
+                                                       D&&       distances,
+                                                       Compare&& comp,
+                                                       Combine&& comb) {}
+
+
 \end{lstlisting}
 
 
-
+\begin{itemize}
+\begin{itemize}
+\item[]
+\lstinline{graph} is an \lstinline{adjacency_list}, which may be directed or
+undirected.
+\item[]
+\lstinline{0 <= source < num_vertices(graph)}.
+\item[]
+  The \lstinline{distance} range must be initialized so that \lstinline{distance[i] ==
+    \lstinline{std::numeric_limits<range_value_t<D>>::max()} for all \lstinline{i}
+    such that 0 <= i < num_vertices(graph)}.  \andrew{invalid_distance?}
+\item[]
+  The \lstinline{predecessors} range must be initialized so that
+  \lstinline{precessors[i] == i} for all \lstinline{i} such that 0 <= i <
+  num_vertices(graph)}.
+\end{itemize}
+\item[] Requirements: 
+\begin{itemize}
+\item[]
+The return type of weight function \lstinline{w} must be able to
+  be combined with the distance type \lstinline{D}.  The argument type for the weight
+  function \lstinline{w} must be convertible from the edge type.
+\end{itemize}
+\item[] 
+Effects: Compute the shortest path and associated distance from vertex
+\lstinline{source} to all reachable vertices in \lstinline{graph}.
+\item[] 
+Returns:
+\begin{itemize}
+\item[] For \lstinline{dijkstra_shortest_paths} and \lstinline{dijkstra_shortest_distances},
+  if vertex with index \lstinline{i} is reachable from vertex \lstinline{source}, then
+  \lstinline{distances[i]} will contain the distance from \lstinline{source} to vertex
+  \lstinline{i}.  If vertex \lstinline{i} is not reachable from vertex
+  \lstinline{source} then \lstinline{distances[i]} will contain
+  \lstinline{std::numeric_limits<range_value_t<D>>::max()}.
+\item[]
+For \lstinline{dijkstra_shortest_paths} if vertex with index \lstinline{i} is reachable
+from vertex \lstinline{source}, then \lstinline{predecessor[i]} will contain the
+predecessor vertex of vertex \lstinline{i}.  If vertex \lstinline{i} is not reachable
+from vertex \lstinline{source} then \lstinline{predecessors[i]} will contain
+\lstinline{i}.
+\end{itemize}
+%
+\item[] Complexity $\mathcal{O}((|E| + |V|)\log{|V|})$.  (Note: complexity may be
+$\mathcal{O}(|E| + |V|\log{|V|)}$ for certain implementations.)
+\item[] Throws: none. \andrew{Throw if \lstinline{source} out of range?}
+\end{itemize}
 
 
 \paragraph{Bellman-Ford Single Source}
@@ -600,26 +741,98 @@ void bellman_ford_shortest_paths(ExecutionPolicy&& e,
                                  Compare&&         comp,
                                  Combine&&         comb) {}
 
+template <class ExecutionPolicy, edge_list_graph G, property D>
+void bellman_ford_shortest_distances(ExecutionPolicy&& e,
+                                     const G&          graph,
+                                     vertex_id_t<G>    source,
+                                     D&&               distances);
+template <edge_list_graph G,
+          class W,
+          property D,
+          class Compare,
+          class Combine>
+requires weight_function<W, edge_t<G>>
+void bellman_ford_shortest_distances(const G&       graph,
+                                 vertex_id_t<G> source,
+                                 W&&            w,
+                                 D&&            distances,
+                                 Compare&&      comp,
+                                 Combine&&      comb) {}
+
+template <class ExecutionPolicy,
+          edge_list_graph G,
+          class W,
+          property D>
+requires weight_function<W, edge_t<G>>
+void bellman_ford_shortest_distances(ExecutionPolicy&& e,
+                                 const G&          graph,
+                                 vertex_id_t<G>    source,
+                                 W&&               w,
+                                 D&&               distances) {}
+
+template <class ExecutionPolicy,
+          edge_list_graph G,
+          class W,
+          property D,
+          class Compare,
+          class Combine>
+requires weight_function<W, edge_t<G>>
+void bellman_ford_shortest_distances(ExecutionPolicy&& e,
+                                 const G&          graph,
+                                 vertex_id_t<G>    source,
+                                 W&&               w,
+                                 D&&               distances,
+                                 Compare&&         comp,
+                                 Combine&&         comb) {}
 \end{lstlisting}
 
 
-
 \begin{itemize}
-\item[] Preconditions: g is a \lstinline{bidirectional_adjacency_list}, 
-which may be directed or undirected.  
-0 <= source < \lstinline{num_vertices(G)}.
-\item[] 
- Effects: Compute the shortest path and associated distances from vertex source to all reachable vertices.
-\item[] 
-Returns: If vertex with index target is reachable from vertex source, then predecessors[i] will contain the predecessor to vertex target in the breadth-first path from source to vertex target.  If vertex i is on the path from source to target, distances[i] will contain the distance from source to vertex target.  Otherwise, predecessors[i] will contain i and distances[i] will contain 
-\lstinline{std::numeric_limits<range_value_t<D>>::max()}.
-\item[] Throws: none.
-\item[] Complexity $\mathcal{O}(|E| \cdot |V|)$ \andrew{This really is atrocious.  Suitable only for really small graphs.}
+\begin{itemize}
+\item[]
+\lstinline{graph} is an \lstinline{adjacency_list}, which may be directed or
+undirected.
+\item[]
+\lstinline{0 <= source < num_vertices(graph)}.
+\item[]
+  The \lstinline{distance} range must be initialized so that \lstinline{distance[i] ==
+    \lstinline{std::numeric_limits<range_value_t<D>>::max()} for all \lstinline{i}
+    such that 0 <= i < num_vertices(graph)}.  \andrew{invalid_distance?}
+\item[]
+  The \lstinline{predecessors} range must be initialized so that
+  \lstinline{precessors[i] == i} for all \lstinline{i} such that 0 <= i <
+  num_vertices(graph)}.
 \end{itemize}
-
-
-
-
+\item[] Requirements: 
+\begin{itemize}
+\item[]
+The return type of weight function \lstinline{w} must be able to
+  be combined with the distance type \lstinline{D}.  The argument type for the weight
+  function \lstinline{w} must be convertible from the edge type.
+\end{itemize}
+\item[] 
+Effects: Compute the shortest path and associated distance from vertex
+\lstinline{source} to all reachable vertices in \lstinline{graph}.
+\item[] 
+Returns:
+\begin{itemize}
+\item[] For \lstinline{bellman_ford_shortest_paths} and \lstinline{bellman_ford_shortest_distances},
+  if vertex with index \lstinline{i} is reachable from vertex \lstinline{source}, then
+  \lstinline{distances[i]} will contain the distance from \lstinline{source} to vertex
+  \lstinline{i}.  If vertex \lstinline{i} is not reachable from vertex
+  \lstinline{source} then \lstinline{distances[i]} will contain
+  \lstinline{std::numeric_limits<range_value_t<D>>::max()}.
+\item[]
+For \lstinline{bellman_ford_shortest_paths} if vertex with index \lstinline{i} is reachable
+from vertex \lstinline{source}, then \lstinline{predecessor[i]} will contain the
+predecessor vertex of vertex \lstinline{i}.  If vertex \lstinline{i} is not reachable
+from vertex \lstinline{source} then \lstinline{predecessors[i]} will contain
+\lstinline{i}.
+\end{itemize}
+%
+\item[] Complexity $\mathcal{O}(|E| \cdot |V|)$ \andrew{This really is atrocious.  Suitable only for really small graphs.}
+\item[] Throws: none. \andrew{Throw if \lstinline{source} out of range?}
+\end{itemize}
 
 
 \paragraph{Delta-Stepping Single Source}
@@ -688,17 +901,114 @@ void delta_stepping_shortest_paths(ExecutionPolicy&& e,
                                    Combine&&         comb,
                                    T                 delta) {}
 
+
+template <class ExecutionPolicy,
+          adjacency_list_graph G,
+          class W,
+          property D>
+requires weight_function<W, edge_t<G>>
+void delta_stepping_shortest_distances(ExecutionPolicy&& e,
+                                       const G&          graph,
+                                       vertex_id_t<G>    source,
+                                       W&&               w,
+                                       D&&               distances) {}
+
+template <class ExecutionPolicy,
+          adjacency_list_graph G,
+          class W,
+          property D,
+          class Compare,
+          class Combine>
+requires weight_function<W, edge_t<G>>
+void delta_stepping_shortest_distances(ExecutionPolicy&& e,
+                                       const G&          graph,
+                                       vertex_id_t<G>    source,
+                                       W&&               w,
+                                       D&&               distances,
+                                       Compare&&         comp,
+                                       Combine&&         comb) {}
+
+template <class ExecutionPolicy,
+          adjacency_list_graph G,
+          class W,
+          property D,
+          class T>
+requires weight_function<W, edge_t<G>>
+void delta_stepping_shortest_distances(ExecutionPolicy&& e,
+                                       const G&          graph,
+                                       vertex_id_t<G>    source,
+                                       W&&               w,
+                                       D&&               distances,
+                                       T                 delta) {}
+
+template <class ExecutionPolicy,
+          adjacency_list_graph G,
+          class W,
+          property D,
+          class Compare,
+          class Combine,
+          class T>
+requires weight_function<W, edge_t<G>>
+void delta_stepping_shortest_distances(ExecutionPolicy&& e,
+                                       const G&          graph,
+                                       vertex_id_t<G>    source,
+                                       W&&               w,
+                                       D&&               distances,
+                                       Compare&&         comp,
+                                       Combine&&         comb,
+                                       T                 delta) {}
+
 \end{lstlisting}
 
 \begin{itemize}
-\item[] Preconditions: g is a \lstinline{bidirectional_adjacency_list}, which may be directed or undirected.  0 <= source < \lstinline{num_vertices(G)}.
+\item[] Delta-stepping is a parallelizable version of Dijkstra's shortest path algorithm.
+\item[] Preconditions:
+\begin{itemize}
+\item[]
+\lstinline{graph} is an \lstinline{adjacency_list}, which may be directed or
+undirected.
+\item[]
+\lstinline{0 <= source < num_vertices(graph)}.
+\item[]
+  The \lstinline{distance} range must be initialized so that \lstinline{distance[i] ==
+    \lstinline{std::numeric_limits<range_value_t<D>>::max()} for all \lstinline{i}
+    such that 0 <= i < num_vertices(graph)}.  \andrew{invalid_distance?}
+\item[]
+  The \lstinline{predecessors} range must be initialized so that
+  \lstinline{precessors[i] == i} for all \lstinline{i} such that 0 <= i <
+  num_vertices(graph)}.
+\end{itemize}
+\item[] Requirements: 
+\begin{itemize}
+\item[]
+The return type of weight function \lstinline{w} must be able to
+  be combined with the distance type \lstinline{D}.  The argument type for the weight
+  function \lstinline{w} must be convertible from the edge type.
+\end{itemize}
 \item[] 
-Effects: Compute the shortest path and associated distances from vertex source to all reachable vertices.
+Effects: Compute the shortest path and associated distance from vertex
+\lstinline{source} to all reachable vertices in \lstinline{graph}.
 \item[] 
-Returns: If vertex with index target is reachable from vertex source, then predecessors[i] will contain the predecessor to vertex target in the breadth-first path from source to vertex target.  If vertex i is on the path from source to target, distances[i] will contain the distance from source to vertex target.  Otherwise, predecessors[i] will contain i and distances[i] will contain 
-\lstinline{std::numeric_limits<range_value_t<D>>::max()}.
-\item[] Throws: none.
+Returns:
+\begin{itemize}
+\item[] For \lstinline{delta_stepping_shortest_paths} and \lstinline{delta_stepping_shortest_distances},
+  if vertex with index \lstinline{i} is reachable from vertex \lstinline{source}, then
+  \lstinline{distances[i]} will contain the distance from \lstinline{source} to vertex
+  \lstinline{i}.  If vertex \lstinline{i} is not reachable from vertex
+  \lstinline{source} then \lstinline{distances[i]} will contain
+  \lstinline{std::numeric_limits<range_value_t<D>>::max()}.
+\item[]
+For \lstinline{delta_stepping_shortest_paths} if vertex with index \lstinline{i} is reachable
+from vertex \lstinline{source}, then \lstinline{predecessor[i]} will contain the
+predecessor vertex of vertex \lstinline{i}.  If vertex \lstinline{i} is not reachable
+from vertex \lstinline{source} then \lstinline{predecessors[i]} will contain
+\lstinline{i}.
+\end{itemize}
+%
 \item[] Complexity $\mathcal{O}(|E| + |V| + d\cdot L)$, where d is maximum vertex degree in the graph and $L = \max_{v\in V} dist(v)$.
+\item[] Throws: none. \andrew{Throw if \lstinline{source} out of range?}
+\end{itemize}
+
 \end{itemize}
 
 
