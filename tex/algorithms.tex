@@ -34,66 +34,50 @@ concept queueable = requires(Q&& q, Q::value_type value) {
 
 \subsubsection{Shortest Paths Header Synopsis}
 
+\andrew{Note that NetworkX also specifies single source single target and multiple source versions of the shortest paths algorithms.  BGL does not have these (nor NWGraph).  We should discuss whether or not to consider those and whether or not to make them Tier 1, 2, 3, or infinity.}
+
+
 \begin{lstlisting}
 /*
 * Unified Functions
 */
-template <adjacency_list_graph G, property P, property D>
+template <adjacency_list_graph G, property D, property P>
 void shortest_paths(const G&       graph,
                     vertex_id_t<G> source,
-                    P&&            predecessors,
-                    D&&            distances);
+                    D&&            distances,
+                    P&&            predecessors);
 
-template <bidirectional_adjacency_list_graph G, property P, property D>
-void shortest_paths(const G&       graph,
-                    vertex_id_t<G> source,
-                    vertex_id_t<G> target,
-                    P&&            predecessors,
-                    D&&            distances);
-
-template <adjacency_list_graph G, class S, property P, property D>
-reguires std::ranges::forward_range<S>
-void shortest_paths(const G&       graph,
-                    S&& sources,
-                    vertex_id_t<G> target,
-                    P&&            predecessors,
-                    D&&            distances);
-
-template <class ExecutionPolicy, adjacency_list_graph G, property P, property D>
+template <class ExecutionPolicy, adjacency_list_graph G, property D, property P>
 void shortest_paths(ExecutionPolicy&& policy,
                     const G&          graph,
                     vertex_id_t<G>    source,
-                    P&&               predecessors,
-                    D&&               distances);
+                    D&&               distances,
+                    P&&               predecessors);
 
-template <class ExecutionPolicy, bidirectional_adjacency_list_graph G, property P, property D>
-void shortest_paths(ExecutionPolicy&& policy,
+
+template <adjacency_list_graph G, property D>
+void shortest_distances(const G&       graph,
+                    vertex_id_t<G> source,
+                    D&&            distances);
+
+template <class ExecutionPolicy, adjacency_list_graph G, property D>
+void shortest_distances(ExecutionPolicy&& policy,
                     const G&          graph,
                     vertex_id_t<G>    source,
-                    vertex_id_t<G>    target,
-                    P&&               predecessors,
                     D&&               distances);
 
-template <class ExecutionPolicy, adjacency_list_graph G, class S, property P, property D>
-reguires std::ranges::forward_range<S>
-void shortest_paths(ExecutionPolicy&& policy,
-                    const G&          graph,
-                    S&& sources,
-                    vertex_id_t<G>    target,
-                    P&&               predecessors,
-                    D&&               distances);
 
 /*
  * BFS: single source
  */
-template <adjacency_list_graph G, property P, property D>
+template <adjacency_list_graph G, property D, property P>
 void breadth_first_search(const G&       graph,
                           vertex_id_t<G> source,
                           P&&            predecessors,
                           D&&            distances);
 
 
-template <adjacency_list_graph G, property P, property D, queueable Q>
+template <adjacency_list_graph G, property D, property P, queueable Q>
 void breadth_first_search(const G&       graph,
                           vertex_id_t<G> source,
                           P&&            predecessors,
@@ -101,7 +85,7 @@ void breadth_first_search(const G&       graph,
                           Q&&            q);
 
 
-template <class ExecutionPolicy, adjacency_list_graph G, property P, property D>
+template <class ExecutionPolicy, adjacency_list_graph G, property D, property P>
 void breadth_first_search(ExecutionPolicy&& policy,
                           const G&          graph,
                           vertex_id_t<G>    source,
@@ -121,99 +105,53 @@ void breadth_first_search(ExecutionPolicy&& policy,
                           D&&               distances,
                           Q&&               q);
 
-
-/*
- * BFS: single source, single target
- */
-template <bidirectional_adjacency_list_graph G, property P, property D>
-void breadth_first_search(const G&       graph,
+template <adjacency_list_graph G, property D, property P>
+void breadth_first_distances(const G&       graph,
                           vertex_id_t<G> source,
-                          vertex_id_t<G> target,
-                          P&&            predecessors,
-                          D&&            distances);
-
-template <bidirectional_adjacency_list_graph G, property P, property D, queueable Q>
-void breadth_first_search(const G&       graph,
-                          vertex_id_t<G> source,
-                          vertex_id_t<G> target,
-                          P&&            predecessors,
                           D&&            distances,
+                          P&&            predecessors);
+
+
+template <adjacency_list_graph G, property D, property P, queueable Q>
+void breadth_first_distances(const G&       graph,
+                          vertex_id_t<G> source,
+                          D&&            distances,
+                          P&&            predecessors,
                           Q&&            q);
 
 
-template <class ExecutionPolicy, bidirectional_adjacency_list_graph G, property P, property D>
-void breadth_first_search(ExecutionPolicy&& policy,
+template <class ExecutionPolicy, adjacency_list_graph G, property D, property P>
+void breadth_first_distances(ExecutionPolicy&& policy,
                           const G&          graph,
                           vertex_id_t<G>    source,
-                          vertex_id_t<G>    target,
-                          P&&               predecessors,
-                          D&&               distances);
+                          D&&               distances,
+                          P&&               predecessors);
 
 
 template <class ExecutionPolicy,
-          bidirectional_adjacency_list_graph G,
+          adjacency_list_graph G,
           property             P,
           property             D,
           queueable            Q>
-void breadth_first_search(ExecutionPolicy&& policy,
+void breadth_first_distances(ExecutionPolicy&& policy,
                           const G&          graph,
                           vertex_id_t<G>    source,
-                          vertex_id_t<G>    target,
-                          P&&               predecessors,
                           D&&               distances,
+                          P&&               predecessors,
                           Q&&               q);
 
-/*
- * BFS: multiple source
- */
-template <adjacency_list_graph G, class S, property P, property D>
-requires std::ranges::forward_range<S>
-void breadth_first_search(const G&       graph,
-                          S&&            sources,
-                          P&&            predecessors,
-                          D&&            distances);
 
-template <adjacency_list_graph G, class S, property P, property D, queueable Q>
-requires std::ranges::forward_range<S>
-void breadth_first_search(
-      const G& graph, S&& sources, P&& predecessors, D&& distances, Q&& q);
-
-template <class ExecutionPolicy,
-          adjacency_list_graph G,
-          class S,
-          property P,
-          property D>
-requires std::ranges::forward_range<S>
-void breadth_first_search(ExecutionPolicy&& policy,
-                          const G&          graph,
-                          S&&               sources,
-                          P&&               predecessors,
-                          D&&               distances);
-
-template <class ExecutionPolicy,
-          adjacency_list_graph G,
-          class S,
-          property  P,
-          property  D,
-          queueable Q>
-requires std::ranges::forward_range<S>
-void breadth_first_search(ExecutionPolicy&& policy,
-                          const G&          graph,
-                          S&&               sources,
-                          P&&               predecessors,
-                          D&&               distances,
-                          Q&&               q);
 
 /*
  * Dijkstra: single source
  */
-template <adjacency_list_graph G, class W, property P, property D>
+template <adjacency_list_graph G, class W, property D, property P>
 requires weight_function<W, edge_t<G>>
 void dijkstra_shortest_paths(const G&       graph,
                              vertex_id_t<G> source,
                              W&&            w,
-                             P&&            predecessors,
-                             D&&            distances) {}
+                             D&&            distances,
+                             P&&            predecessors) {}
 
 template <adjacency_list_graph G,
           class W,
@@ -230,86 +168,107 @@ requires weight_function<W, edge_t<G>> &&
 typename D::value_type >> void dijkstra_shortest_paths(const G&       graph,
                                                        vertex_id_t<G> source,
                                                        W&&            w,
+                                                       D&&       distances,
                                                        P&&       predecessors,
+                                                       Compare&& comp,
+                                                       Combine&& comb) {}
+
+
+template <adjacency_list_graph G, class W, property D>
+requires weight_function<W, edge_t<G>>
+void dijkstra_shortest_distances(const G&       graph,
+                             vertex_id_t<G> source,
+                             W&&            w,
+                             D&&            distances) {}
+
+template <adjacency_list_graph G,
+          class W,
+          property D,
+          class Compare,
+          class Combine>
+requires weight_function<W, edge_t<G>> &&
+      std::strict_weak_order<Compare,
+                             typename D::value_type,
+                             typename D::value_type> &&
+      std::assignable_from < typename D::reference,
+      std::invoke_result_t < Combine, std::invoke_result_t<W, edge_t<G>>,
+typename D::value_type >> void dijkstra_shortest_distances(const G&       graph,
+                                                       vertex_id_t<G> source,
+                                                       W&&            w,
                                                        D&&       distances,
                                                        Compare&& comp,
                                                        Combine&& comb) {}
 
-/*
- * Dijkstra: single source, single target
- */
-template <bidirectional_adjacency_list_graph G, class W, property P, property D>
-requires weight_function<W, edge_t<G>>
-void dijkstra_shortest_paths(const G&       graph,
-                             vertex_id_t<G> source,
-                             vertex_id_t<G> target,
-                             W&&            w,
-                             P&&            predecessors,
-                             D&&            distances) {}
-
-template <bidirectional_adjacency_list_graph G,
-          class W,
-          property P,
-          property D,
-          class Compare,
-          class Combine>
-requires weight_function<W, edge_t<G>>
-void dijkstra_shortest_paths(const G&       graph,
-                             vertex_id_t<G> source,
-                             vertex_id_t<G> target,
-                             W&&            w,
-                             P&&            predecessors,
-                             D&&            distances,
-                             Compare&&      comp,
-                             Combine&&      comb) {}
-
-
-/*
- * Dijkstra: multiple source
- */
-template <adjacency_list_graph G, class S, class W, property P, property D>
-requires weight_function<W, edge_t<G>> && std::ranges::forward_range<S>
-void dijkstra_shortest_paths(
-      const G& graph, S&& sources, W&& w, P&& predecessors, D&& distances) {}
-
-template <adjacency_list_graph G,
-          class S,
-          class W,
-          property P,
-          property D,
-          class Compare,
-          class Combine>
-requires weight_function<W, edge_t<G>> && std::ranges::forward_range<S>
-void dijkstra_shortest_paths(const G&  graph,
-                             S&&       sources,
-                             W&&       w,
-                             P&&       predecessors,
-                             D&&       distances,
-                             Compare&& comp,
-                             Combine&& comb) {}
-
-template <class ExecutionPolicy, edge_list_graph G, property P, property D>
-void bellman_ford_shortest_paths(ExecutionPolicy&& e,
-                                 const G&          graph,
-                                 vertex_id_t<G>    source,
-                                 P&&               predecessors,
-                                 D&&               distances);
 
 
 /*
  * Bellman-Ford: single source
  */
+template <class ExecutionPolicy, edge_list_graph G, property D, property P>
+void bellman_ford_shortest_paths(ExecutionPolicy&& e,
+                                 const G&          graph,
+                                 vertex_id_t<G>    source,
+                                 P&&               predecessors,
+                                 D&&               distances);
 template <edge_list_graph G,
           class W,
-          property P,
           property D,
+          property P,
           class Compare,
           class Combine>
 requires weight_function<W, edge_t<G>>
 void bellman_ford_shortest_paths(const G&       graph,
                                  vertex_id_t<G> source,
                                  W&&            w,
+                                 D&&            distances,
                                  P&&            predecessors,
+                                 Compare&&      comp,
+                                 Combine&&      comb) {}
+
+template <class ExecutionPolicy,
+          edge_list_graph G,
+          class W,
+          property D,
+          property P>
+requires weight_function<W, edge_t<G>>
+void bellman_ford_shortest_paths(ExecutionPolicy&& e,
+                                 const G&          graph,
+                                 vertex_id_t<G>    source,
+                                 W&&               w,
+                                 D&&               distances,
+                                 P&&               predecessors) {}
+
+template <class ExecutionPolicy,
+          edge_list_graph G,
+          class W,
+          property D,
+          property P,
+          class Compare,
+          class Combine>
+requires weight_function<W, edge_t<G>>
+void bellman_ford_shortest_paths(ExecutionPolicy&& e,
+                                 const G&          graph,
+                                 vertex_id_t<G>    source,
+                                 W&&               w,
+                                 D&&               distances,
+                                 P&&               predecessors,
+                                 Compare&&         comp,
+                                 Combine&&         comb) {}
+
+template <class ExecutionPolicy, edge_list_graph G, property D>
+void bellman_ford_shortest_distances(ExecutionPolicy&& e,
+                                     const G&          graph,
+                                     vertex_id_t<G>    source,
+                                     D&&               distances);
+template <edge_list_graph G,
+          class W,
+          property D,
+          class Compare,
+          class Combine>
+requires weight_function<W, edge_t<G>>
+void bellman_ford_shortest_distances(const G&       graph,
+                                 vertex_id_t<G> source,
+                                 W&&            w,
                                  D&&            distances,
                                  Compare&&      comp,
                                  Combine&&      comb) {}
@@ -317,91 +276,29 @@ void bellman_ford_shortest_paths(const G&       graph,
 template <class ExecutionPolicy,
           edge_list_graph G,
           class W,
-          property P,
           property D>
 requires weight_function<W, edge_t<G>>
-void bellman_ford_shortest_paths(ExecutionPolicy&& e,
+void bellman_ford_shortest_distances(ExecutionPolicy&& e,
                                  const G&          graph,
                                  vertex_id_t<G>    source,
                                  W&&               w,
-                                 P&&               predecessors,
                                  D&&               distances) {}
 
 template <class ExecutionPolicy,
           edge_list_graph G,
           class W,
-          property P,
           property D,
           class Compare,
           class Combine>
 requires weight_function<W, edge_t<G>>
-void bellman_ford_shortest_paths(ExecutionPolicy&& e,
+void bellman_ford_shortest_distances(ExecutionPolicy&& e,
                                  const G&          graph,
                                  vertex_id_t<G>    source,
                                  W&&               w,
-                                 P&&               predecessors,
                                  D&&               distances,
                                  Compare&&         comp,
                                  Combine&&         comb) {}
 
-/*
- * Bellman-Ford: single source, single target
- */
-template <edge_list_graph G, class W, property P, property D>
-requires weight_function<W, edge_t<G>>
-void bellman_ford_shortest_paths(const G&       graph,
-                                 vertex_id_t<G> source,
-                                 vertex_id_t<G> target,
-                                 W&&            w,
-                                 P&&            predecessors,
-                                 D&&            distances) {}
-
-template <edge_list_graph G,
-          class W,
-          property P,
-          property D,
-          class Compare,
-          class Combine>
-requires weight_function<W, edge_t<G>>
-void bellman_ford_shortest_paths(const G&       graph,
-                                 vertex_id_t<G> source,
-                                 vertex_id_t<G> target,
-                                 W&&            w,
-                                 P&&            predecessors,
-                                 D&&            distances,
-                                 Compare&&      comp,
-                                 Combine&&      comb) {}
-
-template <class ExecutionPolicy,
-          edge_list_graph G,
-          class W,
-          property P,
-          property D>
-requires weight_function<W, edge_t<G>>
-void bellman_ford_shortest_paths(ExecutionPolicy&& e,
-                                 const G&          graph,
-                                 vertex_id_t<G>    source,
-                                 vertex_id_t<G>    target,
-                                 W&&               w,
-                                 P&&               predecessors,
-                                 D&&               distances) {}
-
-template <class ExecutionPolicy,
-          edge_list_graph G,
-          class W,
-          property P,
-          property D,
-          class Compare,
-          class Combine>
-requires weight_function<W, edge_t<G>>
-void bellman_ford_shortest_paths(const G&       graph,
-                                 vertex_id_t<G> source,
-                                 vertex_id_t<G> target,
-                                 W&&            w,
-                                 P&&            predecessors,
-                                 D&&            distances,
-                                 Compare&&      comp,
-                                 Combine&&      comb) {}
 
 /*
  * Delta stepping: single source
@@ -409,21 +306,21 @@ void bellman_ford_shortest_paths(const G&       graph,
 template <class ExecutionPolicy,
           adjacency_list_graph G,
           class W,
-          property P,
-          property D>
+          property D,
+          property P>
 requires weight_function<W, edge_t<G>>
 void delta_stepping_shortest_paths(ExecutionPolicy&& e,
                                    const G&          graph,
                                    vertex_id_t<G>    source,
                                    W&&               w,
-                                   P&&               predecessors,
-                                   D&&               distances) {}
+                                   D&&               distances,
+                                   P&&               predecessors) {}
 
 template <class ExecutionPolicy,
           adjacency_list_graph G,
           class W,
-          property P,
           property D,
+          property P,
           class Compare,
           class Combine>
 requires weight_function<W, edge_t<G>>
@@ -431,31 +328,31 @@ void delta_stepping_shortest_paths(ExecutionPolicy&& e,
                                    const G&          graph,
                                    vertex_id_t<G>    source,
                                    W&&               w,
-                                   P&&               predecessors,
                                    D&&               distances,
+                                   P&&               predecessors,
                                    Compare&&         comp,
                                    Combine&&         comb) {}
 
 template <class ExecutionPolicy,
           adjacency_list_graph G,
           class W,
-          property P,
           property D,
+          property P,
           class T>
 requires weight_function<W, edge_t<G>>
 void delta_stepping_shortest_paths(ExecutionPolicy&& e,
                                    const G&          graph,
                                    vertex_id_t<G>    source,
                                    W&&               w,
-                                   P&&               predecessors,
                                    D&&               distances,
+                                   P&&               predecessors,
                                    T                 delta) {}
 
 template <class ExecutionPolicy,
           adjacency_list_graph G,
           class W,
-          property P,
           property D,
+          property P,
           class Compare,
           class Combine,
           class T>
@@ -464,154 +361,70 @@ void delta_stepping_shortest_paths(ExecutionPolicy&& e,
                                    const G&          graph,
                                    vertex_id_t<G>    source,
                                    W&&               w,
-                                   P&&               predecessors,
                                    D&&               distances,
+                                   P&&               predecessors,
                                    Compare&&         comp,
                                    Combine&&         comb,
                                    T                 delta) {}
 
-/*
- * Delta stepping: single source, single target
- */
-
 template <class ExecutionPolicy,
-          bidirectional_adjacency_list_graph G,
+          adjacency_list_graph G,
           class W,
-          property P,
           property D>
 requires weight_function<W, edge_t<G>>
-void delta_stepping_shortest_paths(ExecutionPolicy&& e,
-                                   const G&          graph,
-                                   vertex_id_t<G>    source,
-                                   vertex_id_t<G>    target,
-                                   W&&               w,
-                                   P&&               predecessors,
-                                   D&&               distances) {}
+void delta_stepping_shortest_distances(ExecutionPolicy&& e,
+                                       const G&          graph,
+                                       vertex_id_t<G>    source,
+                                       W&&               w,
+                                       D&&               distances) {}
 
 template <class ExecutionPolicy,
-          bidirectional_adjacency_list_graph G,
+          adjacency_list_graph G,
           class W,
-          property P,
           property D,
           class Compare,
           class Combine>
 requires weight_function<W, edge_t<G>>
-void delta_stepping_shortest_paths(const G&       graph,
-                                   vertex_id_t<G> source,
-                                   vertex_id_t<G> target,
-                                   W&&            w,
-                                   P&&            predecessors,
-                                   D&&            distances,
-                                   Compare&&      comp,
-                                   Combine&&      comb) {}
+void delta_stepping_shortest_distances(ExecutionPolicy&& e,
+                                       const G&          graph,
+                                       vertex_id_t<G>    source,
+                                       W&&               w,
+                                       D&&               distances,
+                                       Compare&&         comp,
+                                       Combine&&         comb) {}
 
 template <class ExecutionPolicy,
-          bidirectional_adjacency_list_graph G,
+          adjacency_list_graph G,
           class W,
-          property P,
           property D,
           class T>
 requires weight_function<W, edge_t<G>>
-void delta_stepping_shortest_paths(ExecutionPolicy&& e,
-                                   const G&          graph,
-                                   vertex_id_t<G>    source,
-                                   vertex_id_t<G>    target,
-                                   W&&               w,
-                                   P&&               predecessors,
-                                   D&&               distances,
-                                   T                 delta) {}
+void delta_stepping_shortest_distances(ExecutionPolicy&& e,
+                                       const G&          graph,
+                                       vertex_id_t<G>    source,
+                                       W&&               w,
+                                       D&&               distances,
+                                       T                 delta) {}
 
 template <class ExecutionPolicy,
-          bidirectional_adjacency_list_graph G,
+          adjacency_list_graph G,
           class W,
-          property P,
           property D,
           class Compare,
           class Combine,
           class T>
 requires weight_function<W, edge_t<G>>
-void delta_stepping_shortest_paths(const G&       graph,
-                                   vertex_id_t<G> source,
-                                   vertex_id_t<G> target,
-                                   W&&            w,
-                                   P&&            predecessors,
-                                   D&&            distances,
-                                   Compare&&      comp,
-                                   Combine&&      comb,
-                                   T              delta) {}
-
-/*
- * Delta stepping: multiple source
- */
-template <class ExecutionPolicy,
-          adjacency_list_graph G,
-          class S,
-          class W,
-          property P,
-          property D>
-requires weight_function<W, edge_t<G>> && std::ranges::forward_range<S>
-void delta_stepping_shortest_paths(ExecutionPolicy&& e,
-                                   const G&          graph,
-                                   S&&               sources,
-                                   W&&               w,
-                                   P&&               predecessors,
-                                   D&&               distances) {}
-
-template <class ExecutionPolicy,
-          adjacency_list_graph G,
-          class S,
-          class W,
-          property P,
-          property D,
-          class Compare,
-          class Combine>
-requires weight_function<W, edge_t<G>> && std::ranges::forward_range<S>
-void delta_stepping_shortest_paths(ExecutionPolicy&& e,
-                                   const G&          graph,
-                                   S&&               sources,
-                                   W&&               w,
-                                   P&&               predecessors,
-                                   D&&               distances,
-                                   Compare&&         comp,
-                                   Combine&&         comb) {}
-
-template <class ExecutionPolicy,
-          adjacency_list_graph G,
-          class S,
-          class W,
-          property P,
-          property D,
-          class T>
-requires weight_function<W, edge_t<G>> && std::ranges::forward_range<S>
-void delta_stepping_shortest_paths(ExecutionPolicy&& e,
-                                   const G&          graph,
-                                   S&&               sources,
-                                   W&&               w,
-                                   P&&               predecessors,
-                                   D&&               distances,
-                                   T                 delta) {}
-
-template <class ExecutionPolicy,
-          adjacency_list_graph G,
-          class S,
-          class W,
-          property P,
-          property D,
-          class Compare,
-          class Combine,
-          class T>
-requires weight_function<W, edge_t<G>> && std::ranges::forward_range<S>
-void delta_stepping_shortest_paths(ExecutionPolicy&& e,
-                                   const G&          graph,
-                                   S&&               sources,
-                                   W&&               w,
-                                   P&&               predecessors,
-                                   D&&               distances,
-                                   Compare&&         comp,
-                                   Combine&&         comb,
-                                   T                 delta) {}
+void delta_stepping_shortest_distances(ExecutionPolicy&& e,
+                                       const G&          graph,
+                                       vertex_id_t<G>    source,
+                                       W&&               w,
+                                       D&&               distances,
+                                       Compare&&         comp,
+                                       Combine&&         comb,
+                                       T                 delta) {}
 
 \end{lstlisting}
+
 
 
 
@@ -627,50 +440,20 @@ For each function we have shortest paths, s-t paths, multi-source paths, paralle
 
 
 \begin{lstlisting}
-template <adjacency_list_graph G, property P, property D>
+template <adjacency_list_graph G, property D, property P>
 void shortest_paths(const G&       graph,
                     vertex_id_t<G> source,
                     P&&            predecessors,
                     D&&            distances);
 
-template <bidirectional_adjacency_list_graph G, property P, property D>
-void shortest_paths(const G&       graph,
-                    vertex_id_t<G> source,
-                    vertex_id_t<G> target,
-                    P&&            predecessors,
-                    D&&            distances);
 
-template <adjacency_list_graph G, class S, property P, property D>
-reguires std::ranges::forward_range<S>
-void shortest_paths(const G&       graph,
-                    S&& sources,
-                    vertex_id_t<G> target,
-                    P&&            predecessors,
-                    D&&            distances);
-
-template <class ExecutionPolicy, adjacency_list_graph G, property P, property D>
+template <class ExecutionPolicy, adjacency_list_graph G, property D, property P>
 void shortest_paths(ExecutionPolicy&& policy,
                     const G&          graph,
                     vertex_id_t<G>    source,
                     P&&               predecessors,
                     D&&               distances);
 
-template <class ExecutionPolicy, bidirectional_adjacency_list_graph G, property P, property D>
-void shortest_paths(ExecutionPolicy&& policy,
-                    const G&          graph,
-                    vertex_id_t<G>    source,
-                    vertex_id_t<G>    target,
-                    P&&               predecessors,
-                    D&&               distances);
-
-template <class ExecutionPolicy, adjacency_list_graph G, class S, property P, property D>
-reguires std::ranges::forward_range<S>
-void shortest_paths(ExecutionPolicy&& policy,
-                    const G&          graph,
-                    S&& sources,
-                    vertex_id_t<G>    target,
-                    P&&               predecessors,
-                    D&&               distances);
 \end{lstlisting}
 
 
@@ -680,14 +463,14 @@ void shortest_paths(ExecutionPolicy&& policy,
 
 \paragraph{Breadth-First Search, Single Source}
 \begin{lstlisting}
-template <adjacency_list_graph G, property P, property D>
+template <adjacency_list_graph G, property D, property P>
 void breadth_first_search(const G&       graph,
                           vertex_id_t<G> source,
                           P&&            predecessors,
                           D&&            distances);
 
 
-template <adjacency_list_graph G, property P, property D, queueable Q>
+template <adjacency_list_graph G, property D, property P, queueable Q>
 void breadth_first_search(const G&       graph,
                           vertex_id_t<G> source,
                           P&&            predecessors,
@@ -695,7 +478,7 @@ void breadth_first_search(const G&       graph,
                           Q&&            q);
 
 
-template <class ExecutionPolicy, adjacency_list_graph G, property P, property D>
+template <class ExecutionPolicy, adjacency_list_graph G, property D, property P>
 void breadth_first_search(ExecutionPolicy&& policy,
                           const G&          graph,
                           vertex_id_t<G>    source,
@@ -716,98 +499,18 @@ void breadth_first_search(ExecutionPolicy&& policy,
                           Q&&               q);
 
 \end{lstlisting}
+
 \begin{itemize}
-\item[] \item{Preconditions:} 
-\item[] \item{Constraints:}
-\item[] \item{Effects:}
-\item[] \item{Complexity:} 
-\item[] \item{Throws:} 
+\item[] Preconditions: g is an \lstinline{adjacency_list}, which may be directed or undirected.  \lstinline{0 <= seed < num_vertices(G)}.
+\item[] 
+Effects: Compute the breadth-first path and associated distance from vertex seed to all reachable vertices in g.
+\item[] 
+Returns: If vertex with index i is reachable from vertex seed, then predecessors[i] will contain the predecessor to vertex i in the breadth-first path from seed to vertex i.  Distances[I] will contain the distance from seed to vertex i.  Otherwise, predecessors[I] will contain i and distances[I] will contain \lstinline{std::numeric_limits<range_value_t<D>>::max()}.
+\item[] Complexity $\mathcal{O}(|E| + |V|)$
+\item[] Throws: none. \andrew{Throw if seed out of range?}
 \end{itemize}
 
 
-\paragraph{Breadth-First Search, Single Source Single Target}
-\begin{lstlisting}
-template <bidirectional_adjacency_list_graph G, property P, property D>
-void breadth_first_search(const G&       graph,
-                          vertex_id_t<G> source,
-                          vertex_id_t<G> target,
-                          P&&            predecessors,
-                          D&&            distances);
-
-template <bidirectional_adjacency_list_graph G, property P, property D, queueable Q>
-void breadth_first_search(const G&       graph,
-                          vertex_id_t<G> source,
-                          vertex_id_t<G> target,
-                          P&&            predecessors,
-                          D&&            distances,
-                          Q&&            q);
-
-
-template <class ExecutionPolicy, bidirectional_adjacency_list_graph G, property P, property D>
-void breadth_first_search(ExecutionPolicy&& policy,
-                          const G&          graph,
-                          vertex_id_t<G>    source,
-                          vertex_id_t<G>    target,
-                          P&&               predecessors,
-                          D&&               distances);
-
-
-template <class ExecutionPolicy,
-          bidirectional_adjacency_list_graph G,
-          property             P,
-          property             D,
-          queueable            Q>
-void breadth_first_search(ExecutionPolicy&& policy,
-                          const G&          graph,
-                          vertex_id_t<G>    source,
-                          vertex_id_t<G>    target,
-                          P&&               predecessors,
-                          D&&               distances,
-                          Q&&               q);
-
-\end{lstlisting}
-
-\paragraph{Breadth-First Search, Multiple Sources}
-\begin{lstlisting}
-template <adjacency_list_graph G, class S, property P, property D>
-requires std::ranges::forward_range<S>
-void breadth_first_search(const G&       graph,
-                          S&&            sources,
-                          P&&            predecessors,
-                          D&&            distances);
-
-template <adjacency_list_graph G, class S, property P, property D, queueable Q>
-requires std::ranges::forward_range<S>
-void breadth_first_search(
-      const G& graph, S&& sources, P&& predecessors, D&& distances, Q&& q);
-
-template <class ExecutionPolicy,
-          adjacency_list_graph G,
-          class S,
-          property P,
-          property D>
-requires std::ranges::forward_range<S>
-void breadth_first_search(ExecutionPolicy&& policy,
-                          const G&          graph,
-                          S&&               sources,
-                          P&&               predecessors,
-                          D&&               distances);
-
-template <class ExecutionPolicy,
-          adjacency_list_graph G,
-          class S,
-          property  P,
-          property  D,
-          queueable Q>
-requires std::ranges::forward_range<S>
-void breadth_first_search(ExecutionPolicy&& policy,
-                          const G&          graph,
-                          S&&               sources,
-                          P&&               predecessors,
-                          D&&               distances,
-                          Q&&               q);
-
-\end{lstlisting}
 
 
 \subsubsection{Weighted Shortest Paths}
@@ -815,7 +518,7 @@ void breadth_first_search(ExecutionPolicy&& policy,
 \paragraph{Dijkstra Single Source}
 
 \begin{lstlisting}
-template <adjacency_list_graph G, class W, property P, property D>
+template <adjacency_list_graph G, class W, property D, property P>
 requires weight_function<W, edge_t<G>>
 void dijkstra_shortest_paths(const G&       graph,
                              vertex_id_t<G> source,
@@ -845,71 +548,12 @@ typename D::value_type >> void dijkstra_shortest_paths(const G&       graph,
 
 \end{lstlisting}
 
-\paragraph{Dijkstra Single Source, Single Target}
-\begin{lstlisting}
-template <bidirectional_adjacency_list_graph G, class W, property P, property D>
-requires weight_function<W, edge_t<G>>
-void dijkstra_shortest_paths(const G&       graph,
-                             vertex_id_t<G> source,
-                             vertex_id_t<G> target,
-                             W&&            w,
-                             P&&            predecessors,
-                             D&&            distances) {}
-
-template <bidirectional_adjacency_list_graph G,
-          class W,
-          property P,
-          property D,
-          class Compare,
-          class Combine>
-requires weight_function<W, edge_t<G>>
-void dijkstra_shortest_paths(const G&       graph,
-                             vertex_id_t<G> source,
-                             vertex_id_t<G> target,
-                             W&&            w,
-                             P&&            predecessors,
-                             D&&            distances,
-                             Compare&&      comp,
-                             Combine&&      comb) {}
 
 
-\end{lstlisting}
-
-
-\paragraph{Dijkstra Multiple Source}
-\begin{lstlisting}
-template <adjacency_list_graph G, class S, class W, property P, property D>
-requires weight_function<W, edge_t<G>> && std::ranges::forward_range<S>
-void dijkstra_shortest_paths(
-      const G& graph, S&& sources, W&& w, P&& predecessors, D&& distances) {}
-
-template <adjacency_list_graph G,
-          class S,
-          class W,
-          property P,
-          property D,
-          class Compare,
-          class Combine>
-requires weight_function<W, edge_t<G>> && std::ranges::forward_range<S>
-void dijkstra_shortest_paths(const G&  graph,
-                             S&&       sources,
-                             W&&       w,
-                             P&&       predecessors,
-                             D&&       distances,
-                             Compare&& comp,
-                             Combine&& comb) {}
-
-template <class ExecutionPolicy, edge_list_graph G, property P, property D>
-void bellman_ford_shortest_paths(ExecutionPolicy&& e,
-                                 const G&          graph,
-                                 vertex_id_t<G>    source,
-                                 P&&               predecessors,
-                                 D&&               distances);
-
-\end{lstlisting}
 
 
 \paragraph{Bellman-Ford Single Source}
+
 \begin{lstlisting}
 template <edge_list_graph G,
           class W,
@@ -958,65 +602,24 @@ void bellman_ford_shortest_paths(ExecutionPolicy&& e,
 
 \end{lstlisting}
 
-\paragraph{Bellman-Ford Single Source, Single Target}
-\begin{lstlisting}
-template <edge_list_graph G, class W, property P, property D>
-requires weight_function<W, edge_t<G>>
-void bellman_ford_shortest_paths(const G&       graph,
-                                 vertex_id_t<G> source,
-                                 vertex_id_t<G> target,
-                                 W&&            w,
-                                 P&&            predecessors,
-                                 D&&            distances) {}
 
-template <edge_list_graph G,
-          class W,
-          property P,
-          property D,
-          class Compare,
-          class Combine>
-requires weight_function<W, edge_t<G>>
-void bellman_ford_shortest_paths(const G&       graph,
-                                 vertex_id_t<G> source,
-                                 vertex_id_t<G> target,
-                                 W&&            w,
-                                 P&&            predecessors,
-                                 D&&            distances,
-                                 Compare&&      comp,
-                                 Combine&&      comb) {}
 
-template <class ExecutionPolicy,
-          edge_list_graph G,
-          class W,
-          property P,
-          property D>
-requires weight_function<W, edge_t<G>>
-void bellman_ford_shortest_paths(ExecutionPolicy&& e,
-                                 const G&          graph,
-                                 vertex_id_t<G>    source,
-                                 vertex_id_t<G>    target,
-                                 W&&               w,
-                                 P&&               predecessors,
-                                 D&&               distances) {}
+\begin{itemize}
+\item[] Preconditions: g is a \lstinline{bidirectional_adjacency_list}, 
+which may be directed or undirected.  
+0 <= source < \lstinline{num_vertices(G)}.
+\item[] 
+ Effects: Compute the shortest path and associated distances from vertex source to all reachable vertices.
+\item[] 
+Returns: If vertex with index target is reachable from vertex source, then predecessors[i] will contain the predecessor to vertex target in the breadth-first path from source to vertex target.  If vertex i is on the path from source to target, distances[i] will contain the distance from source to vertex target.  Otherwise, predecessors[i] will contain i and distances[i] will contain 
+\lstinline{std::numeric_limits<range_value_t<D>>::max()}.
+\item[] Throws: none.
+\item[] Complexity $\mathcal{O}(|E| \cdot |V|)$ \andrew{This really is atrocious.  Suitable only for really small graphs.}
+\end{itemize}
 
-template <class ExecutionPolicy,
-          edge_list_graph G,
-          class W,
-          property P,
-          property D,
-          class Compare,
-          class Combine>
-requires weight_function<W, edge_t<G>>
-void bellman_ford_shortest_paths(const G&       graph,
-                                 vertex_id_t<G> source,
-                                 vertex_id_t<G> target,
-                                 W&&            w,
-                                 P&&            predecessors,
-                                 D&&            distances,
-                                 Compare&&      comp,
-                                 Combine&&      comb) {}
 
-\end{lstlisting}
+
+
 
 
 \paragraph{Delta-Stepping Single Source}
@@ -1087,152 +690,144 @@ void delta_stepping_shortest_paths(ExecutionPolicy&& e,
 
 \end{lstlisting}
 
-\paragraph{Delta-Stepping Single Source, Single Target}
-\begin{lstlisting}
-template <class ExecutionPolicy,
-          bidirectional_adjacency_list_graph G,
-          class W,
-          property P,
-          property D>
-requires weight_function<W, edge_t<G>>
-void delta_stepping_shortest_paths(ExecutionPolicy&& e,
-                                   const G&          graph,
-                                   vertex_id_t<G>    source,
-                                   vertex_id_t<G>    target,
-                                   W&&               w,
-                                   P&&               predecessors,
-                                   D&&               distances) {}
-
-template <class ExecutionPolicy,
-          bidirectional_adjacency_list_graph G,
-          class W,
-          property P,
-          property D,
-          class Compare,
-          class Combine>
-requires weight_function<W, edge_t<G>>
-void delta_stepping_shortest_paths(const G&       graph,
-                                   vertex_id_t<G> source,
-                                   vertex_id_t<G> target,
-                                   W&&            w,
-                                   P&&            predecessors,
-                                   D&&            distances,
-                                   Compare&&      comp,
-                                   Combine&&      comb) {}
-
-template <class ExecutionPolicy,
-          bidirectional_adjacency_list_graph G,
-          class W,
-          property P,
-          property D,
-          class T>
-requires weight_function<W, edge_t<G>>
-void delta_stepping_shortest_paths(ExecutionPolicy&& e,
-                                   const G&          graph,
-                                   vertex_id_t<G>    source,
-                                   vertex_id_t<G>    target,
-                                   W&&               w,
-                                   P&&               predecessors,
-                                   D&&               distances,
-                                   T                 delta) {}
-
-template <class ExecutionPolicy,
-          bidirectional_adjacency_list_graph G,
-          class W,
-          property P,
-          property D,
-          class Compare,
-          class Combine,
-          class T>
-requires weight_function<W, edge_t<G>>
-void delta_stepping_shortest_paths(const G&       graph,
-                                   vertex_id_t<G> source,
-                                   vertex_id_t<G> target,
-                                   W&&            w,
-                                   P&&            predecessors,
-                                   D&&            distances,
-                                   Compare&&      comp,
-                                   Combine&&      comb,
-                                   T              delta) {}
-
-\end{lstlisting}
+\begin{itemize}
+\item[] Preconditions: g is a \lstinline{bidirectional_adjacency_list}, which may be directed or undirected.  0 <= source < \lstinline{num_vertices(G)}.
+\item[] 
+Effects: Compute the shortest path and associated distances from vertex source to all reachable vertices.
+\item[] 
+Returns: If vertex with index target is reachable from vertex source, then predecessors[i] will contain the predecessor to vertex target in the breadth-first path from source to vertex target.  If vertex i is on the path from source to target, distances[i] will contain the distance from source to vertex target.  Otherwise, predecessors[i] will contain i and distances[i] will contain 
+\lstinline{std::numeric_limits<range_value_t<D>>::max()}.
+\item[] Throws: none.
+\item[] Complexity $\mathcal{O}(|E| + |V| + d\cdot L)$, where d is maximum vertex degree in the graph and $L = \max_{v\in V} dist(v)$.
+\end{itemize}
 
 
-\paragraph{Delta-Stepping Multiple Sources}
-\begin{lstlisting}
-template <class ExecutionPolicy,
-          adjacency_list_graph G,
-          class S,
-          class W,
-          property P,
-          property D>
-requires weight_function<W, edge_t<G>> && std::ranges::forward_range<S>
-void delta_stepping_shortest_paths(ExecutionPolicy&& e,
-                                   const G&          graph,
-                                   S&&               sources,
-                                   W&&               w,
-                                   P&&               predecessors,
-                                   D&&               distances) {}
 
-template <class ExecutionPolicy,
-          adjacency_list_graph G,
-          class S,
-          class W,
-          property P,
-          property D,
-          class Compare,
-          class Combine>
-requires weight_function<W, edge_t<G>> && std::ranges::forward_range<S>
-void delta_stepping_shortest_paths(ExecutionPolicy&& e,
-                                   const G&          graph,
-                                   S&&               sources,
-                                   W&&               w,
-                                   P&&               predecessors,
-                                   D&&               distances,
-                                   Compare&&         comp,
-                                   Combine&&         comb) {}
 
-template <class ExecutionPolicy,
-          adjacency_list_graph G,
-          class S,
-          class W,
-          property P,
-          property D,
-          class T>
-requires weight_function<W, edge_t<G>> && std::ranges::forward_range<S>
-void delta_stepping_shortest_paths(ExecutionPolicy&& e,
-                                   const G&          graph,
-                                   S&&               sources,
-                                   W&&               w,
-                                   P&&               predecessors,
-                                   D&&               distances,
-                                   T                 delta) {}
+\andrew{I've tagged the algorithms below as Tier 1, Tier 2, or Tier 3 -- denoting whether they should be done right now or done later or done much later.}
 
-template <class ExecutionPolicy,
-          adjacency_list_graph G,
-          class S,
-          class W,
-          property P,
-          property D,
-          class Compare,
-          class Combine,
-          class T>
-requires weight_function<W, edge_t<G>> && std::ranges::forward_range<S>
-void delta_stepping_shortest_paths(ExecutionPolicy&& e,
-                                   const G&          graph,
-                                   S&&               sources,
-                                   W&&               w,
-                                   P&&               predecessors,
-                                   D&&               distances,
-                                   Compare&&         comp,
-                                   Combine&&         comb,
-                                   T                 delta) {}
+\andrew{I've used NetworkX as inspiration for organization.  Oddly, NetworkX only has DFS as an adaptor (view).}
 
-\end{lstlisting}
+
+\subsection{Shortest Paths}
+\subsubsection{BFS Single Source, Single Target}
+\andrew{Tier X}
+\subsubsection{Dijkstra Single Source, Single Target}
+\andrew{Tier X}
+\subsubsection{Bellman-Ford Single Source, Single Target}
+\andrew{Tier X}
+\subsubsection{Delta Stepping Single Source, Single Target}
+\andrew{Tier X}
+
+\subsubsection{BFS Multiple Source}
+\andrew{Tier X}
+\subsubsection{Dijkstra Multiple Source}
+\andrew{Tier X}
+\subsubsection{Bellman-Ford Multiple Source}
+\andrew{Tier X}
+\subsubsection{Delta Stepping Multiple Source}
+\andrew{Tier X}
+
+\subsubsection{BFS Multiple Source, Single Target}
+\andrew{Tier X}
+\subsubsection{Dijkstra Multiple Source, Single Target}
+\andrew{Tier X}
+\subsubsection{Bellman-Ford Multiple Source, Single Target}
+\andrew{Tier X}
+\subsubsection{Delta Stepping Multiple Source, Single Target}
+\andrew{Tier X}
+
+\subsubsection{All Pairs}
+\andrew{Tier 2?  People bring this up alot -- but it is very computationally expensive.}
+
+\subsection{Centrality}
+\subsubsection{Betweenness Centrality}
+\andrew{Tier 2}
+
+\subsection{Clustering}
+\subsubsection{Triangle Counting}
+\andrew{Tier 1}
+
+\subsection{Coloring}
+\subsubsection{Greedy}
+\andrew{Tier 2}
+\subsubsection{Jones Plassman}
+\andrew{Tier 3}
+
+\subsection{Communities}
+\subsubsection{Label Propagation}
+\andrew{Tier 1}
+\subsubsection{Louvain}
+\andrew{Tier 2}
+
+\subsection{Components}
+\subsubsection{Articulation Points}
+\andrew{Tier 1}
+\subsubsection{BiConnected Components}
+\andrew{Tier 1}
+\subsubsection{Connected Components}
+\andrew{Tier 1}
+\subsubsection{Strongly Connected Components}
+\andrew{Tier 1}
+
+\subsection{Connectivity}
+\subsubsection{Minimum Cuts}
+\andrew{Tier 2}
+
+\subsection{Cores}
+\subsubsection{k-cores}
+\andrew{Tier 3}
+\subsubsection{k-truss}
+\andrew{Tier 3}
+
+\subsection{DAG}
+\subsubsection{Topological Sort}
+\andrew{Tier 1}
+\subsubsection{Transitive Closure}
+\andrew{Tier 2}
+
+\subsection{Flows}
+\subsubsection{Edmunds Karp}
+\andrew{Tier 2}
+\subsubsection{Push Relabel}
+\andrew{Tier 2}
+\subsubsection{Boykov Kolmogorov}
+\andrew{Tier 2}
+
+\subsection{Isomorphism}
+\subsubsection{Subgraph Isomorphism}
+\andrew{Tier 3}
+
+\subsection{Link Analysis}
+\subsubsection{Page Rank}
+\andrew{Tier 2}
+\subsubsection{Jaccard Coefficient}
+\andrew{Tier 2}
+
+\subsection{Maximal Independent Set}
+\subsubsection{Maximal Independent Set}
+\andrew{Tier 1}
+
+\subsection{Minimum Spanning Tree}
+\subsubsection{Kruskal Minimum Spanning Tree}
+\andrew{Tier 1}
+\subsubsection{Prim Minimum Spanning Tree}
+\andrew{Tier 1}
+
+\subsection{Operators}
+\subsubsection{Transpose}
+\andrew{Tier 1}
+\subsubsection{Join}
+\andrew{Tier 1}
+\subsubsection{Degree}
+\andrew{Tier 1}
+
 
 
 
 \begin{comment}
+
+
 %Algorithms with [TBD] are candidates to consider but having been decided for being in the paper
 %We are targeting the paper to be under 50pp
 All algorithms are customization points.
