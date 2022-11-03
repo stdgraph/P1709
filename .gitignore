@@ -283,3 +283,10 @@ TSWLatexianTemp*
 
 # Avoid Mac files
 .DS_Store
+
+# We have some sources
+*.o
+*.exe
+
+# Scrap
+
