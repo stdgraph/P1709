@@ -1,111 +1,154 @@
+% algorithms: 
+% views: 
+% containers: adjacency matrix
+% data model: incoming edges on a vertex
+
 \section{Introduction}
-This document proposes the addition of \textbf{graph algorithms}, \textbf{graph views}, \textbf{graph container interface} and a \textbf{graph container implementation} to the C++ library to support \textbf{machine learning} (ML), as well as other applications. ML is a large and growing field, both in the \textbf{research community} and \textbf{industry}, that has received a great deal of attention in recent years. This paper presents an \textbf{interface} of the proposed algorithms, views, graph functions and containers.
 
-\subsection{Motivation}
-Graphs, used in ML and other \textbf{scientific} domains, as well as \textbf{industrial} and \textbf{general} programming, do \textbf{not} presently exist in the C++ standard. In ML, a graph forms the underlying structure of an \textbf{artificial neural network} (ANN). In a \textbf{game}, a graph can be used to
-represent the \textbf{map} of a game world. In \textbf{business} environments, graphs arise as \textbf{entity relationship diagrams} (ERD) or \textbf{data flow diagrams} (DFD). In the realm of \textbf{social media}, a graph represents a \textbf{social network}.
+\andrew{Where should we put our motivating example (Kevin Bacon game)?}
 
-\subsection{Goals and Priorities}
-\begin{itemize}
-\item Follow the separation of algorithms, ranges, views and containers established by the standard library.
-\item All free functions should be customization point objects, unless there's a good reason not to. Reasonable default implementations should be provided whenever possible.
-\item Graph algorithms have the following characteristics
-\begin{itemize}
-\item Support syntax that is simple, expressive and easy to understand. This should not compromise the ability to write high-performance algorithms.
-\item Vertices are required to be in random access containers with an integral vertex\_id in this proposal.
-\end{itemize}
-\item Graph views provide common traversals of a graph's vertices and edges that is more concise and consistant than using the graph container interface directly. They include simple traversals like vertexlist (all vertices in the graph) and incidence edges (edges on a vertex), as well as more complex traversals like depth-first and breath-first searches.
-\item The Graph Container Interface provides a consistent interface that can be used by algorithms and views. It has the following characteristics:
-\begin{itemize}
-\item The interface models an adjacency graph container, which is an outer range of vertices with an inner range of outgoing (a.k.a. incidence) edges on each vertex. 
-\item Definition of concepts, types, type traits, type aliases, and functions used by algorithms and views.
-\begin{itemize}
-\item Type traits will be defined that can be overridden for each graph container to give additional hints that can be used by algorithms to refine their behavior, such as adjacency\_matrix and unordered\_edge.
-\end{itemize}
-\item Support of optional user-defined value types on an edge, vertex and/or the graph itself.
-\item Allow for useful extensions of the graph data model in future proposals or in external graph implementations. 
-\end{itemize}
-\item Provide an initial suite of useful functionality that includes algorithms, views, container interface, and at least one container implementation.
-\end{itemize}
 
-\subsection{What this proposal is  \textbf{not}}
-This paper limits itself to adjacency graphs only, including an outer range of vertices with an inner range of outgoing edges on each vertex. It also includes an edgelist of all edges in the graph, either as a edgelist view or a simple range with a source\_id and target\_id. 
+\subsection{Graph Background and Terminology}
 
-\hl{Bipartite graphs} are being investigated. A general design has been established and it needs to be implemented to validate that it will work and see what areas of the design are impacted.
+We use commonly accepted terminology for graph data structures and algorithms and 
+adopt the particular terminology used in the textbook by
+Cormen, Leiserson, Rivest, and Stein (``CLRS'')~\cite{CLRS2022}.
 
-Parallel versions of the algorithms are not included for several reasons. The executors proposal in P2300r5 \cite{REF_P2300r5} is expected to introduce new and better ways to do parallel algorithms beyond that used in the parallel STL algorithms and we would like to wait for finalization of that proposal before committing to parallel implementations. Secondly, many graph algorithms don't benefit from parallel implementations so there is less need to offer an implementation. Lastly, it will help limit the size of this proposal which is already looking to be large without it. It is expected that future proposals will be submitted for parallel graph algorithms. 
+A \emph{graph} $G$ is a set comprised of two other sets, the vertex set $V$ and the edge set $E$, 
+typically expressed as $G=\{V,E\}$.  We can number the members of the vertex set
+and write $V = \{ v_0, v_1, \ldots , v_{n-1} \}$.  Similarly, we can write $E = \{ e_0, e_1, \ldots, e_{m-1} \}$.  The number of elements in $V$ is denoted by $|V|$ and the number of elements in $E$ is denoted by $|E|$.  Edges in $E$ are pairs of vertices; for any $e_k \in E$, we write $e_k = ( v_i, v_j )$, where $v_i \in V$ and $v_j\in V$.  The edges in $E$ may be \emph{uordered}, in which case $(v_i, v_j) = (v_j, v_i)$ or \emph{ordered}, in which case $(v_i, v_j) \neq (v_j, v_i)$ (unless $i = j$).
+A graph consisting of unordered edges is said to be \emph{undirected}; 
+a graph consisting of ordered edges is said to be \emph{directed}.  Since there is a single set of vertices in this definition of $G$, we say $G$ is a \emph{unipartite} graph.
 
-Incoming edges on a vertex are not included, though it is hoped that a future proposal will be made for them.
 
-The algorithms and views in this proposal expect that vertex\_ids are densly assigned in a random access range, but it does not exclude the possibility of sparsely-defined vertex\_ids stored in containers like \tcode{std::map} or \tcode{std::unordered_map} in future proposals. 
+\subsection{Graph Models}
 
-The algorithms and views in this proposal expect that vertex\_ids are integal, but it does not exclude non-integral or user-defined types in future proposals.
+\andrew{The idea here is to illustrate the progression from data to a graph.}
 
-Hypergraphs are not supported.
 
-\subsection{Impact on the Standard}
-This proposal is a pure \textbf{library} extension.
+\subsubsection{Edge List}
 
-\subsection{Interaction wtih Other Papers}
-There is no interaction with other proposals to the standard.
+\andrew{Essentially a direct realization of $G=\{V, E\}$.}
 
-\subsection{Implementation Experience}
-The github \href{https://github.com/stdgraph}{stdgraph} repository contains an implementation for this proposal.
 
-\subsection{Usage Experience}
-\subsection{Deployment Experience}
-\subsection{Performance Considerations}
-The algorithms are being ported from NWGraph to the \href{https://github.com/stdgraph}{stdgraph} implementation used for this proposal. Performance analysis from those algorithms can be found in the peer-reviewed paper for NWGraph \cite{REF_nwgraph_paper}.
+\subsubsection{Nodes and Links}
 
-\subsection{Prior Art}
-\textbf{boost::graph} has been an important C++ graph implementation since 2001. It was developed with the goal to provide
-a modern library that addressed all the needs someone would want of a graph library. It is still a viable library used today,
-attesting to the value it brings.
+\andrew{A direct realization of vertices (circles) connected by edges (arrows).}
 
-However, boost::graph was written using C++98 and added many unneccesary abstractions that makes it difficult
-to use by a casual developer. 
 
-Andrew is a co-author of boost::graph.
-\\
+\subsubsection{Adjacency List}
 
-\textbf{NWGraph} (\cite{REF_nwgraph_library} and \cite{REF_nwgraph_paper}) was published in 2022
-by Lumsdaine et al, bringing additional experience gained since creating boost::graph, to create a modern graph library using C++20 that
-was more accessible to the average developer with the latest algorithms.
+\andrew{Representation necessary for useful graph algorithms.  Present essentials of definition in CLRS.}
 
-While NWGraph made
-important strides, there are some areas that don't conform to established expectations in the Standard Library. Examples
-include using parameter packs to define multiple value types for an edge, rather than a single type; a focus on only defing value types on edges, but not vertices or the graph; there is no defined way to
-integrate existing graph containers to be used by the algorithms.
-\\
 
-This proposal takes the best of NWGraph, with previous work done for P1709 to define a Graph Container Interface, to provide a library that
-embraces performance, ease-of-use and the ability to use the algorithms and views on externally defined graph containers.
+\subsection{Implementations}
 
-\subsection{Alternatives}
-There are no known alternative graph library we're aware of that meets the same requirements and uses concepts and ranges from C++20.
 
-%Later revisions should include this:
-%\subsection{Changes Library Evolution previously requested}
+\subsubsection{Edge List: Array of Structs / Struct of Arrays}
 
-\subsection{Feature Test Macro}
-The \tcode{__cpp_lib_graph} feature test macro is recommended to represent all features in this proposal including algorithms, views, concepts, traits, types, functions and graph container(s).
+\andrew{Edges can be stored as tuples (or tuple like) basically in parallel arrays (like a ranges::zip).}
 
-Future features could extend the name for new features. For instance, \tcode{__cpp_lib_graph_partite_container} could be used if an n-partite graph container were added in later C++ versions.
 
-\subsection{Freestanding}
-We believe this library can be used in a freestanding C++ implementation.
+\subsubsection{Vertices and Edges: Node Objects and Link Objects}
 
-\subsection{Namespaces}
-Graph containers and their views and algorithms are not interchangeable with existing containers and algorithms.
-It is believed that they are unique enough to warrant their own namespaces and is used in this proposal.
-\begin{itemize}
-\item[]\tcode{std::graph}
-\item[]\tcode{std::graph::views}
-\end{itemize}
+\andrew{ala Stanford Graph Base (et al).}
 
-\noindent
-Alternative locations for the above respective namespaces could also be as follows:
-\begin{itemize}
-\item[]\tcode{std::ranges}
-\item[]\tcode{std::ranges::views}
-\end{itemize}
+
+\subsubsection{Adjacency List: Container of Containers}
+
+\andrew{An adjacency list can be represented as a container of containers (e.g., std::vector<std::list>).  Talk about range of ranges when we talk about library interfaces, requirements, concepts.}
+
+
+\subsubsection{Edge List and Adjacency List: Compressed Edge List}
+
+\andrew{Using a sort and group-by (or a sort, a run-length encoding, and a scan), we can compactify the edge-list reprentation and at the same time obtain an adjacency-list representation -- one that is memory and compute efficient.  Best of both worlds.  Has same basic structural principles as CSR / CSC matrices in linear algebra -- but much more general.}
+
+
+\subsection{BiPartite Graphs}
+
+So far, we have been considering graphs where the vertices, and both elements of an
+edge, are members of a single set $|V|$.  A graph with a single vertex set is called a
+\emph{unipartite} graph.  If the vertices in a graph can be partitioned into two
+disjoint sets such that all of the edges in the graph only connect vertices from one
+set of the vertices of the other set, the graph is called a \emph{bipartite} graph.
+
+Although any (unipartite) graph can be analyzed to determine whether it can be partitioned into a bipartite graph, 
+in a program such a partitioning would be a run-time property of aa graph.  Of particular interest for realizing a bipartite graph is when the graph is structurally bipartite, that is when we are explicitly given two different sets of vertices and the corresponding set of edges that connect vertices of the two sets.  This common---and important---use case arises when modeling relationships between different types of entities.  For example, we might use a structurally bipartite graph in which one vertex set represents customers and another vertex set represents products.  An edge between a customer and a product would be used to indicate that a customer has purchased a particular product.
+
+\andrew{$G = \{U, V, E\}$ or even $G = \{U, V, E, F\}$}
+
+
+\subsubsection{BiPartite Graph Models}
+
+
+\subsubsection{BiPartite Graph Implementations}
+
+
+\subsection{Relationship between Graphs and Sparse Matrices}
+
+
+
+\subsection{Naming Conventions}
+
+
+Table \ref{tab:name_conv} shows the naming conventions used throughout this document. 
+
+\begin{table}[h!]
+\begin{center}
+{\begin{tabular}{l l l p{7cm}}
+\hline
+    \textbf{Template} & & \textbf{Variable} & \\
+    \textbf{Parameter} & \textbf{Type Alias} & \textbf{Names} & \textbf{Description} \\
+\hline
+    \tcode{G} & & & Graph \\
+    & \tcode{graph_reference_t<G>} & \tcode{g} & Graph reference \\
+    \tcode{GV} &  & \tcode{val} & Graph Value, value or reference \\
+\hline
+    \tcode{V} & \tcode{vertex_t<G>} & & Vertex \\
+    & \tcode{vertex_reference_t<G>} & \tcode{u,v,x,y} & Vertex reference. \tcode{u} is the source (or only) vertex. \tcode{v} is the target vertex. \\
+    \tcode{VId} & \tcode{vertex_id_t<G>} & \tcode{uid,vid,seed} & Vertex id. \tcode{uid} is the source (or only) vertex id. \tcode{vid} is the target vertex id. \\
+    \tcode{VV} &  \tcode{vertex_value_t<G>} & \tcode{val} & Vertex Value, value or reference. This can be either the user-defined value on a vertex, or a value returned by a function object (e.g. \tcode{VVF}) that is related to the vertex. \\
+    \tcode{VR} &  \tcode{vertex_range_t<G>} & \tcode{ur,vr} & Vertex Range \\
+    \tcode{VI} & \tcode{vertex_iterator_t<G>} & \tcode{ui,vi} & Vertex Iterator. \tcode{ui} is the source (or only) vertex. \\
+                    &  & \tcode{first,last} & \tcode{vi} is the target vertex. \\
+    \tcode{VVF} & & \tcode{vvf} & Vertex Value Function: vvf(u) $\rightarrow$ value \\
+\hline
+    \tcode{E} & \tcode{edge_t<G>} & & Edge \\
+    & \tcode{edge_reference_t<G>} & \tcode{uv,vw} & Edge reference. \tcode{uv} is an edge from vertices \tcode{u} to \tcode{v}. \tcode{vw} is an edge from vertices \tcode{v} to \tcode{w}.  \\
+    \tcode{EV} &  \tcode{edge_value_t<G>} & \tcode{val} & Edge Value, value or reference. This can be either the user-defined value on an edge, or a value returned by a function object (e.g. \tcode{EVF}) that is related to the edge. \\
+    \tcode{ER} &  \tcode{vertex_edge_range_t<G>} & & Edge Range for edges of a vertex \\
+    \tcode{EI} & \tcode{vertex_edge_iterator_t<G>} & \tcode{uvi,vwi} & Edge Iterator for an edge of a vertex. \tcode{uvi} is an iterator for an edge from vertices \tcode{u} to \tcode{v}. \tcode{vwi} is an iterator for an edge from vertices \tcode{v} to \tcode{w}. \\
+    \tcode{EVF} & & \tcode{evf} & Edge Value Function: evf(uv) $\rightarrow$ value \\
+\hline
+\end{tabular}}
+\caption{Naming Conventions for Types and Variables}
+\label{tab:name_conv}
+\end{center}
+\end{table}
+
+\begin{comment}
+\subsection{Graph Definition}
+ A \textit{graph} \cite{REF_graph} $G = (V, E)$ is a set of \textit{vertices} \cite{REF_graph} $V$, \textbf{points} in a space, and \textit{edges} \cite{REF_graph} $E$, \textbf{links} between these vertices. Edges may or may not be \textbf{oriented}, that is, \textit{directed} \cite{REF_graph} or \textit{undirected} \cite{REF_graph}, respectively. Moreover, edges may be \textit{weighted} \cite{REF_graph}, that is, assigned a value. Both \textbf{static} and \textbf{dynamic} implementations of a graph exist, specifically a (static) \textbf{matrix}, each having the typical advantages and disadvantages associated with static and dynamic data structures.
+
+\subsubsection{Adjacency List}
+%% adjacency graph, vertex, edge
+%% incidence, neighbors (adjacency)
+%% optional user-defined values for edge, vertex, graph
+
+\subsubsection{Edge List}
+% range with source_id & target_id members, and optional value member(s)
+% edgelist view
+
+\end{comment}
+
+\subsection{Examples}
+
+\andrew{I am not sure these belong here.  None of the library details have actually
+  been explained so there will be alot of code that won't have been explained.  E.g.,
+  all of the CPOs.  The motivating Kevin Bacon example is self-contained and simple
+  enough to motivate the rest of the introduction. }
+
+\subsubsection{Implementing a Graph Algorithm}
+
+\subsubsection{Implementing a Graph Type}
+
