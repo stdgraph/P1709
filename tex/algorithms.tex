@@ -32,16 +32,10 @@ concept queueable = requires(Q&& q, Q::value_type value) {
 \andrew{To keep code snippets here consistent with real working code, we use lstinputlistings to grab code from alg\_synopsis.hpp and use prototypes.cpp to compile.}
 
 
-\subsubsection{Shortest Paths Header Synopsis}
+
 
 \andrew{Note that NetworkX also specifies single source single target and multiple source versions of the shortest paths algorithms.  BGL does not have these (nor NWGraph).  We should discuss whether or not to consider those and whether or not to make them Tier 1, 2, 3, or infinity.}
 
-
-\andrew{This takes up alot of space -- perhaps better at the end after all -- or not at all for a proposal -- might fit better into actual final standard doc.}
-%\lstinputlisting[firstline=300,lastline=500]{file.cc}
-{\small
-\lstinputlisting{src/alg_synopsis.hpp}
-}
 
 
 

@@ -48,13 +48,9 @@ a graph consisting of ordered edges is said to be \emph{directed}.  Since there 
 
 \subsection{Graph Models}
 
-\andrew{The idea here is to illustrate the progression from data to a graph.}
-
-
 \subsubsection{Edge List}
 
 \andrew{Essentially a direct realization of $G=\{V, E\}$.}
-
 
 \subsubsection{Nodes and Links}
 
@@ -64,6 +60,11 @@ a graph consisting of ordered edges is said to be \emph{directed}.  Since there 
 \subsubsection{Adjacency List}
 
 \andrew{Representation necessary for useful graph algorithms.  Present essentials of definition in CLRS.}
+
+
+\subsection{From Data to Graph}
+
+\andrew{Illustrate the progression from data to a graph.}
 
 
 \subsection{Implementations}
@@ -81,8 +82,12 @@ a graph consisting of ordered edges is said to be \emph{directed}.  Since there 
 
 \subsubsection{Adjacency List: Container of Containers}
 
-\andrew{An adjacency list can be represented as a container of containers (e.g., std::vector<std::list>).  Talk about range of ranges when we talk about library interfaces, requirements, concepts.}
+\andrew{An adjacency list can be represented as a container of containers (e.g., std::vector<std::list>).  Talk about range of ranges when we talk about library interfaces, requirements, concepts.  Note here that the structure of an adjacency list does not capture directedness -- directedness is a run-time property.}
 
+
+\subsubsection{From Edge List to Adjacency List}
+
+\andrew{Scan edge list and insert edgest into adjacency list.  Adjacency list must support insertion.}
 
 \subsubsection{Edge List and Adjacency List: Compressed Edge List}
 
