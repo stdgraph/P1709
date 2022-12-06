@@ -1,4 +1,6 @@
-\documentclass[10pt,onecolumn]{article}
+%% \documentclass[10pt,onecolumn]{article}
+\documentclass[10pt,oneside,openany,final]{memoir}
+
 
 \usepackage[
 	left=0.75in,
@@ -13,6 +15,8 @@
 \usepackage{comment}
 
 %% \usepackage{url}  %% use hyperref instead
+
+\usepackage{enumitem}
 
 %% Define colors
 \usepackage[hyperref]{xcolor}
@@ -53,12 +57,12 @@
 %% \lstset{basicstyle=\lstsansserif}
 %% To handle numbers:
 %% cf. https://tex.stackexchange.com/questions/34896/coloring-digits-with-the-listings-package
-\usepackage{listings}
+\usepackage[final]{listings}
 \lstset
 {
   language=[11]C++,
   backgroundcolor=\color{bs_highlight_background},
-  basicstyle=\ttfamily\small, % \bf\ttfamily,
+  basicstyle=\ttfamily,
   breaklines=true,
   commentstyle=\color{bs_comment_single},
   keywordstyle=\color{bs_keyword},
@@ -100,57 +104,90 @@
 \graphicspath{{figs/}}
 
 %% Shortcut for inline code
-\newcommand{\tcode}[1]{\lstinline[breaklines=true]{#1}}
+\newcommand{\tcode}[1]{%
+  \lstinline[breaklines=true,columns=fullflexible]{#1}
+}
 
-\newcommand{\xcomment}[2]{{\color{xcomment}[{\sc #1:} \textsf{#2}]}}
+% \usepackage{underscore}   % remove special status of '_' in ordinary text
+\usepackage{parskip}
+
+\newcommand{\xcomment}[2]{{\color{xcomment}[{\textsc{#1:}} \textsf{#2}]}}
 \newcommand{\phil}[1]{\xcomment{Phil}{#1}}
 \newcommand{\andrew}[1]{\xcomment{Andrew}{#1}}
 \newcommand{\kevin}[1]{\xcomment{Kevin}{#1}}
 \newcommand{\muhammad}[1]{\xcomment{Muhammad}{#1}}
 
+\input{niko/layout}
+\input{niko/styles}
+\input{niko/macros}
+\input{niko/tables}
 
 
 \begin{document}
+\chapterstyle{cppstd}
+\pagestyle{cpppage}
+\input{niko/config}
 
-\begin{titlepage}
-~
-\vfill
-\begin{center}
-\LARGE
-\textbf{\hl{D1709R4} Graph Library}\\
-\vspace{12pt}
-\normalsize
-	Phillip Ratzloff (SAS Institute)\\
-	Andrew Lumsdaine (TileDB/University of Washington)\\
-\end{center}
-\vspace{32pt}
-\begin{tabular}{ll}
-\textbf{Document Number:} & \hl{D1709R4} \\
-\textbf{Date:} & \hl{December, 2022 (goal)} (mailing)\\ 
-\textbf{Project:} & ISO JTC1/SC22/WG21: Programming Language C++\\
-\textbf{Audience:} & SG19, WG21, LEWG\\
-\textbf{Source:} & \href{https://github.com/stdgraph/graph-v2}{Github} \\
-\textbf{Issue Tracking:} & \href{https://github.com/stdgraph/graph-v2/issues}{Github} \\
-\textbf{Contributors:}
-	&Richard Dosselmann (University of Regina)\\
-	&Michael Wong (Codeplay)\\
-	&Matthew Galati (Amazon)\\	
-	&Jens Maurer\\
-	&Domagoj Saric\\
-	&Jesun Firoz\\
-	&Kevin Deweese\\
-\textbf{Emails:}
-	&\texttt{Phil.Ratzloff@sas.com}\\
-	&\texttt{Andrew.Lumsdaine@tiledb.com}\\
-	&\texttt{dosselmr@cs.uregina.ca}\\
-	&\texttt{michael@codeplay.com}\\
-	&\texttt{magalati@amazon.com}\\
-\textbf{Reply to:}
-	&\texttt{\textbf{Phil.Ratzloff@sas.com}}\\
+\begin{tabular}{@{}ll}
+Project:  	& ISO JTC1/SC22/WG21: Programming Language C++ \\
+Doc No: 	& WG21 D1709R4 \\
+Date: 		& 2022-12-06 \\
+Reply to: 	& Phil Ratzloff (phil.ratzloff@sas.com), \\
+                &         Andrew Lumsdaine (lumsdaine@gmail.com) \\
+                &         Billy O'Neal (bion@microsoft.com) \\
+                &         Herb Sutter (hsutter@microsoft.com), \\
+                &         Anthony Williams (anthony@justsoftwaresolutions.co.uk) \\
+Contributors:	& Richard Dosselmann (University of Regina)\\
+                & Michael Wong (Codeplay)\\
+                & Matthew Galati (Amazon)\\      
+                & Jens Maurer\\
+                & Domagoj Saric\\
+                & Jesun Firoz\\
+                & Kevin Deweese\\
+Audience: 	& SG1, LEWG, LWG \\
+Source:         & \href{https://github.com/stdgraph/graph-v2}{Github} \\
+% Prev. Version:	& \url{www.wg21.link/P0660R9}, \url{www.wg21.link/P1287R0} \\
 \end{tabular}
-\vfill
-~
-\end{titlepage}
+
+%% \begin{titlepage}
+%% ~
+%% \vfill
+%% \begin{center}
+%% \LARGE
+%% \textbf{\hl{D1709R4} Graph Library}\\
+%% \vspace{12pt}
+%% \normalsize
+%% 	Phillip Ratzloff (SAS Institute)\\
+%% 	Andrew Lumsdaine (TileDB/University of Washington)\\
+%% \end{center}
+%% \vspace{32pt}
+%% \begin{tabular}{ll}
+%% \textbf{Document Number:} & \hl{D1709R4} \\
+%% \textbf{Date:} & \hl{December, 2022 (goal)} (mailing)\\ 
+%% \textbf{Project:} & ISO JTC1/SC22/WG21: Programming Language C++\\
+%% \textbf{Audience:} & SG19, WG21, LEWG\\
+%% \textbf{Source:} & \href{https://github.com/stdgraph/graph-v2}{Github} \\
+%% \textbf{Issue Tracking:} & \href{https://github.com/stdgraph/graph-v2/issues}{Github} \\
+%% \textbf{Contributors:}
+%% 	&Richard Dosselmann (University of Regina)\\
+%% 	&Michael Wong (Codeplay)\\
+%% 	&Matthew Galati (Amazon)\\	
+%% 	&Jens Maurer\\
+%% 	&Domagoj Saric\\
+%% 	&Jesun Firoz\\
+%% 	&Kevin Deweese\\
+%% \textbf{Emails:}
+%% 	&\texttt{Phil.Ratzloff@sas.com}\\
+%% 	&\texttt{Andrew.Lumsdaine@tiledb.com}\\
+%% 	&\texttt{dosselmr@cs.uregina.ca}\\
+%% 	&\texttt{michael@codeplay.com}\\
+%% 	&\texttt{magalati@amazon.com}\\
+%% \textbf{Reply to:}
+%% 	&\texttt{\textbf{Phil.Ratzloff@sas.com}}\\
+%% \end{tabular}
+%% \vfill
+%% ~
+%% \end{titlepage}
 
 \tableofcontents
 

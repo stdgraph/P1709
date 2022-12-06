@@ -1,6 +1,6 @@
-\section{Tier 1 Algorithms}
+\chapter{Tier 1 Algorithms}
 
-\subsection{Algorithm Concepts}
+\section{Algorithm Concepts}
 Additional concepts used by algorithms.
 
 \begin{lstlisting}
@@ -10,7 +10,7 @@ concept edge_weight_function = // e.g. weight(uv)
 \end{lstlisting}
 
 \begin{lstlisting}
-// queueable<Q> can represent std::queue and std::priority_queue
+// queueable<Q> can represent std::queue and std::priority\_queue
 template <class Q>
 concept queueable = requires(Q&& q, Q::value_type value) {
   Q::value_type;
@@ -27,7 +27,7 @@ concept queueable = requires(Q&& q, Q::value_type value) {
 
 
 
-\subsection{Shortest Paths}
+\section{Shortest Paths}
 
 \andrew{To keep code snippets here consistent with real working code, we use lstinputlistings to grab code from alg\_synopsis.hpp and use prototypes.cpp to compile.}
 
@@ -39,7 +39,7 @@ concept queueable = requires(Q&& q, Q::value_type value) {
 
 
 
-\subsubsection{Driver Interface}
+\subsection{Driver Interface}
 
 \andrew{I am not sure we should have the unified interface.  We need to be more parsimonious in our interfaces.  Users can read the documentation for which algorithms to use.  And, if they are using graph algorithms, we should assume a certain level of knowledge about graph algorithms.  OTOH, it is only a handful of algorithms.}
 
@@ -54,64 +54,62 @@ For each function we have shortest paths, s-t paths, multi-source paths, paralle
 
 \andrew{The variety of algorithms was inspired by networkx....  Which also had ``distance'' variants.}
 
-\subsubsection{Unweighted Shortest Paths: Breadth-First Search}
+\subsection{Unweighted Shortest Paths: Breadth-First Search}
 
-\paragraph{Breadth-First Search, Single Source, Initialization}
+\subsubsection{Breadth-First Search, Single Source, Initialization}
 
 {\small
 \lstinputlisting[firstline=48,lastline=60]{src/alg_synopsis.hpp}
 }
 
+\begin{itemdescr}
+\effects
 \begin{itemize}
-\item[] 
-Effects:
-\begin{itemize}
-\item[]
+\item 
   Each \lstinline{predessors[i]} is initialized to \lstinline{i}.
-\item[] Each 
+\item Each 
 \lstinline{distance[i]} is initialized to \lstinline{std::numeric_limits::max()}
 or to \lstinline{init}.
 \end{itemize}
-\end{itemize}
+\end{itemdescr}
 
 
-\paragraph{Breadth-First Search, Single Source}
+\subsubsection{Breadth-First Search, Single Source}
 
 {\small
 \lstinputlisting[firstline=65,lastline=104]{src/alg_synopsis.hpp}
 }
 
+\begin{itemdescr}
+\pnum\preconditions
 \begin{itemize}
-\item[] Preconditions:
-\begin{itemize}
-\item[]
+\item
 \lstinline{graph} is an \lstinline{adjacency_list}, which may be directed or
 undirected.
-\item[]
+\item
 \lstinline{0 <= source < num_vertices(graph)}.
-\item[]
+
+\item
   The \lstinline{distance} range must be initialized so that 
     \lstinline{distance[i] == \lstinline{std::numeric_limits<range_value_t<D>>::max()} 
     for all \lstinline{i}
     such that \lstinline{0 <= i < num_vertices(graph)}.  \andrew{invalid distance?}
-\item[]
+\item
   The \lstinline{predecessors} range must be initialized so that
   \lstinline{precessors[i] == i} for all \lstinline{i} such that 
   \lstinline{0 <= i <  num_vertices(graph)}.
 \end{itemize}
-\item[] 
-Effects: Compute the breadth-first path and associated distance from vertex
+\pnum\effects Compute the breadth-first path and associated distance from vertex
 \lstinline{source} to all reachable vertices in \lstinline{graph}.
-\item[] 
-Returns:
+\pnum\returns
 \begin{itemize}
-\item[] For \lstinline{breadth_first_search} and \lstinline{breadth_first_distance},
+\item For \lstinline{breadth_first_search} and \lstinline{breadth_first_distance},
   if vertex with index \lstinline{i} is reachable from vertex \lstinline{source}, then
   \lstinline{distances[i]} will contain the distance from \lstinline{source} to vertex
   \lstinline{i}.  If vertex \lstinline{i} is not reachable from vertex
   \lstinline{source} then \lstinline{distances[i]} will contain
   \lstinline{std::numeric_limits<range_value_t<D>>::max()}.
-\item[]
+\item
 For \lstinline{breadth_first_search} if vertex with index \lstinline{i} is reachable
 from vertex \lstinline{source}, then \lstinline{predecessor[i]} will contain the
 predecessor vertex of vertex \lstinline{i}.  If vertex \lstinline{i} is not reachable
@@ -119,14 +117,14 @@ from vertex \lstinline{source} then \lstinline{predecessors[i]} will contain
 \lstinline{i}.
 \end{itemize}
 %
-\item[] Complexity $\mathcal{O}(|E| + |V|)$
-\item[] Throws: none. \andrew{Throw if \lstinline{source} out of range?}
-\end{itemize}
+\pnum\complexity $\mathcal{O}(|E| + |V|)$
+\pnum\throws: none. \andrew{Throw if \lstinline{source} out of range?}
+\end{itemdescr}
 
 
-\subsubsection{Weighted Shortest Paths}
+\subsection{Weighted Shortest Paths}
 
-\paragraph{Dijkstra Initialization}
+\subsubsection{Dijkstra Initialization}
 
 {\small
 \lstinputlisting[firstline=109,lastline=138]{src/alg_synopsis.hpp}
@@ -134,69 +132,69 @@ from vertex \lstinline{source} then \lstinline{predecessors[i]} will contain
 
 
 
+\begin{itemdescr}
+\pnum
+\effects:
 \begin{itemize}
-\item[] 
-Effects:
-\begin{itemize}
-\item[]
+\item
   Each \lstinline{predessors[i]} is initialized to \lstinline{i}.
-\item[] Each 
+\item Each 
 \lstinline{distance[i]} is initialized to \lstinline{std::numeric_limits::max()}
 or to \lstinline{init}.
 \end{itemize}
-\end{itemize}
+\end{itemdescr}
 
 
-\paragraph{Dijkstra Single Source Shortest Paths}
+\subsubsection{Dijkstra Single Source Shortest Paths}
 
 {\small
 \lstinputlisting[firstline=136,lastline=168]{src/alg_synopsis.hpp}
 }
 
+\begin{itemdescr}
+\item\preconditions
 \begin{itemize}
-\item Preconditions:
-\begin{itemize}
-\item[]
+\item
 \lstinline{graph} is an \lstinline{adjacency_list}, which may be directed or
 undirected.
-\item[]
+\item
 \lstinline{0 <= source < num_vertices(graph)}.
-\item[]
+\pnum
   The \lstinline{distance} range must be initialized so that 
     \lstinline{distance[i] == \lstinline{std::numeric_limits<range_value_t<D>>::max()} 
     for all \lstinline{i}
     such that \lstinline{0 <= i < num_vertices(graph)}.  \andrew{invalid distance?}
-\item[]
+\item
   The \lstinline{predecessors} range must be initialized so that
   \lstinline{precessors[i] == i} for all \lstinline{i} such that 
   \lstinline{0 <= i <  num_vertices(graph)}.
 \end{itemize}
-\item[] Requirements: 
+\pnum\requires: 
 \begin{itemize}
-\item[]
+\item
 The return type of weight function \lstinline{w} must be able to
   be combined with the distance type \lstinline{D}.  
-\item[]
+\item
 The argument type for the weight
 function \lstinline{w} must be convertible from the edge type.
-\item[]
+\item
   The weight function \lstinline{w} must return a non-negative value (that is
   a value \lstinline{x} such that \lstinline{dijkstra_zero() <= x},
   for any edge in \lstinline{graph}.
 \end{itemize}
-\item[] 
-Effects: Compute the shortest path and associated distance from vertex
+\pnum\effects
+ Compute the shortest path and associated distance from vertex
 \lstinline{source} to all reachable vertices in \lstinline{graph}.
-\item[] 
-Returns:
+\pnum\returns
 \begin{itemize}
-\item[] For \lstinline{dijkstra_shortest_paths} and \lstinline{dijkstra_shortest_distances},
+\item
+For \lstinline{dijkstra_shortest_paths} and \lstinline{dijkstra_shortest_distances},
   if vertex with index \lstinline{i} is reachable from vertex \lstinline{source}, then
   \lstinline{distances[i]} will contain the distance from \lstinline{source} to vertex
   \lstinline{i}.  If vertex \lstinline{i} is not reachable from vertex
   \lstinline{source} then \lstinline{distances[i]} will contain
   \lstinline{std::numeric_limits<range_value_t<D>>::max()}.
-\item[]
+\item
 For \lstinline{dijkstra_shortest_paths} if vertex with index \lstinline{i} is reachable
 from vertex \lstinline{source}, then \lstinline{predecessor[i]} will contain the
 predecessor vertex of vertex \lstinline{i}.  If vertex \lstinline{i} is not reachable
@@ -204,56 +202,52 @@ from vertex \lstinline{source} then \lstinline{predecessors[i]} will contain
 \lstinline{i}.
 \end{itemize}
 %
-\item[] Complexity $\mathcal{O}((|E| + |V|)\log{|V|})$.  (Note: complexity may be
+\pnum\complexity $\mathcal{O}((|E| + |V|)\log{|V|})$.  (Note: complexity may be
 $\mathcal{O}(|E| + |V|\log{|V|)}$ for certain implementations.)
-\item[] Throws: none. \andrew{Throw if \lstinline{source} out of range?}
-\end{itemize}
+\pnum\throws none. \andrew{Throw if \lstinline{source} out of range?}
+\end{itemdescr}
 
 
-\paragraph{Bellman-Ford Single Source Shortest Paths}
+\subsubsection{Bellman-Ford Single Source Shortest Paths}
 
 {\small
 \lstinputlisting[firstline=173,lastline=247]{src/alg_synopsis.hpp}
 }
 
+\begin{itemdescr}
+\pnum\preconditions
 \begin{itemize}
-\item[] Preconditions:
-\begin{itemize}
-\item[]
+\item
 \lstinline{graph} is an \lstinline{adjacency_list}, which may be directed or
 undirected.
-\item[]
+\item
 \lstinline{0 <= source < num_vertices(graph)}.
-\item[]
+\item
   The \lstinline{distance} range must be initialized so that 
   \lstinline{distance[i] ==  \lstinline{std::numeric_limits<range_value_t<D>>::max()} 
   for all \lstinline{i}
   such that \lstinline{0 <= i < num_vertices(graph)}.  \andrew{invalid distance?}
-\item[]
+  \item
   The \lstinline{predecessors} range must be initialized so that
   \lstinline{precessors[i] == i} for all \lstinline{i} such that 
   \lstinline{0 <= i < num_vertices(graph)}.
-\end{itemize}
-\item[] Requirements: 
-\begin{itemize}
-\item[]
+\item
 The return type of weight function \lstinline{w} must be able to
   be combined with the distance type \lstinline{D}.  The argument type for the weight
   function \lstinline{w} must be convertible from the edge type.
 \end{itemize}
-\item[] 
-Effects: Compute the shortest path and associated distance from vertex
+\pnum
+\effects Compute the shortest path and associated distance from vertex
 \lstinline{source} to all reachable vertices in \lstinline{graph}.
-\item[] 
-Returns:
+\pnum\returns
 \begin{itemize}
-\item[] For \lstinline{bellman_ford_shortest_paths} and \lstinline{bellman_ford_shortest_distances},
+\item For \lstinline{bellman_ford_shortest_paths} and \lstinline{bellman_ford_shortest_distances},
   if vertex with index \lstinline{i} is reachable from vertex \lstinline{source}, then
   \lstinline{distances[i]} will contain the distance from \lstinline{source} to vertex
   \lstinline{i}.  If vertex \lstinline{i} is not reachable from vertex
   \lstinline{source} then \lstinline{distances[i]} will contain
   \lstinline{std::numeric_limits<range_value_t<D>>::max()}.
-\item[]
+\item
 For \lstinline{bellman_ford_shortest_paths} if vertex with index \lstinline{i} is reachable
 from vertex \lstinline{source}, then \lstinline{predecessor[i]} will contain the
 predecessor vertex of vertex \lstinline{i}.  If vertex \lstinline{i} is not reachable
@@ -261,62 +255,59 @@ from vertex \lstinline{source} then \lstinline{predecessors[i]} will contain
 \lstinline{i}.
 \end{itemize}
 %
-\item[] Complexity $\mathcal{O}(|E| \cdot |V|)$ \andrew{This really is atrocious.  Suitable only for really small graphs.}
-\item[] Throws: none. \andrew{Throw if \lstinline{source} out of range?}
-\item[] Note:  Unlike Dijkstra's algorithm, Bellman-Ford allows negative edge weights.
-\end{itemize}
+\pnum\complexity $\mathcal{O}(|E| \cdot |V|)$ \andrew{This really is atrocious.  Suitable only for really small graphs.}
+\pnum\throws none. \andrew{Throw if \lstinline{source} out of range?}
+\pnum\remarks:  Unlike Dijkstra's algorithm, Bellman-Ford allows negative edge weights.
+\end{itemdescr}
 
 
-\paragraph{Delta-Stepping Single Source}
+\subsubsection{Delta-Stepping Single Source}
 
 {\small
 \lstinputlisting[firstline=252,lastline=356]{src/alg_synopsis.hpp}
 }
 
 
+\begin{itemdescr}
+\pnum Delta-stepping is a parallelizable version of Dijkstra's shortest path algorithm.
+\pnum\preconditions
 \begin{itemize}
-\item[] Delta-stepping is a parallelizable version of Dijkstra's shortest path algorithm.
-\item[] Preconditions:
-\begin{itemize}
-\item[]
+\item
 \lstinline{graph} is an \lstinline{adjacency_list}, which may be directed or
 undirected.
-\item[]
+\item
 \lstinline{0 <= source < num_vertices(graph)}.
-\item[]
+\item
   The \lstinline{distance} range must be initialized so that 
     \lstinline{distance[i] == \lstinline{std::numeric_limits<range_value_t<D>>::max()} 
       for all \lstinline{i}
       such that \lstinline{0 <= i < num_vertices(graph)}.  \andrew{invalid distance?}
-\item[]
+\item
   The \lstinline{predecessors} range must be initialized so that
   \lstinline{precessors[i] == i} for all \lstinline{i} such that 
   \lstinline{0 <= i < num_vertices(graph)}.
 \end{itemize}
-\item[] Requirements: 
+\pnum\requires
 \begin{itemize}
-\item[]
-The return type of weight function \lstinline{w} must be able to
-  be combined with the distance type \lstinline{D}.  The argument type for the weight
+\item
+  The argument type for the weight
   function \lstinline{w} must be convertible from the edge type.
-\item[]
+\item
   The weight function \lstinline{w} must return a non-negative value (that is
   a value \lstinline{x} such that \lstinline{dijkstra_zero() <= x},
   for any edge in \lstinline{graph}.
 \end{itemize}
-\item[] 
-Effects: Compute the shortest path and associated distance from vertex
+\pnum\effects Compute the shortest path and associated distance from vertex
 \lstinline{source} to all reachable vertices in \lstinline{graph}.
-\item[] 
-Returns:
+\pnum\returns
 \begin{itemize}
-\item[] For \lstinline{delta_stepping_shortest_paths} and \lstinline{delta_stepping_shortest_distances},
+\item For \lstinline{delta_stepping_shortest_paths} and \lstinline{delta_stepping_shortest_distances},
   if vertex with index \lstinline{i} is reachable from vertex \lstinline{source}, then
   \lstinline{distances[i]} will contain the distance from \lstinline{source} to vertex
   \lstinline{i}.  If vertex \lstinline{i} is not reachable from vertex
   \lstinline{source} then \lstinline{distances[i]} will contain
   \lstinline{std::numeric_limits<range_value_t<D>>::max()}.
-\item[]
+\item
 For \lstinline{delta_stepping_shortest_paths} if vertex with index \lstinline{i} is reachable
 from vertex \lstinline{source}, then \lstinline{predecessor[i]} will contain the
 predecessor vertex of vertex \lstinline{i}.  If vertex \lstinline{i} is not reachable
@@ -324,9 +315,9 @@ from vertex \lstinline{source} then \lstinline{predecessors[i]} will contain
 \lstinline{i}.
 \end{itemize}
 %
-\item[] Complexity $\mathcal{O}(|E| + |V| + d\cdot L)$, where d is maximum vertex degree in the graph and $L = \max_{v\in V} dist(v)$.
-\item[] Throws: none. \andrew{Throw if \lstinline{source} out of range?}
-\end{itemize}
+\pnum\complexity $\mathcal{O}(|E| + |V| + d\cdot L)$, where d is maximum vertex degree in the graph and $L = \max_{v\in V} dist(v)$.
+\pnum\throws none. \andrew{Throw if \lstinline{source} out of range?}
+\end{itemdescr}
 
 
 
@@ -335,139 +326,139 @@ from vertex \lstinline{source} then \lstinline{predecessors[i]} will contain
 \andrew{I've used NetworkX as inspiration for organization.  Oddly, NetworkX only has DFS as an adaptor (view).}
 
 
-\section{Tier 2 and Tier 3 Algorithms}
+\chapter{Tier 2 and Tier 3 Algorithms}
 
 
-\subsection{Shortest Paths}
-\subsubsection{Single Source, Single Target}
+\section{Shortest Paths}
+\subsection{Single Source, Single Target}
 \andrew{Tier X}
-\subsubsection{Multiple Source}
+\subsection{Multiple Source}
 \andrew{Tier X}
-\subsubsection{Multiple Source, Single Target}
+\subsection{Multiple Source, Single Target}
 \andrew{Tier X}
 
 \begin{comment}
-\subsubsection{BFS Single Source, Single Target}
+\subsection{BFS Single Source, Single Target}
 \andrew{Tier X}
-\subsubsection{Dijkstra Single Source, Single Target}
+\subsection{Dijkstra Single Source, Single Target}
 \andrew{Tier X}
-\subsubsection{Bellman-Ford Single Source, Single Target}
+\subsection{Bellman-Ford Single Source, Single Target}
 \andrew{Tier X}
-\subsubsection{Delta Stepping Single Source, Single Target}
-\andrew{Tier X}
-
-\subsubsection{BFS Multiple Source}
-\andrew{Tier X}
-\subsubsection{Dijkstra Multiple Source}
-\andrew{Tier X}
-\subsubsection{Bellman-Ford Multiple Source}
-\andrew{Tier X}
-\subsubsection{Delta Stepping Multiple Source}
+\subsection{Delta Stepping Single Source, Single Target}
 \andrew{Tier X}
 
-\subsubsection{BFS Multiple Source, Single Target}
+\subsection{BFS Multiple Source}
 \andrew{Tier X}
-\subsubsection{Dijkstra Multiple Source, Single Target}
+\subsection{Dijkstra Multiple Source}
 \andrew{Tier X}
-\subsubsection{Bellman-Ford Multiple Source, Single Target}
+\subsection{Bellman-Ford Multiple Source}
 \andrew{Tier X}
-\subsubsection{Delta Stepping Multiple Source, Single Target}
+\subsection{Delta Stepping Multiple Source}
+\andrew{Tier X}
+
+\subsection{BFS Multiple Source, Single Target}
+\andrew{Tier X}
+\subsection{Dijkstra Multiple Source, Single Target}
+\andrew{Tier X}
+\subsection{Bellman-Ford Multiple Source, Single Target}
+\andrew{Tier X}
+\subsection{Delta Stepping Multiple Source, Single Target}
 \andrew{Tier X}
 
 \end{comment}
 
-\subsubsection{All Pairs}
+\subsection{All Pairs}
 \andrew{Tier 2?  People bring this up alot -- but it is very computationally expensive.}
-\subsubsection{Floyd-Warshall}
+\subsection{Floyd-Warshall}
 \andrew{Tier 2 -- $\mathcal{O}(N^2)$}
-\subsubsection{Johnson}
+\subsection{Johnson}
 \andrew{Tier 2 -- $\mathcal{O}(N^2)$}
 
-\subsection{Centrality}
-\subsubsection{Betweenness Centrality}
+\section{Centrality}
+\subsection{Betweenness Centrality}
 \andrew{Tier 2}
 
-\subsection{Clustering}
-\subsubsection{Triangle Counting}
+\section{Clustering}
+\subsection{Triangle Counting}
 \andrew{Tier 1}
 
-\subsection{Coloring}
-\subsubsection{Greedy}
+\section{Coloring}
+\subsection{Greedy}
 \andrew{Tier 2}
-\subsubsection{Jones Plassman}
+\subsection{Jones Plassman}
 \andrew{Tier 3}
 
-\subsection{Communities}
-\subsubsection{Label Propagation}
+\section{Communities}
+\subsection{Label Propagation}
 \andrew{Tier 1}
-\subsubsection{Louvain}
+\subsection{Louvain}
 \andrew{Tier 2}
 
-\subsection{Components}
-\subsubsection{Articulation Points}
+\section{Components}
+\subsection{Articulation Points}
 \andrew{Tier 1}
-\subsubsection{BiConnected Components}
+\subsection{BiConnected Components}
 \andrew{Tier 1}
-\subsubsection{Connected Components}
+\subsection{Connected Components}
 \andrew{Tier 1}
-\subsubsection{Strongly Connected Components}
+\subsection{Strongly Connected Components}
 \andrew{Tier 1}
 
-\subsection{Connectivity}
-\subsubsection{Minimum Cuts}
+\section{Connectivity}
+\subsection{Minimum Cuts}
 \andrew{Tier 2}
 
-\subsection{Cores}
-\subsubsection{k-cores}
+\section{Cores}
+\subsection{k-cores}
 \andrew{Tier 3}
-\subsubsection{k-truss}
-\andrew{Tier 3}
-
-\subsection{Directed Acyclic Graphs}
-\subsubsection{Topological Sort}
-\andrew{Tier 1}
-\subsubsection{Transitive Closure}
-\andrew{Tier 2}
-
-\subsection{Flows}
-\subsubsection{Edmunds Karp}
-\andrew{Tier 2}
-\subsubsection{Push Relabel}
-\andrew{Tier 2}
-\subsubsection{Boykov Kolmogorov}
-\andrew{Tier 2}
-
-\subsection{Isomorphism}
-\subsubsection{Subgraph Isomorphism}
+\subsection{k-truss}
 \andrew{Tier 3}
 
-\subsection{Link Analysis}
-\subsubsection{Page Rank}
-\andrew{Tier 2}
-\subsubsection{Jaccard Coefficient}
+\section{Directed Acyclic Graphs}
+\subsection{Topological Sort}
+\andrew{Tier 1}
+\subsection{Transitive Closure}
 \andrew{Tier 2}
 
+\section{Flows}
+\subsection{Edmunds Karp}
+\andrew{Tier 2}
+\subsection{Push Relabel}
+\andrew{Tier 2}
+\subsection{Boykov Kolmogorov}
+\andrew{Tier 2}
+
+\section{Isomorphism}
+\subsection{Subgraph Isomorphism}
+\andrew{Tier 3}
+
+\section{Link Analysis}
+\subsection{Page Rank}
+\andrew{Tier 2}
+\subsection{Jaccard Coefficient}
+\andrew{Tier 2}
+
+\section{Maximal Independent Set}
 \subsection{Maximal Independent Set}
-\subsubsection{Maximal Independent Set}
 \andrew{Tier 1}
 
-\subsection{Minimum Spanning Tree}
-\subsubsection{Kruskal Minimum Spanning Tree}
+\section{Minimum Spanning Tree}
+\subsection{Kruskal Minimum Spanning Tree}
 \andrew{Tier 1}
-\subsubsection{Prim Minimum Spanning Tree}
+\subsection{Prim Minimum Spanning Tree}
 \andrew{Tier 1}
 
-\subsection{Operators}
-\subsubsection{Degree}
+\section{Operators}
+\subsection{Degree}
 \andrew{Tier 1}
-\subsubsection{Join}
+\subsection{Join}
 \andrew{Tier 1}
-\subsubsection{Relabel}
+\subsection{Relabel}
 \andrew{Tier 1}
-\subsubsection{Sort}
+\subsection{Sort}
 \andrew{Tier 1}
 \andrew{Need to be able to sort edge lists along source or target column as well as to sort lists of neighbors in an adjacency list.  The former is necessary for efficiently building CSR from an edge list.  The second is necessary for preconditions on various algorithms.}
-\subsubsection{Transpose}
+\subsection{Transpose}
 \andrew{Tier 1}
 
 
@@ -480,7 +471,7 @@ All algorithms are customization points.
 
 \phil{Algorithms marked [TBD] are provisional and may be moved to a separate proposal to keep the size of this proposal manageable}
 
-\subsubsection{Dijkstra's Shortest Paths and Shortest Distances}
+\subsection{Dijkstra's Shortest Paths and Shortest Distances}
 Dijkstra's algorithm \cite{REF_} is a single-source, shortest paths algorithm for non-negative weights. It finds the shortest paths 
 and their weighted distances to all vertices connected to a single seed vertex.
 
@@ -535,7 +526,7 @@ constexpr void dijkstra_shortest_paths(
     \textit{Postconditions} &  \tcode{distance[seed] == 0} \\
                                      & \tcode{predecessor[seed] == seed}. \\
 \hline
-    \textit{Effects} & \tcode{distance[uid]} will be the shortest, weighted distance of vertex\_id \tcode{uid} from \tcode{seed}. \\
+    \textit{\effects} & \tcode{distance[uid]} will be the shortest, weighted distance of vertex\_id \tcode{uid} from \tcode{seed}. \\
     & If \tcode{uid} is not connected to \tcode{seed} by any edges then it will have a value of \tcode{dijkstra_invalid_distance()}. \\
     & \\
     & \tcode{predecessor[uid]} will have the preceding vertex\_id of \tcode{uid} in the weighted shortest path to \tcode{seed} \\
@@ -591,37 +582,37 @@ constexpr void dijkstra_shortest_distances(
       );
 \end{lstlisting}
 
-\subsubsection{[TBD] Delta Stepping Shortest Paths}
+\subsection{[TBD] Delta Stepping Shortest Paths}
 The  algorithm \cite{REF_} ...
 
-\subsubsection{Bellman-Ford Shortest Paths}
+\subsection{Bellman-Ford Shortest Paths}
 The Bellman-Ford algorithm \cite{REF_} ...
 
-\subsubsection{[TBD] Shortest Paths}
+\subsection{[TBD] Shortest Paths}
 (Overloads to select appropriate algorithm based on inputs)
 
-\subsubsection{Connected Components}
+\subsection{Connected Components}
 Connected components \cite{REF_} ...
 
-\subsubsection{Strongly Connected Components}
+\subsection{Strongly Connected Components}
 Strongly connected components \cite{REF_} ...
 
-\subsubsection{Biconnected Components}
+\subsection{Biconnected Components}
 Biconnected components \cite{REF_} ...
 
-\subsubsection{Articulation Points}
+\subsection{Articulation Points}
 Articulation points \cite{REF_} ...
 
-\subsubsection{Minimum Spanning Tree}
+\subsection{Minimum Spanning Tree}
 Minimum Spanning Tree \cite{REF_} ...
 
-\subsubsection{[TBD] Page Rank}
-\subsubsection{[TBD] Betweenness Centrality}
-\subsubsection{[TBD] Triangle Count}
-\subsubsection{[TBD] Subgraph Isomorphism}
-\subsubsection{[TBD] Kruskell Minimum Spanning Tree}
-\subsubsection{[TBD] Prim Minimum Spanning Tree}
-\subsubsection{[TBD] Louvain (Community Detection)}
-\subsubsection{[TBD] Label propagation (Community Detection)}
+\subsection{[TBD] Page Rank}
+\subsection{[TBD] Betweenness Centrality}
+\subsection{[TBD] Triangle Count}
+\subsection{[TBD] Subgraph Isomorphism}
+\subsection{[TBD] Kruskell Minimum Spanning Tree}
+\subsection{[TBD] Prim Minimum Spanning Tree}
+\subsection{[TBD] Louvain (Community Detection)}
+\subsection{[TBD] Label propagation (Community Detection)}
 
 \end{comment}

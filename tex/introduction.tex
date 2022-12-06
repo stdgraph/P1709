@@ -3,9 +3,9 @@
 % containers: adjacency matrix
 % data model: incoming edges on a vertex
 
-\section{Introduction}
+\chapter{Introduction}
 
-\subsection{Example: Six Degrees of Kevin Bacon}
+\section{Example: Six Degrees of Kevin Bacon}
 
 {\small
 \begin{lstlisting}
@@ -33,7 +33,7 @@ int main() {
 \end{lstlisting}
 }
 
-\subsection{Graph Background and Terminology}
+\section{Graph Background and Terminology}
 
 We use commonly accepted terminology for graph data structures and algorithms and 
 adopt the particular terminology used in the textbook by
@@ -46,55 +46,55 @@ A graph consisting of unordered edges is said to be \emph{undirected};
 a graph consisting of ordered edges is said to be \emph{directed}.  Since there is a single set of vertices in this definition of $G$, we say $G$ is a \emph{unipartite} graph.
 
 
-\subsection{Graph Models}
+\section{Graph Models}
 
-\subsubsection{Edge List}
+\subsection{Edge List}
 
 \andrew{Essentially a direct realization of $G=\{V, E\}$.}
 
-\subsubsection{Nodes and Links}
+\subsection{Nodes and Links}
 
 \andrew{A direct realization of vertices (circles) connected by edges (arrows).}
 
 
-\subsubsection{Adjacency List}
+\subsection{Adjacency List}
 
 \andrew{Representation necessary for useful graph algorithms.  Present essentials of definition in CLRS.}
 
 
-\subsection{From Data to Graph}
+\section{From Data to Graph}
 
 \andrew{Illustrate the progression from data to a graph.}
 
 
-\subsection{Implementations}
+\section{Implementations}
 
 
-\subsubsection{Edge List: Array of Structs / Struct of Arrays}
+\subsection{Edge List: Array of Structs / Struct of Arrays}
 
 \andrew{Edges can be stored as tuples (or tuple like) basically in parallel arrays (like a ranges::zip).}
 
 
-\subsubsection{Vertices and Edges: Node Objects and Link Objects}
+\subsection{Vertices and Edges: Node Objects and Link Objects}
 
 \andrew{ala Stanford Graph Base (et al).}
 
 
-\subsubsection{Adjacency List: Container of Containers}
+\subsection{Adjacency List: Container of Containers}
 
 \andrew{An adjacency list can be represented as a container of containers (e.g., std::vector<std::list>).  Talk about range of ranges when we talk about library interfaces, requirements, concepts.  Note here that the structure of an adjacency list does not capture directedness -- directedness is a run-time property.}
 
 
-\subsubsection{From Edge List to Adjacency List}
+\subsection{From Edge List to Adjacency List}
 
 \andrew{Scan edge list and insert edgest into adjacency list.  Adjacency list must support insertion.}
 
-\subsubsection{Edge List and Adjacency List: Compressed Edge List}
+\subsection{Edge List and Adjacency List: Compressed Edge List}
 
 \andrew{Using a sort and group-by (or a sort, a run-length encoding, and a scan), we can compactify the edge-list reprentation and at the same time obtain an adjacency-list representation -- one that is memory and compute efficient.  Best of both worlds.  Has same basic structural principles as CSR / CSC matrices in linear algebra -- but much more general.}
 
 
-\subsection{BiPartite Graphs}
+\section{BiPartite Graphs}
 
 So far, we have been considering graphs where the vertices, and both elements of an
 edge, are members of a single set $|V|$.  A graph with a single vertex set is called a
@@ -108,17 +108,17 @@ in a program such a partitioning would be a run-time property of aa graph.  Of p
 \andrew{$G = \{U, V, E\}$ or even $G = \{U, V, E, F\}$}
 
 
-\subsubsection{BiPartite Graph Models}
+\subsection{BiPartite Graph Models}
 
 
-\subsubsection{BiPartite Graph Implementations}
+\subsection{BiPartite Graph Implementations}
 
 
-\subsection{Relationship between Graphs and Sparse Matrices}
+\section{Relationship between Graphs and Sparse Matrices}
 
 
 
-\subsection{Naming Conventions}
+\section{Naming Conventions}
 
 
 Table \ref{tab:name_conv} shows the naming conventions used throughout this document. 
@@ -157,28 +157,28 @@ Table \ref{tab:name_conv} shows the naming conventions used throughout this docu
 \end{table}
 
 \begin{comment}
-\subsection{Graph Definition}
+\section{Graph Definition}
  A \textit{graph} \cite{REF_graph} $G = (V, E)$ is a set of \textit{vertices} \cite{REF_graph} $V$, \textbf{points} in a space, and \textit{edges} \cite{REF_graph} $E$, \textbf{links} between these vertices. Edges may or may not be \textbf{oriented}, that is, \textit{directed} \cite{REF_graph} or \textit{undirected} \cite{REF_graph}, respectively. Moreover, edges may be \textit{weighted} \cite{REF_graph}, that is, assigned a value. Both \textbf{static} and \textbf{dynamic} implementations of a graph exist, specifically a (static) \textbf{matrix}, each having the typical advantages and disadvantages associated with static and dynamic data structures.
 
-\subsubsection{Adjacency List}
+\subsection{Adjacency List}
 %% adjacency graph, vertex, edge
 %% incidence, neighbors (adjacency)
 %% optional user-defined values for edge, vertex, graph
 
-\subsubsection{Edge List}
+\subsection{Edge List}
 % range with source_id & target_id members, and optional value member(s)
 % edgelist view
 
 \end{comment}
 
-\subsection{Examples}
+\section{Examples}
 
 \andrew{I am not sure these belong here.  None of the library details have actually
   been explained so there will be alot of code that won't have been explained.  E.g.,
   all of the CPOs.  The motivating Kevin Bacon example is self-contained and simple
   enough to motivate the rest of the introduction. }
 
-\subsubsection{Implementing a Graph Algorithm}
+\subsection{Implementing a Graph Algorithm}
 
-\subsubsection{Implementing a Graph Type}
+\subsection{Implementing a Graph Type}
 

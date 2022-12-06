@@ -1,12 +1,12 @@
 
-\subsection{Graph Container Interface}
+\section{Graph Container Interface}
 The Graph Container Interface defines the primitive concepts, traits, types and functions used to define and access an adacency graph, no matter its internal design and organization. Thus, it is designed to reflect all forms of adjacency graphs including a vector of lists, CSR graph and adjacency matrix, whether they are in the standard or external to the standard.
 
 All algorithms in this proposal require that vertices are stored in random access containers and that \tcode{vertex_id_t<G>} is integral, and it is assumed that all future algorithm proposals will also have the same requirements. 
 
 The Graph Container Interface is designed to support a wider scope of graph containers than required by the views and algorithms in this proposal. This enables for future growth of the graph data model (e.g. incoming edges on a vertex), or as a framework for graph implementations outside of the standard. For instance, existing implementations may have requirements that cause them to define features with looser constraints, such as sparse vertex\_ids, non-integral vertex\_ids, or storing vertices in associative bi-directional containers (e.g. std::map or std::unordered\_map). Such features require specialized implementations for views and algorithms. The performance for such algorithms will be sub-optimal, but is preferrable to run them on the existing container rather than loading the graph into a high-performance graph container and then running the algorithm on it, where the loading time can far outweigh the time to run the sub-optimal algorithm. To achieve this, care has been taken to make sure that the use of concepts chosen is appropriate for algorithm, view and container.
 
-\subsection{Concepts}
+\section{Concepts}
 Table \ref{tab:graph_concepts} summarizes the concepts in the Graph Container Interface, allowing views and algorithms to verify a graph implementation has the expected requirements for an \tcode{adjacency_list} or \tcode{sourced_adjacency_list}.
 
 Sourced edges have a source\_id on them in addition to a target\_id. A \tcode{sourced_adjacency_list} has sourced edges.
@@ -34,7 +34,7 @@ Sourced edges have a source\_id on them in addition to a target\_id. A \tcode{so
 \end{center}
 \end{table}
 
-\subsection{Traits}
+\section{Traits}
 Table \ref{tab:graph_traits} summarizes the type traits in the Graph Container Interface, allowing views and algorithms to query the graph's characteristics.
 
 \begin{table}[h!]
@@ -70,7 +70,7 @@ Table \ref{tab:graph_traits} summarizes the type traits in the Graph Container I
 \end{table}
 
 
-\subsection{Types}
+\section{Types}
 Table \ref{tab:graph_type} summarizes the type aliases in the Graph Container Interface. These are the types used to define the objects in a graph container, no matter its internal design and organization. Thus, it is designed to be able to reflect all forms of adjacency graphs including a vector of lists, CSR graph and adjacency matrix.
 
 The type aliases are defined by either a function specialization for the underlying graph container, or a refinement of one of those types (e.g. an iterator of a range). Table \ref{tab:graph_func} describes the functions in more detail.
@@ -111,7 +111,7 @@ The type aliases are defined by either a function specialization for the underly
 \end{table}
 
 
-\subsection{Functions}
+\section{Functions}
 
 \phil{The functions in the Graph Container Interface are semi-stable. New functions are not expected, but overloads may be added or removed for different combinations of 
 vertex\_id and references as we refine our use cases.}
@@ -168,11 +168,11 @@ If the concept requirements for the default implementation aren't met by the gra
 
 Edgelists are assumed to be either be an edgelist view of an adjacency graph, or a standard range with source\_id and target\_id values. There is no need for additional functions when a range is used.
 
-\subsection{Graph Container Implementation}
+\section{Graph Container Implementation}
 
 \andrew{In think we should have a different name than csr\_graph since: ``CSR'' is a linear algebra concept; a graph does not have ``rows''; the same structure also represents ``CSC''; not calling it csr may avoid some of the discussions we had with linear algebra people.  This has the potential of bogging down the entire proposal.}
 
-\subsection{csr\_graph Graph Container}
+\section{csr\_graph Graph Container}
 The csr\_graph is a high-performance graph container that uses \href{https://en.wikipedia.org/wiki/Sparse_matrix#Compressed_sparse_row_\%28CSR\%2C_CRS_or_Yale_format\%29}{Compressed Sparse Row} format to store it's vertices, edges and associated values. Once constructed, vertices and edges cannot be added or deleted but values on vertices and edges can be modified.
 \\
 
@@ -192,7 +192,7 @@ template <class    EV     = void,     // Edge Value type
 class csr_graph;
 \end{lstlisting}
 
-\subsection{csr\_partite\_graph Graph Container (In Design)}
+\section{csr\_partite\_graph Graph Container (In Design)}
 \phil{This is experimental}
 
 The \tcode{csr_partite_graph} extends \tcode{csr_graph} to have multiple partitions, where each partition defines a different value type for the vertex and edge. The same template arguments are used, but it also expects that the VV and EV arguments are \tcode{std::variant}, and the number of types in each is the same. The number of types in the variants define the number of partitions. The edge types apply to the outgoing edges of the vertices in the same partition. \tcode{std::monostate} can be used if no value is needed for a vertex or edge in a partition.

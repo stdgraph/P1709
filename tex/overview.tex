@@ -1,13 +1,13 @@
 
-\section{Overview}
+\chapter{Overview}
 
 This document proposes the addition of \textbf{graph algorithms}, \textbf{graph views}, \textbf{graph container interface} and a \textbf{graph container implementation} to the C++ library to support \textbf{machine learning} (ML), as well as other applications. ML is a large and growing field, both in the \textbf{research community} and \textbf{industry}, that has received a great deal of attention in recent years. This paper presents an \textbf{interface} of the proposed algorithms, views, graph functions and containers.
 
-\subsection{Motivation}
+\section{Motivation}
 Graphs, used in ML and other \textbf{scientific} domains, as well as \textbf{industrial} and \textbf{general} programming, do \textbf{not} presently exist in the C++ standard. In ML, a graph forms the underlying structure of an \textbf{artificial neural network} (ANN). In a \textbf{game}, a graph can be used to
 represent the \textbf{map} of a game world. In \textbf{business} environments, graphs arise as \textbf{entity relationship diagrams} (ERD) or \textbf{data flow diagrams} (DFD). In the realm of \textbf{social media}, a graph represents a \textbf{social network}.
 
-\subsection{Goals and Priorities}
+\section{Goals and Priorities}
 \begin{itemize}
 \item Follow the separation of algorithms, ranges, views and containers established by the standard library.
 \item All free functions should be customization point objects, unless there's a good reason not to. Reasonable default implementations should be provided whenever possible.
@@ -30,7 +30,7 @@ represent the \textbf{map} of a game world. In \textbf{business} environments, g
 \item Provide an initial suite of useful functionality that includes algorithms, views, container interface, and at least one container implementation.
 \end{itemize}
 
-\subsection{Examples}
+\section{Examples}
 
 \andrew{Where do examples really belong?  In P2300 they are up front here, but I think there is too much forward referencing for that.}
 
@@ -41,7 +41,7 @@ represent the \textbf{map} of a game world. In \textbf{business} environments, g
 
 
 
-\subsection{What this proposal is  \textbf{not}}
+\section{What this proposal is  \textbf{not}}
 
 This paper limits itself to adjacency graphs only, including an outer range of vertices with an inner range of outgoing edges on each vertex. It also includes an edgelist of all edges in the graph, either as a edgelist view or a simple range with a source\_id and target\_id. 
 
@@ -51,27 +51,27 @@ Parallel versions of the algorithms are not included for several reasons. The ex
 
 Incoming edges on a vertex are not included, though it is hoped that a future proposal will be made for them.
 
-The algorithms and views in this proposal expect that vertex\_ids are densly assigned in a random access range, but it does not exclude the possibility of sparsely-defined vertex\_ids stored in containers like \tcode{std::map} or \tcode{std::unordered_map} in future proposals. 
+The algorithms and views in this proposal expect that vertex\_ids are densly assigned in a random access range, but it does not exclude the possibility of sparsely-defined vertex\_ids stored in containers like \lstinline{std::map} or \tcode{std::unordered_map} in future proposals. 
 
 The algorithms and views in this proposal expect that vertex\_ids are integal, but it does not exclude non-integral or user-defined types in future proposals.
 
 Hypergraphs are not supported.
 
-\subsection{Impact on the Standard}
+\section{Impact on the Standard}
 This proposal is a pure \textbf{library} extension.
 
-\subsection{Interaction wtih Other Papers}
+\section{Interaction wtih Other Papers}
 There is no interaction with other proposals to the standard.
 
-\subsection{Implementation Experience}
+\section{Implementation Experience}
 The github \href{https://github.com/stdgraph}{stdgraph} repository contains an implementation for this proposal.
 
-\subsection{Usage Experience}
-\subsection{Deployment Experience}
-\subsection{Performance Considerations}
+\section{Usage Experience}
+\section{Deployment Experience}
+\section{Performance Considerations}
 The algorithms are being ported from NWGraph to the \href{https://github.com/stdgraph}{stdgraph} implementation used for this proposal. Performance analysis from those algorithms can be found in the peer-reviewed paper for NWGraph \cite{REF_nwgraph_paper}.
 
-\subsection{Prior Art}
+\section{Prior Art}
 \textbf{boost::graph} has been an important C++ graph implementation since 2001. It was developed with the goal to provide
 a modern library that addressed all the needs someone would want of a graph library. It is still a viable library used today,
 attesting to the value it brings.
@@ -95,21 +95,21 @@ integrate existing graph containers to be used by the algorithms.
 This proposal takes the best of NWGraph, with previous work done for P1709 to define a Graph Container Interface, to provide a library that
 embraces performance, ease-of-use and the ability to use the algorithms and views on externally defined graph containers.
 
-\subsection{Alternatives}
+\section{Alternatives}
 There are no known alternative graph library we're aware of that meets the same requirements and uses concepts and ranges from C++20.
 
 %Later revisions should include this:
-%\subsection{Changes Library Evolution previously requested}
+%\section{Changes Library Evolution previously requested}
 
-\subsection{Feature Test Macro}
+\section{Feature Test Macro}
 The \tcode{__cpp_lib_graph} feature test macro is recommended to represent all features in this proposal including algorithms, views, concepts, traits, types, functions and graph container(s).
 
 Future features could extend the name for new features. For instance, \tcode{__cpp_lib_graph_partite_container} could be used if an n-partite graph container were added in later C++ versions.
 
-\subsection{Freestanding}
+\section{Freestanding}
 We believe this library can be used in a freestanding C++ implementation.
 
-\subsection{Namespaces}
+\section{Namespaces}
 Graph containers and their views and algorithms are not interchangeable with existing containers and algorithms.
 It is believed that they are unique enough to warrant their own namespaces and is used in this proposal.
 \begin{itemize}
