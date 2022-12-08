@@ -2,20 +2,19 @@
 * Driver Functions
 */
 template <adjacency_list_graph G, property D, property P>
-requires(!bidirectional_adjacency_list_graph<G>) void shortest_paths(const G&       graph,
-                                                                     vertex_id_t<G> source,
-                                                                     D&&            distances,
-                                                                     P&& predecessors);
+requires(!bidirectional_adjacency_list_graph<G>)
+void shortest_paths(const G& graph, vertex_id_t<G> source, D&& distances, P&& predecessors);
 
 template <bidirectional_adjacency_list_graph G, property D, property P>
 void shortest_paths(const G& graph, vertex_id_t<G> source, D&& distances, P&& predecessors);
 
 template <class ExecutionPolicy, adjacency_list_graph G, property D, property P>
-requires(!bidirectional_adjacency_list_graph<G>) void shortest_paths(ExecutionPolicy&& policy,
-                                                                     const G&          graph,
-                                                                     vertex_id_t<G>    source,
-                                                                     D&& distances,
-                                                                     P&& predecessors);
+requires(!bidirectional_adjacency_list_graph<G>)
+void shortest_paths(ExecutionPolicy&& policy,
+                    const G&          graph,
+                    vertex_id_t<G>    source,
+                    D&&               distances,
+                    P&&               predecessors);
 
 template <class ExecutionPolicy, bidirectional_adjacency_list_graph G, property D, property P>
 void shortest_paths(ExecutionPolicy&& policy,
@@ -25,16 +24,18 @@ void shortest_paths(ExecutionPolicy&& policy,
                     P&&               predecessors);
 
 template <adjacency_list_graph G, property D>
-requires(!bidirectional_adjacency_list_graph<G>) void shortest_distances(const G&       graph,
-                                                                         vertex_id_t<G> source,
-                                                                         D&& distances);
+requires(!bidirectional_adjacency_list_graph<G>)
+void shortest_distances(const G& graph, vertex_id_t<G> source, D&& distances);
 
 template <bidirectional_adjacency_list_graph G, property D>
 void shortest_distances(const G& graph, vertex_id_t<G> source, D&& distances);
 
 template <class ExecutionPolicy, adjacency_list_graph G, property D>
-requires(!bidirectional_adjacency_list_graph<G>) void shortest_distances(
-      ExecutionPolicy&& policy, const G& graph, vertex_id_t<G> source, D&& distances);
+requires(!bidirectional_adjacency_list_graph<G>)
+void shortest_distances(ExecutionPolicy&& policy,
+                        const G&          graph,
+                        vertex_id_t<G>    source,
+                        D&&               distances);
 
 template <class ExecutionPolicy, bidirectional_adjacency_list_graph G, property D>
 void shortest_distances(ExecutionPolicy&& policy,
@@ -140,16 +141,18 @@ void dijkstra_shortest_paths(
 
 template <adjacency_list_graph G, class W, property P, property D, class Compare, class Combine>
 requires weight_function<W, edge_t<G>> &&
-      std::strict_weak_order<Compare, typename D::value_type, typename D::value_type> &&
-      std::assignable_from < typename D::reference,
-      std::invoke_result_t < Combine, std::invoke_result_t<W, edge_t<G>>,
-typename D::value_type >> void dijkstra_shortest_paths(const G&       graph,
-                                                       vertex_id_t<G> source,
-                                                       W&&            w,
-                                                       D&&            distances,
-                                                       P&&            predecessors,
-                                                       Compare&&      comp,
-                                                       Combine&&      comb) {}
+         std::strict_weak_order<Compare, typename D::value_type, typename D::value_type> &&
+         std::assignable_from<typename D::reference,
+                              std::invoke_result_t<Combine,
+                                                   std::invoke_result_t<W, edge_t<G>>,
+                                                   typename D::value_type>>
+void dijkstra_shortest_paths(const G&       graph,
+                             vertex_id_t<G> source,
+                             W&&            w,
+                             D&&            distances,
+                             P&&            predecessors,
+                             Compare&&      comp,
+                             Combine&&      comb) {}
 
 template <adjacency_list_graph G, class W, property D>
 requires weight_function<W, edge_t<G>>
@@ -157,15 +160,17 @@ void dijkstra_shortest_distances(const G& graph, vertex_id_t<G> source, W&& w, D
 
 template <adjacency_list_graph G, class W, property D, class Compare, class Combine>
 requires weight_function<W, edge_t<G>> &&
-      std::strict_weak_order<Compare, typename D::value_type, typename D::value_type> &&
-      std::assignable_from < typename D::reference,
-      std::invoke_result_t < Combine, std::invoke_result_t<W, edge_t<G>>,
-typename D::value_type >> void dijkstra_shortest_distances(const G&       graph,
-                                                           vertex_id_t<G> source,
-                                                           W&&            w,
-                                                           D&&            distances,
-                                                           Compare&&      comp,
-                                                           Combine&&      comb) {}
+         std::strict_weak_order<Compare, typename D::value_type, typename D::value_type> &&
+         std::assignable_from<typename D::reference,
+                              std::invoke_result_t<Combine,
+                                                   std::invoke_result_t<W, edge_t<G>>,
+                                                   typename D::value_type>>
+void dijkstra_shortest_distances(const G&       graph,
+                                 vertex_id_t<G> source,
+                                 W&&            w,
+                                 D&&            distances,
+                                 Compare&&      comp,
+                                 Combine&&      comb) {}
 
 /*
  * Bellman-Ford: single source
