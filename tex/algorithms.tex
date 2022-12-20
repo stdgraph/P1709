@@ -126,11 +126,18 @@ from vertex \lstinline{source} then \lstinline{predecessors[i]} will contain
 
 \subsubsection{Dijkstra Initialization}
 
+\andrew{I don't think the "exposition only" is necessary.}
+\andrew{Actually, I don't think dijkstra\_invalid\_distance() or dijkstra\_zero() useful -- those
+need to be specified for the actual init functions.
+As free functions they don't really do anything.  Or are they meant to be CPOs? }
+\andrew{Is there a run-time overhead introduced by using functions and/or CPOs for things like
+dijkstra invalid or dijkstra zero?
+}
+\andrew{I would like to see a use case for the dijkstra invalid and dijkstra zero functions.}
+
 {\small
 \lstinputlisting[firstline=110,lastline=132]{src/alg_synopsis.hpp}
 }
-
-
 
 \begin{itemdescr}
 \pnum
