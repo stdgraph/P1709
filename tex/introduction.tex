@@ -45,6 +45,7 @@ The number of movies that connect an actor to Kevin Bacon is the shortest path i
 from Kevin Bacon to that actor.  In the example above, we compute shortest paths from Kevin
 Bacon to all other actors and print the results.
 
+
 \section{Graph Background and Terminology}
 
 We use commonly accepted terminology for graph data structures and algorithms and 
@@ -71,6 +72,21 @@ A \emph{path} is a sequence of vertices $v_0, v_1, \ldots, v_{k-1}$ such that
 there is an edge from $v_0$ to $v_1$, an edge from $v_1$ to $v_2$, and so on.
 That is, a path is a set of edges $(v_i, v_{i+1}) \in E$ for all $i = 0, 1, \ldots, k-2$.
 
+Graphs are often deipicted as a collection of nodes and links.  In this model, vertices are
+represented graphically as nodes, which are
+shown as circles (or some other shape, including points).  Edges are reprsented as links,
+shown as lines connecting the nodes.
+
+\andrew{We should have a picture here.}
+
+Associated with every $v_i \in V$ is the integer $i$.  We call $i$ the \emph{index}
+(or the \emph{vertex identifier}) of $v_i$.  The index of a vertex is a unique
+identifier for that vertex.  The index of a vertex is not necessarily the same
+as the position of the vertex in the vertex set $V$.  For example, in the graph
+$G = \{ \{ 0, 1, 2, 3 \}, \{ (0, 1), (1, 2), (2, 3) \} \}$, the vertex $v_0$ has index 0,
+$v_1$ has index 1, $v_2$ has index 2, and $v_3$ has index 3.  In the literature,
+a vertex and its index are often used interchangeably.
+
 A \emph{bipartite graph} is a graph $G$ with two disjoint sets of
 vertices $U$ and $V$ such that every edge in $E$ connects a vertex
 in $U$ to a vertex in $V$.  A bipartite graph is useful for modeling
@@ -83,13 +99,7 @@ the graph connecting movies to actors, that is the graph with the same
 vertices as the original graph but with edge directions reversed, i.e., a graph
 connecting movies to actors.
 
-Associated with every $v_i \in V$ is the integer $i$.  We call $i$ the \emph{index}
-(or the \emph{vertex identifier}) of $v_i$.  The index of a vertex is a unique
-identifier for that vertex.  The index of a vertex is not necessarily the same
-as the position of the vertex in the vertex set $V$.  For example, in the graph
-$G = \{ \{ 0, 1, 2, 3 \}, \{ (0, 1), (1, 2), (2, 3) \} \}$, the vertex $v_0$ has index 0,
-$v_1$ has index 1, $v_2$ has index 2, and $v_3$ has index 3.  In the literature,
-a vertex and its index are often used interchangeably.
+\subsubsection{Adjacency List}
 
 An \emph{adjacency list} of $G$ is a data structure that represents a graph $G$ as an array
 indexed by the vertex indices of the vertices of $G$.
@@ -107,6 +117,9 @@ is the essential information needed for graph algorithms.
 Even so, it is still possible to store vertex data in the adjacency list by storing
 the vertex data in an auxiliary array indexed by vertex indices.
 
+
+\subsubsection{Edge List}
+
 An \emph{edge list} of $G$ is a data structure that contains the edges of $G$.  More precisely, as
 with the adjacency list structure, the edge list stores pairs of vertex indices.  That is, for
 every $(v_i, v_j) \in E$, the edge list contains the pair $(i, j)$.  The edge list is
@@ -117,24 +130,7 @@ and an adjacency list.  Moreover, certain tasks, such as sorting or relabeling v
 more natural to express in terms of the edge list.
 
 
-
-\section{Graph Models}
-
-\subsection{Edge List}
-
-\andrew{Essentially a direct realization of $G=\{V, E\}$.}
-
-\subsection{Nodes and Links}
-
-\andrew{A direct realization of vertices (circles) connected by edges (arrows).}
-
-
-\subsection{Adjacency List}
-
-\andrew{Representation necessary for useful graph algorithms.  Present essentials of definition in CLRS.}
-
-
-\subsection{Adjacency Matrix}
+\subsubsection{Adjacency Matrix}
 
 \andrew{Is this useful?  Should it be included in std::graph?
 I personally don't think it is very useful, but the committee may disagree
