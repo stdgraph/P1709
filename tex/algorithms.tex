@@ -350,6 +350,22 @@ from vertex \lstinline{source} then \lstinline{predecessors[i]} will contain
 \section{Maximal Independent Set}
 \subsection{Maximal Independent Set}
 
+{\small
+\lstinputlisting[firstline=366,lastline=372]{src/alg_synopsis.hpp}
+}
+\begin{itemdescr}
+\pnum\preconditions
+\begin{itemize}
+\item
+\lstinline{graph} is an \lstinline{adjacency_list}, which is undirected.
+\item
+\lstinline{0 <= seed < num_vertices(graph)}.
+\item
+\lstinline{mis} output iterator can be assigned vertices of type \lstinline{vertex_id_t<G>} when dereferenced.
+\end{itemize}
+\pnum\effects Output iterator \lstinline{mis} contains maximal independent set of vertices containing \lstinline{seed}, which is a subset of \lstinline{vertices(graph)}.
+\pnum\complexity $\mathcal{O}(|E|)$
+\end{itemdescr}
 
 \section{Link Analysis}
 \subsection{Page Rank}
@@ -364,7 +380,51 @@ from vertex \lstinline{source} then \lstinline{predecessors[i]} will contain
 
 \subsection{Kruskal Minimum Spanning Tree}
 
+{\small
+\lstinputlisting[firstline=376,lastline=385]{src/alg_synopsis.hpp}
+}
+\kevin{All of this is subject to change when edge list concept is defined, in the mean time all these types are explicit template arguments}
+\begin{itemdescr}
+\pnum\preconditions
+\begin{itemize}
+\item
+\lstinline{e} is an \lstinline{edge_list}.
+\item
+\lstinline{t} output iterator can be assigned edges of type \lstinline{tuple<VId,VId,EV>} when dereferenced.
+\item
+\lstinline{compare} operator is a valid comparison operation on two edge values of type \lstinline{EV} which returns a bool.
+\end{itemize}
+\pnum\effects Output iterator \lstinline{t} contains edges representing a spanning tree or forest, which minimize the comparison operator. When \lstinline{compare} is \lstinline{<}, \lstinline{t} represents a minimum weight spanning tree.
+\pnum\complexity $\mathcal{O}(|E|)$
+\end{itemdescr}
+
 \subsection{Prim Minimum Spanning Tree}
+
+{\small
+\lstinputlisting[firstline=390,lastline=406]{src/alg_synopsis.hpp}
+}
+\begin{itemdescr}
+\pnum\preconditions
+\begin{itemize}
+\item
+\lstinline{graph} is an \lstinline{adjacency_list}, which is undirected.
+\item
+\lstinline{0 <= seed < num_vertices(graph)}.
+\item
+Size of \lstinline{weight} and \lstinline{predecessor} is greater than or equal to \lstinline{num_vertices(graph)}.
+\item
+\lstinline{compare} operator is a valid comparison operation on two edge values of type \lstinline{edge_value_t<G>} which returns a bool.
+\end{itemize}
+\pnum\effects
+\begin{itemize}
+\item
+\lstinline{predecessor[v]} is the parent vertex of \lstinline{v} in a tree rooted at \lstinline{seed} and \lstinline{weight[v]} is the value of the edge between \lstinline{v} and \lstinline{predecessor[v]} in the tree. When \lstinline{compare} is \lstinline{<} and \lstinline{init_dist==+inf}, \lstinline{predecessor} represents a minimum weight spanning tree.
+\item
+If \lstinline{predecessor} and \lstinline{weight} are not initialized by user, and the graph is not fully connected, \lstinline{predecessor[v]} and \lstinline{weight[v]} will be undefined for vertices not in the same connected component as \lstinline{seed}.
+\end{itemize}
+
+\pnum\complexity $\mathcal{O}(|E|log|V|)$
+\end{itemdescr}
 
 \section{Operators}
 \subsection{Degree}

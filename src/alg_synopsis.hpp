@@ -359,3 +359,48 @@ void delta_stepping_shortest_distances(ExecutionPolicy&& e,
                                        Compare&&         comp,
                                        Combine&&         comb,
                                        T                 delta) {}
+
+/*
+ * Maximal Independent Set
+ */
+template <adjacency_list G, class Iter>
+requires ranges::random_access_range<vertex_range_t<G>> && integral<vertex_id_t<G>> &&
+         std::output_iterator<Iter, vertex_id_t<G>>
+void maximal_independent_set(G&&            g,
+                             Iter           mis,
+                             vertex_id_t<G> seed) {}
+
+/*
+ * Kruskal's Algorithm
+ */
+template<class VId, class EV, class E, class Iter>
+requires std::output_iterator<Iter, std::tuple<VId,VId,EV>>
+void kruskal(E&&  e,
+	     Iter t) {}
+  
+template<class VId, class EV, class E, class Iter, class CompareOp>
+requires std::output_iterator<Iter, std::tuple<VId, VId, EV>>
+void kruskal(E&&       e,
+	     Iter      t,
+	     CompareOp compare) {}
+  
+/*
+ * Prim's Algorithm
+ */
+template<adjacency_list G, ranges::random_access_range Predecessor,
+ranges::random_access_range Weight>
+requires ranges::random_access_range<vertex_range_t<G>> && integral<vertex_id_t<G>>
+void prim(G&&            g,
+	  Predecessor&   predecessor,
+	  Weight&        weight,
+	  vertex_id_t<G> seed = 0) {}
+  
+template<adjacency_list G, ranges::random_access_range Predecessor,
+ranges::random_access_range Weight, class CompareOp>
+requires ranges::random_access_range<vertex_range_t<G>> && integral<vertex_id_t<G>>
+void prim(G&&                           g,
+	  Predecessor&                  predecessor,
+	  Weight&                       weight,
+	  CompareOp                     compare,
+	  ranges::range_value_t<Weight> init_dist,
+	  vertex_id_t<G>                seed = 0) {}
