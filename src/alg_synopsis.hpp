@@ -2,19 +2,20 @@
 * Driver Functions
 */
 template <adjacency_list_graph G, property D, property P>
-requires(!bidirectional_adjacency_list_graph<G>)
-void shortest_paths(const G& graph, vertex_id_t<G> source, D&& distances, P&& predecessors);
+requires(!bidirectional_adjacency_list_graph<G>) void shortest_paths(const G&       graph,
+                                                                     vertex_id_t<G> source,
+                                                                     D&&            distances,
+                                                                     P&& predecessors);
 
 template <bidirectional_adjacency_list_graph G, property D, property P>
 void shortest_paths(const G& graph, vertex_id_t<G> source, D&& distances, P&& predecessors);
 
 template <class ExecutionPolicy, adjacency_list_graph G, property D, property P>
-requires(!bidirectional_adjacency_list_graph<G>)
-void shortest_paths(ExecutionPolicy&& policy,
-                    const G&          graph,
-                    vertex_id_t<G>    source,
-                    D&&               distances,
-                    P&&               predecessors);
+requires(!bidirectional_adjacency_list_graph<G>) void shortest_paths(ExecutionPolicy&& policy,
+                                                                     const G&          graph,
+                                                                     vertex_id_t<G>    source,
+                                                                     D&& distances,
+                                                                     P&& predecessors);
 
 template <class ExecutionPolicy, bidirectional_adjacency_list_graph G, property D, property P>
 void shortest_paths(ExecutionPolicy&& policy,
@@ -24,18 +25,16 @@ void shortest_paths(ExecutionPolicy&& policy,
                     P&&               predecessors);
 
 template <adjacency_list_graph G, property D>
-requires(!bidirectional_adjacency_list_graph<G>)
-void shortest_distances(const G& graph, vertex_id_t<G> source, D&& distances);
+requires(!bidirectional_adjacency_list_graph<G>) void shortest_distances(const G&       graph,
+                                                                         vertex_id_t<G> source,
+                                                                         D&& distances);
 
 template <bidirectional_adjacency_list_graph G, property D>
 void shortest_distances(const G& graph, vertex_id_t<G> source, D&& distances);
 
 template <class ExecutionPolicy, adjacency_list_graph G, property D>
-requires(!bidirectional_adjacency_list_graph<G>)
-void shortest_distances(ExecutionPolicy&& policy,
-                        const G&          graph,
-                        vertex_id_t<G>    source,
-                        D&&               distances);
+requires(!bidirectional_adjacency_list_graph<G>) void shortest_distances(
+      ExecutionPolicy&& policy, const G& graph, vertex_id_t<G> source, D&& distances);
 
 template <class ExecutionPolicy, bidirectional_adjacency_list_graph G, property D>
 void shortest_distances(ExecutionPolicy&& policy,
@@ -141,18 +140,16 @@ void dijkstra_shortest_paths(
 
 template <adjacency_list_graph G, class W, property P, property D, class Compare, class Combine>
 requires weight_function<W, edge_t<G>> &&
-         std::strict_weak_order<Compare, typename D::value_type, typename D::value_type> &&
-         std::assignable_from<typename D::reference,
-                              std::invoke_result_t<Combine,
-                                                   std::invoke_result_t<W, edge_t<G>>,
-                                                   typename D::value_type>>
-void dijkstra_shortest_paths(const G&       graph,
-                             vertex_id_t<G> source,
-                             W&&            w,
-                             D&&            distances,
-                             P&&            predecessors,
-                             Compare&&      comp,
-                             Combine&&      comb) {}
+      std::strict_weak_order<Compare, typename D::value_type, typename D::value_type> &&
+      std::assignable_from < typename D::reference,
+      std::invoke_result_t < Combine, std::invoke_result_t<W, edge_t<G>>,
+typename D::value_type >> void dijkstra_shortest_paths(const G&       graph,
+                                                       vertex_id_t<G> source,
+                                                       W&&            w,
+                                                       D&&            distances,
+                                                       P&&            predecessors,
+                                                       Compare&&      comp,
+                                                       Combine&&      comb) {}
 
 template <adjacency_list_graph G, class W, property D>
 requires weight_function<W, edge_t<G>>
@@ -160,17 +157,15 @@ void dijkstra_shortest_distances(const G& graph, vertex_id_t<G> source, W&& w, D
 
 template <adjacency_list_graph G, class W, property D, class Compare, class Combine>
 requires weight_function<W, edge_t<G>> &&
-         std::strict_weak_order<Compare, typename D::value_type, typename D::value_type> &&
-         std::assignable_from<typename D::reference,
-                              std::invoke_result_t<Combine,
-                                                   std::invoke_result_t<W, edge_t<G>>,
-                                                   typename D::value_type>>
-void dijkstra_shortest_distances(const G&       graph,
-                                 vertex_id_t<G> source,
-                                 W&&            w,
-                                 D&&            distances,
-                                 Compare&&      comp,
-                                 Combine&&      comb) {}
+      std::strict_weak_order<Compare, typename D::value_type, typename D::value_type> &&
+      std::assignable_from < typename D::reference,
+      std::invoke_result_t < Combine, std::invoke_result_t<W, edge_t<G>>,
+typename D::value_type >> void dijkstra_shortest_distances(const G&       graph,
+                                                           vertex_id_t<G> source,
+                                                           W&&            w,
+                                                           D&&            distances,
+                                                           Compare&&      comp,
+                                                           Combine&&      comb) {}
 
 /*
  * Bellman-Ford: single source
@@ -365,42 +360,66 @@ void delta_stepping_shortest_distances(ExecutionPolicy&& e,
  */
 template <adjacency_list G, class Iter>
 requires ranges::random_access_range<vertex_range_t<G>> && integral<vertex_id_t<G>> &&
-         std::output_iterator<Iter, vertex_id_t<G>>
-void maximal_independent_set(G&&            g,
-                             Iter           mis,
-                             vertex_id_t<G> seed) {}
+      std::output_iterator<Iter, vertex_id_t<G>>
+void maximal_independent_set(G&& g, Iter mis, vertex_id_t<G> seed) {}
 
 /*
  * Kruskal's Algorithm
  */
-template<class VId, class EV, class E, class Iter>
-requires std::output_iterator<Iter, std::tuple<VId,VId,EV>>
-void kruskal(E&&  e,
-	     Iter t) {}
-  
-template<class VId, class EV, class E, class Iter, class CompareOp>
+template <class VId, class EV, class E, class Iter>
 requires std::output_iterator<Iter, std::tuple<VId, VId, EV>>
-void kruskal(E&&       e,
-	     Iter      t,
-	     CompareOp compare) {}
-  
+void kruskal(E&& e, Iter t) {}
+
+template <class VId, class EV, class E, class Iter, class CompareOp>
+requires std::output_iterator<Iter, std::tuple<VId, VId, EV>>
+void kruskal(E&& e, Iter t, CompareOp compare) {}
+
 /*
  * Prim's Algorithm
  */
-template<adjacency_list G, ranges::random_access_range Predecessor,
-ranges::random_access_range Weight>
+template <adjacency_list              G,
+          ranges::random_access_range Predecessor,
+          ranges::random_access_range Weight>
 requires ranges::random_access_range<vertex_range_t<G>> && integral<vertex_id_t<G>>
-void prim(G&&            g,
-	  Predecessor&   predecessor,
-	  Weight&        weight,
-	  vertex_id_t<G> seed = 0) {}
-  
-template<adjacency_list G, ranges::random_access_range Predecessor,
-ranges::random_access_range Weight, class CompareOp>
+void prim(G&& g, Predecessor& predecessor, Weight& weight, vertex_id_t<G> seed = 0) {}
+
+template <adjacency_list              G,
+          ranges::random_access_range Predecessor,
+          ranges::random_access_range Weight,
+          class CompareOp>
 requires ranges::random_access_range<vertex_range_t<G>> && integral<vertex_id_t<G>>
 void prim(G&&                           g,
-	  Predecessor&                  predecessor,
-	  Weight&                       weight,
-	  CompareOp                     compare,
-	  ranges::range_value_t<Weight> init_dist,
-	  vertex_id_t<G>                seed = 0) {}
+          Predecessor&                  predecessor,
+          Weight&                       weight,
+          CompareOp                     compare,
+          ranges::range_value_t<Weight> init_dist,
+          vertex_id_t<G>                seed = 0) {}
+
+/* 
+ * Page Rank
+ */
+template <class ExecutionPolicy,
+          adjacency_list_graph        G,
+          ranges::random_access_range P,
+          class EVF = std::function<ranges::range_value_t<P>(edge_reference_t<G>)>>
+requires ranges::random_access_range<vertex_range_t<G>> && integral<vertex_id_t<G>> &&
+      is_arithmetic_v<ranges::range_value_t<P>> && edge_weight_function<G, EVF>
+void pagerank(ExecutionPolicy   policy,
+              G&&               g,
+              P&                scores,
+              const double      damping_factor,
+              const double      threshold,
+              const std::size_t max_iterations,
+              EVF               weight_fn) {}
+
+template <adjacency_list_graph        G,
+          ranges::random_access_range P,
+          class EVF = std::function<ranges::range_value_t<P>(edge_reference_t<G>)>>
+requires ranges::random_access_range<vertex_range_t<G>> && integral<vertex_id_t<G>> &&
+      is_arithmetic_v<ranges::range_value_t<P>> && edge_weight_function<G, EVF>
+void pagerank(G&&               g,
+              P&                scores,
+              const double      damping_factor,
+              const double      threshold,
+              const std::size_t max_iterations,
+              EVF               weight_fn) {}

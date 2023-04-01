@@ -29,7 +29,7 @@ concept queueable = requires(Q&& q, Q::value_type value) {
 
 \section{Shortest Paths}
 
-\andrew{To keep code snippets here consistent with real working code, we use lstinputlistings to grab code from alg\_synopsis.hpp and use prototypes.cpp to compile.}
+\andrew{To keep code snippets here consistent with real working code, we use lstinputlistings to grab code from alg\_synopsis.hpp and use prototypes.cpp to compile.} \muhammad{I found that it is easier to have separate headed files for different algorithms, because the line numbers move around, you have to potentially update the whole algorithms.tex file.}
 
 
 
@@ -45,11 +45,11 @@ concept queueable = requires(Q&& q, Q::value_type value) {
 
 
 \andrew{I am also not sure we should have ``shortest distance'' variants.  That doubles the number of functions in the interface.
-For each function we have shortest paths, s-t paths, multi-source paths, parallel = 6X variants for each base function.  If we add shortest distances, that will make 12X.  OTOH, we could consider not having s-t paths or not having multi-source paths -- which would leave 4X for each base function.  However, I think people will want s-t and multi-source.
+      For each function we have shortest paths, s-t paths, multi-source paths, parallel = 6X variants for each base function.  If we add shortest distances, that will make 12X.  OTOH, we could consider not having s-t paths or not having multi-source paths -- which would leave 4X for each base function.  However, I think people will want s-t and multi-source.
 }
 
 {\small
-\lstinputlisting[firstline=4,lastline=44]{src/alg_synopsis.hpp}
+      \lstinputlisting[firstline=4,lastline=44]{src/alg_synopsis.hpp}
 }
 
 \andrew{The variety of algorithms was inspired by networkx....  Which also had ``distance'' variants.}
@@ -59,66 +59,66 @@ For each function we have shortest paths, s-t paths, multi-source paths, paralle
 \subsubsection{Breadth-First Search, Single Source, Initialization}
 
 {\small
-\lstinputlisting[firstline=49,lastline=61]{src/alg_synopsis.hpp}
+      \lstinputlisting[firstline=49,lastline=61]{src/alg_synopsis.hpp}
 }
 
 \begin{itemdescr}
-\effects
-\begin{itemize}
-\item 
-  Each \lstinline{predessors[i]} is initialized to \lstinline{i}.
-\item Each 
-\lstinline{distance[i]} is initialized to \lstinline{std::numeric_limits::max()}
-or to \lstinline{init}.
-\end{itemize}
+      \effects
+      \begin{itemize}
+            \item
+                  Each \lstinline{predessors[i]} is initialized to \lstinline{i}.
+            \item Each
+                  \lstinline{distance[i]} is initialized to \lstinline{std::numeric_limits::max()}
+                  or to \lstinline{init}.
+      \end{itemize}
 \end{itemdescr}
 
 
 \subsubsection{Breadth-First Search, Single Source}
 
 {\small
-\lstinputlisting[firstline=66,lastline=105]{src/alg_synopsis.hpp}
+      \lstinputlisting[firstline=66,lastline=105]{src/alg_synopsis.hpp}
 }
 
 \begin{itemdescr}
-\pnum\preconditions
-\begin{itemize}
-\item
-\lstinline{graph} is an \lstinline{adjacency_list}, which may be directed or
-undirected.
-\item
-\lstinline{0 <= source < num_vertices(graph)}.
+      \pnum\preconditions
+      \begin{itemize}
+            \item
+                  \lstinline{graph} is an \lstinline{adjacency_list}, which may be directed or
+                  undirected.
+            \item
+                  \lstinline{0 <= source < num_vertices(graph)}.
 
-\item
-  The \lstinline{distance} range must be initialized so that 
-    \lstinline{distance[i] == \lstinline{std::numeric_limits<range_value_t<D>>::max()} 
-    for all \lstinline{i}
-    such that \lstinline{0 <= i < num_vertices(graph)}.  \andrew{invalid distance?}
-\item
-  The \lstinline{predecessors} range must be initialized so that
-  \lstinline{precessors[i] == i} for all \lstinline{i} such that 
-  \lstinline{0 <= i <  num_vertices(graph)}.
-\end{itemize}
-\pnum\effects Compute the breadth-first path and associated distance from vertex
-\lstinline{source} to all reachable vertices in \lstinline{graph}.
-\pnum\returns
-\begin{itemize}
-\item For \lstinline{breadth_first_search} and \lstinline{breadth_first_distance},
-  if vertex with index \lstinline{i} is reachable from vertex \lstinline{source}, then
-  \lstinline{distances[i]} will contain the distance from \lstinline{source} to vertex
-  \lstinline{i}.  If vertex \lstinline{i} is not reachable from vertex
-  \lstinline{source} then \lstinline{distances[i]} will contain
-  \lstinline{std::numeric_limits<range_value_t<D>>::max()}.
-\item
-For \lstinline{breadth_first_search} if vertex with index \lstinline{i} is reachable
-from vertex \lstinline{source}, then \lstinline{predecessor[i]} will contain the
-predecessor vertex of vertex \lstinline{i}.  If vertex \lstinline{i} is not reachable
-from vertex \lstinline{source} then \lstinline{predecessors[i]} will contain
-\lstinline{i}.
-\end{itemize}
-%
-\pnum\complexity $\mathcal{O}(|E| + |V|)$
-\pnum\throws: none. \andrew{Throw if \lstinline{source} out of range?}
+            \item
+                  The \lstinline{distance} range must be initialized so that
+                  \lstinline{distance[i] == \lstinline{std::numeric_limits<range_value_t<D>>::max()}
+                  for all \lstinline{i}
+                  such that \lstinline{0 <= i < num_vertices(graph)}.  \andrew{invalid distance?}
+            \item
+                  The \lstinline{predecessors} range must be initialized so that
+                  \lstinline{precessors[i] == i} for all \lstinline{i} such that
+                  \lstinline{0 <= i <  num_vertices(graph)}.
+      \end{itemize}
+      \pnum\effects Compute the breadth-first path and associated distance from vertex
+      \lstinline{source} to all reachable vertices in \lstinline{graph}.
+      \pnum\returns
+      \begin{itemize}
+            \item For \lstinline{breadth_first_search} and \lstinline{breadth_first_distance},
+                  if vertex with index \lstinline{i} is reachable from vertex \lstinline{source}, then
+                  \lstinline{distances[i]} will contain the distance from \lstinline{source} to vertex
+                  \lstinline{i}.  If vertex \lstinline{i} is not reachable from vertex
+                  \lstinline{source} then \lstinline{distances[i]} will contain
+                  \lstinline{std::numeric_limits<range_value_t<D>>::max()}.
+            \item
+                  For \lstinline{breadth_first_search} if vertex with index \lstinline{i} is reachable
+                  from vertex \lstinline{source}, then \lstinline{predecessor[i]} will contain the
+                  predecessor vertex of vertex \lstinline{i}.  If vertex \lstinline{i} is not reachable
+                  from vertex \lstinline{source} then \lstinline{predecessors[i]} will contain
+                  \lstinline{i}.
+      \end{itemize}
+      %
+      \pnum\complexity $\mathcal{O}(|E| + |V|)$
+      \pnum\throws: none. \andrew{Throw if \lstinline{source} out of range?}
 \end{itemdescr}
 
 
@@ -128,202 +128,202 @@ from vertex \lstinline{source} then \lstinline{predecessors[i]} will contain
 
 \andrew{I don't think the "exposition only" is necessary.}
 \andrew{Actually, I don't think dijkstra\_invalid\_distance() or dijkstra\_zero() useful -- those
-need to be specified for the actual init functions.
-As free functions they don't really do anything.  Or are they meant to be CPOs? }
+      need to be specified for the actual init functions.
+      As free functions they don't really do anything.  Or are they meant to be CPOs? }
 \andrew{Is there a run-time overhead introduced by using functions and/or CPOs for things like
-dijkstra invalid or dijkstra zero?
+      dijkstra invalid or dijkstra zero?
 }
 \andrew{I would like to see a use case for the dijkstra invalid and dijkstra zero functions.}
 
 {\small
-\lstinputlisting[firstline=110,lastline=132]{src/alg_synopsis.hpp}
+      \lstinputlisting[firstline=110,lastline=132]{src/alg_synopsis.hpp}
 }
 
 \begin{itemdescr}
-\pnum
-\effects:
-\begin{itemize}
-\item
-  Each \lstinline{predessors[i]} is initialized to \lstinline{i}.
-\item Each 
-\lstinline{distance[i]} is initialized to \lstinline{std::numeric_limits::max()}
-or to \lstinline{init}.
-\end{itemize}
+      \pnum
+      \effects:
+      \begin{itemize}
+            \item
+                  Each \lstinline{predessors[i]} is initialized to \lstinline{i}.
+            \item Each
+                  \lstinline{distance[i]} is initialized to \lstinline{std::numeric_limits::max()}
+                  or to \lstinline{init}.
+      \end{itemize}
 \end{itemdescr}
 
 
 \subsubsection{Dijkstra Single Source Shortest Paths}
 
 {\small
-\lstinputlisting[firstline=137,lastline=173]{src/alg_synopsis.hpp}
+      \lstinputlisting[firstline=137,lastline=173]{src/alg_synopsis.hpp}
 }
 
 \begin{itemdescr}
-\item\preconditions
-\begin{itemize}
-\item
-\lstinline{graph} is an \lstinline{adjacency_list}, which may be directed or
-undirected.
-\item
-\lstinline{0 <= source < num_vertices(graph)}.
-\pnum
-  The \lstinline{distance} range must be initialized so that 
-    \lstinline{distance[i] == \lstinline{std::numeric_limits<range_value_t<D>>::max()} 
-    for all \lstinline{i}
-    such that \lstinline{0 <= i < num_vertices(graph)}.  \andrew{invalid distance?}
-\item
-  The \lstinline{predecessors} range must be initialized so that
-  \lstinline{precessors[i] == i} for all \lstinline{i} such that 
-  \lstinline{0 <= i <  num_vertices(graph)}.
-\end{itemize}
-\pnum\requires: 
-\begin{itemize}
-\item
-The return type of weight function \lstinline{w} must be able to
-  be combined with the distance type \lstinline{D}.  
-\item
-The argument type for the weight
-function \lstinline{w} must be convertible from the edge type.
-\item
-  The weight function \lstinline{w} must return a non-negative value (that is
-  a value \lstinline{x} such that \lstinline{dijkstra_zero() <= x},
-  for any edge in \lstinline{graph}.
-\end{itemize}
-\pnum\effects
- Compute the shortest path and associated distance from vertex
-\lstinline{source} to all reachable vertices in \lstinline{graph}.
-\pnum\returns
-\begin{itemize}
-\item
-For \lstinline{dijkstra_shortest_paths} and \lstinline{dijkstra_shortest_distances},
-  if vertex with index \lstinline{i} is reachable from vertex \lstinline{source}, then
-  \lstinline{distances[i]} will contain the distance from \lstinline{source} to vertex
-  \lstinline{i}.  If vertex \lstinline{i} is not reachable from vertex
-  \lstinline{source} then \lstinline{distances[i]} will contain
-  \lstinline{std::numeric_limits<range_value_t<D>>::max()}.
-\item
-For \lstinline{dijkstra_shortest_paths} if vertex with index \lstinline{i} is reachable
-from vertex \lstinline{source}, then \lstinline{predecessor[i]} will contain the
-predecessor vertex of vertex \lstinline{i}.  If vertex \lstinline{i} is not reachable
-from vertex \lstinline{source} then \lstinline{predecessors[i]} will contain
-\lstinline{i}.
-\end{itemize}
-%
-\pnum\complexity $\mathcal{O}((|E| + |V|)\log{|V|})$.  (Note: complexity may be
-$\mathcal{O}(|E| + |V|\log{|V|)}$ for certain implementations.)
-\pnum\throws none. \andrew{Throw if \lstinline{source} out of range?}
+      \item\preconditions
+      \begin{itemize}
+            \item
+                  \lstinline{graph} is an \lstinline{adjacency_list}, which may be directed or
+                  undirected.
+            \item
+                  \lstinline{0 <= source < num_vertices(graph)}.
+                  \pnum
+                  The \lstinline{distance} range must be initialized so that
+                  \lstinline{distance[i] == \lstinline{std::numeric_limits<range_value_t<D>>::max()}
+                  for all \lstinline{i}
+                  such that \lstinline{0 <= i < num_vertices(graph)}.  \andrew{invalid distance?}
+            \item
+                  The \lstinline{predecessors} range must be initialized so that
+                  \lstinline{precessors[i] == i} for all \lstinline{i} such that
+                  \lstinline{0 <= i <  num_vertices(graph)}.
+      \end{itemize}
+      \pnum\requires:
+      \begin{itemize}
+            \item
+                  The return type of weight function \lstinline{w} must be able to
+                  be combined with the distance type \lstinline{D}.
+            \item
+                  The argument type for the weight
+                  function \lstinline{w} must be convertible from the edge type.
+            \item
+                  The weight function \lstinline{w} must return a non-negative value (that is
+                  a value \lstinline{x} such that \lstinline{dijkstra_zero() <= x},
+                  for any edge in \lstinline{graph}.
+      \end{itemize}
+      \pnum\effects
+      Compute the shortest path and associated distance from vertex
+      \lstinline{source} to all reachable vertices in \lstinline{graph}.
+      \pnum\returns
+      \begin{itemize}
+            \item
+                  For \lstinline{dijkstra_shortest_paths} and \lstinline{dijkstra_shortest_distances},
+                  if vertex with index \lstinline{i} is reachable from vertex \lstinline{source}, then
+                  \lstinline{distances[i]} will contain the distance from \lstinline{source} to vertex
+                  \lstinline{i}.  If vertex \lstinline{i} is not reachable from vertex
+                  \lstinline{source} then \lstinline{distances[i]} will contain
+                  \lstinline{std::numeric_limits<range_value_t<D>>::max()}.
+            \item
+                  For \lstinline{dijkstra_shortest_paths} if vertex with index \lstinline{i} is reachable
+                  from vertex \lstinline{source}, then \lstinline{predecessor[i]} will contain the
+                  predecessor vertex of vertex \lstinline{i}.  If vertex \lstinline{i} is not reachable
+                  from vertex \lstinline{source} then \lstinline{predecessors[i]} will contain
+                  \lstinline{i}.
+      \end{itemize}
+      %
+      \pnum\complexity $\mathcal{O}((|E| + |V|)\log{|V|})$.  (Note: complexity may be
+            $\mathcal{O}(|E| + |V|\log{|V|)}$ for certain implementations.)
+      \pnum\throws none. \andrew{Throw if \lstinline{source} out of range?}
 \end{itemdescr}
 
 
 \subsubsection{Bellman-Ford Single Source Shortest Paths}
 
 {\small
-\lstinputlisting[firstline=178,lastline=252]{src/alg_synopsis.hpp}
+      \lstinputlisting[firstline=178,lastline=252]{src/alg_synopsis.hpp}
 }
 
 \begin{itemdescr}
-\pnum\preconditions
-\begin{itemize}
-\item
-\lstinline{graph} is an \lstinline{adjacency_list}, which may be directed or
-undirected.
-\item
-\lstinline{0 <= source < num_vertices(graph)}.
-\item
-  The \lstinline{distance} range must be initialized so that 
-  \lstinline{distance[i] ==  \lstinline{std::numeric_limits<range_value_t<D>>::max()} 
-  for all \lstinline{i}
-  such that \lstinline{0 <= i < num_vertices(graph)}.  \andrew{invalid distance?}
-  \item
-  The \lstinline{predecessors} range must be initialized so that
-  \lstinline{precessors[i] == i} for all \lstinline{i} such that 
-  \lstinline{0 <= i < num_vertices(graph)}.
-\item
-The return type of weight function \lstinline{w} must be able to
-  be combined with the distance type \lstinline{D}.  The argument type for the weight
-  function \lstinline{w} must be convertible from the edge type.
-\end{itemize}
-\pnum
-\effects Compute the shortest path and associated distance from vertex
-\lstinline{source} to all reachable vertices in \lstinline{graph}.
-\pnum\returns
-\begin{itemize}
-\item For \lstinline{bellman_ford_shortest_paths} and \lstinline{bellman_ford_shortest_distances},
-  if vertex with index \lstinline{i} is reachable from vertex \lstinline{source}, then
-  \lstinline{distances[i]} will contain the distance from \lstinline{source} to vertex
-  \lstinline{i}.  If vertex \lstinline{i} is not reachable from vertex
-  \lstinline{source} then \lstinline{distances[i]} will contain
-  \lstinline{std::numeric_limits<range_value_t<D>>::max()}.
-\item
-For \lstinline{bellman_ford_shortest_paths} if vertex with index \lstinline{i} is reachable
-from vertex \lstinline{source}, then \lstinline{predecessor[i]} will contain the
-predecessor vertex of vertex \lstinline{i}.  If vertex \lstinline{i} is not reachable
-from vertex \lstinline{source} then \lstinline{predecessors[i]} will contain
-\lstinline{i}.
-\end{itemize}
-%
-\pnum\complexity $\mathcal{O}(|E| \cdot |V|)$ \andrew{This really is atrocious.  Suitable only for really small graphs.}
-\pnum\throws none. \andrew{Throw if \lstinline{source} out of range?}
-\pnum\remarks:  Unlike Dijkstra's algorithm, Bellman-Ford allows negative edge weights.
+      \pnum\preconditions
+      \begin{itemize}
+            \item
+                  \lstinline{graph} is an \lstinline{adjacency_list}, which may be directed or
+                  undirected.
+            \item
+                  \lstinline{0 <= source < num_vertices(graph)}.
+            \item
+                  The \lstinline{distance} range must be initialized so that
+                  \lstinline{distance[i] ==  \lstinline{std::numeric_limits<range_value_t<D>>::max()}
+                  for all \lstinline{i}
+                  such that \lstinline{0 <= i < num_vertices(graph)}.  \andrew{invalid distance?}
+            \item
+                  The \lstinline{predecessors} range must be initialized so that
+                  \lstinline{precessors[i] == i} for all \lstinline{i} such that
+                  \lstinline{0 <= i < num_vertices(graph)}.
+            \item
+                  The return type of weight function \lstinline{w} must be able to
+                  be combined with the distance type \lstinline{D}.  The argument type for the weight
+                  function \lstinline{w} must be convertible from the edge type.
+      \end{itemize}
+      \pnum
+      \effects Compute the shortest path and associated distance from vertex
+      \lstinline{source} to all reachable vertices in \lstinline{graph}.
+      \pnum\returns
+      \begin{itemize}
+            \item For \lstinline{bellman_ford_shortest_paths} and \lstinline{bellman_ford_shortest_distances},
+                  if vertex with index \lstinline{i} is reachable from vertex \lstinline{source}, then
+                  \lstinline{distances[i]} will contain the distance from \lstinline{source} to vertex
+                  \lstinline{i}.  If vertex \lstinline{i} is not reachable from vertex
+                  \lstinline{source} then \lstinline{distances[i]} will contain
+                  \lstinline{std::numeric_limits<range_value_t<D>>::max()}.
+            \item
+                  For \lstinline{bellman_ford_shortest_paths} if vertex with index \lstinline{i} is reachable
+                  from vertex \lstinline{source}, then \lstinline{predecessor[i]} will contain the
+                  predecessor vertex of vertex \lstinline{i}.  If vertex \lstinline{i} is not reachable
+                  from vertex \lstinline{source} then \lstinline{predecessors[i]} will contain
+                  \lstinline{i}.
+      \end{itemize}
+      %
+      \pnum\complexity $\mathcal{O}(|E| \cdot |V|)$ \andrew{This really is atrocious.  Suitable only for really small graphs.}
+      \pnum\throws none. \andrew{Throw if \lstinline{source} out of range?}
+      \pnum\remarks:  Unlike Dijkstra's algorithm, Bellman-Ford allows negative edge weights.
 \end{itemdescr}
 
 
 \subsubsection{Delta-Stepping Single Source}
 
 {\small
-\lstinputlisting[firstline=257,lastline=361]{src/alg_synopsis.hpp}
+      \lstinputlisting[firstline=257,lastline=361]{src/alg_synopsis.hpp}
 }
 
 
 \begin{itemdescr}
-\pnum Delta-stepping is a parallelizable version of Dijkstra's shortest path algorithm.
-\pnum\preconditions
-\begin{itemize}
-\item
-\lstinline{graph} is an \lstinline{adjacency_list}, which may be directed or
-undirected.
-\item
-\lstinline{0 <= source < num_vertices(graph)}.
-\item
-  The \lstinline{distance} range must be initialized so that 
-    \lstinline{distance[i] == \lstinline{std::numeric_limits<range_value_t<D>>::max()} 
-      for all \lstinline{i}
-      such that \lstinline{0 <= i < num_vertices(graph)}.  \andrew{invalid distance?}
-\item
-  The \lstinline{predecessors} range must be initialized so that
-  \lstinline{precessors[i] == i} for all \lstinline{i} such that 
-  \lstinline{0 <= i < num_vertices(graph)}.
-\end{itemize}
-\pnum\requires
-\begin{itemize}
-\item
-  The argument type for the weight
-  function \lstinline{w} must be convertible from the edge type.
-\item
-  The weight function \lstinline{w} must return a non-negative value (that is
-  a value \lstinline{x} such that \lstinline{dijkstra_zero() <= x},
-  for any edge in \lstinline{graph}.
-\end{itemize}
-\pnum\effects Compute the shortest path and associated distance from vertex
-\lstinline{source} to all reachable vertices in \lstinline{graph}.
-\pnum\returns
-\begin{itemize}
-\item For \lstinline{delta_stepping_shortest_paths} and \lstinline{delta_stepping_shortest_distances},
-  if vertex with index \lstinline{i} is reachable from vertex \lstinline{source}, then
-  \lstinline{distances[i]} will contain the distance from \lstinline{source} to vertex
-  \lstinline{i}.  If vertex \lstinline{i} is not reachable from vertex
-  \lstinline{source} then \lstinline{distances[i]} will contain
-  \lstinline{std::numeric_limits<range_value_t<D>>::max()}.
-\item
-For \lstinline{delta_stepping_shortest_paths} if vertex with index \lstinline{i} is reachable
-from vertex \lstinline{source}, then \lstinline{predecessor[i]} will contain the
-predecessor vertex of vertex \lstinline{i}.  If vertex \lstinline{i} is not reachable
-from vertex \lstinline{source} then \lstinline{predecessors[i]} will contain
-\lstinline{i}.
-\end{itemize}
-%
-\pnum\complexity $\mathcal{O}(|E| + |V| + d\cdot L)$, where d is maximum vertex degree in the graph and $L = \max_{v\in V} dist(v)$.
-\pnum\throws none. \andrew{Throw if \lstinline{source} out of range?}
+      \pnum Delta-stepping is a parallelizable version of Dijkstra's shortest path algorithm.
+      \pnum\preconditions
+      \begin{itemize}
+            \item
+                  \lstinline{graph} is an \lstinline{adjacency_list}, which may be directed or
+                  undirected.
+            \item
+                  \lstinline{0 <= source < num_vertices(graph)}.
+            \item
+                  The \lstinline{distance} range must be initialized so that
+                  \lstinline{distance[i] == \lstinline{std::numeric_limits<range_value_t<D>>::max()}
+                  for all \lstinline{i}
+                  such that \lstinline{0 <= i < num_vertices(graph)}.  \andrew{invalid distance?}
+            \item
+                  The \lstinline{predecessors} range must be initialized so that
+                  \lstinline{precessors[i] == i} for all \lstinline{i} such that
+                  \lstinline{0 <= i < num_vertices(graph)}.
+      \end{itemize}
+      \pnum\requires
+      \begin{itemize}
+            \item
+                  The argument type for the weight
+                  function \lstinline{w} must be convertible from the edge type.
+            \item
+                  The weight function \lstinline{w} must return a non-negative value (that is
+                  a value \lstinline{x} such that \lstinline{dijkstra_zero() <= x},
+                  for any edge in \lstinline{graph}.
+      \end{itemize}
+      \pnum\effects Compute the shortest path and associated distance from vertex
+      \lstinline{source} to all reachable vertices in \lstinline{graph}.
+      \pnum\returns
+      \begin{itemize}
+            \item For \lstinline{delta_stepping_shortest_paths} and \lstinline{delta_stepping_shortest_distances},
+                  if vertex with index \lstinline{i} is reachable from vertex \lstinline{source}, then
+                  \lstinline{distances[i]} will contain the distance from \lstinline{source} to vertex
+                  \lstinline{i}.  If vertex \lstinline{i} is not reachable from vertex
+                  \lstinline{source} then \lstinline{distances[i]} will contain
+                  \lstinline{std::numeric_limits<range_value_t<D>>::max()}.
+            \item
+                  For \lstinline{delta_stepping_shortest_paths} if vertex with index \lstinline{i} is reachable
+                  from vertex \lstinline{source}, then \lstinline{predecessor[i]} will contain the
+                  predecessor vertex of vertex \lstinline{i}.  If vertex \lstinline{i} is not reachable
+                  from vertex \lstinline{source} then \lstinline{predecessors[i]} will contain
+                  \lstinline{i}.
+      \end{itemize}
+      %
+      \pnum\complexity $\mathcal{O}(|E| + |V| + d\cdot L)$, where d is maximum vertex degree in the graph and $L = \max_{v\in V} dist(v)$.
+      \pnum\throws none. \andrew{Throw if \lstinline{source} out of range?}
 \end{itemdescr}
 
 
@@ -351,25 +351,52 @@ from vertex \lstinline{source} then \lstinline{predecessors[i]} will contain
 \subsection{Maximal Independent Set}
 
 {\small
-\lstinputlisting[firstline=366,lastline=372]{src/alg_synopsis.hpp}
+      \lstinputlisting[firstline=358,lastline=364]{src/alg_synopsis.hpp}
 }
 \begin{itemdescr}
-\pnum\preconditions
-\begin{itemize}
-\item
-\lstinline{graph} is an \lstinline{adjacency_list}, which is undirected.
-\item
-\lstinline{0 <= seed < num_vertices(graph)}.
-\item
-\lstinline{mis} output iterator can be assigned vertices of type \lstinline{vertex_id_t<G>} when dereferenced.
-\end{itemize}
-\pnum\effects Output iterator \lstinline{mis} contains maximal independent set of vertices containing \lstinline{seed}, which is a subset of \lstinline{vertices(graph)}.
-\pnum\complexity $\mathcal{O}(|E|)$
+      \pnum\preconditions
+      \begin{itemize}
+            \item
+                  \lstinline{graph} is an \lstinline{adjacency_list}, which is undirected.
+            \item
+                  \lstinline{0 <= seed < num_vertices(graph)}.
+            \item
+                  \lstinline{mis} output iterator can be assigned vertices of type \lstinline{vertex_id_t<G>} when dereferenced.
+      \end{itemize}
+      \pnum\effects Output iterator \lstinline{mis} contains maximal independent set of vertices containing \lstinline{seed}, which is a subset of \lstinline{vertices(graph)}.
+      \pnum\complexity $\mathcal{O}(|E|)$
 \end{itemdescr}
 
 \section{Link Analysis}
 \subsection{Page Rank}
-\andrew{Tier 1 or Tier 2?}
+\andrew{Tier 1 or Tier 2?} \muhammad{Tier 1?}
+
+{\small
+      \lstinputlisting{src/pagerank.hpp}
+}
+\begin{itemdescr}
+      \pnum\preconditions
+      \begin{itemize}
+            \item
+                  \lstinline{graph} is an \lstinline{adjacency_list}, which can be directed or undirected.
+            \item
+                  The \lstinline{scores} range must be initialized so that
+                  \lstinline{scores[i] == 0}
+                  for all \lstinline{i}
+                  such that \lstinline{0 <= i < num_vertices(graph)}.
+            \item
+                  \lstinline{damping_factor} for the page rank algorithm, default is set to \lstinline{0.85}.
+            \item
+                  \lstinline{threshold} for checking convergence, default is set to \lstinline{1e-4}. \muhammad{Maybe change this to type limit?}
+            \item
+                  \lstinline{max_iterations} is the number of maximum iterations if the algorithm does not converge. Default is set to \lstinline{std::numeric_limits<unsigned int>::max()}.
+            \item
+                  \lstinline{weight_fn} The edge value function (default returns 1 for each edge value.)
+      \end{itemize}
+      \pnum\effects Output iterator \lstinline{scores} contains the page rank of each vertex in the graph, accessible through \lstinline{scores[uid]}, where uid is the \lstinline{vertex_id}. The caller must assure \lstinline{size(scores) >= size(vertices(g))}.
+      \pnum\complexity $\mathcal{O}(|E \times k|)$ where $k$ is the number of iterations required to converge (dependent on the data).
+\end{itemdescr}
+
 
 \subsection{Jaccard Coefficient}
 \andrew{Tier 1 or Tier 2?}
@@ -381,49 +408,49 @@ from vertex \lstinline{source} then \lstinline{predecessors[i]} will contain
 \subsection{Kruskal Minimum Spanning Tree}
 
 {\small
-\lstinputlisting[firstline=376,lastline=385]{src/alg_synopsis.hpp}
+      \lstinputlisting[firstline=366,lastline=375]{src/alg_synopsis.hpp}
 }
 \kevin{All of this is subject to change when edge list concept is defined, in the mean time all these types are explicit template arguments}
 \begin{itemdescr}
-\pnum\preconditions
-\begin{itemize}
-\item
-\lstinline{e} is an \lstinline{edge_list}.
-\item
-\lstinline{t} output iterator can be assigned edges of type \lstinline{tuple<VId,VId,EV>} when dereferenced.
-\item
-\lstinline{compare} operator is a valid comparison operation on two edge values of type \lstinline{EV} which returns a bool.
-\end{itemize}
-\pnum\effects Output iterator \lstinline{t} contains edges representing a spanning tree or forest, which minimize the comparison operator. When \lstinline{compare} is \lstinline{<}, \lstinline{t} represents a minimum weight spanning tree.
-\pnum\complexity $\mathcal{O}(|E|)$
+      \pnum\preconditions
+      \begin{itemize}
+            \item
+                  \lstinline{e} is an \lstinline{edge_list}.
+            \item
+                  \lstinline{t} output iterator can be assigned edges of type \lstinline{tuple<VId,VId,EV>} when dereferenced.
+            \item
+                  \lstinline{compare} operator is a valid comparison operation on two edge values of type \lstinline{EV} which returns a bool.
+      \end{itemize}
+      \pnum\effects Output iterator \lstinline{t} contains edges representing a spanning tree or forest, which minimize the comparison operator. When \lstinline{compare} is \lstinline{<}, \lstinline{t} represents a minimum weight spanning tree.
+      \pnum\complexity $\mathcal{O}(|E|)$
 \end{itemdescr}
 
 \subsection{Prim Minimum Spanning Tree}
 
 {\small
-\lstinputlisting[firstline=390,lastline=406]{src/alg_synopsis.hpp}
+      \lstinputlisting[firstline=377,lastline=396]{src/alg_synopsis.hpp}
 }
 \begin{itemdescr}
-\pnum\preconditions
-\begin{itemize}
-\item
-\lstinline{graph} is an \lstinline{adjacency_list}, which is undirected.
-\item
-\lstinline{0 <= seed < num_vertices(graph)}.
-\item
-Size of \lstinline{weight} and \lstinline{predecessor} is greater than or equal to \lstinline{num_vertices(graph)}.
-\item
-\lstinline{compare} operator is a valid comparison operation on two edge values of type \lstinline{edge_value_t<G>} which returns a bool.
-\end{itemize}
-\pnum\effects
-\begin{itemize}
-\item
-\lstinline{predecessor[v]} is the parent vertex of \lstinline{v} in a tree rooted at \lstinline{seed} and \lstinline{weight[v]} is the value of the edge between \lstinline{v} and \lstinline{predecessor[v]} in the tree. When \lstinline{compare} is \lstinline{<} and \lstinline{init_dist==+inf}, \lstinline{predecessor} represents a minimum weight spanning tree.
-\item
-If \lstinline{predecessor} and \lstinline{weight} are not initialized by user, and the graph is not fully connected, \lstinline{predecessor[v]} and \lstinline{weight[v]} will be undefined for vertices not in the same connected component as \lstinline{seed}.
-\end{itemize}
+      \pnum\preconditions
+      \begin{itemize}
+            \item
+                  \lstinline{graph} is an \lstinline{adjacency_list}, which is undirected.
+            \item
+                  \lstinline{0 <= seed < num_vertices(graph)}.
+            \item
+                  Size of \lstinline{weight} and \lstinline{predecessor} is greater than or equal to \lstinline{num_vertices(graph)}.
+            \item
+                  \lstinline{compare} operator is a valid comparison operation on two edge values of type \lstinline{edge_value_t<G>} which returns a bool.
+      \end{itemize}
+      \pnum\effects
+      \begin{itemize}
+            \item
+                  \lstinline{predecessor[v]} is the parent vertex of \lstinline{v} in a tree rooted at \lstinline{seed} and \lstinline{weight[v]} is the value of the edge between \lstinline{v} and \lstinline{predecessor[v]} in the tree. When \lstinline{compare} is \lstinline{<} and \lstinline{init_dist==+inf}, \lstinline{predecessor} represents a minimum weight spanning tree.
+            \item
+                  If \lstinline{predecessor} and \lstinline{weight} are not initialized by user, and the graph is not fully connected, \lstinline{predecessor[v]} and \lstinline{weight[v]} will be undefined for vertices not in the same connected component as \lstinline{seed}.
+      \end{itemize}
 
-\pnum\complexity $\mathcal{O}(|E|log|V|)$
+      \pnum\complexity $\mathcal{O}(|E|log|V|)$
 \end{itemdescr}
 
 \section{Operators}
@@ -553,7 +580,7 @@ All algorithms are customization points.
 \phil{Algorithms marked [TBD] are provisional and may be moved to a separate proposal to keep the size of this proposal manageable}
 
 \subsection{Dijkstra's Shortest Paths and Shortest Distances}
-Dijkstra's algorithm \cite{REF_} is a single-source, shortest paths algorithm for non-negative weights. It finds the shortest paths 
+Dijkstra's algorithm \cite{REF_} is a single-source, shortest paths algorithm for non-negative weights. It finds the shortest paths
 and their weighted distances to all vertices connected to a single seed vertex.
 
 \begin{lstlisting}
@@ -588,42 +615,42 @@ constexpr void dijkstra_shortest_paths(
 \end{lstlisting}
 
 \begin{table}[h!]
-%\begin{center}
-%\resizebox{\textwidth}{!}
-{\begin{tabular}{l l}
-\hline
-    \textit{Complexity} & O(V log(V)). \\
-                                & Additional time will be required to pre-extend  or initialize the \tcode{distance} range by the caller. \\
-                                & Additional time may also be required to pre-extend \tcode{predecessor}. \\
-\andrew{O((|E| + |V|)log(|V|) or O(|E| + |V|log(|V|).  Initializing distance and predecessor are O(|V|) so don't change the complexity.}
-\hline
-    \textit{Constraints} &  Values returned by \tcode{weight_fn} must be non-negative. \\
-\hline
-    \textit{Preconditions} &  \tcode{seed >= 0 && seed < size(vertices(g))} \\
-                                   &  \tcode{size(distance) >= size(vertices(g))}; caller must pre-extend with \tcode{dikstra_invalid_distance()} \\
-                                   &  \tcode{size(predecessor) >= size(vertices(g))}; caller must pre-extend \\
-                                   & \tcode{distance[i] = dijkstra_invalid_distance()} for \tcode{i < size(vertices(g))} \\
-\hline
-    \textit{Postconditions} &  \tcode{distance[seed] == 0} \\
-                                     & \tcode{predecessor[seed] == seed}. \\
-\hline
-    \textit{\effects} & \tcode{distance[uid]} will be the shortest, weighted distance of vertex\_id \tcode{uid} from \tcode{seed}. \\
-    & If \tcode{uid} is not connected to \tcode{seed} by any edges then it will have a value of \tcode{dijkstra_invalid_distance()}. \\
-    & \\
-    & \tcode{predecessor[uid]} will have the preceding vertex\_id of \tcode{uid} in the weighted shortest path to \tcode{seed} \\
-    & when \tcode{distance[uid] != dijkstra_invalid_distance()}. \\
-\hline
-\end{tabular}}
-%\caption{\tcode{incidence} View Functions}
-%\label{tab:incidence}
-%\end{center}
+      %\begin{center}
+      %\resizebox{\textwidth}{!}
+      {\begin{tabular}{l l}
+                  \hline
+                  \textit{Complexity}     & O(V log(V)).                                                                                                                                                  \\
+                                          & Additional time will be required to pre-extend  or initialize the \tcode{distance} range by the caller.                                                       \\
+                                          & Additional time may also be required to pre-extend \tcode{predecessor}.                                                                                       \\
+                  \andrew{O((|E| + |V|)log(|V|) or O(|E| + |V|log(|V|).  Initializing distance and predecessor are O(|V|) so don't change the complexity.}
+                  \hline
+                  \textit{Constraints}    & Values returned by \tcode{weight_fn} must be non-negative.                                                                                                    \\
+                  \hline
+                  \textit{Preconditions}  & \tcode{seed >= 0                                                                                                               &  & seed < size(vertices(g))} \\
+                                          & \tcode{size(distance) >= size(vertices(g))}; caller must pre-extend with \tcode{dikstra_invalid_distance()}                                                   \\
+                                          & \tcode{size(predecessor) >= size(vertices(g))}; caller must pre-extend                                                                                        \\
+                                          & \tcode{distance[i] = dijkstra_invalid_distance()} for \tcode{i < size(vertices(g))}                                                                           \\
+                  \hline
+                  \textit{Postconditions} & \tcode{distance[seed] == 0}                                                                                                                                   \\
+                                          & \tcode{predecessor[seed] == seed}.                                                                                                                            \\
+                  \hline
+                  \textit{\effects}       & \tcode{distance[uid]} will be the shortest, weighted distance of vertex\_id \tcode{uid} from \tcode{seed}.                                                    \\
+                                          & If \tcode{uid} is not connected to \tcode{seed} by any edges then it will have a value of \tcode{dijkstra_invalid_distance()}.                                \\
+                                          &                                                                                                                                                               \\
+                                          & \tcode{predecessor[uid]} will have the preceding vertex\_id of \tcode{uid} in the weighted shortest path to \tcode{seed}                                      \\
+                                          & when \tcode{distance[uid] != dijkstra_invalid_distance()}.                                                                                                    \\
+                  \hline
+            \end{tabular}}
+      %\caption{\tcode{incidence} View Functions}
+      %\label{tab:incidence}
+      %\end{center}
 \end{table}
 
 \phil{Describe the pros and cons of different kinds of queues} \\
 
 \andrew{Consider putting the queue template parameter on BFS and passing BFS as a parameter to Dijkstra. Kevin will think about it.} \\
 
-The default weight function \tcode{weight_fn} returns a value of 1. When that is used, \tcode{distance[uid]} will have the shortest number of edges 
+The default weight function \tcode{weight_fn} returns a value of 1. When that is used, \tcode{distance[uid]} will have the shortest number of edges
 between vertex \tcode{uid} and vertex \tcode{seed}. The distance from \tcode{seed} to itself is zero.
 
 If the caller wishes to use a different queue other than \tcode{priority_queue}, the queue will need to have elements of \tcode{weighted_vertex}
