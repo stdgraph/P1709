@@ -10,13 +10,13 @@ represent the \textbf{map} of a game world. In \textbf{business} environments, g
 \section{Goals and Priorities}
 \begin{itemize}
 \item Follow the separation of algorithms, ranges, views and containers established by the standard library.
-\item All free functions should be customization point objects, unless there's a good reason not to. Reasonable default implementations should be provided whenever possible.
 \item Graph algorithms have the following characteristics
 \begin{itemize}
 \item Support syntax that is simple, expressive and easy to understand. This should not compromise the ability to write high-performance algorithms.
 \item Vertices are required to be in random access containers with an integral vertex\_id in this proposal.
 \end{itemize}
 \item Graph views provide common traversals of a graph's vertices and edges that is more concise and consistant than using the graph container interface directly. They include simple traversals like vertexlist (all vertices in the graph) and incidence edges (edges on a vertex), as well as more complex traversals like depth-first and breath-first searches.
+\item Free functions used by Graph Algorithms should be customization point objects, unless there's a good reason not to. Reasonable default implementations should be provided whenever possible.
 \item The Graph Container Interface provides a consistent interface that can be used by algorithms and views. It has the following characteristics:
 \begin{itemize}
 \item The interface models an adjacency graph container, which is an outer range of vertices with an inner range of outgoing (a.k.a. incidence) edges on each vertex. 
@@ -27,7 +27,11 @@ represent the \textbf{map} of a game world. In \textbf{business} environments, g
 \item Support of optional user-defined value types on an edge, vertex and/or the graph itself.
 \item Allow for useful extensions of the graph data model in future proposals or in external graph implementations. 
 \end{itemize}
-\item Provide an initial suite of useful functionality that includes algorithms, views, container interface, and at least one container implementation.
+\item An Edge List Container interface which specifies and interface for essential utility classes for representing lists of edges as well as any associated edge properties.
+\item Provide an initial suite of useful functionality that includes algorithms, views, container interface, and at least one 
+model container implementation for each of the \tcode{adjacency_list} and
+\item A lightweight Graph Adaptor to provide a Graph Container or an Edge List interface to compositions of standard library components.
+\tcode{edge_list} concepts.
 \end{itemize}
 
 \section{Examples}
@@ -72,24 +76,25 @@ The github \href{https://github.com/stdgraph}{stdgraph} repository contains an i
 The algorithms are being ported from NWGraph to the \href{https://github.com/stdgraph}{stdgraph} implementation used for this proposal. Performance analysis from those algorithms can be found in the peer-reviewed paper for NWGraph \cite{REF_nwgraph_paper}.
 
 \section{Prior Art}
-\textbf{boost::graph} has been an important C++ graph implementation since 2001. It was developed with the goal to provide
-a modern library that addressed all the needs someone would want of a graph library. It is still a viable library used today,
-attesting to the value it brings.
+\textbf{boost::graph} has been an important C++ graph implementation since 2001. It was developed with the goal of providing
+a modern (at the time) generic library that addressed all the needs someone would want of a graph library. It is still a viable library used today, attesting to the value it brings.
 
-However, boost::graph was written using C++98 and added many unneccesary abstractions that makes it difficult
-to use by a casual developer. 
+However, boost::graph was written using C++98 in an ``expert-friendly'' style, adding many abstractions and using sophisticated tempate metaprogramming, making it difficult to use by a casual developer.
 
-Andrew is a co-author of boost::graph.
-\\
+(Andrew is a co-author of boost::graph.)
+
+\medskip
 
 \textbf{NWGraph} (\cite{REF_nwgraph_library} and \cite{REF_nwgraph_paper}) was published in 2022
-by Lumsdaine et al, bringing additional experience gained since creating boost::graph, to create a modern graph library using C++20 that
-was more accessible to the average developer with the latest algorithms.
+by Lumsdaine et al, bringing additional experience gained since creating boost::graph, to create a modern graph library using C++20 for its implementation 
+that was more accessible to the average developer. % with the latest algorithms.
 
-While NWGraph made
-important strides, there are some areas that don't conform to established expectations in the Standard Library. Examples
-include using parameter packs to define multiple value types for an edge, rather than a single type; a focus on only defing value types on edges, but not vertices or the graph; there is no defined way to
-integrate existing graph containers to be used by the algorithms.
+While NWGraph made important strides, 
+as a prototype to explore certain implementation aspects,
+there are some areas that don't conform to established expectations in the Standard Library. Examples
+include using parameter packs to define multiple value types for an edge, rather than a single type; a focus on only defing value types on edges, but not vertices or the graph (NWGraph espouse a philosophy of ``there are no vertices, only vertex ids''); 
+because of the focus on graphs as containers of containers,
+the API for integrating existing third-party graph containers to be used by the algorithms is currently somewhat limited.
 \\
 \andrew{These limitations need to be stated a little more carefully.  For some of these, there are simply alternative approaches (such as vertex value types).}
 

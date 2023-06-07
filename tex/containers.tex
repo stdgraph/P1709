@@ -172,6 +172,9 @@ Edgelists are assumed to be either be an edgelist view of an adjacency graph, or
 
 \andrew{In think we should have a different name than csr\_graph since: ``CSR'' is a linear algebra concept; a graph does not have ``rows''; the same structure also represents ``CSC''; not calling it csr may avoid some of the discussions we had with linear algebra people.  This has the potential of bogging down the entire proposal.}
 
+\section{Relationship between Graphs and Sparse Matrices}
+
+
 \section{csr\_graph Graph Container}
 The csr\_graph is a high-performance graph container that uses \href{https://en.wikipedia.org/wiki/Sparse_matrix#Compressed_sparse_row_\%28CSR\%2C_CRS_or_Yale_format\%29}{Compressed Sparse Row} format to store it's vertices, edges and associated values. Once constructed, vertices and edges cannot be added or deleted but values on vertices and edges can be modified.
 \\

@@ -43,6 +43,23 @@ int main() {
 \end{lstlisting}
 }
 
+  Output:
+  { \small
+Tom Cruise has Bacon number 1
+Kevin Bacon has Bacon number 0
+Hugo Weaving has Bacon number 3
+Carrie-Anne Moss has Bacon number 4
+Natalie Portman has Bacon number 2
+Jack Nicholson has Bacon number 1
+Kelly McGillis has Bacon number 2
+Harrison Ford has Bacon number 1
+Sebastian Stan has Bacon number 3
+Mila Kunis has Bacon number 3
+Michelle Pfeiffer has Bacon number 1
+Keanu Reeves has Bacon number 4
+Julia Roberts has Bacon number 1    
+    }
+
 In graph parlance, we are creating a graph where the vertices are actors and the edges are movies.
 The number of movies that connect an actor to Kevin Bacon is the shortest path in the graph
 from Kevin Bacon to that actor. In the example above, we compute shortest paths from Kevin
@@ -60,7 +77,7 @@ Cormen, Leiserson, Rivest, and Stein (``CLRS'')~\cite{CLRS2022}.
 
 A \emph{graph} $G$ is a set comprised of two other sets, the vertex set $V$ and the edge set $E$,
 typically expressed as $G=\{V,E\}$. We can number the members of the vertex set
-and write $V = \{ v_0, v_1, \ldots , v_{n-1} \}$. Similarly, we can write $E = \{ e_0, e_1, \ldots, e_{m-1} \}$. The number of elements in $V$ is denoted by $|V|$ and the number of elements in $E$ is denoted by $|E|$. Edges in $E$ are pairs of vertices; for any $e_k \in E$, we write $e_k = ( v_i, v_j )$, where $v_i \in V$ and $v_j\in V$. The edges in $E$ may be \emph{uordered}, in which case $(v_i, v_j) = (v_j, v_i)$ or \emph{ordered}, in which case $(v_i, v_j) \neq (v_j, v_i)$ (unless $i = j$).
+and write $V = \{ v_0, v_1, \ldots , v_{n-1} \}$. Similarly, we can write $E = \{ e_0, e_1, \ldots, e_{m-1} \}$. The number of elements in $V$ is denoted by $|V|$ and the number of elements in $E$ is denoted by $|E|$. Edges in $E$ are pairs of vertices; for any $e_k \in E$, we write $e_k = ( v_i, v_j )$, where $v_i \in V$ and $v_j\in V$. The edges in $E$ may be \emph{unordered}, in which case $(v_i, v_j) = (v_j, v_i)$ or \emph{ordered}, in which case $(v_i, v_j) \neq (v_j, v_i)$ (unless $i = j$).
 A graph consisting of unordered edges is said to be \emph{undirected};
 a graph consisting of ordered edges is said to be \emph{directed}.
 Since there is a single set of vertices in this definition of $G$, that is, edges connect
@@ -100,6 +117,10 @@ as the position of the vertex in the vertex set $V$. For example, in the graph
 $G = \{ \{ 0, 1, 2, 3 \}, \{ (0, 1), (1, 2), (2, 3) \} \}$, the vertex $v_0$ has index 0,
 $v_1$ has index 1, $v_2$ has index 2, and $v_3$ has index 3. In the literature,
 a vertex and its index are often used interchangeably.
+
+\andrew{A separate proposal for this?  However, the Kevin Bacon example requires bipartite graphs.
+  I also have questions about bipartiteness (or labeling in general) at every talk I give about
+C++ graph libraries.}
 
 A \emph{bipartite graph} is a graph $G$ with two disjoint sets of
 vertices $U$ and $V$ such that every edge in $E$ connects a vertex
@@ -149,18 +170,18 @@ converting between data that has not yet been interpreted as a graph, e.g., a ta
 and an adjacency list. Moreover, certain tasks, such as sorting or relabeling vertices, are
 more natural to express in terms of the edge list.
 
-\subsection{Adjacency Matrix}
+% \subsection{Adjacency Matrix}
 
-\andrew{Is this useful? Should it be included in std::graph?
-I personally don't think it is very useful, but the committee may disagree
-since it is often used in the literature (typically introductory).}
+% \andrew{Is this useful? Should it be included in std::graph?
+% I personally don't think it is very useful, but the committee may disagree
+% since it is often used in the literature (typically introductory).}
 
 
 \section{From Data to Graph}
 
 \subsection{Columnar Data}
 
-Figure~ref{fig:edge\_list\_from\_columnar\_data}
+Figure~\ref{fig:edge_list_from_columnar_data}
 shows how one might create an unlabeled edge list from a table of data stored in a CSV file.
 The values in each row are assumed to be separated by whitespace.
 The elements of the first column are considered to be the source vertices and the elements of
@@ -281,11 +302,13 @@ edge list as argument.}
 
 \section{BiPartite Graphs}
 
+\phil{Should this be a separate proposal?}
 So far, we have been considering graphs where the vertices, and both elements of an
 edge, are members of a single set $|V|$. A graph with a single vertex set is called a
 \emph{unipartite} graph. If the vertices in a graph can be partitioned into two
 disjoint sets such that all of the edges in the graph only connect vertices from one
 set of the vertices of the other set, the graph is called a \emph{bipartite} graph.
+\andrew{Set membership == vertex label.  How many labels can a vertex have?  How many sets can a vertex belong to?}
 
 Even if a graph is designated to be unipartite, it may be the case that its vertices
 can be partitioned into two disjont sets. In such a case, the graph is bipartite,
@@ -316,10 +339,6 @@ denote them as $G = (U, V, E)$, where the vertex sets $U$ and $V$ are disjoint.
 \subsection{BiPartite Graph Models}
 
 \subsection{BiPartite Graph Implementations}
-
-
-\section{Relationship between Graphs and Sparse Matrices}
-
 
 \section{Naming Conventions}
 

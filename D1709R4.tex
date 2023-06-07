@@ -20,6 +20,12 @@
 
 %% Define colors
 \usepackage[hyperref]{xcolor}
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks = true,
+  linkcolor = bs_h1_h2_h3% {0 .35 .61} % 005A9C
+}
+
 
 \definecolor{light-gray}{gray}{0.95}
 \definecolor{medium-gray}{gray}{0.33}
@@ -35,18 +41,7 @@
 \definecolor{bs_a_href}{HTML}{034575}
 \definecolor{xcomment}{HTML}{0000A0}
 
-%% Customize section headings
-\usepackage{titlesec}
-\titleformat*{\section}{\normalfont\Large\bfseries\color{bs_h1_h2_h3}}
-\titleformat*{\subsection}{\normalfont\large\bfseries\color{bs_h1_h2_h3}}
-\titleformat*{\subsubsection}{\normalfont\normalsize\bfseries\color{bs_h1_h2_h3}}
 
-%% Customize hyperlinks
-\usepackage{hyperref}
-\hypersetup{
-  colorlinks = true,
-  linkcolor = bs_h1_h2_h3% {0 .35 .61} % 005A9C
-}
 
 %% Customize code formatting
 %% Note that P2300 uses Menlo, Consolas, "DejaVu Sans Mono", Monaco, monospace;
@@ -111,9 +106,10 @@
 }
 
 % \usepackage{underscore}   % remove special status of '_' in ordinary text
-\usepackage{parskip}
+%\usepackage{parskip}
 
 \newcommand{\xcomment}[2]{{\color{xcomment}[{\textsc{#1:}} \textsf{#2}]}}
+% \newcommand{\xcomment}[2]{}
 \newcommand{\phil}[1]{\xcomment{Phil}{#1}}
 \newcommand{\andrew}[1]{\xcomment{Andrew}{#1}}
 \newcommand{\kevin}[1]{\xcomment{Kevin}{#1}}
@@ -123,6 +119,18 @@
 \input{niko/styles}
 \input{niko/macros}
 \input{niko/tables}
+
+
+%% Customize section headings
+\usepackage{titlesec}
+\titleformat*{\section}{\normalfont\Large\bfseries\color{bs_h1_h2_h3}}
+\titleformat*{\subsection}{\normalfont\large\bfseries\color{bs_h1_h2_h3}}
+\titleformat*{\subsubsection}{\normalfont\normalsize\bfseries\color{bs_h1_h2_h3}}
+\titlespacing*{\chapter}{0pt}{1.5ex plus 1ex minus .2ex}{1ex plus .2ex}
+\titlespacing*{\section}{0pt}{1.5ex plus 1ex minus .2ex}{1ex plus .2ex}
+\titlespacing*{\subsection}{0pt}{1.5ex plus 1ex minus .2ex}{1ex plus .2ex}
+\titlespacing*{\subsubsection}{0pt}{1.5ex plus 1ex minus .2ex}{1ex plus .2ex}
+
 
 
 \begin{document}
@@ -136,17 +144,17 @@
   Date:         & 2022-12-06                                             \\
   Reply to:     & Phil Ratzloff (phil.ratzloff@sas.com),                 \\
                 & Andrew Lumsdaine (lumsdaine@gmail.com)                 \\
-                & Billy O'Neal (bion@microsoft.com)                      \\
-                & Herb Sutter (hsutter@microsoft.com),                   \\
-                & Anthony Williams (anthony@justsoftwaresolutions.co.uk) \\
+                &                                                        \\
+                &                                                        \\
+                &                                                        \\
   Contributors: & Richard Dosselmann (University of Regina)              \\
                 & Michael Wong (Codeplay)                                \\
                 & Matthew Galati (Amazon)                                \\
                 & Jens Maurer                                            \\
-                & Domagoj Saric                                          \\
                 & Jesun Firoz                                            \\
                 & Kevin Deweese                                          \\
                 & Muhammad Osama (AMD, Inc)                              \\
+                &                                                        \\
   Audience:     & SG1, LEWG, LWG                                         \\
   Source:       & \href{https://github.com/stdgraph/graph-v2}{Github}    \\
   % Prev. Version:	& \url{www.wg21.link/P0660R9}, \url{www.wg21.link/P1287R0} \\
