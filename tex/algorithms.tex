@@ -1,7 +1,41 @@
-\chapter{Tier 1 Algorithms}
+\chapter{Algorithms}
+
+Our proposed set of algorithms are grouped into Tier 1, Tier 2, and Tier 3 (similar to the approach used to prioritize algorithms in \tcode{std::ranges}).
+
+Tier 1:
+\begin{itemize}
+\item Shortest paths (driver interface)
+\item Breadth-First search
+\item Dijkstra's algorithm
+\item Bellman-Ford
+\item Delta-stepping
+\item Triangle counting
+\item Label propagation
+\item Articulation points
+\item Connected components
+\item Biconnected components
+\item Strongly connected components  
+\item Topological sort
+\item Maximal independent set
+\item Page rank
+\item Jaccard coefficient (?)
+\item Kruskal MST
+\item Prim MST
+\end{itemize}
+
+\andrew{How many should be parallelized?}
 
 \section{Algorithm Concepts}
-Additional concepts used by algorithms.
+
+\andrew{Need to develop this ala CppCon 2021 talk.}
+
+The abstraction that is used for describing and analyzing almost all graph algorithms is the adjacency list.  Naturally then implementations of graph algorithms in C++ will operate on a data structure representing an adjacency list.  And generic algorithms will be written in terms of concepts that capture the essential operations that a concrete data structure must provide in order to be used as an abstraction of an adjacency list.
+
+Most fundamentally (as illustrated above), an adjacency list is a collection of vertices, each of which has a collection of outgoing edges.  In terms of existing C++ concepts, we can consider an adjacency list to be a range of ranges (or, more specifically, a random access range of forward ranges).  The outer range is the collection of vertices, and the inner ranges are the collections of outgoing edges.
+\andrew{We should probably have that discussion soon about what we specifically mean by ``vertex''...}
+
+\andrew{Is it better to list the concepts here or forward reference them?  Kind of a circularity.  But maybe the sequence of concepts - algorithms - concrete data types is the right one.  OTOH, std::ranges use ordering overview library-concepts-containers-algorithms.  Since a graph is a range of ranges, maybe we should follow that.}
+% Additional concepts used by algorithms.
 
 \begin{lstlisting}
 template <class G, class F>
@@ -10,7 +44,7 @@ concept edge_weight_function = // e.g. weight(uv)
 \end{lstlisting}
 
 \begin{lstlisting}
-// queueable<Q> can represent std::queue and std::priority\_queue
+// queueableQ can represent std::queue and std::priority\_queue
 template <class Q>
 concept queueable = requires(Q&& q, Q::value_type value) {
   Q::value_type;
