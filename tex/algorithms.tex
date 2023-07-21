@@ -474,100 +474,49 @@ concept queueable = requires(Q&& q, Q::value_type value) {
 \andrew{I've used NetworkX as inspiration for organization.  Oddly, NetworkX only has DFS as an adaptor (view).}
 
 
-\chapter{Tier 2 and Tier 3 Algorithms}
+\chapter{Other Algorithms}
+
+Additional algorithms that were considered but not included in this proposal are identified in Table \ref{tab:other_algorithms}. 
+It is assumed that future proposals will include them, with a recommendation of each Tier being in its own proposal.
+Tier X algorithms are variations of shortest paths algorithms that complement the Single Source, Multiple Target algorithms 
+in this proposal.
+
+\begin{table}[h!]
+\begin{center}
+%\resizebox{\textwidth}{!}
+{\begin{tabular}{l|l|l}
+\hline
+    \textbf{Tier 2} & \textbf{Tier 3} & \textbf{Tier X} \\
+\hline
+    All Pairs Shortest Paths & Jones Plassman & Single Source, Single Target: Shortest Paths\\
+    Floyd-Warshall & Cores: k-cores & Single Source, Single Target: BFS \\
+    Johnson & Cores: k-truss & Single Source, Single Target: Dijkstra \\
+    Centrality: Betweenness Centrality & Subgraph Isomorphism & Single Source, Single Target: Bellman-Ford \\
+    Coloring: Greedy & & Single Source, Single Target: Delta Stepping \\
+    Communities: Louvain & &  \\
+    Connectivity: Minimum Cuts & & Multiple Source: Shortest Paths \\
+    Transitive Closure & & Multiple Source: BFS \\
+    Flows: Edmunds Karp & & Multiple Source: Dijkstra \\
+    Flows: Push Relabel & & Multiple Source: Bellman-Ford \\
+    Flows: Boykov Kolmogorov & & Multiple Source: Delta Stepping \\
+    & &  \\
+    & & Multiple Source, Single Target: Shortest Paths \\
+    & & Multiple Source, Single Target: BFS \\
+    & & Multiple Source, Single Target: Dijkstra \\
+    & & Multiple Source, Single Target: Bellman-Ford \\
+    & & Multiple Source, Single Target: Delta Stepping \\
+\hline
+\end{tabular}}
+\caption{Other Algorithms}
+\label{tab:other_algorithms}
+\end{center}
+\end{table}
 
 
-\subsection{All Pairs}
-\andrew{Tier 2?  People bring this up alot -- but it is very expensive in terms of computation and memory.}
+\andrew{All Pairs: Tier 2?  People bring this up alot -- but it is very expensive in terms of computation and memory.}
 
-\subsection{Floyd-Warshall}
-\andrew{Tier 2 -- $\mathcal{O}(N^2)$}
-
-\subsection{Johnson}
-\andrew{Tier 2 -- $\mathcal{O}(N^2)$}
-
-\section{Centrality}
-\subsection{Betweenness Centrality}
-\andrew{Tier 2}
-
-\section{Coloring}
-\subsection{Greedy}
-\andrew{Tier 2}
-
-\subsection{Jones Plassman}
-\andrew{Tier 3}
-
-\section{Communities}
-\subsection{Louvain}
-\andrew{Tier 2}
-
-\section{Connectivity}
-\subsection{Minimum Cuts}
-\andrew{Tier 2}
-
-\section{Cores}
-\subsection{k-cores}
-\andrew{Tier 3}
-\subsection{k-truss}
-\andrew{Tier 3}
-
-\section{Directed Acyclic Graphs}
-\subsection{Transitive Closure}
-\andrew{Tier 2}
-
-\section{Flows}
-\subsection{Edmunds Karp}
-\andrew{Tier 2}
-\subsection{Push Relabel}
-\andrew{Tier 2}
-\subsection{Boykov Kolmogorov}
-\andrew{Tier 2}
-
-\section{Isomorphism}
-\subsection{Subgraph Isomorphism}
-\andrew{Tier 3}
-
-
-\section{Shortest Paths}
-\subsection{Single Source, Single Target}
-\andrew{Tier X}
-\subsection{Multiple Source}
-\andrew{Tier X}
-\subsection{Multiple Source, Single Target}
-\andrew{Tier X}
-
-
-\section{Other}
-\subsection{BFS Single Source, Single Target}
-\andrew{Tier X}
-\subsection{Dijkstra Single Source, Single Target}
-\andrew{Tier X}
-\subsection{Bellman-Ford Single Source, Single Target}
-\andrew{Tier X}
-\subsection{Delta Stepping Single Source, Single Target}
-\andrew{Tier X}
-
-\subsection{BFS Multiple Source}
-\andrew{Tier X}
-\subsection{Dijkstra Multiple Source}
-\andrew{Tier X}
-\subsection{Bellman-Ford Multiple Source}
-\andrew{Tier X}
-\subsection{Delta Stepping Multiple Source}
-\andrew{Tier X}
-
-\subsection{BFS Multiple Source, Single Target}
-\andrew{Tier X}
-\subsection{Dijkstra Multiple Source, Single Target}
-\andrew{Tier X}
-\subsection{Bellman-Ford Multiple Source, Single Target}
-\andrew{Tier X}
-\subsection{Delta Stepping Multiple Source, Single Target}
-\andrew{Tier X}
-
-\begin{comment}
-\end{comment}
-
+% Floyd-Warshall $\mathcal{O}(N^2)$}
+% Johnson $\mathcal{O}(N^2)$}
 
 
 
