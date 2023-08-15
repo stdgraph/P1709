@@ -305,7 +305,7 @@ concept queueable = requires(Q&& q, Q::value_type value) {
 \subsubsection{Delta-Stepping Single Source}
 
 {\small
-      \lstinputlisting[firstline=257,lastline=361]{src/alg_synopsis.hpp}
+      \lstinputlisting[firstline=252,lastline=357]{src/alg_synopsis.hpp}
 }
 
 
@@ -376,7 +376,51 @@ concept queueable = requires(Q&& q, Q::value_type value) {
 \subsection{Connected Components}
 
 \subsection{Strongly Connected Components}
+\subsubsection{Kosaraju's SCC}
+{\small
+      \lstinputlisting[firstline=4, lastline=11]{src/connected_components.hpp}
+}
+\begin{itemdescr}
+      \pnum\preconditions
+      \begin{itemize}
+            \item
+                  \lstinline{g} is an \lstinline{adjacency_list}, which is directed.
+            \item
+                  \lstinline{g_t} is an \lstinline{adjacency_list}, which is directed
+            \item
+                  \lstinline{g_t} is the transpose of \lstinline{g}. Edge \lstinline{uv} in \lstinline{g} implies edge \lstinline{vu} in \lstinline{g_t}. \lstinline{num_vertices(g)} equals \lstinline{num_vertices(g_t)}.
+            \item
+                  Size of \lstinline{component} is greater than or equal to \lstinline{num_vertices(g)}.
+      \end{itemize}
+      \pnum\effects
+      \begin{itemize}
+            \item
+                  \lstinline{component[v]} is the strongly connected component id of \lstinline{v}.
+      \end{itemize}
 
+      \pnum\complexity $\mathcal{O}(|E|+|V|)$
+\end{itemdescr}
+
+\subsubsection{Tarjan's SCC}
+{\small
+      \lstinputlisting[firstline=16,lastline=20]{src/connected_components.hpp}
+}
+\begin{itemdescr}
+      \pnum\preconditions
+      \begin{itemize}
+            \item
+                  \lstinline{g} is an \lstinline{adjacency_list}, which is directed.
+            \item
+                  Size of \lstinline{component} is greater than or equal to \lstinline{num_vertices(g)}.
+      \end{itemize}
+      \pnum\effects
+      \begin{itemize}
+            \item
+                  \lstinline{component[v]} is the strongly connected component id of \lstinline{v}.
+      \end{itemize}
+
+      \pnum\complexity $\mathcal{O}(|E|+|V|)$
+\end{itemdescr}
 
 \section{Directed Acyclic Graphs}
 \subsection{Topological Sort}
@@ -385,7 +429,7 @@ concept queueable = requires(Q&& q, Q::value_type value) {
 \subsection{Maximal Independent Set}
 
 {\small
-      \lstinputlisting[firstline=358,lastline=364]{src/alg_synopsis.hpp}
+      \lstinputlisting[firstline=361,lastline=364]{src/alg_synopsis.hpp}
 }
 \begin{itemdescr}
       \pnum\preconditions
@@ -442,37 +486,34 @@ concept queueable = requires(Q&& q, Q::value_type value) {
 \subsection{Kruskal Minimum Spanning Tree}
 
 {\small
-      \lstinputlisting[firstline=366,lastline=375]{src/alg_synopsis.hpp}
+      \lstinputlisting[firstline=4,lastline=8]{src/mst.hpp}
 }
-\kevin{All of this is subject to change when edge list concept is defined, in the mean time all these types are explicit template arguments}
 \begin{itemdescr}
       \pnum\preconditions
       \begin{itemize}
             \item
-                  \lstinline{e} is an \lstinline{edge_list}.
+                  \lstinline{e} is an \lstinline{edgelist}.
             \item
-                  \lstinline{t} output iterator can be assigned edges of type \lstinline{tuple<VId,VId,EV>} when dereferenced.
-            \item
-                  \lstinline{compare} operator is a valid comparison operation on two edge values of type \lstinline{EV} which returns a bool.
+                  \lstinline{compare} operator is a valid comparison operation on two edge values of type \lstinline{edge_value_t<EL>} which returns a bool.
       \end{itemize}
-      \pnum\effects Output iterator \lstinline{t} contains edges representing a spanning tree or forest, which minimize the comparison operator. When \lstinline{compare} is \lstinline{<}, \lstinline{t} represents a minimum weight spanning tree.
+      \pnum\effects Edgelist \lstinline{t} contains edges representing a spanning tree or forest, which minimize the comparison operator. When \lstinline{compare} is \lstinline{<}, \lstinline{t} represents a minimum weight spanning tree.
       \pnum\complexity $\mathcal{O}(|E|)$
 \end{itemdescr}
 
 \subsection{Prim Minimum Spanning Tree}
 
 {\small
-      \lstinputlisting[firstline=377,lastline=396]{src/alg_synopsis.hpp}
+      \lstinputlisting[firstline=13,lastline=29]{src/mst.hpp}
 }
 \begin{itemdescr}
       \pnum\preconditions
       \begin{itemize}
             \item
-                  \lstinline{graph} is an \lstinline{adjacency_list}, which is undirected.
+                  \lstinline{g} is an \lstinline{adjacency_list}, which is undirected.
             \item
-                  \lstinline{0 <= seed < num_vertices(graph)}.
+                  \lstinline{0 <= seed < num_vertices(g)}.
             \item
-                  Size of \lstinline{weight} and \lstinline{predecessor} is greater than or equal to \lstinline{num_vertices(graph)}.
+                  Size of \lstinline{weight} and \lstinline{predecessor} is greater than or equal to \lstinline{num_vertices(g)}.
             \item
                   \lstinline{compare} operator is a valid comparison operation on two edge values of type \lstinline{edge_value_t<G>} which returns a bool.
       \end{itemize}
