@@ -89,14 +89,9 @@ However, boost::graph was written using C++98 in an ``expert-friendly'' style, a
 by Lumsdaine et al, bringing additional experience gained since creating boost::graph, to create a modern graph library using C++20 for its implementation 
 that was more accessible to the average developer. % with the latest algorithms.
 
-While NWGraph made important strides, 
-as a prototype to explore certain implementation aspects,
-there are some areas that don't conform to established expectations in the Standard Library. Examples
-include using parameter packs to define multiple value types for an edge, rather than a single type; a focus on only defing value types on edges, but not vertices or the graph (NWGraph espouse a philosophy of ``there are no vertices, only vertex ids''); 
-because of the focus on graphs as containers of containers,
-the API for integrating existing third-party graph containers to be used by the algorithms is currently somewhat limited.
-\\
-\andrew{These limitations need to be stated a little more carefully.  For some of these, there are simply alternative approaches (such as vertex value types).}
+While NWGraph made important strides to introduce the idea of the graph as a range-of-ranges and implemented many important algorithms,
+there are some areas it didn't address that come a practical use in the field. For instance, it didn't have a well-defined API for graph
+data structures that could be applied to existing graphs, and there wasn't a uniform approach to properties.
 
 This proposal takes the best of NWGraph, with previous work done for P1709 to define a Graph Container Interface, to provide a library that
 embraces performance, ease-of-use and the ability to use the algorithms and views on externally defined graph containers.
