@@ -392,7 +392,7 @@ concept queueable = requires(Q&& q, Q::value_type value) {
 
 \subsection{BiConnected Components}
 {\small
-     \lstinputlisting[firstline=34,lastline=42]{src/connected_components.hpp}
+     \lstinputlisting[firstline=34,lastline=40]{src/connected_components.hpp}
 }
 \begin{itemdescr}
       \pnum\preconditions
@@ -400,14 +400,12 @@ concept queueable = requires(Q&& q, Q::value_type value) {
             \item
               \lstinline{g} is an \lstinline{adjacency_list}.
             \item
-              Output iterator \lstinline{component} can be assigned objects of type \lstinline{Container} when dereferenced.
-            \item
-              Inner iterators of type \lstinline{InnerIter} can be assigned vertices of type \lstinline{vertex_id_t<G>} when dereferenced.
+              \lstinline{components} is a container of containers. The inner container stores vertex ids.
       \end{itemize}
       \pnum\effects
       \begin{itemize}
             \item
-            Output iterator \lstinline{component} contains groups of biconnected components, stored inside \lstinline{Container} objects.
+            \lstinline{components} contains groups of biconnected components.
       \end{itemize}
 
       \pnum\complexity $\mathcal{O}(|E|+|V|)$
@@ -415,7 +413,7 @@ concept queueable = requires(Q&& q, Q::value_type value) {
 
 \subsection{Connected Components}
 {\small
-     \lstinputlisting[firstline=47,lastline=51]{src/connected_components.hpp}
+     \lstinputlisting[firstline=45,lastline=49]{src/connected_components.hpp}
 }
 \begin{itemdescr}
       \pnum\preconditions
