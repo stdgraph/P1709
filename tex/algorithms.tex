@@ -370,10 +370,67 @@ concept queueable = requires(Q&& q, Q::value_type value) {
 
 \section{Components}
 \subsection{Articulation Points}
+{\small
+     \lstinputlisting[firstline=25,lastline=30]{src/connected_components.hpp}
+}
+\begin{itemdescr}
+      \pnum\preconditions
+      \begin{itemize}
+            \item
+              \lstinline{g} is an \lstinline{adjacency_list}.
+            \item
+              Output iterator \lstinline{cut_vertices} can be assigned vertices of type \lstinline{vertex_id_t<G>} when dereferenced.
+      \end{itemize}
+      \pnum\effects
+      \begin{itemize}
+            \item
+            Output iterator \lstinline{cut_vertices} contains articulation point vertices, those which removed increase the number of components of \lstinline{g}.
+      \end{itemize}
+
+      \pnum\complexity $\mathcal{O}(|E|+|V|)$
+\end{itemdescr}
 
 \subsection{BiConnected Components}
+{\small
+     \lstinputlisting[firstline=34,lastline=40]{src/connected_components.hpp}
+}
+\begin{itemdescr}
+      \pnum\preconditions
+      \begin{itemize}
+            \item
+              \lstinline{g} is an \lstinline{adjacency_list}.
+            \item
+              \lstinline{components} is a container of containers. The inner container stores vertex ids.
+      \end{itemize}
+      \pnum\effects
+      \begin{itemize}
+            \item
+            \lstinline{components} contains groups of biconnected components.
+      \end{itemize}
+
+      \pnum\complexity $\mathcal{O}(|E|+|V|)$
+\end{itemdescr}
 
 \subsection{Connected Components}
+{\small
+     \lstinputlisting[firstline=45,lastline=49]{src/connected_components.hpp}
+}
+\begin{itemdescr}
+      \pnum\preconditions
+      \begin{itemize}
+            \item
+                  \lstinline{g} is an \lstinline{adjacency_list}.
+            \item
+                  Size of \lstinline{component} is greater than or equal to \lstinline{num_vertices(g)}.
+      \end{itemize}
+      \pnum\effects
+      \begin{itemize}
+            \item
+                  \lstinline{component[v]} is the connected component id of \lstinline{v}.
+      \end{itemize}
+
+      \pnum\complexity $\mathcal{O}(|E|+|V|)$
+\end{itemdescr}
 
 \subsection{Strongly Connected Components}
 \subsubsection{Kosaraju's SCC}
