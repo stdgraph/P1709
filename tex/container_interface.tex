@@ -104,6 +104,11 @@ The type aliases are defined by either a function specialization for the underly
 \hdashline
     \tcode{edge_id_t<G>} & \tcode{decltype(pair(source_id(g,uv),target_id(g,uv)))} & \\    
 \hline
+    \tcode{partition_id_t<G>} & \tcode{decltype(partition(g,uid))} & optional \\
+    \tcode{partition_vertex_id_t<G>} & \tcode{struct partition_id_t<G> partition_id  vertex_id_t<G> vertex_id} & optional \\    
+    \tcode{partition_vertex_range_t<G>} & \tcode{vertices(g,p)} & optional \\    
+    \tcode{partition_edge_range_t<G>} & \tcode{edges(g,u,p)} & optional \\    
+\hline
 \end{tabular}}
 \caption{Graph Container Interface Type Aliases}
 \label{tab:graph_type}
@@ -127,6 +132,8 @@ Table \ref{tab:graph_func} summarizes the functions in the Graph Container Inter
     \textbf{Function} & \textbf{Return Type} & \textbf{Complexity} & \textbf{Default Implementation} \\
 \hline
     \tcode{graph_value(g)} & \tcode{graph_value_t<G>} & constant & n/a, optional \\
+\hdashline
+    \tcode{partition_count(g)} & \tcode{vertex_id_t<G>} & constant & \tcode{1} \\
 \hline
     \tcode{vertices(g)} & \tcode{vetex_range_t<G>} & constant & n/a \\
     \tcode{vertex_id(g,ui)} & \tcode{vetex_id_t<G>} & constant & \tcode{ui - begin(vertices(g))} \\
@@ -135,6 +142,11 @@ Table \ref{tab:graph_func} summarizes the functions in the Graph Container Inter
     \tcode{degree(g,u)} & \tcode{integral} & constant & \tcode{size(edges(g,u))} if \tcode{sized_range<vertex_edge_range_t<G>>} \\
     \tcode{find_vertex(g,uid)} & \tcode{vertex_iterator_t<G>} & constant & \tcode{begin(vertices(g)) + uid} \\
     & & & if \tcode{random_access_range<vertex_range_t<G>>}  \\
+\hdashline
+    \tcode{vertices(g,p)} & \tcode{partition_vertex_range_t<G>} & constant & \tcode{vertices(g)} \\
+    \tcode{partition_vertex_id(g,uid)} & \tcode{partition_vertex_id_t<G>} & log(P) & \tcode{partition_vertex_id_t<G>(0,uid)} \\
+    \tcode{partition_vertex_id(g,ui)} & \tcode{partition_vertex_id_t<G>} & log(P) & \tcode{partition_vertex_id_t<G>(0,vertex_id(g,ui))} \\
+    \tcode{find_partition_vertex(g,puid)} & \tcode{vertex_iterator_t<G>} & constant & \tcode{find_vertex(g,puid.vertex_id)} \\
 \hline
     \tcode{edges(g,u)} & \tcode{vertex_edge_range_t<G>} & constant & n/a \\
     \tcode{edges(g,uid)} & \tcode{vertex_edge_range_t<G>} & constant & \tcode{edges(g,*find_vertex(g,uid))} \\
@@ -146,11 +158,16 @@ Table \ref{tab:graph_func} summarizes the functions in the Graph Container Inter
     \tcode{contains_edge(g,uid,vid)} & \tcode{bool} & constant & \tcode{uid < size(vertices(g)) \&\& vid < size(vertices(g))} if \tcode{is_adjacency_matrix_v<G>}.\\
     & & linear & \tcode{find_vertex_edge(g,uid) != end(edges(g,uid))} otherwise. \\
 \hdashline
+    \tcode{edges(g,u,p)} & \tcode{partition_edge_range_t<G>} & E log(P) & \tcode{edges(g,u)} \\
+    \tcode{edges(g,uid,p)} & \tcode{partition_edge_range_t<G>} & E log(P) & \tcode{edges(g,uid)} \\
+    \tcode{partition_target_id(g,uv)} & \tcode{partition_vertex_id_t<G>} & constant & \tcode{partition_vertex_id_t<G>(0,target_id(g,uv))} \\
+\hdashline
     \multicolumn{4}{c}{The following are only available when the optional \tcode{source_id(g,uv)} is defined for the edge} \\
 \hdashline
     \tcode{source_id(g,uv)} & \tcode{vertex_id_t<G>} & constant & n/a, optional \\
     \tcode{source(g,uv)} & \tcode{vertex_t<G>} & constant & \tcode{*(begin(vertices(g)) + source_id(g,uv))} if \tcode{random_access_range<vertex_range_t<G>> \&\& integral<target_id(g,uv)>} \\
     \tcode{edge_id(g,uv)} & \tcode{edge_id_t<G>} & constant & \tcode{pair(source_id(g,uv),target_id(g,uv))} \\
+    \tcode{partition_source_id(g,uv)} & \tcode{partition_vertex_id_t<G>} & constant & \tcode{partition_vertex_id_t<G>(0,source_id(g,uv))} \\
 \hline
 \end{tabular}}
 \caption{Graph Container Interface Functions}
@@ -168,3 +185,12 @@ If the concept requirements for the default implementation aren't met by the gra
 
 Edgelists are assumed to be either be an edgelist view of an adjacency graph, or a standard range with source\_id and target\_id values. There is no need for additional functions when a range is used.
 
+\section{Multipartite graphs}
+
+Partition is integral.
+
+Single partition with all vertices if underlying graph data structure doesn't override the partition functions.
+
+std::variant is expected to be used for vertex values if different value types are needed for different partitions. 
+If different value types are needed for edges based on the source and target vertex partitions, a std::variant can
+also be used for edge values.
