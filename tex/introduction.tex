@@ -122,6 +122,9 @@ a vertex and its index are often used interchangeably.
   I also have questions about bipartiteness (or labeling in general) at every talk I give about
 C++ graph libraries.}
 
+\phil{I don't think we need a separate proposal. I've added the types and functions I think we
+need for multipartite graphs and the csr\_graph can be extended to support it.}
+
 A \emph{bipartite graph} is a graph $G$ with two disjoint sets of
 vertices $U$ and $V$ such that every edge in $E$ connects a vertex
 in $U$ to a vertex in $V$. A bipartite graph is useful for modeling
@@ -302,7 +305,7 @@ edge list as argument.}
 
 \section{BiPartite Graphs}
 
-\phil{Should this be a separate proposal?}
+\phil{Need to reword to accomodate multipartite graphs}
 So far, we have been considering graphs where the vertices, and both elements of an
 edge, are members of a single set $|V|$. A graph with a single vertex set is called a
 \emph{unipartite} graph. If the vertices in a graph can be partitioned into two
@@ -364,6 +367,11 @@ Table~\ref{tab:name_conv} shows the naming conventions used throughout this docu
      \tcode{VI}         & \tcode{vertex_iterator_t<G>}      & \tcode{ui,vi}        & Vertex Iterator. \tcode{ui} is the source (or only) vertex.                                                                                                                                      \\
      &                                   & \tcode{first,last}   & \tcode{vi} is the target vertex.                                                                                                                                                                 \\
      \tcode{VVF}        &                                   & \tcode{vvf}          & Vertex Value Function: vvf(u) $\rightarrow$ value                                                                                                                                                \\
+     \hdashline
+                        & \tcode{partition_id_t<G>}         & \tcode{p}            & Partition id.                                                                                                                                                                                    \\
+                        &                                   & \tcode{P}            & Number of partitions.                                                                                                                                                                            \\
+     \tcode{PVId}       & \tcode{partition_vertex_id_t<G>}  & \tcode{puid,pvid}    & Partition vertex id.                                                                                                                                                                             \\
+     \tcode{PVR}        & \tcode{partition_vertex_range_t<G>} & \tcode{pur,pvr}    & Partition vertex range.                                                                                                                                                                          \\
      \hline
      \tcode{E}          & \tcode{edge_t<G>}                 &                      & Edge                                                                                                                                                                                             \\
      & \tcode{edge_reference_t<G>}       & \tcode{uv,vw}        & Edge reference. \tcode{uv} is an edge from vertices \tcode{u} to \tcode{v}. \tcode{vw} is an edge from vertices \tcode{v} to \tcode{w}.                                                          \\
@@ -371,6 +379,8 @@ Table~\ref{tab:name_conv} shows the naming conventions used throughout this docu
      \tcode{ER}         & \tcode{vertex_edge_range_t<G>}    &                      & Edge Range for edges of a vertex                                                                                                                                                                 \\
      \tcode{EI}         & \tcode{vertex_edge_iterator_t<G>} & \tcode{uvi,vwi}      & Edge Iterator for an edge of a vertex. \tcode{uvi} is an iterator for an edge from vertices \tcode{u} to \tcode{v}. \tcode{vwi} is an iterator for an edge from vertices \tcode{v} to \tcode{w}. \\
      \tcode{EVF}        &                                   & \tcode{evf}          & Edge Value Function: evf(uv) $\rightarrow$ value                                                                                                                                                 \\
+     \hdashline
+     \tcode{PER}        & \tcode{partition_edge_range_t<G>} &                      & Partition Edge Range for edges of a partition vertex                                                                                                                                             \\
      \hline
   \end{tabular}}
     \caption{Naming Conventions for Types and Variables}

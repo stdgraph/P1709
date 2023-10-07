@@ -104,12 +104,23 @@ The type aliases are defined by either a function specialization for the underly
 \hdashline
     \tcode{edge_id_t<G>} & \tcode{decltype(pair(source_id(g,uv),target_id(g,uv)))} & \\    
 \hline
+    \tcode{partition_id_t<G>} & \tcode{decltype(partition(g,uid))} & optional \\
+    \tcode{partition_vertex_id_t<G>} & \tcode{struct partition_id_t<G> partition_id  vertex_id_t<G> vertex_id} & optional \\    
+    \tcode{partition_vertex_range_t<G>} & \tcode{vertices(g,p)} & optional \\    
+    \tcode{partition_edge_range_t<G>} & \tcode{edges(g,u,p)} & optional \\    
+\hline
 \end{tabular}}
 \caption{Graph Container Interface Type Aliases}
 \label{tab:graph_type}
 \end{center}
 \end{table}
 
+\tcode{partition_vertex_id_t<G>} is defined as follows. \tcode{vertex_id} is relative to \tcode{partition_id} and has a 
+range of \tcode{[0 .. size(vertices(g,partition_id)))}. There is no contiguous requirement for \tcode{vertex_id} though
+in practice they will often be assigned contiguously. Gaps in \tcode{vertex_id}s between partitions should be allowed.
+{\small
+      \lstinputlisting{src/partition_vertex_id.hpp}
+}
 
 \section{Functions}
 
@@ -127,6 +138,8 @@ Table \ref{tab:graph_func} summarizes the functions in the Graph Container Inter
     \textbf{Function} & \textbf{Return Type} & \textbf{Complexity} & \textbf{Default Implementation} \\
 \hline
     \tcode{graph_value(g)} & \tcode{graph_value_t<G>} & constant & n/a, optional \\
+\hdashline
+    \tcode{partition_count(g)} & \tcode{vertex_id_t<G>} & constant & \tcode{1}. Minimum value is 1. \\
 \hline
     \tcode{vertices(g)} & \tcode{vetex_range_t<G>} & constant & n/a \\
     \tcode{vertex_id(g,ui)} & \tcode{vetex_id_t<G>} & constant & \tcode{ui - begin(vertices(g))} \\
@@ -135,6 +148,11 @@ Table \ref{tab:graph_func} summarizes the functions in the Graph Container Inter
     \tcode{degree(g,u)} & \tcode{integral} & constant & \tcode{size(edges(g,u))} if \tcode{sized_range<vertex_edge_range_t<G>>} \\
     \tcode{find_vertex(g,uid)} & \tcode{vertex_iterator_t<G>} & constant & \tcode{begin(vertices(g)) + uid} \\
     & & & if \tcode{random_access_range<vertex_range_t<G>>}  \\
+\hdashline
+    \tcode{vertices(g,p)} & \tcode{partition_vertex_range_t<G>} & constant & \tcode{vertices(g)} \\
+    \tcode{partition_vertex_id(g,uid)} & \tcode{partition_vertex_id_t<G>} & log(P) & \tcode{partition_vertex_id_t<G>(0,uid)} \\
+    \tcode{partition_vertex_id(g,ui)} & \tcode{partition_vertex_id_t<G>} & log(P) & \tcode{partition_vertex_id_t<G>(0,vertex_id(g,ui))} \\
+    \tcode{find_partition_vertex(g,puid)} & \tcode{vertex_iterator_t<G>} & constant & \tcode{find_vertex(g,puid.vertex_id)} \\
 \hline
     \tcode{edges(g,u)} & \tcode{vertex_edge_range_t<G>} & constant & n/a \\
     \tcode{edges(g,uid)} & \tcode{vertex_edge_range_t<G>} & constant & \tcode{edges(g,*find_vertex(g,uid))} \\
@@ -146,11 +164,16 @@ Table \ref{tab:graph_func} summarizes the functions in the Graph Container Inter
     \tcode{contains_edge(g,uid,vid)} & \tcode{bool} & constant & \tcode{uid < size(vertices(g)) \&\& vid < size(vertices(g))} if \tcode{is_adjacency_matrix_v<G>}.\\
     & & linear & \tcode{find_vertex_edge(g,uid) != end(edges(g,uid))} otherwise. \\
 \hdashline
+    \tcode{edges(g,ui,p)} & \tcode{partition_edge_range_t<G>} & E log(P) & \tcode{edges(g,ui)} \\
+    \tcode{edges(g,uid,p)} & \tcode{partition_edge_range_t<G>} & E log(P) & \tcode{edges(g,uid)} \\
+    \tcode{partition_target_id(g,uv)} & \tcode{partition_vertex_id_t<G>} & constant & \tcode{partition_vertex_id_t<G>(0,target_id(g,uv))} \\
+\hdashline
     \multicolumn{4}{c}{The following are only available when the optional \tcode{source_id(g,uv)} is defined for the edge} \\
 \hdashline
     \tcode{source_id(g,uv)} & \tcode{vertex_id_t<G>} & constant & n/a, optional \\
     \tcode{source(g,uv)} & \tcode{vertex_t<G>} & constant & \tcode{*(begin(vertices(g)) + source_id(g,uv))} if \tcode{random_access_range<vertex_range_t<G>> \&\& integral<target_id(g,uv)>} \\
     \tcode{edge_id(g,uv)} & \tcode{edge_id_t<G>} & constant & \tcode{pair(source_id(g,uv),target_id(g,uv))} \\
+    \tcode{partition_source_id(g,uv)} & \tcode{partition_vertex_id_t<G>} & constant & \tcode{partition_vertex_id_t<G>(0,source_id(g,uv))} \\
 \hline
 \end{tabular}}
 \caption{Graph Container Interface Functions}
@@ -168,3 +191,29 @@ If the concept requirements for the default implementation aren't met by the gra
 
 Edgelists are assumed to be either be an edgelist view of an adjacency graph, or a standard range with source\_id and target\_id values. There is no need for additional functions when a range is used.
 
+\section{Unipartite, Bipartite and Multipartite Graph Representation}
+
+\tcode{partition_count(g)} returns the number of partitions, or partiteness, of the graph. It has a range of 1 to n, where 1 identifies 
+a unipartite graph, 2 is a bipartite graph, and a value of 2 or more can be considered a multipartite graph. 
+
+If a graph data structure doesn't support partitions then it is unipartite and partite functions will reflect that. For instance, \tcode{partition_count(g)} 
+returns a value of 1, \tcode{partition_vertex_id<G>(g,uid)} will return 0 for all vertices, and \tcode{vertices(g,0)} (vertices in the first partition) 
+will return a range that includes all vertices in the graph.
+
+A partition identifies a type of a vertex, where the vertex value types are assumed to be uniform in each partition. This creates a dilemma because 
+the existing \tcode{vertex_value(g,u)} returns a single type based template parameter for the vertex value type. Supporting 
+multiple types can be addressed in different ways using C++ features. The key to remember is that the actual value used by algorithms is done
+by calling a function object that retrieves the value to be used. That function is specific to the graph data structure, using the partition to 
+determine how to get the appropriate value.
+\begin{itemize}
+    \item
+          \tcode{std::variant}: The lambda returns the appropriate variant value based on the partition.
+    \item
+          Base class pointer: The lambda can call a member function to return the value based on the partition.
+    \item
+          \tcode{void*}: The lambda can cast the pointer to a concrete type based on the partition, and
+          then return the appropriate value.
+\end{itemize}
+
+\tcode{edges(g,uid,p)} and \tcode{edges(g,ui,p)} filter the edges where the target is in the partition \tcode{p} passed.
+This isn't needed for bipartite graphs.

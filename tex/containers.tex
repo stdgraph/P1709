@@ -3,6 +3,8 @@
 
 \andrew{In think we should have a different name than csr\_graph since: ``CSR'' is a linear algebra concept; a graph does not have ``rows''; the same structure also represents ``CSC''; not calling it csr may avoid some of the discussions we had with linear algebra people.  This has the potential of bogging down the entire proposal.}
 
+\phil{That makes sense. The only counter-argument is that it could be used for matrix representatoin and so removing "CSR" from the name removes the utility it might provide because it's not obvious, but that's a weak argument in comparison.}
+
 \section{Relationship between Graphs and Sparse Matrices}
 
 
@@ -16,6 +18,8 @@ Only the constructors, destructor and assignment operators for \tcode{csr_graph}
 
 When a value type template argument (EV, VV, GV) is void then no extra overhead is incurred for it. The selection of the VId template argument impacts the inter storage requirements. If you have a small graph where the number of vertices is less than 256, and the number of edges is less than 256, then a \tcode{uint8_t} would be sufficient.
 
+csr\_graph supports multipartite graphs.
+
 \begin{lstlisting}
 template <class    EV     = void,     // Edge Value type
           class    VV     = void,     // Vertex Value type
@@ -26,22 +30,4 @@ template <class    EV     = void,     // Edge Value type
 class csr_graph;
 \end{lstlisting}
 
-\section{csr\_partite\_graph Graph Container (In Design)}
-\phil{This is experimental}
-
-The \tcode{csr_partite_graph} extends \tcode{csr_graph} to have multiple partitions, where each partition defines a different value type for the vertex and edge. The same template arguments are used, but it also expects that the VV and EV arguments are \tcode{std::variant}, and the number of types in each is the same. The number of types in the variants define the number of partitions. The edge types apply to the outgoing edges of the vertices in the same partition. \tcode{std::monostate} can be used if no value is needed for a vertex or edge in a partition.
-
-Example usage
-\begin{lstlisting}
-using VV = std::variant<int,double,bool>;
-using EV = std::variant<int,int,std::monostate>; // no outgoing edges in the final partition
-using G  = csr_partite_graph<EV, VV>;
-G g = ...; // construct g with data
-for(size_t p = 0; p < partition_size(g); ++p) {
-  for(auto&& [uid,u] : partition(g,p)) {
-    for(auto&& [vid,uv] : incidence(g,u)) {
-       // do interesting things with uv
-    }
-  }
-}
-\end{lstlisting}
+\phil{Must add constructors. Need to include specialization for GV=void or non-void. Need to include overloads for partitions.}
