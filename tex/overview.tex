@@ -48,7 +48,9 @@ model container implementation for each of the \tcode{adjacency_list} and
 \section{What this proposal is  \textbf{not}}
 
 This paper limits itself to adjacency graphs only, including an outer range of vertices with an inner range of outgoing edges on each vertex. It also includes an edgelist of all edges in the graph, either as a edgelist view or a simple range with a source\_id and target\_id. 
-Multipartite graphs, including Bipartite graphs, are supported as long as the underlying graph supports it.
+
+Multipartite graphs, including bipartite graphs, are supported as long as the underlying graph supports it. If the underlying graph doesn't support either,
+it is considered unipartite with a single partition.
 
 Parallel versions of the algorithms are not included for several reasons. The executors proposal in P2300r5 \cite{REF_P2300r5} is expected to introduce new and better ways to do parallel algorithms beyond that used in the parallel STL algorithms and we would like to wait for finalization of that proposal before committing to parallel implementations. Secondly, many graph algorithms don't benefit from parallel implementations so there is less need to offer an implementation. Lastly, it will help limit the size of this proposal which is already looking to be large without it. It is expected that future proposals will be submitted for parallel graph algorithms. 
 
