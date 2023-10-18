@@ -164,7 +164,7 @@ namespace std::graph {
 } // namespace std::graph
 \end{lstlisting}
 
-\subsection{Header \tcode{<csr_graph>} synopsis [graph.syn]}
+\subsection{Header \tcode{<compressed_graph>} synopsis [graph.syn]}
 
 The \tcode{ERng} template parameter is assumed to be a range of \tcode{copyable_edge_t<VId,EV>}. If it isn't, an \tcode{EProj} projection function must be passed to to convert the ERng value type to a \tcode{copyable_edge_t<VId,EV>}.
 
@@ -181,9 +181,9 @@ template <class EV        = void,                // edge value type
           integral VId    = uint32_t,            // vertex id type
           integral EIndex = uint32_t,            // edge index type
           class Alloc     = allocator<uint32_t>> // for internal containers
-class csr_graph {
+class compressed_graph {
 public: // Types
-  using graph_type = csr_graph<EV, VV, GV, VId, EIndex, Alloc>;
+  using graph_type = compressed_graph<EV, VV, GV, VId, EIndex, Alloc>;
   
   using edge_value_type   = EV;
   using vertex_value_type = VV;
@@ -193,17 +193,17 @@ public: // Types
   using vertex_id_type = VId;
 
 public: // Construction/Destruction
-  constexpr csr_graph()                 = default;
-  constexpr csr_graph(const csr_graph&) = default;
-  constexpr csr_graph(csr_graph&&)      = default;
-  constexpr ~csr_graph()                = default;
+  constexpr compressed_graph()                 = default;
+  constexpr compressed_graph(const compressed_graph&) = default;
+  constexpr compressed_graph(compressed_graph&&)      = default;
+  constexpr ~compressed_graph()                = default;
 
-  constexpr csr_graph& operator=(const csr_graph&) = default;
-  constexpr csr_graph& operator=(csr_graph&&)      = default;
+  constexpr compressed_graph& operator=(const compressed_graph&) = default;
+  constexpr compressed_graph& operator=(compressed_graph&&)      = default;
 
   template <ranges::forward_range ERng, class EProj = identity>
   requires copyable_edge<invoke_result<EProj, ranges::range_value_t<ERng>>, VId, EV>
-  constexpr csr_graph(const ERng&  erng, 
+  constexpr compressed_graph(const ERng&  erng, 
                       EProj        eprojection, 
                       const Alloc& alloc = Alloc());
 
@@ -211,13 +211,13 @@ public: // Construction/Destruction
             class EProj = identity,     class VProj = identity>
   requires copyable_edge<invoke_result<EProj, ranges::range_value_t<ERng>>, VId, EV> &&
            copyable_vertex<invoke_result<VProj, ranges::range_value_t<VRng>>, VId, VV>
-  constexpr csr_graph(const ERng&  erng,
+  constexpr compressed_graph(const ERng&  erng,
                       const VRng&  vrng,
                       EProj        eprojection = {},
                       VProj        vprojection = {},
                       const Alloc& alloc       = Alloc());
 
-  constexpr csr_graph(const initializer_list<copyable_edge_t<VId, EV>>& ilist, 
+  constexpr compressed_graph(const initializer_list<copyable_edge_t<VId, EV>>& ilist, 
                       const Alloc& alloc = Alloc());
 
 };
@@ -230,14 +230,14 @@ When \tcode{GV} is not \tcode{void} the following constructors are also availabl
 \begin{lstlisting}
   template <ranges::forward_range ERng, class EProj = identity>
   requires copyable_edge<invoke_result<EProj, ranges::range_value_t<ERng>>, VId, EV>
-  constexpr csr_graph(const graph_value_type& value, 
+  constexpr compressed_graph(const graph_value_type& value, 
                       const ERng&             erng, 
                       EProj                   eprojection, 
                       const Alloc&            alloc = Alloc());
   
   template <ranges::forward_range ERng, class EProj = identity>
   requires copyable_edge<invoke_result<EProj, ranges::range_value_t<ERng>>, VId, EV>
-  constexpr csr_graph(graph_value_type&& value,
+  constexpr compressed_graph(graph_value_type&& value,
                       const ERng&        erng, 
                       EProj              eprojection, 
                       const Alloc&       alloc = Alloc());
@@ -247,7 +247,7 @@ When \tcode{GV} is not \tcode{void} the following constructors are also availabl
             class EProj = identity,     class VProj = identity>
   requires copyable_edge<invoke_result<EProj, ranges::range_value_t<ERng>>, VId, EV> &&
            copyable_vertex<invoke_result<VProj, ranges::range_value_t<VRng>>, VId, VV>
-  constexpr csr_graph(const graph_value_type& value,
+  constexpr compressed_graph(const graph_value_type& value,
                       const ERng&             erng,
                       const VRng&             vrng,
                       EProj                   eprojection = {},
@@ -258,7 +258,7 @@ When \tcode{GV} is not \tcode{void} the following constructors are also availabl
             class EProj = identity,     class VProj = identity>
   requires copyable_edge<invoke_result<EProj, ranges::range_value_t<ERng>>, VId, EV> &&
            copyable_vertex<invoke_result<VProj, ranges::range_value_t<VRng>>, VId, VV>
-  constexpr csr_graph(graph_value_type&& value,
+  constexpr compressed_graph(graph_value_type&& value,
                       const ERng&        erng,
                       const VRng&        vrng,
                       EProj              eprojection = {},
