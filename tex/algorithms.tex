@@ -8,7 +8,6 @@ Tier 1:
 \item Breadth-First search
 \item Dijkstra's algorithm
 \item Bellman-Ford
-\item Delta-stepping
 \item Triangle counting
 \item Label propagation
 \item Articulation points
@@ -300,66 +299,6 @@ concept queueable = requires(Q&& q, Q::value_type value) {
       \pnum\throws none. \andrew{Throw if \lstinline{source} out of range?}
       \pnum\remarks:  Unlike Dijkstra's algorithm, Bellman-Ford allows negative edge weights.
 \end{itemdescr}
-
-
-\subsubsection{Delta-Stepping Single Source}
-
-{\small
-      \lstinputlisting[firstline=252,lastline=357]{src/alg_synopsis.hpp}
-}
-
-
-\begin{itemdescr}
-      \pnum Delta-stepping is a parallelizable version of Dijkstra's shortest path algorithm.
-      \pnum\preconditions
-      \begin{itemize}
-            \item
-                  \lstinline{graph} is an \lstinline{adjacency_list}, which may be directed or
-                  undirected.
-            \item
-                  \lstinline{0 <= source < num_vertices(graph)}.
-            \item
-                  The \lstinline{distance} range must be initialized so that
-                  \lstinline{distance[i] == \lstinline{std::numeric_limits<range_value_t<D>>::max()}
-                  for all \lstinline{i}
-                  such that \lstinline{0 <= i < num_vertices(graph)}.  \andrew{invalid distance?}
-            \item
-                  The \lstinline{predecessors} range must be initialized so that
-                  \lstinline{precessors[i] == i} for all \lstinline{i} such that
-                  \lstinline{0 <= i < num_vertices(graph)}.
-      \end{itemize}
-      \pnum\requires
-      \begin{itemize}
-            \item
-                  The argument type for the weight
-                  function \lstinline{w} must be convertible from the edge type.
-            \item
-                  The weight function \lstinline{w} must return a non-negative value (that is
-                  a value \lstinline{x} such that \lstinline{dijkstra_zero() <= x},
-                  for any edge in \lstinline{graph}.
-      \end{itemize}
-      \pnum\effects Compute the shortest path and associated distance from vertex
-      \lstinline{source} to all reachable vertices in \lstinline{graph}.
-      \pnum\returns
-      \begin{itemize}
-            \item For \lstinline{delta_stepping_shortest_paths} and \lstinline{delta_stepping_shortest_distances},
-                  if vertex with index \lstinline{i} is reachable from vertex \lstinline{source}, then
-                  \lstinline{distances[i]} will contain the distance from \lstinline{source} to vertex
-                  \lstinline{i}.  If vertex \lstinline{i} is not reachable from vertex
-                  \lstinline{source} then \lstinline{distances[i]} will contain
-                  \lstinline{std::numeric_limits<range_value_t<D>>::max()}.
-            \item
-                  For \lstinline{delta_stepping_shortest_paths} if vertex with index \lstinline{i} is reachable
-                  from vertex \lstinline{source}, then \lstinline{predecessor[i]} will contain the
-                  predecessor vertex of vertex \lstinline{i}.  If vertex \lstinline{i} is not reachable
-                  from vertex \lstinline{source} then \lstinline{predecessors[i]} will contain
-                  \lstinline{i}.
-      \end{itemize}
-      %
-      \pnum\complexity $\mathcal{O}(|E| + |V| + d\cdot L)$, where d is maximum vertex degree in the graph and $L = \max_{v\in V} dist(v)$.
-      \pnum\throws none. \andrew{Throw if \lstinline{source} out of range?}
-\end{itemdescr}
-
 
 
 \section{Clustering}

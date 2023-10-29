@@ -106,8 +106,8 @@ The type aliases are defined by either a function specialization for the underly
 \hline
     \tcode{partition_id_t<G>} & \tcode{decltype(partition(g,uid))} & optional \\
     \tcode{partition_vertex_id_t<G>} & \tcode{struct partition_id_t<G> partition_id  vertex_id_t<G> vertex_id} & optional \\    
-    \tcode{partition_vertex_range_t<G>} & \tcode{vertices(g,p)} & optional \\    
-    \tcode{partition_edge_range_t<G>} & \tcode{edges(g,u,p)} & optional \\    
+    \tcode{partition_vertex_range_t<G>} & \tcode{vertices(g,pid)} & optional \\    
+    \tcode{partition_edge_range_t<G>} & \tcode{edges(g,u,pid)} & optional \\    
 \hline
 \end{tabular}}
 \caption{Graph Container Interface Type Aliases}
@@ -121,6 +121,12 @@ in practice they will often be assigned contiguously. Gaps in \tcode{vertex_id}s
 {\small
       \lstinputlisting{src/partition_vertex_id.hpp}
 }
+
+\section{Classes and Structs}
+
+The \tcode{graph_error} exception class is available, inherited from \tcode{runtime_error}. While any function may use it, it 
+is only anticipated to be used by the \tcode{load} functions at this time.
+No additional functionality is added beyond that provided by \tcode{runtime_error}.
 
 \section{Functions}
 
@@ -149,7 +155,7 @@ Table \ref{tab:graph_func} summarizes the functions in the Graph Container Inter
     \tcode{find_vertex(g,uid)} & \tcode{vertex_iterator_t<G>} & constant & \tcode{begin(vertices(g)) + uid} \\
     & & & if \tcode{random_access_range<vertex_range_t<G>>}  \\
 \hdashline
-    \tcode{vertices(g,p)} & \tcode{partition_vertex_range_t<G>} & constant & \tcode{vertices(g)} \\
+    \tcode{vertices(g,pid)} & \tcode{partition_vertex_range_t<G>} & constant & \tcode{vertices(g)} \\
     \tcode{partition_vertex_id(g,uid)} & \tcode{partition_vertex_id_t<G>} & log(P) & \tcode{partition_vertex_id_t<G>(0,uid)} \\
     \tcode{partition_vertex_id(g,ui)} & \tcode{partition_vertex_id_t<G>} & log(P) & \tcode{partition_vertex_id_t<G>(0,vertex_id(g,ui))} \\
     \tcode{find_partition_vertex(g,puid)} & \tcode{vertex_iterator_t<G>} & constant & \tcode{find_vertex(g,puid.vertex_id)} \\
@@ -164,8 +170,8 @@ Table \ref{tab:graph_func} summarizes the functions in the Graph Container Inter
     \tcode{contains_edge(g,uid,vid)} & \tcode{bool} & constant & \tcode{uid < size(vertices(g)) \&\& vid < size(vertices(g))} if \tcode{is_adjacency_matrix_v<G>}.\\
     & & linear & \tcode{find_vertex_edge(g,uid) != end(edges(g,uid))} otherwise. \\
 \hdashline
-    \tcode{edges(g,ui,p)} & \tcode{partition_edge_range_t<G>} & E log(P) & \tcode{edges(g,ui)} \\
-    \tcode{edges(g,uid,p)} & \tcode{partition_edge_range_t<G>} & E log(P) & \tcode{edges(g,uid)} \\
+    \tcode{edges(g,ui,pid)} & \tcode{partition_edge_range_t<G>} & E log(P) & \tcode{edges(g,ui)} \\
+    \tcode{edges(g,uid,pid)} & \tcode{partition_edge_range_t<G>} & E log(P) & \tcode{edges(g,uid)} \\
     \tcode{partition_target_id(g,uv)} & \tcode{partition_vertex_id_t<G>} & constant & \tcode{partition_vertex_id_t<G>(0,target_id(g,uv))} \\
 \hdashline
     \multicolumn{4}{c}{The following are only available when the optional \tcode{source_id(g,uv)} is defined for the edge} \\
@@ -215,5 +221,54 @@ determine how to get the appropriate value.
           then return the appropriate value.
 \end{itemize}
 
-\tcode{edges(g,uid,p)} and \tcode{edges(g,ui,p)} filter the edges where the target is in the partition \tcode{p} passed.
+\tcode{edges(g,uid,pid)} and \tcode{edges(g,ui,pid)} filter the edges where the target is in the partition \tcode{pid} passed.
 This isn't needed for bipartite graphs.
+
+\section{Loading Graph Data}
+
+The \tcode{load} functions are used to load vertex and edge data into a graph. They may throw a \tcode{graph_error} exception.
+
+All graph data structures need to implement \tcode{load_graph}, \tcode{load_vertices} and \tcode{load_edges}. 
+Whether \tcode{load_vertices} or \tcode{load_edges} can be called multiple times, or after \tcode{load_graph} is called, is dependent on the underlying graph data structure.
+\tcode{load_partition} only needs to be implemented if a graph supports partitions.
+
+Projections are used to convert values in the input range to the expected copyable type. In the following \tcode{load_vertices} 
+prototype, \tcode{vproj(ranges::range_value_t<VRng>&)} $\rightarrow$ \tcode{vertex_descriptor<vertex_id_t<G>, vertex_value_t<G>>}.
+If there is no vertex value stored in the graph then \tcode{vertex_value_t<G>} will be \tcode{void} and the resulting 
+\tcode{vertex_descriptor} will have a single id member. If \tcode{vproj(ranges::range_value_t<VRng>&)} is the same as
+\tcode{vertex_descriptor<vertex_id_t<G>, vertex_value_t<G>>} then \tcode{VProj = identity} can be used.
+
+\begin{lstlisting}
+template <adjacency_list G, ranges::forward_range VRng, class VProj = identity>
+requires copyable_vertex<invoke_result<VProj, ranges::range_value_t<VRng>>,
+                         vertex_id_t<G>, vertex_value_t<G>>
+constexpr void load_vertices(G&, const VRng& vrng, VProj vproj);
+\end{lstlisting}
+
+The same pattern is applied using \tcode{ERng} and \tcode{EProj} for edges.
+
+For graphs with vertex values, \tcode{load_vertices} should be called before \tcode{load_edges}.
+
+Whether \tcode{load_vertices} or \tcode{load_edges} can be called multiple times is graph-dependent.
+
+For graphs with partititions, \tcode{load_partition} must be called to load vertices for each 
+partition \tcode{pid}. \tcode{pid} values must be contiguous and their vertices should be loaded
+contiguously. \tcode{empty(vrng)} may be empty if there are no vertices in the partition. 
+
+\begin{table}[h!]
+\begin{center}
+\resizebox{\textwidth}{!}
+{\begin{tabular}{l l p{1.5cm} L{7.0cm}}
+\hline
+    \textbf{Function} & \textbf{Return Type} & \textbf{Complexity} & \textbf{Default Implementation} \\
+\hline
+    \tcode{load_graph(g, erng, vrng, eproj=identity(), vproj=identity())} & void & V + E & n/a \\
+    \tcode{load_vertices(g, vrng, vproj=identity())} & void & V & n/a \\
+    \tcode{load_partition(g, pid, vrng, vproj=identity())} & void & V(p) & \tcode{load_vertices} is called if partitions are not supported; there will be a single partition. \\
+    \tcode{load_edges(g, erng, eproj=identity(), vertex_count=0)} & void & E & n/a \\
+\hline
+\end{tabular}}
+\caption{Graph Container Interface Functions}
+\label{tab:graph_func}
+\end{center}
+\end{table}
