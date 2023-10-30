@@ -1,12 +1,76 @@
 \chapter{Operators}
-\subsection{Degree}
+\section{Degree}
+Degree of a vertex in graph theory refers to the number of edges that are incident to the vertex. Although the proposal provides customization point interface to access a degree of an individual vertex, a degree operator allows one to build a range of degrees of all vertices within a graph.
+{\small
+      \lstinputlisting{src/operators/degree.hpp}
+}
+\begin{itemdescr}
+      \pnum\preconditions
+      \begin{itemize}
+            \item
+                  \lstinline{graph} is an \lstinline{adjacency_list}, which can be directed or undirected. \muhammad{Support other graph types as well?}
+      \end{itemize}
+      \pnum\effects Output iterator \lstinline{degrees_per_vertex} contains the degree of each vertex in the graph, accessible through \lstinline{degrees_per_vertex[uid]}, where uid is the \lstinline{vertex_id}. The caller must assure \lstinline{size(degrees_per_vertex) >= size(vertices(graph))}.
+      \pnum\complexity $\mathcal{O}(|V|)$ where $V$ is the number of vertices in the graph.
+\end{itemdescr}
 
-\subsection{Join}
+\section{Sort}
+Sort operator comes in many different variants, allows to sort the input graph based on the source vertex, target vertex, the degree of the vertex or by the weight on the edges. Also relevant, \lstinline{topological_sort}, which returns a nonunique permutation of the vertices of a directed acyclic graph such that an edge from u to v implies that u appears before v in the topological sort order.
 
-\subsection{Relabel}
+\subsection{Sort by Source Vertex}
+{\small
+      \lstinputlisting[firstline=2,lastline=5]{src/operators/sort.hpp}
+}
+\begin{itemdescr}
+    \pnum\preconditions
+    \begin{itemize}
+          \item
+                \lstinline{graph} is an \lstinline{adjacency_list}, which can be directed or undirected. The same API extends for \lstinline{edge_list}.
+    \end{itemize}
+    \pnum\effects \lstinline{graph}, which is now sorted by the source vertices in the graph.
+\end{itemdescr}
 
-\subsection{Sort}
+\subsection{Sort by Target Vertex}
+{\small
+      \lstinputlisting[firstline=7,lastline=10]{src/operators/sort.hpp}
+}
+\begin{itemdescr}
+    \pnum\preconditions
+    \begin{itemize}
+          \item
+                \lstinline{graph} is an \lstinline{adjacency_list}, which can be directed or undirected. The same API extends for \lstinline{edge_list}.
+    \end{itemize}
+    \pnum\effects \lstinline{graph}, which is now sorted by the target vertices in the graph.
+\end{itemdescr}
 
-\andrew{Need to be able to sort edge lists along source or target column as well as to sort lists of neighbors in an adjacency list.  The former is necessary for efficiently building CSR from an edge list.  The second is necessary for preconditions on various algorithms.}
+\subsection{Sort by Degree}
+{\small
+      \lstinputlisting[firstline=12,lastline=14]{src/operators/sort.hpp}
+}
+\begin{itemdescr}
+    \pnum\preconditions
+    \begin{itemize}
+          \item
+                \lstinline{graph} is an \lstinline{adjacency_list}, which can be directed or undirected. The same API extends for \lstinline{edge_list}.
+    \end{itemize}
+    \pnum\effects \lstinline{graph}, which is now sorted by the vertex degree.
+\end{itemdescr}
 
-\subsection{Transpose}
+\subsection{Sort by Edge Weight}
+{\small
+      \lstinputlisting[firstline=16,lastline=20]{src/operators/sort.hpp}
+}
+\begin{itemdescr}
+    \pnum\preconditions
+    \begin{itemize}
+          \item
+                \lstinline{graph} is an \lstinline{adjacency_list}, which can be directed or undirected. The same API extends for \lstinline{edge_list}.
+          \item
+                \lstinline{w} The edge value function.
+    \end{itemize}
+    \pnum\effects \lstinline{graph}, which is now sorted by the edge weight.
+\end{itemdescr}
+
+\section{Relabel}
+\section{Transpose}
+\section{Join}
