@@ -82,7 +82,7 @@ concept queueable = requires(Q&& q, Q::value_type value) {
 }
 
 {\small
-      \lstinputlisting[firstline=4,lastline=44]{src/alg_synopsis.hpp}
+      \lstinputlisting{src/shortest_paths.hpp}
 }
 
 \andrew{The variety of algorithms was inspired by networkx....  Which also had ``distance'' variants.}
@@ -92,7 +92,7 @@ concept queueable = requires(Q&& q, Q::value_type value) {
 \subsubsection{Breadth-First Search, Single Source, Initialization}
 
 {\small
-      \lstinputlisting[firstline=49,lastline=61]{src/alg_synopsis.hpp}
+      \lstinputlisting[firstline=49,lastline=61]{src/breadth_first_search_helpers.hpp}
 }
 
 \begin{itemdescr}
@@ -110,7 +110,7 @@ concept queueable = requires(Q&& q, Q::value_type value) {
 \subsubsection{Breadth-First Search, Single Source}
 
 {\small
-      \lstinputlisting[firstline=66,lastline=105]{src/alg_synopsis.hpp}
+      \lstinputlisting[firstline=66,lastline=105]{src/breadth_first_search.hpp}
 }
 
 \begin{itemdescr}
@@ -169,7 +169,7 @@ concept queueable = requires(Q&& q, Q::value_type value) {
 \andrew{I would like to see a use case for the dijkstra invalid and dijkstra zero functions.}
 
 {\small
-      \lstinputlisting[firstline=110,lastline=132]{src/alg_synopsis.hpp}
+      \lstinputlisting{src/dijkstra_helpers.hpp}
 }
 
 \begin{itemdescr}
@@ -188,7 +188,7 @@ concept queueable = requires(Q&& q, Q::value_type value) {
 \subsubsection{Dijkstra Single Source Shortest Paths}
 
 {\small
-      \lstinputlisting[firstline=137,lastline=173]{src/alg_synopsis.hpp}
+      \lstinputlisting{src/dijkstra.hpp}
 }
 
 \begin{itemdescr}
@@ -251,7 +251,7 @@ concept queueable = requires(Q&& q, Q::value_type value) {
 \subsubsection{Bellman-Ford Single Source Shortest Paths}
 
 {\small
-      \lstinputlisting[firstline=178,lastline=252]{src/alg_synopsis.hpp}
+      \lstinputlisting{src/bellman_ford.hpp}
 }
 
 \begin{itemdescr}
@@ -425,7 +425,7 @@ concept queueable = requires(Q&& q, Q::value_type value) {
 \subsection{Maximal Independent Set}
 
 {\small
-      \lstinputlisting[firstline=361,lastline=364]{src/alg_synopsis.hpp}
+      \lstinputlisting{src/mis.hpp}
 }
 \begin{itemdescr}
       \pnum\preconditions
