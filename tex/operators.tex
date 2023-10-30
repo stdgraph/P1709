@@ -72,5 +72,33 @@ Sort operator comes in many different variants, allows to sort the input graph b
 \end{itemdescr}
 
 \section{Relabel}
+Relabels the vertices of the graph according to a given mapping or to integers.
+
+{\small
+      \lstinputlisting[firstline=1,lastline=3]{src/operators/relabel.hpp}
+}
+\begin{itemdescr}
+    \pnum\preconditions
+    \begin{itemize}
+          \item
+                \lstinline{graph} is an \lstinline{adjacency_list}, which can be directed or undirected. The same API extends for \lstinline{edge_list}.
+            \item
+                \lstinline{mapping} is a \lstinline{std::map}, a dictionary with old labels as keys and new labels as values. If a partial mapping is provided (i.e. \lstinline{mapping.size() < size(vertices(graph))}), then only the specified vertices are relabeled.
+    \end{itemize}
+    \pnum\effects \lstinline{graph}: the vertices of the graph are relabeled starting based on the mapping provided.
+\end{itemdescr}
+
+{\small
+      \lstinputlisting[firstline=5,lastline=7]{src/operators/relabel.hpp}
+}
+\begin{itemdescr}
+    \pnum\preconditions
+    \begin{itemize}
+          \item
+                \lstinline{graph} is an \lstinline{adjacency_list}, which can be directed or undirected. The same API extends for \lstinline{edge_list}.
+    \end{itemize}
+    \pnum\effects \lstinline{graph}: the vertices of the graph are relabeled starting from 0 to \lstinline{size(vertices(graph))}.
+\end{itemdescr}
+
 \section{Transpose}
 \section{Join}
