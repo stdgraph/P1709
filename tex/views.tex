@@ -223,6 +223,10 @@ Table \ref{tab:vertexlist} shows the vertexlist functions overloads and their re
     \tcode{for(auto\&\& [uid,u,val] : vertexlist(g,first,last,vvf))} & \tcode{vertex_view<VId,V,VV>} \\
     \tcode{for(auto\&\& [uid,u] : vertexlist(g,vr))} & \tcode{vertex_view<VId,V,void>} \\
     \tcode{for(auto\&\& [uid,u,val] : vertexlist(g,vr,vvf))} & \tcode{vertex_view<VId,V,VV>} \\
+\hdashline
+    \tcode{for(auto\&\& [uid] : basic_vertexlist(g))} & \tcode{vertex_view<VId,V,void>} \\
+    \tcode{for(auto\&\& [uid] : basic_vertexlist(g,first,last))} & \tcode{vertex_view<VId,V,void>} \\
+    \tcode{for(auto\&\& [uid] : basic_vertexlist(g,vr))} & \tcode{vertex_view<VId,V,void>} \\
 \hline
 \end{tabular}}
 \caption{\tcode{vertexlist} View Functions}
@@ -243,8 +247,10 @@ Since the source vertex \tcode{u} is available when calling an \tcode{incidence}
 \hline
     \textbf{Example} & \textbf{Return} \\
 \hline
-    \tcode{for(auto\&\& [vid,uv] : incidence(g,u))} & \tcode{edge_view<VId,false,E,void>} \\
-    \tcode{for(auto\&\& [vid,uv,val] : incidence(g,u,evf))} & \tcode{edge_view<VId,false,E,EV>} \\
+    \tcode{for(auto\&\& [vid,uv] : incidence(g,uid))} & \tcode{edge_view<VId,false,E,void>} \\
+    \tcode{for(auto\&\& [vid,uv,val] : incidence(g,uid,evf))} & \tcode{edge_view<VId,false,E,EV>} \\
+\hdashline
+    \tcode{for(auto\&\& [vid] : basic_incidence(g,uid))} & \tcode{edge_view<VId,false,void,void>} \\
 \hline
 \end{tabular}}
 \caption{\tcode{incidence} View Functions}
@@ -265,8 +271,10 @@ Since the source vertex \tcode{u} is available when calling a \tcode{neighbors} 
 \hline
     \textbf{Example} & \textbf{Return} \\
 \hline
-    \tcode{for(auto\&\& [vid,v] : neighbors(g,u))} & \tcode{neighbor_view<VId,false,V,void>} \\
-    \tcode{for(auto\&\& [vid,v,val] : neighbors(g,u,vvf))} & \tcode{neighbor_view<VId,false,V,VV>} \\
+    \tcode{for(auto\&\& [vid,v] : neighbors(g,uid))} & \tcode{neighbor_view<VId,false,V,void>} \\
+    \tcode{for(auto\&\& [vid,v,val] : neighbors(g,uid,vvf))} & \tcode{neighbor_view<VId,false,V,VV>} \\
+\hdashline
+    \tcode{for(auto\&\& [vid] : basic_neighbors(g,uid))} & \tcode{neighbor_view<VId,false,void,void>} \\
 \hline
 \end{tabular}}
 \caption{\tcode{neighbors} View Functions}
@@ -287,6 +295,8 @@ Table \ref{tab:edgelist} shows the \tcode{edgelist} function overloads and their
 \hline
     \tcode{for(auto\&\& [uid,vid,uv] : edgelist(g))} & \tcode{edge_view<VId,true,E,void>} \\
     \tcode{for(auto\&\& [uid,vid,uv,val] : edgelist(g,evf))} & \tcode{edge_view<VId,true,E,EV>} \\
+\hdashline
+    \tcode{for(auto\&\& [uid,vid] : basic_edgelist(g))} & \tcode{edge_view<VId,true,void,void>} \\
 \hline
 \end{tabular}}
 \caption{\tcode{edgelist} View Functions}

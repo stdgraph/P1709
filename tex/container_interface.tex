@@ -22,8 +22,9 @@ Sourced edges have a source\_id on them in addition to a target\_id. A \tcode{so
     \tcode{vertex_range<G>} & \tcode{vertices(g)} returns a sized, forward\_range; \tcode{vertex_id(g,ui)} exists\\
     \tcode{targeted_edge<G>} & \tcode{target_id(g,uv)} and \tcode{target(g,uv)} exist\\
     \tcode{sourced_edge<G>} & \tcode{source_id(g,uv)} and \tcode{source(g,uv)} exist\\
-    \tcode{adjacency_list<G>} & \tcode{vertex_range<G>} and \tcode{targeted_edge<G,edge<G>>} and \tcode{edges(g,_)} functions return a forward\_range\\
-    \tcode{sourced_adjacency_list<G>} & \tcode{adjacency_list<G>} and \tcode{sourced_edge<G, edge_t<G>>} and     \tcode{edge_id(g,uv)} exists \\
+    \tcode{index_adjacency_list<G>} & \tcode{vertex_range<G>} and \tcode{targeted_edge<G,edge<G>>} and \tcode{edges(g,uid)} functions return a forward\_range\\
+    \tcode{adjacency_list<G>} & Extends \tcode{index_adjacency_list<G>} by adding \tcode{edges(g,u)} that returns a forward\_range\\
+    \tcode{sourced_adjacency_list<G>} & \tcode{adjacency_list<G>} and \tcode{sourced_edge<G, edge_t<G>>} and \tcode{edge_id(g,uv)} exists \\
 \hline
     \tcode{copyable_vertex<T,VId,VV>} & \tcode{convertible_to<T, copyable_vertex_t<VId, VV>>} \\
     \tcode{copyable_edge<T,Vid,EV>} & \tcode{convertible_to<T, copyable_edge_t<VId, EV>>} \\
@@ -145,7 +146,7 @@ Table \ref{tab:graph_func} summarizes the functions in the Graph Container Inter
 \hline
     \tcode{graph_value(g)} & \tcode{graph_value_t<G>} & constant & n/a, optional \\
 \hdashline
-    \tcode{partition_count(g)} & \tcode{vertex_id_t<G>} & constant & \tcode{1}. Minimum value is 1. \\
+    \tcode{partition_count(g)} & \tcode{vertex_id_t<G>} & constant & Minimum value is 1. \\
 \hline
     \tcode{vertices(g)} & \tcode{vetex_range_t<G>} & constant & n/a \\
     \tcode{num_vertices(g)} & \tcode{integral} & constant & \tcode{size(vertices(g))} \\
