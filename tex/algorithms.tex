@@ -442,35 +442,9 @@ concept queueable = requires(Q&& q, Q::value_type value) {
 \end{itemdescr}
 
 \section{Link Analysis}
-\subsection{Page Rank}
-\andrew{Tier 1 or Tier 2?} \muhammad{Tier 1?}
 
-{\small
-      \lstinputlisting{src/pagerank.hpp}
-}
-\begin{itemdescr}
-      \pnum\preconditions
-      \begin{itemize}
-            \item
-                  \lstinline{graph} is an \lstinline{adjacency_list}, which can be directed or undirected.
-            \item
-                  The \lstinline{scores} range must be initialized so that
-                  \lstinline{scores[i] == 0}
-                  for all \lstinline{i}
-                  such that \lstinline{0 <= i < num_vertices(graph)}.
-            \item
-                  \lstinline{damping_factor} for the page rank algorithm, default is set to \lstinline{0.85}.
-            \item
-                  \lstinline{threshold} for checking convergence, default is set to \lstinline{1e-4}. \muhammad{Maybe change this to type limit?}
-            \item
-                  \lstinline{max_iterations} is the number of maximum iterations if the algorithm does not converge. Default is set to \lstinline{std::numeric_limits<unsigned int>::max()}.
-            \item
-                  \lstinline{weight_fn} The edge value function (default returns 1 for each edge value.)
-      \end{itemize}
-      \pnum\effects Output iterator \lstinline{scores} contains the page rank of each vertex in the graph, accessible through \lstinline{scores[uid]}, where uid is the \lstinline{vertex_id}. The caller must assure \lstinline{size(scores) >= size(vertices(g))}.
-      \pnum\complexity $\mathcal{O}(|E \times k|)$ where $k$ is the number of iterations required to converge (dependent on the data).
-\end{itemdescr}
-
+% pagerank removed because there are many variations and corner cases to cover
+% It fits better in an example. 08-Nov-2023
 
 \subsection{Jaccard Coefficient}
 \andrew{Tier 1 or Tier 2?}
