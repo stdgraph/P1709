@@ -1,6 +1,6 @@
 
 \chapter{Graph Container Interface}
-The Graph Container Interface defines the primitive concepts, traits, types and functions used to define and access an adacency graph, no matter its internal design and organization. Thus, it is designed to reflect all forms of adjacency graphs including a vector of lists, CSR graph and adjacency matrix, whether they are in the standard or external to the standard.
+The Graph Container Interface defines the primitive concepts, traits, types and functions used to define and access an adacency graph, no matter its internal design and organization. Thus, it is designed to reflect all forms of adjacency graphs including a vector of lists, CSR-based graph and adjacency matrix, whether they are in the standard or external to the standard.
 
 All algorithms in this proposal require that vertices are stored in random access containers and that \tcode{vertex_id_t<G>} is integral, and it is assumed that all future algorithm proposals will also have the same requirements. 
 
@@ -105,7 +105,7 @@ The type aliases are defined by either a function specialization for the underly
 \hdashline
     \tcode{edge_id_t<G>} & \tcode{decltype(pair(source_id(g,uv),target_id(g,uv)))} & \\    
 \hline
-    \tcode{partition_id_t<G>} & \tcode{decltype(partition(g,uid))} & optional \\
+    \tcode{partition_id_t<G>} & \tcode{decltype(partition_id(g,u))} & optional \\
     \tcode{partition_vertex_id_t<G>} & \tcode{struct partition_id_t<G> partition_id  vertex_id_t<G> vertex_id} & optional \\    
     \tcode{partition_vertex_range_t<G>} & \tcode{vertices(g,pid)} & optional \\    
     \tcode{partition_edge_range_t<G>} & \tcode{edges(g,u,pid)} & optional \\    
@@ -131,10 +131,7 @@ No additional functionality is added beyond that provided by \tcode{runtime_erro
 
 \section{Functions}
 
-\phil{The functions in the Graph Container Interface are semi-stable. New functions are not expected, but overloads may be added or removed for different combinations of 
-vertex\_id and references as we refine our use cases.}
-
-Table \ref{tab:graph_func} summarizes the functions in the Graph Container Interface. These are the primitive functions used to access an adacency graph, no matter its internal design and organization. Thus, it is designed to be able to reflect all forms of adjacency graphs including a vector of lists, CSR graph and adjacency matrix.
+Table \ref{tab:graph_func} summarizes the functions in the Graph Container Interface. These are the primitive functions used to access an adacency graph, no matter its internal design and organization. Thus, it is designed to be able to reflect all forms of adjacency graphs including a vector of lists, CSR-based graph and adjacency matrix.
 
 
 \begin{table}[h!]
@@ -159,6 +156,8 @@ Table \ref{tab:graph_func} summarizes the functions in the Graph Container Inter
     \tcode{degree(g,u)} & \tcode{integral} & constant & \tcode{size(edges(g,u))} if \tcode{sized_range<vertex_edge_range_t<G>>} \\
     \tcode{degree(g,uid)} & \tcode{integral} & constant & \tcode{size(edges(g,uid))} if \tcode{sized_range<vertex_edge_range_t<G>>} \\
 \hdashline
+    \tcode{partition_id(g,u)} & \tcode{partition_id_t<G>} & constant & 0 \\
+    \tcode{partition_id(g,uid)} & \tcode{partition_id_t<G>} & constant & \tcode{partition_id(g,*find_vertex(g,uid))} \\
     \tcode{vertices(g,pid)} & \tcode{partition_vertex_range_t<G>} & constant & \tcode{vertices(g)} \\
     \tcode{num_vertices(g,pid)} & \tcode{integral} & constant & \tcode{size(vertices(g,pid))}  \\
     \tcode{partition_vertex_id(g,uid)} & \tcode{partition_vertex_id_t<G>} & log(P) & \tcode{partition_vertex_id_t<G>(0,uid)} \\
