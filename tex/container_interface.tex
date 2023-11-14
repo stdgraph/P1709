@@ -103,7 +103,7 @@ The type aliases are defined by either a function specialization for the underly
 \hdashline
     \multicolumn{3}{c}{The following is only available when the optional \tcode{source_id(g,uv)} is defined for the edge} \\
 \hdashline
-    \tcode{edge_id_t<G>} & \tcode{decltype(pair(source_id(g,uv),target_id(g,uv)))} & \\    
+    \tcode{edge_id_t<G>} & \tcode{edge_descriptor<vertex_id_t<G>,true,void,void>} & \\    
 \hline
     \tcode{partition_id_t<G>} & \tcode{decltype(partition_id(g,u))} & optional \\
     \tcode{partition_vertex_id_t<G>} & \tcode{struct partition_id_t<G> partition_id  vertex_id_t<G> vertex_id} & optional \\    
@@ -182,7 +182,7 @@ Table \ref{tab:graph_func} summarizes the functions in the Graph Container Inter
 \hdashline
     \tcode{source_id(g,uv)} & \tcode{vertex_id_t<G>} & constant & n/a, optional \\
     \tcode{source(g,uv)} & \tcode{vertex_t<G>} & constant & \tcode{*(begin(vertices(g)) + source_id(g,uv))} if \tcode{random_access_range<vertex_range_t<G>> \&\& integral<target_id(g,uv)>} \\
-    \tcode{edge_id(g,uv)} & \tcode{edge_id_t<G>} & constant & \tcode{pair(source_id(g,uv),target_id(g,uv))} \\
+    \tcode{edge_id(g,uv)} & \tcode{edge_id_t<G>} & constant & \tcode{edge_descriptor<vertex_id_t<G>,true,void,void>\{source_id(g,uv),target_id(g,uv)\}} \\
     \tcode{partition_source_id(g,uv)} & \tcode{partition_vertex_id_t<G>} & constant & \tcode{partition_vertex_id_t<G>(0,source_id(g,uv))} \\
 \hline
 \end{tabular}}
