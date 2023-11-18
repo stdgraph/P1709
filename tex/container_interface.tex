@@ -106,7 +106,6 @@ The type aliases are defined by either a function specialization for the underly
     \tcode{edge_id_t<G>} & \tcode{edge_descriptor<vertex_id_t<G>,true,void,void>} & \\    
 \hline
     \tcode{partition_id_t<G>} & \tcode{decltype(partition_id(g,u))} & optional \\
-    \tcode{partition_vertex_id_t<G>} & \tcode{struct partition_id_t<G> partition_id  vertex_id_t<G> vertex_id} & optional \\    
     \tcode{partition_vertex_range_t<G>} & \tcode{vertices(g,pid)} & optional \\    
     \tcode{partition_edge_range_t<G>} & \tcode{edges(g,u,pid)} & optional \\    
 \hline
@@ -116,12 +115,8 @@ The type aliases are defined by either a function specialization for the underly
 \end{center}
 \end{table}
 
-\tcode{partition_vertex_id_t<G>} is defined as follows. \tcode{vertex_id} is relative to \tcode{partition_id} and has a 
-range of \tcode{[0 .. size(vertices(g,partition_id)))}. There is no contiguous requirement for \tcode{vertex_id} though
+There is no contiguous requirement for \tcode{vertex_id} from one partition to the next, though
 in practice they will often be assigned contiguously. Gaps in \tcode{vertex_id}s between partitions should be allowed.
-{\small
-      \lstinputlisting{src/partition_vertex_id.hpp}
-}
 
 \section{Classes and Structs}
 
@@ -160,8 +155,6 @@ Table \ref{tab:graph_func} summarizes the functions in the Graph Container Inter
     \tcode{partition_id(g,uid)} & \tcode{partition_id_t<G>} & constant & \tcode{partition_id(g,*find_vertex(g,uid))} \\
     \tcode{vertices(g,pid)} & \tcode{partition_vertex_range_t<G>} & constant & \tcode{vertices(g)} \\
     \tcode{num_vertices(g,pid)} & \tcode{integral} & constant & \tcode{size(vertices(g,pid))}  \\
-    \tcode{partition_vertex_id(g,uid)} & \tcode{partition_vertex_id_t<G>} & log(P) & \tcode{partition_vertex_id_t<G>(0,uid)} \\
-    \tcode{partition_vertex_id(g,ui)} & \tcode{partition_vertex_id_t<G>} & log(P) & \tcode{partition_vertex_id_t<G>(0,vertex_id(g,ui))} \\
     \tcode{find_partition_vertex(g,puid)} & \tcode{vertex_iterator_t<G>} & constant & \tcode{find_vertex(g,puid.vertex_id)} \\
 \hline
     \tcode{edges(g,u)} & \tcode{vertex_edge_range_t<G>} & constant & \tcode{u} if \tcode{forward range<vertex_t<G>>}; otherwise it must be overridden \\
@@ -176,14 +169,12 @@ Table \ref{tab:graph_func} summarizes the functions in the Graph Container Inter
 \hdashline
     \tcode{edges(g,ui,pid)} & \tcode{partition_edge_range_t<G>} & E log(P) & \tcode{edges(g,ui)} \\
     \tcode{edges(g,uid,pid)} & \tcode{partition_edge_range_t<G>} & E log(P) & \tcode{edges(g,uid)} \\
-    \tcode{partition_target_id(g,uv)} & \tcode{partition_vertex_id_t<G>} & constant & \tcode{partition_vertex_id_t<G>(0,target_id(g,uv))} \\
 \hdashline
     \multicolumn{4}{c}{The following are only available when the optional \tcode{source_id(g,uv)} is defined for the edge} \\
 \hdashline
     \tcode{source_id(g,uv)} & \tcode{vertex_id_t<G>} & constant & n/a, optional \\
     \tcode{source(g,uv)} & \tcode{vertex_t<G>} & constant & \tcode{*(begin(vertices(g)) + source_id(g,uv))} if \tcode{random_access_range<vertex_range_t<G>> \&\& integral<target_id(g,uv)>} \\
     \tcode{edge_id(g,uv)} & \tcode{edge_id_t<G>} & constant & \tcode{edge_descriptor<vertex_id_t<G>,true,void,void>\{source_id(g,uv),target_id(g,uv)\}} \\
-    \tcode{partition_source_id(g,uv)} & \tcode{partition_vertex_id_t<G>} & constant & \tcode{partition_vertex_id_t<G>(0,source_id(g,uv))} \\
 \hline
 \end{tabular}}
 \caption{Graph Container Interface Functions}
@@ -207,8 +198,7 @@ Edgelists are assumed to be either be an edgelist view of an adjacency graph, or
 a unipartite graph, 2 is a bipartite graph, and a value of 2 or more can be considered a multipartite graph. 
 
 If a graph data structure doesn't support partitions then it is unipartite and partite functions will reflect that. For instance, \tcode{partition_count(g)} 
-returns a value of 1, \tcode{partition_vertex_id<G>(g,uid)} will return 0 for all vertices, and \tcode{vertices(g,0)} (vertices in the first partition) 
-will return a range that includes all vertices in the graph.
+returns a value of 1, and \tcode{vertices(g,0)} (vertices in the first partition) will return a range that includes all vertices in the graph.
 
 A partition identifies a type of a vertex, where the vertex value types are assumed to be uniform in each partition. This creates a dilemma because 
 the existing \tcode{vertex_value(g,u)} returns a single type based template parameter for the vertex value type. Supporting 
