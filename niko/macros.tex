@@ -365,45 +365,45 @@
 % within comments.  Comments are set in italics, keywords and strings
 % don't get special treatment.
 
-\lstset{language=C++,
-        basicstyle=\small\CodeStyle,
-        keywordstyle=,
-        stringstyle=,
-        xleftmargin=1em,
-        showstringspaces=false,
-        commentstyle=\itshape\rmfamily,
-        columns=fullflexible,
-        keepspaces=true,
-        texcl=true}
+%% \lstset{language=C++,
+%%         basicstyle=\small\CodeStyle,
+%%         keywordstyle=,
+%%         stringstyle=,
+%%         xleftmargin=1em,
+%%         showstringspaces=false,
+%%         commentstyle=\itshape\rmfamily,
+%%         columns=fullflexible,
+%%         keepspaces=true,
+%%         texcl=true}
 
-% Our usual abbreviation for 'listings'.  Comments are in
-% italics.  Arbitrary TeX commands can be used if they're
-% surrounded by @ signs.
-\newcommand{\CodeBlockSetup}{%
-\lstset{escapechar=@, aboveskip=\parskip, belowskip=0pt,
-        midpenalty=500, endpenalty=-50,
-        emptylinepenalty=-250, semicolonpenalty=0}%
-\renewcommand{\tcode}[1]{\textup{\CodeStylex{##1}}}%
-\renewcommand{\term}[1]{\textit{##1}}%
-\renewcommand{\grammarterm}[1]{\gterm{##1}}%
-}
+%% % Our usual abbreviation for 'listings'.  Comments are in
+%% % italics.  Arbitrary TeX commands can be used if they're
+%% % surrounded by @ signs.
+%% \newcommand{\CodeBlockSetup}{%
+%% \lstset{escapechar=@, aboveskip=\parskip, belowskip=0pt,
+%%         midpenalty=500, endpenalty=-50,
+%%         emptylinepenalty=-250, semicolonpenalty=0}%
+%% \renewcommand{\tcode}[1]{\textup{\CodeStylex{##1}}}%
+%% \renewcommand{\term}[1]{\textit{##1}}%
+%% \renewcommand{\grammarterm}[1]{\gterm{##1}}%
+%% }
 
-\lstnewenvironment{codeblock}{\CodeBlockSetup}{}
+%% \lstnewenvironment{codeblock}{\CodeBlockSetup}{}
 
-% An environment for command / program output that is not C++ code.
-\lstnewenvironment{outputblock}{\lstset{language=}}{}
+%% % An environment for command / program output that is not C++ code.
+%% \lstnewenvironment{outputblock}{\lstset{language=}}{}
 
-% A code block in which single-quotes are digit separators
-% rather than character literals.
-\lstnewenvironment{codeblockdigitsep}{
- \CodeBlockSetup
- \lstset{deletestring=[b]{'}}
-}{}
+%% % A code block in which single-quotes are digit separators
+%% % rather than character literals.
+%% \lstnewenvironment{codeblockdigitsep}{
+%%  \CodeBlockSetup
+%%  \lstset{deletestring=[b]{'}}
+%% }{}
 
-% Permit use of '@' inside codeblock blocks (don't ask)
-\makeatletter
-\newcommand{\atsign}{@}
-\makeatother
+%% % Permit use of '@' inside codeblock blocks (don't ask)
+%% \makeatletter
+%% \newcommand{\atsign}{@}
+%% \makeatother
 
 %%--------------------------------------------------
 %% Indented text
