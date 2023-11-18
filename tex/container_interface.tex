@@ -154,21 +154,20 @@ Table \ref{tab:graph_func} summarizes the functions in the Graph Container Inter
     \tcode{partition_id(g,u)} & \tcode{partition_id_t<G>} & constant & 0 \\
     \tcode{partition_id(g,uid)} & \tcode{partition_id_t<G>} & constant & \tcode{partition_id(g,*find_vertex(g,uid))} \\
     \tcode{vertices(g,pid)} & \tcode{partition_vertex_range_t<G>} & constant & \tcode{vertices(g)} \\
-    \tcode{num_vertices(g,pid)} & \tcode{integral} & constant & \tcode{size(vertices(g,pid))}  \\
-    \tcode{find_partition_vertex(g,puid)} & \tcode{vertex_iterator_t<G>} & constant & \tcode{find_vertex(g,puid.vertex_id)} \\
+    \tcode{num_vertices(g,pid)} & \tcode{integral} & constant & \tcode{size(vertices(g))}  \\
 \hline
-    \tcode{edges(g,u)} & \tcode{vertex_edge_range_t<G>} & constant & \tcode{u} if \tcode{forward range<vertex_t<G>>}; otherwise it must be overridden \\
+    \tcode{edges(g,u)} & \tcode{vertex_edge_range_t<G>} & constant & \tcode{u} if \tcode{forward range<vertex_t<G>>}, n/a otherwise \\
     \tcode{edges(g,uid)} & \tcode{vertex_edge_range_t<G>} & constant & \tcode{edges(g,*find_vertex(g,uid))} \\
     \tcode{target_id(g,uv)} & \tcode{vertex_id_t<G>} & constant & n/a \\
     \tcode{target(g,uv)} & \tcode{vertex_t<G>} & constant & \tcode{*(begin(vertices(g)) + target_id(g, uv))} if \tcode{random_access_range<vertex_range_t<G>> \&\& integral<target_id(g,uv)>} \\
-    \tcode{edge_value(g,uv)} & \tcode{edge_value_t<G>} & constant & \tcode{uv} if \tcode{forward_range<vertex_t<G>>}, optionally overridden if edges have value(s) in the graph \\
+    \tcode{edge_value(g,uv)} & \tcode{edge_value_t<G>} & constant & \tcode{uv} if \tcode{forward_range<vertex_t<G>>}, n/a otherwise, optional \\
     \tcode{find_vertex_edge(g,u,vid)} & \tcode{vertex_edge_t<G>} & linear & \tcode{find(edges(g,u), [](uv) {target_id(g,uv)==vid;\})}} \\
     \tcode{find_vertex_edge(g,uid,vid)} & \tcode{vertex_edge_t<G>} & linear & \tcode{find_vertex_edge(g,*find_vertex(g,uid),vid)} \\
     \tcode{contains_edge(g,uid,vid)} & \tcode{bool} & constant & \tcode{uid < size(vertices(g)) \&\& vid < size(vertices(g))} if \tcode{is_adjacency_matrix_v<G>}.\\
     & & linear & \tcode{find_vertex_edge(g,uid) != end(edges(g,uid))} otherwise. \\
 \hdashline
-    \tcode{edges(g,ui,pid)} & \tcode{partition_edge_range_t<G>} & E log(P) & \tcode{edges(g,ui)} \\
-    \tcode{edges(g,uid,pid)} & \tcode{partition_edge_range_t<G>} & E log(P) & \tcode{edges(g,uid)} \\
+    \tcode{edges(g,u,pid)} & \tcode{partition_edge_range_t<G>} & linear & \tcode{edges(g,u)} \\
+    \tcode{edges(g,uid,pid)} & \tcode{partition_edge_range_t<G>} & linear & \tcode{edges(g,uid)} \\
 \hdashline
     \multicolumn{4}{c}{The following are only available when the optional \tcode{source_id(g,uv)} is defined for the edge} \\
 \hdashline
