@@ -140,14 +140,14 @@ Table \ref{tab:graph_func} summarizes the functions in the Graph Container Inter
 \hdashline
     \tcode{partition_count(g)} & \tcode{vertex_id_t<G>} & constant & 1 \\
 \hline
-    \tcode{vertices(g)} & \tcode{vertex_range_t<G>} & constant & n/a \\
+    \tcode{vertices(g)} & \tcode{vertex_range_t<G>} & constant & \tcode{g} if \tcode{random_access_range<G>}, n/a otherwise \\
     \tcode{num_vertices(g)} & \tcode{integral} & constant & \tcode{size(vertices(g))} \\
     \tcode{find_vertex(g,uid)} & \tcode{vertex_iterator_t<G>} & constant & \tcode{begin(vertices(g)) + uid} \\
     & & & if \tcode{random_access_range<vertex_range_t<G>>}  \\
     \tcode{vertex_id(g,ui)} & \tcode{vetex_id_t<G>} & constant & \tcode{ui - begin(vertices(g))} \\
     & & & Override to define a different \tcode{vertex_id_t<G>} type (e.g. int32\_t). \\
     \tcode{vertex_value(g,u)} & \tcode{vertex_value_t<G>} & constant & n/a, optional \\
-    \tcode{vertex_value(g,uid)} & \tcode{vertex_value_t<G>} & constant & n/a, optional \\
+    \tcode{vertex_value(g,uid)} & \tcode{vertex_value_t<G>} & constant & \tcode{vertex_value(g,*find_vertex(g,uid))}, optional \\
     \tcode{degree(g,u)} & \tcode{integral} & constant & \tcode{size(edges(g,u))} if \tcode{sized_range<vertex_edge_range_t<G>>} \\
     \tcode{degree(g,uid)} & \tcode{integral} & constant & \tcode{size(edges(g,uid))} if \tcode{sized_range<vertex_edge_range_t<G>>} \\
 \hdashline
@@ -181,7 +181,13 @@ Table \ref{tab:graph_func} summarizes the functions in the Graph Container Inter
 \end{center}
 \end{table}
 
-Functions that have n/a for their Default Implementation must be defined by the author of a Graph Container implementation. \tcode{graph_value(g)}, \tcode{vertex_value(g,u)} and \tcode{edge_value(g,uv)} can be optionally implemented, depending on whether the graph container supports values on the graph, vertex and edge types.
+Functions that have n/a for their Default Implementation must be defined by the author of a Graph Container implementation. 
+
+Value functions (\tcode{graph_value(g)}, \tcode{vertex_value(g,u)} and \tcode{edge_value(g,uv)}) can be optionally implemented, 
+depending on whether the graph container supports values on the graph, vertex and edge types. They return a single value and can 
+be scaler, struct, class, union, or tuple. These are abstract types used by the GVF, VVF and EVF function objects to retrieve
+values used by algorithms. As such it's valid to return the "enclosing" owning class (graph, vertex or edge), or some other
+embedded value in those objects.
 
 \tcode{vertex_id_t<G>} is defined by the type returned by \tcode{vertex_id(g)} and it defaults to the difference\_type of the underlying container used for vertices (e.g int64\_t for 64-bit systems). This is sufficient for all situations. However, there are often space and performance advantages if a smaller type is used, such as int32\_t or even int16\_t. It is recommended to consider overriding this function for optimal results, assuring that it is also large enough for the number of possible vertices and edges in the application. It will also need to be overridden if the implementation doesn't expose the vertices as a range.
 
@@ -196,8 +202,8 @@ Edgelists are assumed to be either be an edgelist view of an adjacency graph, or
 \tcode{partition_count(g)} returns the number of partitions, or partiteness, of the graph. It has a range of 1 to n, where 1 identifies 
 a unipartite graph, 2 is a bipartite graph, and a value of 2 or more can be considered a multipartite graph. 
 
-If a graph data structure doesn't support partitions then it is unipartite and partite functions will reflect that. For instance, \tcode{partition_count(g)} 
-returns a value of 1, and \tcode{vertices(g,0)} (vertices in the first partition) will return a range that includes all vertices in the graph.
+If a graph data structure doesn't support partitions then it is unipartite with one partition and partite functions will reflect that. 
+For instance, \tcode{partition_count(g)} returns a value of 1, and \tcode{vertices(g,0)} (vertices in the first partition) will return a range that includes all vertices in the graph.
 
 A partition identifies a type of a vertex, where the vertex value types are assumed to be uniform in each partition. This creates a dilemma because 
 the existing \tcode{vertex_value(g,u)} returns a single type based template parameter for the vertex value type. Supporting 
@@ -261,7 +267,93 @@ contiguously. \tcode{empty(vrng)} may be empty if there are no vertices in the p
     \tcode{load_edges(g, erng, eproj=identity(), vertex_count=0)} & void & E & n/a \\
 \hline
 \end{tabular}}
-\caption{Graph Container Interface Functions}
-\label{tab:graph_func}
+\caption{Graph Load Functions}
+\label{tab:load_func}
 \end{center}
+\end{table}
+
+\section{Using Existing Graph Data Structures}
+Reasonable defaults have been defined for the GCI functions to minimize the amount of work
+needed to adapt an existing graph data structure to be used by the views and algorithms.
+
+There are two cases supported. The first is for the use of standard containers to define the graph and the other
+is for a broader set of more complicated implementations.
+
+\subsection{Using Standard Containers for the Graph Data Structure}
+
+For example this we'll use \tcode{G = vector<forward_list<tuple<int,double>>>} to define the graph, where \tcode{g} 
+is an instance of \tcode{G}. \tcode{tuple<int,double>} defines the target\_id and weight property respectively. We
+can write loops to go through the vertices, and edges within each vertex, as follows.
+
+\begin{lstlisting}
+using G = vector<forward_list<tuple<int,double>>>;
+auto target_id(const G& g, edge_t<const G>& uv) { return get<0>(uv); }
+auto weight = [&g](edge_t& uv) { return get<1>(uv); }
+
+G g;
+load_graph(g, ...); // load some data
+
+// Using CGI functions
+for(auto&& u : vertices(g)) {
+  for(auto&& uv: edges(g,u)) {
+    auto w = weight(uv);
+    // do something...
+  }
+}
+\end{lstlisting}
+
+Note that \tcode{target_id(g,uv)} was the only CPO function overriden; all other functions were automatically defined
+based on the rules shown in Table \ref{tab:simple_graph}.
+
+\begin{table}[h!]
+    \begin{center}
+    \resizebox{\textwidth}{!}
+    {\begin{tabular}{l l p{1.5cm} L{7.0cm}}
+    \hline
+        \textbf{Function or Value} & \textbf{Concrete Type} \\
+    \hline
+        \tcode{vertices(g)} & \tcode{vector<forward_list<tuple<int,double>>>} (when \tcode{random_access_range<G>}) \\
+        \tcode{u} & \tcode{forward_list<tuple<int,double>>} & \\
+        \tcode{edges(g,u)} & \tcode{forward_list<tuple<int,double>>} (when \tcode{random_access_range<vertex_range_t<G>>}) \\
+        \tcode{uv} & \tcode{tuple<int,double>} & \\
+        \tcode{edge_value(g,uv)} & \tcode{tuple<int,double>} (when \tcode{random_access_range<vertex_range_t<G>>}) \\
+    \hline
+    \end{tabular}}
+    \caption{Types When Using Standard Containers}
+    \label{tab:simple_graph}
+    \end{center}
+\end{table}
+
+\subsection{Using Other Graph Data Structures}
+For other graph data structures more function overrides are required. The following table identifies the common function
+overrides anticipated for most cases, keeping in mind that all functions in Table \ref{tab:graph_func} can be overridden.
+
+\begin{table}[h!]
+    \begin{center}
+    %\resizebox{\textwidth}{!}
+    {\begin{tabular}{l l p{1.5cm} L{7.0cm}}
+    \hline
+        \textbf{Function} & \textbf{Comment} \\
+    \hline
+        \tcode{vertices(g)} & \\
+        \tcode{edges(g,u)} & \\
+        \tcode{target_id(g,uv)} & \\
+        \tcode{edge_value(g,uv)} & If edges have value(s) in the graph \\
+        \tcode{vertex_value(g,u)} & If vertices have value(s) in the graph \\
+        \tcode{graph_value(g)} & If the graph has value(s) \\
+    \hline
+        \multicolumn{2}{c}{When edges have the optional source\_id on an edge} \\
+    \hdashline
+        \tcode{source_id(g,uv)} & \\
+    \hline
+        \multicolumn{2}{c}{When the graph supports multiple partitions} \\
+    \hdashline
+        \tcode{partition_count(g)} & \\
+        \tcode{partition_id(g,u)} & \\
+        \tcode{vertices(g,u,pid)} & \\
+    \hline
+    \end{tabular}}
+    \caption{Common CPO Function Overrides}
+    \label{tab:cmn_cpo_overrides}
+    \end{center}
 \end{table}
