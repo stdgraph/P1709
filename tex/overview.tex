@@ -75,6 +75,8 @@ The github \href{https://github.com/stdgraph}{stdgraph} repository contains an i
 There is no current use of the library. There are plans to begin using it in the next year in a commercial setting.
 
 \section{Deployment Experience}
+There is no current deployment experience of the library. There are plans for this to follow the usage experience.
+
 \section{Performance Considerations}
 The algorithms are being ported from NWGraph to the \href{https://github.com/stdgraph}{stdgraph} implementation used for this proposal. Performance analysis from those algorithms can be found in the peer-reviewed paper for NWGraph \cite{REF_nwgraph_paper}.
 
@@ -118,7 +120,7 @@ It is believed that they are unique enough to warrant their own namespaces and i
 \item[]\tcode{std::graph}
 \item[]\tcode{std::graph::views}
 \end{itemize}
-Motivations for a graph namespace is for domain-specific terms that could clash with other names, such as \tcode{degree} and \tcode{partition_id}.
+Motivations for a graph-specific namespace is for domain-specific terms that could clash with other names, such as \tcode{degree} and \tcode{partition_id}.
 
 \noindent
 Alternative locations for the above respective namespaces could also be as follows:
