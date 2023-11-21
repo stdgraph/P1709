@@ -289,6 +289,17 @@ using non-negative weights.
 }
 
 \begin{itemdescr}
+      \pnum\mandates
+      \begin{itemize}
+            \item
+                  The return type of weight function \lstinline{w} must be able to
+                  be combined with the distance type \lstinline{Distance}.
+            \item
+                  The argument type for the weight
+                  function \lstinline{w} must be convertible from the edge type.
+            \item
+                  The weight function \lstinline{w} must return a non-negative value.
+      \end{itemize}
       \pnum\preconditions
       \begin{itemize}
             \item
@@ -301,18 +312,8 @@ using non-negative weights.
             \item
                   \lstinline{precessors[i] = i} for \lstinline{0 <= i <  num_vertices(g)}.
       \end{itemize}
-      \pnum\requires
-      \begin{itemize}
-            \item
-                  The return type of weight function \lstinline{w} must be able to
-                  be combined with the distance type \lstinline{Distance}.
-            \item
-                  The argument type for the weight
-                  function \lstinline{w} must be convertible from the edge type.
-            \item
-                  The weight function \lstinline{w} must return a non-negative value.
-      \end{itemize}
-      \pnum\returns
+      \pnum\effects \\
+      \pnum\result
       \begin{itemize}
             \item
                   If vertex with index \lstinline{i} is reachable from vertex \lstinline{source}, then
@@ -325,6 +326,11 @@ using non-negative weights.
                   predecessor vertex of vertex \lstinline{i}. Otherwise \lstinline{predecessors[i]} will contain
                   \lstinline{i}.
       \end{itemize}
+      \pnum\returns \lstinline{void} \\
+      \pnum\throws \\
+      \pnum\complexity \\
+      \pnum\remarks \\
+      %\pnum\error
 \end{itemdescr}
 
 
