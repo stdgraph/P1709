@@ -390,6 +390,20 @@ using non-negative weights.
 \section{Clustering}
 \subsection{Triangle Counting}
 
+{\small
+      \lstinputlisting[firstline=4,lastline=6]{src/tc.hpp}
+}
+\begin{itemdescr}
+      \pnum\preconditions
+      \begin{itemize}
+            \item
+              \lstinline{g} is an \lstinline{adjacency_list}.
+            \item
+              \pnum\complexity $\mathcal{O}(N^3)$
+      \end{itemize}
+      \pnum\returns Number of triangles
+\end{itemdescr}
+
 \section{Communities}
 \subsection{Label Propagation}
 
