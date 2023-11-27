@@ -406,6 +406,47 @@ using non-negative weights.
 
 \section{Communities}
 \subsection{Label Propagation}
+{\small
+      \lstinputlisting[firstline=4,lastline=12]{src/lp.hpp}
+}
+\begin{itemdescr}
+      \pnum\preconditions
+      \begin{itemize}
+            \item
+              \lstinline{g} is an \lstinline{adjacency_list}.
+            \item
+              \lstinline{label} is a random access range containing vertex labels.
+            \item
+              \lstinline{rng} is a random number generator.
+            \item
+              \lstinline{max_iters} is the maximum number of iterations of the label propagation, or equivalently the maximum distance a label will propagate from its starting vertex.
+            \item
+              \pnum\complexity $\mathcal{O}(N)$ \kevin{???}
+      \end{itemize}
+      \pnum\effects \lstinline{label[uid]} is the label assignments of vertex id \lstinline{uid} discovered by label propagation.
+\end{itemdescr}
+
+{\small
+      \lstinputlisting[firstline=14,lastline=23]{src/lp.hpp}
+}
+\begin{itemdescr}
+      \pnum\preconditions
+      \begin{itemize}
+            \item
+              \lstinline{g} is an \lstinline{adjacency_list}.
+            \item
+              \lstinline{label} is a random access range containing vertex labels.
+            \item
+              \lstinline{empty_label} defines a label that is considered empty and will not be propagated.
+            \item
+              \lstinline{rng} is a random number generator.
+            \item
+              \lstinline{max_iters} is the maximum number of iterations of the label propagation, or equivalently the maximum distance a label will propagate from its starting vertex.
+            \item
+              \pnum\complexity $\mathcal{O}(N)$
+      \end{itemize}
+      \pnum\effects \lstinline{label[uid]} is the label assignments of vertex id \lstinline{uid} discovered by label propagation.
+\end{itemdescr}
 
 \section{Components}
 \subsection{Articulation Points}
