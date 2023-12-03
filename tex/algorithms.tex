@@ -112,44 +112,43 @@ the user much.}
 }
 
 \begin{itemdescr}
+      \pnum\mandates
+            \begin{itemize}
+                  \item
+                        \lstinline{graph} is an \lstinline{adjacency_list}, which may be directed or undirected.
+            \end{itemize}
       \pnum\preconditions
-      \begin{itemize}
-            \item
-                  \lstinline{graph} is an \lstinline{adjacency_list}, which may be directed or
-                  undirected.
-            \item
-                  \lstinline{0 <= source < num_vertices(graph)}.
+            \begin{itemize}
+                  \item
+                        \lstinline{0 <= source < num_vertices(graph)}.
 
-            \item
-                  The \lstinline{distance} range must be initialized so that
-                  \lstinline{distance[i] == \lstinline{std::numeric_limits<range_value_t<D>>::max()}
-                  for all \lstinline{i}
-                  such that \lstinline{0 <= i < num_vertices(graph)}.  \andrew{invalid distance?}
-            \item
-                  The \lstinline{predecessors} range must be initialized so that
-                  \lstinline{precessors[i] == i} for all \lstinline{i} such that
-                  \lstinline{0 <= i <  num_vertices(graph)}.
-      \end{itemize}
+                  \item
+                        \lstinline{distance[i] == std::numeric_limits<range_value_t<D>>::max()} \\
+                        for \lstinline{0 <= i < num_vertices(graph)}.  \andrew{invalid distance?}
+                  \item
+                        The \lstinline{predecessors} range must be initialized so that
+                        \lstinline{precessors[i] == i} for all \lstinline{i} such that
+                        \lstinline{0 <= i <  num_vertices(graph)}.
+            \end{itemize}
       \pnum\effects Compute the breadth-first path and associated distance from vertex
-      \lstinline{source} to all reachable vertices in \lstinline{graph}.
-      \pnum\returns
-      \begin{itemize}
-            \item For \lstinline{breadth_first_search} and \lstinline{breadth_first_distance},
-                  if vertex with index \lstinline{i} is reachable from vertex \lstinline{source}, then
-                  \lstinline{distances[i]} will contain the distance from \lstinline{source} to vertex
-                  \lstinline{i}.  If vertex \lstinline{i} is not reachable from vertex
-                  \lstinline{source} then \lstinline{distances[i]} will contain
-                  \lstinline{std::numeric_limits<range_value_t<D>>::max()}.
-            \item
-                  For \lstinline{breadth_first_search} if vertex with index \lstinline{i} is reachable
-                  from vertex \lstinline{source}, then \lstinline{predecessor[i]} will contain the
-                  predecessor vertex of vertex \lstinline{i}.  If vertex \lstinline{i} is not reachable
-                  from vertex \lstinline{source} then \lstinline{predecessors[i]} will contain
-                  \lstinline{i}.
-      \end{itemize}
-      %
-      \pnum\complexity $\mathcal{O}(|E| + |V|)$
-      \pnum\throws: none. \andrew{Throw if \lstinline{source} out of range?}
+                        \lstinline{source} to all reachable vertices in \lstinline{graph}.
+      \pnum\result 
+            \begin{itemize}
+                  \item If vertex with index \lstinline{i} is reachable from vertex \lstinline{source}, then
+                        \lstinline{distances[i]} will contain the distance from \lstinline{source} to vertex
+                        \lstinline{i}.  Otherwise, \lstinline{distances[i]} will contain
+                        \lstinline{std::numeric_limits<range_value_t<D>>::max()}.
+                  \item
+                        For \lstinline{breadth_first_search} if vertex with index \lstinline{i} is reachable
+                        from vertex \lstinline{source}, then \lstinline{predecessor[i]} will contain the
+                        predecessor vertex of vertex \lstinline{i}.  Otherwise, \lstinline{predecessors[i]} 
+                        will contain \lstinline{i}.
+            \end{itemize}
+      \pnum\returns \lstinline{void} \\
+      \pnum\throws none. \andrew{Throw if \lstinline{source} out of range?} \\
+      \pnum\complexity $\mathcal{O}(|E| + |V|)$ \\
+      \pnum\remarks \\
+      %\pnum\error
 \end{itemdescr}
 
 
@@ -277,7 +276,7 @@ using non-negative weights.
       & \textbf{Throws?} & No \\
       & \textbf{Multi-edge?} & No \\
       & \textbf{Cycles?} & No \\
-      & \textbf{Directedness} & Both \\
+      & \textbf{Directed?} & Yes \\
 \hline
 \end{tabular}
 %\caption{Dijkstra Single Source Summary}

@@ -1,4 +1,4 @@
-// Ranges concepts and types don't include the ranges:: namespace prefix for brevity 
+// Concepts and types from std::ranges don't include the namespace prefix for brevity 
 // and clarity of purpose
 
 template <adjacency_list              G, 
