@@ -1,18 +1,20 @@
 template <adjacency_list_graph G, property D, property P>
-requires(!bidirectional_adjacency_list_graph<G>) void shortest_paths(const G&       graph,
-                                                                     vertex_id_t<G> source,
-                                                                     D&&            distances,
-                                                                     P&& predecessors);
+requires(!bidirectional_adjacency_list_graph<G>) 
+void shortest_paths(const G&       graph,
+                    vertex_id_t<G> source,
+                    D&&            distances,
+                    P&& predecessors);
 
 template <bidirectional_adjacency_list_graph G, property D, property P>
 void shortest_paths(const G& graph, vertex_id_t<G> source, D&& distances, P&& predecessors);
 
 template <class ExecutionPolicy, adjacency_list_graph G, property D, property P>
-requires(!bidirectional_adjacency_list_graph<G>) void shortest_paths(ExecutionPolicy&& policy,
-                                                                     const G&          graph,
-                                                                     vertex_id_t<G>    source,
-                                                                     D&& distances,
-                                                                     P&& predecessors);
+requires(!bidirectional_adjacency_list_graph<G>) 
+void shortest_paths(ExecutionPolicy&& policy,
+                    const G&          graph,
+                    vertex_id_t<G>    source,
+                    D&& distances,
+                    P&& predecessors);
 
 template <class ExecutionPolicy, bidirectional_adjacency_list_graph G, property D, property P>
 void shortest_paths(ExecutionPolicy&& policy,
