@@ -46,19 +46,17 @@ for(auto&& [uid] : basic_vertexlist(g,vvf)) {
 }
 \end{lstlisting}
 
-\subsubsection{\tcode{struct vertex_descriptor<Vid, V, VV>}}\label{vertex-view}\mbox{} \\
-\tcode{vertex_descriptor} is used to return vertex information. It is used by \tcode{vertexlist(g)}, \tcode{vertices_breadth_first_search(g,u)}, \tcode{vertices_depth_first_search(g,u)} and others. The \tcode{id} member always exists.
+\subsubsection{\tcode{struct vertex_descriptor<VId, V, VV>}}\label{vertex-view}\mbox{} \\
+\tcode{vertex_descriptor} is used to return vertex information. It is used by \tcode{vertexlist(g)}, \tcode{vertices_breadth_first_search(g,u)}, 
+\tcode{vertices_depth_first_search(g,u)} and others. The \tcode{id} member always exists.
 
-\begin{lstlisting}
-template <class VId, class V, class VV>
-struct vertex_descriptor {
-  VId id;     // vertex\_id\_t<G>, always exists
-  V   vertex; // vertex\_reference\_t<t>
-  VV  value;
-};
-\end{lstlisting}
+{\small
+     \lstinputlisting{src/vertex_descriptor.hpp}
+}
 
-Specializations are defined with \tcode{V}=void or \tcode{VV}=void to suppress the existance of their associated member variables, giving the following valid combinations in Table \ref{tab:vertex-view} . For instance, the second entry, \tcode{vertex_descriptor<VId, V>} has two members \tcode{\{VId id; V vertex;\}}.
+Specializations are defined with \tcode{V}=void or \tcode{VV}=void to suppress the existance of their associated member variables, 
+giving the following valid combinations in Table \ref{tab:vertex-view} . For instance, the second entry, \tcode{vertex_descriptor<VId, V>} 
+has two members \tcode{\{id_type id; vertex_type vertex;\}} and \tcode{value_type} is \tcode{void}.
 \begin{table}[h!]
 \begin{center}
 %\resizebox{\textwidth}{!}
@@ -89,17 +87,14 @@ using copyable_vertex_t = vertex_descriptor<VId, void, VV>; // {id, value}
 \subsubsection{\tcode{struct edge_descriptor<VId, Sourced, E, EV>}}\label{edge-view}\mbox{} \\
 \tcode{edge_descriptor} is used to return edge information. It is used by \tcode{incidence(g,u)}, \tcode{edgelist(g)}, \tcode{edges_breadth_first_search(g,u)}, \tcode{edges_depth_first_search(g,u)} and others. When \tcode{Sourced}=true, the \tcode{source_id} member is included with type \tcode{VId}. The \tcode{target_id} member always exists.
 
-\begin{lstlisting}
-template <class VId, bool Sourced, class E, class EV>
-struct edge_descriptor {
-  VId source_id; // vertex\_id\_t<G>, exists when SourceId==true
-  VId target_id; // vertex\_id\_t<G>, always exists
-  E   edge;      // edge\_reference\_t<G>
-  EV  value;
-};
-\end{lstlisting}
+{\small
+     \lstinputlisting{src/edge_descriptor.hpp}
+}
 
-Specializations are defined with \tcode{Sourced}=true\(|\)false, \tcode{E}=void or \tcode{EV}=void to suppress the existance of the associated member variables, giving the following valid combinations in Table \ref{tab:edge-view} . For instance, the second entry, \tcode{edge_descriptor<VId,true,E>} has three members \tcode{\{VId source_id; VId target_id; E edge;\}}.
+Specializations are defined with \tcode{Sourced=true|false}, \tcode{E=void} or \tcode{EV=void} to suppress the existance of the associated 
+member variables, giving the following valid combinations in Table \ref{tab:edge-view} . For instance, the second entry, 
+\tcode{edge_descriptor<VId,true,E>} has three members \tcode{\{source_id_type source_id; target_id_type target_id; edge_type edge;\}} 
+and \tcode{value_type} is \tcode{void}.
 \begin{table}[h!]
 \begin{center}
 %\resizebox{\textwidth}{!}
@@ -133,19 +128,17 @@ using copyable_edge_t = edge_descriptor<VId, true, void, EV>; // {source\_id, ta
 
 
 \subsubsection{\tcode{struct neighbor_descriptor<VId, Sourced, V, VV>}}\label{neighbor-view}\mbox{} \\
-\tcode{neighbor_descriptor} is used to return information for a neighbor vertex, through an edge. It is used by \tcode{neighbors(g,u)}. When \tcode{Sourced}=true, the \tcode{source_id} member is included with type \tcode{VId}. The \tcode{target_id} member always exists.
+\tcode{neighbor_descriptor} is used to return information for a neighbor vertex, through an edge. It is used by \tcode{neighbors(g,u)}. 
+When \tcode{Sourced=true}, the \tcode{source_id} member is included with type \tcode{source_id_type}. The \tcode{target_id} member always exists.
 
-\begin{lstlisting}
-template <class VId, bool Sourced, class V, class VV>
-struct neighbor_descriptor {
-  VId source_id;  // vertex\_id\_t<G>
-  VId target_id;  // vertex\_id\_t<G>, always exists
-  V   target;     // vertex\_reference\_t<G>
-  VV  value;
-};
-\end{lstlisting}
+{\small
+     \lstinputlisting{src/neighbor_descriptor.hpp}
+}
 
-Specializations are defined with \tcode{Sourced}=true\(|\)false, \tcode{E}=void or \tcode{EV}=void to suppress the existance of the associated member variables, giving the following valid combinations in Table \ref{tab:neighbor-view} . For instance, the second entry, \tcode{neighbor_descriptor<VId,true,E>} has three members \tcode{\{VId source_id; VId target_id; V target;\}}.
+Specializations are defined with \tcode{Sourced=true|false}, \tcode{E}=void or \tcode{EV}=void to suppress the existance of the 
+associated member variables, giving the following valid combinations in Table \ref{tab:neighbor-view} . For instance, the second entry, 
+\tcode{neighbor_descriptor<VId,true,E>} has three members \tcode{\{source_id_type source_id; target_id_type target_id; vertex_type target;\}} 
+and \tcode{value_type} is \tcode{void}.
 \begin{table}[h!]
 \begin{center}
 %\resizebox{\textwidth}{!}

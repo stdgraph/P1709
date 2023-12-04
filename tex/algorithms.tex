@@ -21,6 +21,47 @@ Tier 1:
 \item Prim MST
 \end{itemize}
 
+\section{Introduction}
+
+\newcommand{\tablistcommand}{% <-- for eliminating vertical space
+                             %     before and after itemize
+            \leavevmode\par\vspace{-\baselineskip}
+                            }
+\newcolumntype{P}[1]{p{#1-3\tabcolsep-\arrayrulewidth}}
+
+The following table shows an example of the summary characteristics of an algorithm.
+
+\begin{table}[h]
+\setcellgapes{3pt}
+\makegapedcells
+\centering
+\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\hline
+      \multirowcell{2}{
+            \textbf{Complexity} \\
+            $\mathcal{O}(|E|+|V|)$
+            }
+      & \textbf{Throws?} No & \textbf{Cycles?} No \\
+      & \textbf{Multi-edge?} No & \textbf{Directed?} Yes\\
+\hline
+\end{tabular}
+%\caption{Algorithm Example}
+\label{tab:algo_example}
+\end{table}
+
+The parts of the table have the following meaning:
+\begin{itemize}
+      \item \textbf{Complexity} The complexity of the algorithm based on the number of vertices (V) and edges (E).
+      \item \textbf{Throws?} Will the algorithm throw at all? If so, look at the \textit{Throws} section after the function prototypes for details.
+      \item \textbf{Multi-edge?} Does the algorithm act as expected if more than one edge with the same direction exists between the same two vertices?
+      \item \textbf{Cycles?} Does the algorithm act act as expected if a vertex (or edge) is part of a cycle?
+      \item \textbf{Directed?} Is the algorithm only for directed graphs, or can it also be used for undirected graphs that have complimentary
+                               edges, with different directions, between two vertices.
+\end{itemize}
+
+\phil{The Directed? section needs work.}
+
+
 \section{Algorithm Concepts}
 
 \andrew{Need to develop this ala CppCon 2021 talk.}
@@ -31,6 +72,8 @@ Most fundamentally (as illustrated above), an adjacency list is a collection of 
 \andrew{We should probably have that discussion soon about what we specifically mean by ``vertex''...}
 
 \andrew{Is it better to list the concepts here or forward reference them?  Kind of a circularity.  But maybe the sequence of concepts - algorithms - concrete data types is the right one.  OTOH, std::ranges use ordering overview library-concepts-containers-algorithms.  Since a graph is a range of ranges, maybe we should follow that.}
+
+\phil{I think this is a good place, just before they're used in the text for this section.}
 % Additional concepts used by algorithms.
 
 \begin{lstlisting}
@@ -59,9 +102,6 @@ concept queueable = requires(Q&& q, Q::value_type value) {
 
 \section{Shortest Paths}
 
-\andrew{To keep code snippets here consistent with real working code, we use lstinputlistings to grab code from alg\_synopsis.hpp and use prototypes.cpp to compile.} 
-\muhammad{I found that it is easier to have separate header files for different algorithms, because the line numbers move around, you have to potentially update the whole algorithms.tex file.}
-
 \andrew{Note that NetworkX also specifies single source single target and multiple source versions of the shortest paths algorithms.  
 BGL does not have these (nor NWGraph).  We should discuss whether or not to consider those and whether or not to make them Tier 1, 2, 3, or infinity.}
 
@@ -85,6 +125,8 @@ the user much.}
 
 \andrew{The variety of algorithms was inspired by networkx....  Which also had ``distance'' variants.}
 
+\phil{I assume \tcode{adjacency_list_graph} is the same as our \tcode{adjacency_list}. \tcode{bidirectional_adjacency_list_graph} is new; what to do with it?}
+
 \subsection{Unweighted Shortest Paths: Breadth-First Search}
 
 \subsubsection{Breadth-First Search, Single Source, Initialization}
@@ -107,49 +149,50 @@ the user much.}
 
 \subsubsection{Breadth-First Search, Single Source}
 
+\phil{What value does this bring over the \tcode{breadth_first_search} view? }
+
 {\small
       \lstinputlisting{src/breadth_first_search.hpp}
 }
 
 \begin{itemdescr}
+      \pnum\mandates
+            \begin{itemize}
+                  \item
+                        \lstinline{graph} is an \lstinline{adjacency_list}, which may be directed or undirected.
+            \end{itemize}
       \pnum\preconditions
-      \begin{itemize}
-            \item
-                  \lstinline{graph} is an \lstinline{adjacency_list}, which may be directed or
-                  undirected.
-            \item
-                  \lstinline{0 <= source < num_vertices(graph)}.
+            \begin{itemize}
+                  \item
+                        \lstinline{0 <= source < num_vertices(graph)}.
 
-            \item
-                  The \lstinline{distance} range must be initialized so that
-                  \lstinline{distance[i] == \lstinline{std::numeric_limits<range_value_t<D>>::max()}
-                  for all \lstinline{i}
-                  such that \lstinline{0 <= i < num_vertices(graph)}.  \andrew{invalid distance?}
-            \item
-                  The \lstinline{predecessors} range must be initialized so that
-                  \lstinline{precessors[i] == i} for all \lstinline{i} such that
-                  \lstinline{0 <= i <  num_vertices(graph)}.
-      \end{itemize}
+                  \item
+                        \lstinline{distance[i] == std::numeric_limits<range_value_t<D>>::max()} \\
+                        for \lstinline{0 <= i < num_vertices(graph)}.  \andrew{invalid distance?}
+                  \item
+                        The \lstinline{predecessors} range must be initialized so that
+                        \lstinline{precessors[i] == i} for all \lstinline{i} such that
+                        \lstinline{0 <= i <  num_vertices(graph)}.
+            \end{itemize}
       \pnum\effects Compute the breadth-first path and associated distance from vertex
-      \lstinline{source} to all reachable vertices in \lstinline{graph}.
-      \pnum\returns
-      \begin{itemize}
-            \item For \lstinline{breadth_first_search} and \lstinline{breadth_first_distance},
-                  if vertex with index \lstinline{i} is reachable from vertex \lstinline{source}, then
-                  \lstinline{distances[i]} will contain the distance from \lstinline{source} to vertex
-                  \lstinline{i}.  If vertex \lstinline{i} is not reachable from vertex
-                  \lstinline{source} then \lstinline{distances[i]} will contain
-                  \lstinline{std::numeric_limits<range_value_t<D>>::max()}.
-            \item
-                  For \lstinline{breadth_first_search} if vertex with index \lstinline{i} is reachable
-                  from vertex \lstinline{source}, then \lstinline{predecessor[i]} will contain the
-                  predecessor vertex of vertex \lstinline{i}.  If vertex \lstinline{i} is not reachable
-                  from vertex \lstinline{source} then \lstinline{predecessors[i]} will contain
-                  \lstinline{i}.
-      \end{itemize}
-      %
-      \pnum\complexity $\mathcal{O}(|E| + |V|)$
-      \pnum\throws: none. \andrew{Throw if \lstinline{source} out of range?}
+                        \lstinline{source} to all reachable vertices in \lstinline{graph}.
+      \pnum\result 
+            \begin{itemize}
+                  \item If vertex with index \lstinline{i} is reachable from vertex \lstinline{source}, then
+                        \lstinline{distances[i]} will contain the distance from \lstinline{source} to vertex
+                        \lstinline{i}.  Otherwise, \lstinline{distances[i]} will contain
+                        \lstinline{std::numeric_limits<range_value_t<D>>::max()}.
+                  \item
+                        For \lstinline{breadth_first_search} if vertex with index \lstinline{i} is reachable
+                        from vertex \lstinline{source}, then \lstinline{predecessor[i]} will contain the
+                        predecessor vertex of vertex \lstinline{i}.  Otherwise, \lstinline{predecessors[i]} 
+                        will contain \lstinline{i}.
+            \end{itemize}
+      \pnum\returns \lstinline{void} \\
+      \pnum\throws none. \andrew{Throw if \lstinline{source} out of range?} \\
+      \pnum\complexity $\mathcal{O}(|E| + |V|)$ \\
+      \pnum\remarks \\
+      %\pnum\error
 \end{itemdescr}
 
 
@@ -161,13 +204,16 @@ the user much.}
 
 \andrew{Actually, I don't think dijkstra\_invalid\_distance() or dijkstra\_zero() useful -- those
       need to be specified for the actual init functions.
-      As free functions they don't really do anything.  Or are they meant to be CPOs? }
+      As free functions they don't really do anything.  Or are they meant to be CPOs? } 
 
 \andrew{Is there a run-time overhead introduced by using functions and/or CPOs for things like
       dijkstra invalid or dijkstra zero?
 }
 
 \andrew{I would like to see a use case for the dijkstra invalid and dijkstra zero functions.}
+
+\phil{We're using preconditions to define the initial values using \tcode{numeric_limits<T>::max()} or an index.
+      I'm seeing less value for having the initialization functions.}
 
 {\small
       \lstinputlisting{src/dijkstra_helpers.hpp}
@@ -252,17 +298,16 @@ the user much.}
 
 \phil{Changes from previous: add description at beginning, add summary table of characteristics, remove shortest\_distances functions, 
 update source to reflect discussions with Andrew and current implementation, use longer names in source for clarity, simplified wording 
-of prerequisits and requires and returns sections. }
+of prerequisits and requires and returns sections.} \\
+\phil{Also simplified the definitions by replacing \tcode{adjacency_list} with 
+\tcode{index_adjacency_list}, expanded the defintion of \tcode{edge_value_function} and added a new \tcode{basic_edge_value_function} 
+for the general definition. }
 
-Compute the shortest path and associated distance from vertex \tcode{source} to all reachable vertices in graph \tcode{g}
+Compute the shortest path and associated distance from vertex \tcode{source} to all reachable vertices in \tcode{graph}
 using non-negative weights.
 
-\newcommand{\tablistcommand}{% <-- for eliminating vertical space
-                             %     before and after itemize
-            \leavevmode\par\vspace{-\baselineskip}
-                            }
-\newcolumntype{P}[1]{p{#1-3\tabcolsep-\arrayrulewidth}}
-
+% The following table is retained for comparison to the new format.
+% After it's been reviewed it can be removed.
 \begin{table}[h]
 \setcellgapes{3pt}
 \makegapedcells
@@ -277,16 +322,117 @@ using non-negative weights.
       & \textbf{Throws?} & No \\
       & \textbf{Multi-edge?} & No \\
       & \textbf{Cycles?} & No \\
-      & \textbf{Directedness} & Both \\
+      & \textbf{Directed?} & Yes \\
 \hline
 \end{tabular}
 %\caption{Dijkstra Single Source Summary}
 \label{tab:dijkstra_ss_summary}
 \end{table}
 
+\begin{table}[h]
+\setcellgapes{3pt}
+\makegapedcells
+\centering
+\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\hline
+      \multirowcell{2}{
+            \textbf{Complexity} \\
+                  $\mathcal{O}((|E| + |V|)\log{|V|})$
+            }
+      & \textbf{Throws?} No & \textbf{Cycles?} No \\
+      & \textbf{Multi-edge?} No & \textbf{Directed?} Yes \\
+\hline
+\end{tabular}
+%\caption{Dijkstra Single Source Summary}
+\label{tab:dijkstra_ss_summary}
+\end{table}
+Note that complexity may be $\mathcal{O}(|E| + |V|\log{|V|)}$ for certain implementations.
+
 {\small
       \lstinputlisting{src/dijkstra2.hpp}
 }
+
+\phil{Support \tcode{null_predecessors} special value to disable Predecessors tracking?}
+
+\begin{itemdescr}
+      \pnum\mandates
+      \begin{itemize}
+            \item
+                  The return type of weight function \lstinline{w} must be able to
+                  be combined with the distance type \lstinline{Distance}. The combination
+                  used in the first function is addition.
+            \item
+                  The argument type for the weight
+                  function \lstinline{w} must be convertible from the edge type.
+            \item
+                  The weight function \lstinline{w} must return a non-negative value.
+      \end{itemize}
+      \pnum\preconditions
+      \begin{itemize}
+            \item
+                  \lstinline{0 <= source < num_vertices(graph)}. 
+                  \\ \andrew{Throw if \lstinline{source} out of range?}
+            \item
+                  \lstinline{distance[i] = numeric_limits<range_value_t<Distance>>::max()}
+                  for \lstinline{0 <= i < num_vertices(graph)}.  
+                  \\ \andrew{invalid distance?}
+            \item
+                  \lstinline{precessors[i] = i} for \lstinline{0 <= i <  num_vertices(graph)}.
+      \end{itemize}
+      \pnum\effects \\
+      \pnum\result
+      \begin{itemize}
+            \item
+                  If vertex with index \lstinline{i} is reachable from vertex \lstinline{source}, then
+                  \lstinline{distances[i]} will contain the distance from \lstinline{source} to vertex
+                  \lstinline{i}.  Otherwise \lstinline{distances[i]} will contain
+                  \lstinline{numeric_limits<range_value_t<Distance>>::max()}.
+            \item
+                  If vertex with index \lstinline{i} is reachable
+                  from vertex \lstinline{source}, then \lstinline{predecessors[i]} will contain the
+                  predecessor vertex of vertex \lstinline{i}. Otherwise \lstinline{predecessors[i]} will contain
+                  \lstinline{i}.
+      \end{itemize}
+      \pnum\returns \lstinline{void} \\
+      \pnum\throws \\
+      \pnum\complexity \\
+      \pnum\remarks Bellman-Ford Shortest Paths allows negative weights. \\
+      %\pnum\error
+\end{itemdescr}
+
+
+\subsubsection{Bellman-Ford Single Source Shortest Paths}
+Compute the shortest path and associated distance from vertex \tcode{source} to all reachable vertices in \tcode{graph}.
+
+
+\begin{table}[h]
+\setcellgapes{3pt}
+\makegapedcells
+\centering
+\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\hline
+      \multirowcell{2}{
+            \textbf{Complexity} \\
+                  $\mathcal{O}(|E| \cdot |V|)$ \\
+            }
+      & \textbf{Throws?} No & \textbf{Cycles?} No \\
+      & \textbf{Multi-edge?} No & \textbf{Directed?} Yes\\
+\hline
+\end{tabular}
+%\caption{Bellman-Ford Single Source Summary}
+\label{tab:bellford_ss_summary}
+\end{table}
+%\andrew{Complexity is really is atrocious.  Suitable only for really small graphs.}
+
+
+{\small
+      \lstinputlisting{src/bellman_ford.hpp}
+}
+
+\phil{What's the \tcode{property} concept?} \\
+\phil{I assume \tcode{edge_list_graph} is the edge list we've been discussing.} \\
+\phil{\tcode{edgelist_range} is currently being used in the code instead of \tcode{edge_list_graph}. 
+I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
 
 \begin{itemdescr}
       \pnum\mandates
@@ -295,8 +441,7 @@ using non-negative weights.
                   The return type of weight function \lstinline{w} must be able to
                   be combined with the distance type \lstinline{Distance}.
             \item
-                  The argument type for the weight
-                  function \lstinline{w} must be convertible from the edge type.
+                  The argument type for the weight function \lstinline{w} must be convertible from the edge type.
             \item
                   The weight function \lstinline{w} must return a non-negative value.
       \end{itemize}
@@ -327,68 +472,33 @@ using non-negative weights.
                   \lstinline{i}.
       \end{itemize}
       \pnum\returns \lstinline{void} \\
-      \pnum\throws \\
+      \pnum\throws None. \\
       \pnum\complexity \\
-      \pnum\remarks \\
+      \pnum\remarks Unlike Dijkstra's algorithm, Bellman-Ford allows negative edge weights. Performance constraints limit this to smaller graphs. \\
       %\pnum\error
-\end{itemdescr}
-
-
-\subsubsection{Bellman-Ford Single Source Shortest Paths}
-
-{\small
-      \lstinputlisting{src/bellman_ford.hpp}
-}
-
-\begin{itemdescr}
-      \pnum\preconditions
-      \begin{itemize}
-            \item
-                  \lstinline{graph} is an \lstinline{adjacency_list}, which may be directed or
-                  undirected.
-            \item
-                  \lstinline{0 <= source < num_vertices(graph)}.
-            \item
-                  The \lstinline{distance} range must be initialized so that
-                  \lstinline{distance[i] ==  \lstinline{std::numeric_limits<range_value_t<D>>::max()}
-                  for all \lstinline{i}
-                  such that \lstinline{0 <= i < num_vertices(graph)}.  \andrew{invalid distance?}
-            \item
-                  The \lstinline{predecessors} range must be initialized so that
-                  \lstinline{precessors[i] == i} for all \lstinline{i} such that
-                  \lstinline{0 <= i < num_vertices(graph)}.
-            \item
-                  The return type of weight function \lstinline{w} must be able to
-                  be combined with the distance type \lstinline{D}.  The argument type for the weight
-                  function \lstinline{w} must be convertible from the edge type.
-      \end{itemize}
-      \pnum
-      \effects Compute the shortest path and associated distance from vertex
-      \lstinline{source} to all reachable vertices in \lstinline{graph}.
-      \pnum\returns
-      \begin{itemize}
-            \item For \lstinline{bellman_ford_shortest_paths} and \lstinline{bellman_ford_shortest_distances},
-                  if vertex with index \lstinline{i} is reachable from vertex \lstinline{source}, then
-                  \lstinline{distances[i]} will contain the distance from \lstinline{source} to vertex
-                  \lstinline{i}.  If vertex \lstinline{i} is not reachable from vertex
-                  \lstinline{source} then \lstinline{distances[i]} will contain
-                  \lstinline{std::numeric_limits<range_value_t<D>>::max()}.
-            \item
-                  For \lstinline{bellman_ford_shortest_paths} if vertex with index \lstinline{i} is reachable
-                  from vertex \lstinline{source}, then \lstinline{predecessor[i]} will contain the
-                  predecessor vertex of vertex \lstinline{i}.  If vertex \lstinline{i} is not reachable
-                  from vertex \lstinline{source} then \lstinline{predecessors[i]} will contain
-                  \lstinline{i}.
-      \end{itemize}
-      %
-      \pnum\complexity $\mathcal{O}(|E| \cdot |V|)$ \andrew{This really is atrocious.  Suitable only for really small graphs.}
-      \pnum\throws none. \andrew{Throw if \lstinline{source} out of range?}
-      \pnum\remarks:  Unlike Dijkstra's algorithm, Bellman-Ford allows negative edge weights.
 \end{itemdescr}
 
 
 \section{Clustering}
 \subsection{Triangle Counting}
+
+\begin{table}[h]
+\setcellgapes{3pt}
+\makegapedcells
+\centering
+\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\hline
+      \multirowcell{2}{
+            \textbf{Complexity} \\
+            $\mathcal{O}(N^3)$ \\
+            }
+      & \textbf{Throws?} No & \textbf{Cycles?} No \\
+      & \textbf{Multi-edge?} No & \textbf{Directed?} Yes\\
+\hline
+\end{tabular}
+%\caption{Triangle Counting Summary}
+\label{tab:triangle_counting_summary}
+\end{table}
 
 {\small
       \lstinputlisting[firstline=4,lastline=6]{src/tc.hpp}
@@ -406,6 +516,25 @@ using non-negative weights.
 
 \section{Communities}
 \subsection{Label Propagation}
+
+\begin{table}[h]
+\setcellgapes{3pt}
+\makegapedcells
+\centering
+\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\hline
+      \multirowcell{2}{
+            \textbf{Complexity} \\
+            $\mathcal{O}(N)$ \kevin{???} \\
+            }
+      & \textbf{Throws?} No & \textbf{Cycles?} No \\
+      & \textbf{Multi-edge?} No & \textbf{Directed?} Yes\\
+\hline
+\end{tabular}
+%\caption{Label Propagation 1 Summary}
+\label{tab:label_prop_1}
+\end{table}
+
 {\small
       \lstinputlisting[firstline=4,lastline=12]{src/lp.hpp}
 }
@@ -425,6 +554,24 @@ using non-negative weights.
       \end{itemize}
       \pnum\effects \lstinline{label[uid]} is the label assignments of vertex id \lstinline{uid} discovered by label propagation.
 \end{itemdescr}
+
+\begin{table}[h]
+\setcellgapes{3pt}
+\makegapedcells
+\centering
+\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\hline
+      \multirowcell{2}{
+            \textbf{Complexity} \\
+            $\mathcal{O}(N)$ \\
+            }
+      & \textbf{Throws?} No & \textbf{Cycles?} No \\
+      & \textbf{Multi-edge?} No & \textbf{Directed?} Yes\\
+\hline
+\end{tabular}
+%\caption{Label Propagation 2 Summary}
+\label{tab:label_prop_2}
+\end{table}
 
 {\small
       \lstinputlisting[firstline=14,lastline=23]{src/lp.hpp}
@@ -450,6 +597,25 @@ using non-negative weights.
 
 \section{Components}
 \subsection{Articulation Points}
+
+\begin{table}[h]
+\setcellgapes{3pt}
+\makegapedcells
+\centering
+\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\hline
+      \multirowcell{2}{
+            \textbf{Complexity} \\
+            $\mathcal{O}(|E|+|V|)$
+            }
+      & \textbf{Throws?} No & \textbf{Cycles?} No \\
+      & \textbf{Multi-edge?} No & \textbf{Directed?} Yes\\
+\hline
+\end{tabular}
+%\caption{Articulation Points Summary}
+\label{tab:articulation_pt_summary}
+\end{table}
+
 {\small
      \lstinputlisting[firstline=25,lastline=30]{src/connected_components.hpp}
 }
@@ -471,6 +637,25 @@ using non-negative weights.
 \end{itemdescr}
 
 \subsection{BiConnected Components}
+
+\begin{table}[h]
+\setcellgapes{3pt}
+\makegapedcells
+\centering
+\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\hline
+      \multirowcell{2}{
+            \textbf{Complexity} \\
+            $\mathcal{O}(|E|+|V|)$
+            }
+      & \textbf{Throws?} No & \textbf{Cycles?} No \\
+      & \textbf{Multi-edge?} No & \textbf{Directed?} Yes\\
+\hline
+\end{tabular}
+%\caption{BiConnected Components}
+\label{tab:bi_conn_comp}
+\end{table}
+
 {\small
      \lstinputlisting[firstline=34,lastline=40]{src/connected_components.hpp}
 }
@@ -492,6 +677,25 @@ using non-negative weights.
 \end{itemdescr}
 
 \subsection{Connected Components}
+
+\begin{table}[h]
+\setcellgapes{3pt}
+\makegapedcells
+\centering
+\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\hline
+      \multirowcell{2}{
+            \textbf{Complexity} \\
+            $\mathcal{O}(|E|+|V|)$
+            }
+      & \textbf{Throws?} No & \textbf{Cycles?} No \\
+      & \textbf{Multi-edge?} No & \textbf{Directed?} No\\
+\hline
+\end{tabular}
+%\caption{Connected Components Summary}
+\label{tab:conn_components}
+\end{table}
+
 {\small
      \lstinputlisting[firstline=45,lastline=49]{src/connected_components.hpp}
 }
@@ -514,6 +718,25 @@ using non-negative weights.
 
 \subsection{Strongly Connected Components}
 \subsubsection{Kosaraju's SCC}
+
+\begin{table}[h]
+\setcellgapes{3pt}
+\makegapedcells
+\centering
+\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\hline
+      \multirowcell{2}{
+            \textbf{Complexity} \\
+            $\mathcal{O}(|E|+|V|)$
+            }
+      & \textbf{Throws?} No & \textbf{Cycles?} No \\
+      & \textbf{Multi-edge?} No & \textbf{Directed?} Yes\\
+\hline
+\end{tabular}
+%\caption{Kosaraju's SCC Summary}
+\label{tab:kosaraju_scc}
+\end{table}
+
 {\small
       \lstinputlisting[firstline=4, lastline=11]{src/connected_components.hpp}
 }
@@ -539,6 +762,25 @@ using non-negative weights.
 \end{itemdescr}
 
 \subsubsection{Tarjan's SCC}
+
+\begin{table}[h]
+\setcellgapes{3pt}
+\makegapedcells
+\centering
+\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\hline
+      \multirowcell{2}{
+            \textbf{Complexity} \\
+            $\mathcal{O}(|E|+|V|)$
+            }
+      & \textbf{Throws?} No & \textbf{Cycles?} No \\
+      & \textbf{Multi-edge?} No & \textbf{Directed?} Yes\\
+\hline
+\end{tabular}
+%\caption{Tarjan's SCC Summary}
+\label{tab:tarjan_scc_summary2}
+\end{table}
+
 {\small
       \lstinputlisting[firstline=16,lastline=20]{src/connected_components.hpp}
 }
