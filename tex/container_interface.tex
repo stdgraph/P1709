@@ -293,7 +293,7 @@ auto weight = [&g](edge_t& uv) { return get<1>(uv); }
 G g;
 load_graph(g, ...); // load some data
 
-// Using CGI functions
+// Using GCI functions
 for(auto&& u : vertices(g)) {
   for(auto&& uv: edges(g,u)) {
     auto w = weight(uv);

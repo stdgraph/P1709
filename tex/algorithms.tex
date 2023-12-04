@@ -21,6 +21,47 @@ Tier 1:
 \item Prim MST
 \end{itemize}
 
+\section{Introduction}
+
+\newcommand{\tablistcommand}{% <-- for eliminating vertical space
+                             %     before and after itemize
+            \leavevmode\par\vspace{-\baselineskip}
+                            }
+\newcolumntype{P}[1]{p{#1-3\tabcolsep-\arrayrulewidth}}
+
+The following table shows an example of the summary characteristics of an algorithm.
+
+\begin{table}[h]
+\setcellgapes{3pt}
+\makegapedcells
+\centering
+\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\hline
+      \multirowcell{2}{
+            \textbf{Complexity} \\
+            $\mathcal{O}(|E|+|V|)$
+            }
+      & \textbf{Throws?} No & \textbf{Cycles?} No \\
+      & \textbf{Multi-edge?} No & \textbf{Directed?} Yes\\
+\hline
+\end{tabular}
+%\caption{Algorithm Example}
+\label{tab:algo_example}
+\end{table}
+
+The parts of the table have the following meaning:
+\begin{itemize}
+      \item \textbf{Complexity} The complexity of the algorithm based on the number of vertices (V) and edges (E).
+      \item \textbf{Throws?} Will the algorithm throw at all? If so, look at the \textit{Throws} section after the function prototypes for details.
+      \item \textbf{Multi-edge?} Does the algorithm act as expected if more than one edge with the same direction exists between the same two vertices?
+      \item \textbf{Cycles?} Does the algorithm act act as expected if a vertex (or edge) is part of a cycle?
+      \item \textbf{Directed?} Is the algorithm only for directed graphs, or can it also be used for undirected graphs that have complimentary
+                               edges, with different directions, between two vertices.
+\end{itemize}
+
+\phil{The Directed? section needs work.}
+
+
 \section{Algorithm Concepts}
 
 \andrew{Need to develop this ala CppCon 2021 talk.}
@@ -31,6 +72,8 @@ Most fundamentally (as illustrated above), an adjacency list is a collection of 
 \andrew{We should probably have that discussion soon about what we specifically mean by ``vertex''...}
 
 \andrew{Is it better to list the concepts here or forward reference them?  Kind of a circularity.  But maybe the sequence of concepts - algorithms - concrete data types is the right one.  OTOH, std::ranges use ordering overview library-concepts-containers-algorithms.  Since a graph is a range of ranges, maybe we should follow that.}
+
+\phil{I think this is a good place, just before they're used in the text for this section.}
 % Additional concepts used by algorithms.
 
 \begin{lstlisting}
@@ -59,9 +102,6 @@ concept queueable = requires(Q&& q, Q::value_type value) {
 
 \section{Shortest Paths}
 
-\andrew{To keep code snippets here consistent with real working code, we use lstinputlistings to grab code from alg\_synopsis.hpp and use prototypes.cpp to compile.} 
-\muhammad{I found that it is easier to have separate header files for different algorithms, because the line numbers move around, you have to potentially update the whole algorithms.tex file.}
-
 \andrew{Note that NetworkX also specifies single source single target and multiple source versions of the shortest paths algorithms.  
 BGL does not have these (nor NWGraph).  We should discuss whether or not to consider those and whether or not to make them Tier 1, 2, 3, or infinity.}
 
@@ -85,6 +125,8 @@ the user much.}
 
 \andrew{The variety of algorithms was inspired by networkx....  Which also had ``distance'' variants.}
 
+\phil{I assume \tcode{adjacency_list_graph} is the same as our \tcode{adjacency_list}. \tcode{bidirectional_adjacency_list_graph} is new; what to do with it?}
+
 \subsection{Unweighted Shortest Paths: Breadth-First Search}
 
 \subsubsection{Breadth-First Search, Single Source, Initialization}
@@ -106,6 +148,8 @@ the user much.}
 
 
 \subsubsection{Breadth-First Search, Single Source}
+
+\phil{What value does this bring over the \tcode{breadth_first_search} view? }
 
 {\small
       \lstinputlisting{src/breadth_first_search.hpp}
@@ -160,13 +204,16 @@ the user much.}
 
 \andrew{Actually, I don't think dijkstra\_invalid\_distance() or dijkstra\_zero() useful -- those
       need to be specified for the actual init functions.
-      As free functions they don't really do anything.  Or are they meant to be CPOs? }
+      As free functions they don't really do anything.  Or are they meant to be CPOs? } 
 
 \andrew{Is there a run-time overhead introduced by using functions and/or CPOs for things like
       dijkstra invalid or dijkstra zero?
 }
 
 \andrew{I would like to see a use case for the dijkstra invalid and dijkstra zero functions.}
+
+\phil{We're using preconditions to define the initial values using \tcode{numeric_limits<T>::max()} or an index.
+      I'm seeing less value for having the initialization functions.}
 
 {\small
       \lstinputlisting{src/dijkstra_helpers.hpp}
@@ -256,15 +303,11 @@ of prerequisits and requires and returns sections.} \\
 \tcode{index_adjacency_list}, expanded the defintion of \tcode{edge_value_function} and added a new \tcode{basic_edge_value_function} 
 for the general definition. }
 
-Compute the shortest path and associated distance from vertex \tcode{source} to all reachable vertices in graph \tcode{g}
+Compute the shortest path and associated distance from vertex \tcode{source} to all reachable vertices in \tcode{graph}
 using non-negative weights.
 
-\newcommand{\tablistcommand}{% <-- for eliminating vertical space
-                             %     before and after itemize
-            \leavevmode\par\vspace{-\baselineskip}
-                            }
-\newcolumntype{P}[1]{p{#1-3\tabcolsep-\arrayrulewidth}}
-
+% The following table is retained for comparison to the new format.
+% After it's been reviewed it can be removed.
 \begin{table}[h]
 \setcellgapes{3pt}
 \makegapedcells
@@ -286,6 +329,25 @@ using non-negative weights.
 \label{tab:dijkstra_ss_summary}
 \end{table}
 
+\begin{table}[h]
+\setcellgapes{3pt}
+\makegapedcells
+\centering
+\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\hline
+      \multirowcell{2}{
+            \textbf{Complexity} \\
+                  $\mathcal{O}((|E| + |V|)\log{|V|})$
+            }
+      & \textbf{Throws?} No & \textbf{Cycles?} No \\
+      & \textbf{Multi-edge?} No & \textbf{Directed?} Yes \\
+\hline
+\end{tabular}
+%\caption{Dijkstra Single Source Summary}
+\label{tab:dijkstra_ss_summary}
+\end{table}
+Note that complexity may be $\mathcal{O}(|E| + |V|\log{|V|)}$ for certain implementations.
+
 {\small
       \lstinputlisting{src/dijkstra2.hpp}
 }
@@ -297,7 +359,8 @@ using non-negative weights.
       \begin{itemize}
             \item
                   The return type of weight function \lstinline{w} must be able to
-                  be combined with the distance type \lstinline{Distance}.
+                  be combined with the distance type \lstinline{Distance}. The combination
+                  used in the first function is addition.
             \item
                   The argument type for the weight
                   function \lstinline{w} must be convertible from the edge type.
@@ -307,14 +370,14 @@ using non-negative weights.
       \pnum\preconditions
       \begin{itemize}
             \item
-                  \lstinline{0 <= source < num_vertices(g)}. 
+                  \lstinline{0 <= source < num_vertices(graph)}. 
                   \\ \andrew{Throw if \lstinline{source} out of range?}
             \item
                   \lstinline{distance[i] = numeric_limits<range_value_t<Distance>>::max()}
-                  for \lstinline{0 <= i < num_vertices(g)}.  
+                  for \lstinline{0 <= i < num_vertices(graph)}.  
                   \\ \andrew{invalid distance?}
             \item
-                  \lstinline{precessors[i] = i} for \lstinline{0 <= i <  num_vertices(g)}.
+                  \lstinline{precessors[i] = i} for \lstinline{0 <= i <  num_vertices(graph)}.
       \end{itemize}
       \pnum\effects \\
       \pnum\result
@@ -333,7 +396,7 @@ using non-negative weights.
       \pnum\returns \lstinline{void} \\
       \pnum\throws \\
       \pnum\complexity \\
-      \pnum\remarks Weights must be non-negative \\
+      \pnum\remarks Bellman-Ford Shortest Paths allows negative weights. \\
       %\pnum\error
 \end{itemdescr}
 
@@ -346,16 +409,14 @@ Compute the shortest path and associated distance from vertex \tcode{source} to 
 \setcellgapes{3pt}
 \makegapedcells
 \centering
-\begin{tabular}{|P{0.55\textwidth}|P{0.14\textwidth}|P{0.16\textwidth}|}
+\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
 \hline
-      \multirowcell{4}{
+      \multirowcell{2}{
             \textbf{Complexity} \\
                   $\mathcal{O}(|E| \cdot |V|)$ \\
             }
-      & \textbf{Throws?} & No \\
-      & \textbf{Multi-edge?} & No \\
-      & \textbf{Cycles?} & No \\
-      & \textbf{Directed?} & Yes \\
+      & \textbf{Throws?} No & \textbf{Cycles?} No \\
+      & \textbf{Multi-edge?} No & \textbf{Directed?} Yes\\
 \hline
 \end{tabular}
 %\caption{Bellman-Ford Single Source Summary}
@@ -363,10 +424,13 @@ Compute the shortest path and associated distance from vertex \tcode{source} to 
 \end{table}
 %\andrew{Complexity is really is atrocious.  Suitable only for really small graphs.}
 
+
 {\small
       \lstinputlisting{src/bellman_ford.hpp}
 }
 
+\phil{What's the \tcode{property} concept?} \\
+\phil{I assume \tcode{edge_list_graph} is the edge list we've been discussing.} \\
 \phil{\tcode{edgelist_range} is currently being used in the code instead of \tcode{edge_list_graph}. 
 I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
 
@@ -408,15 +472,33 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
                   \lstinline{i}.
       \end{itemize}
       \pnum\returns \lstinline{void} \\
-      \pnum\throws none. \andrew{Throw if \lstinline{source} out of range?} \\
+      \pnum\throws None. \\
       \pnum\complexity \\
-      \pnum\remarks Unlike Dijkstra's algorithm, Bellman-Ford allows negative edge weights. \\
+      \pnum\remarks Unlike Dijkstra's algorithm, Bellman-Ford allows negative edge weights. Performance constraints limit this to smaller graphs. \\
       %\pnum\error
 \end{itemdescr}
 
 
 \section{Clustering}
 \subsection{Triangle Counting}
+
+\begin{table}[h]
+\setcellgapes{3pt}
+\makegapedcells
+\centering
+\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\hline
+      \multirowcell{2}{
+            \textbf{Complexity} \\
+            $\mathcal{O}(N^3)$ \\
+            }
+      & \textbf{Throws?} No & \textbf{Cycles?} No \\
+      & \textbf{Multi-edge?} No & \textbf{Directed?} Yes\\
+\hline
+\end{tabular}
+%\caption{Triangle Counting Summary}
+\label{tab:triangle_counting_summary}
+\end{table}
 
 {\small
       \lstinputlisting[firstline=4,lastline=6]{src/tc.hpp}
@@ -434,6 +516,25 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
 
 \section{Communities}
 \subsection{Label Propagation}
+
+\begin{table}[h]
+\setcellgapes{3pt}
+\makegapedcells
+\centering
+\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\hline
+      \multirowcell{2}{
+            \textbf{Complexity} \\
+            $\mathcal{O}(N)$ \kevin{???} \\
+            }
+      & \textbf{Throws?} No & \textbf{Cycles?} No \\
+      & \textbf{Multi-edge?} No & \textbf{Directed?} Yes\\
+\hline
+\end{tabular}
+%\caption{Label Propagation 1 Summary}
+\label{tab:label_prop_1}
+\end{table}
+
 {\small
       \lstinputlisting[firstline=4,lastline=12]{src/lp.hpp}
 }
@@ -453,6 +554,24 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
       \end{itemize}
       \pnum\effects \lstinline{label[uid]} is the label assignments of vertex id \lstinline{uid} discovered by label propagation.
 \end{itemdescr}
+
+\begin{table}[h]
+\setcellgapes{3pt}
+\makegapedcells
+\centering
+\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\hline
+      \multirowcell{2}{
+            \textbf{Complexity} \\
+            $\mathcal{O}(N)$ \\
+            }
+      & \textbf{Throws?} No & \textbf{Cycles?} No \\
+      & \textbf{Multi-edge?} No & \textbf{Directed?} Yes\\
+\hline
+\end{tabular}
+%\caption{Label Propagation 2 Summary}
+\label{tab:label_prop_2}
+\end{table}
 
 {\small
       \lstinputlisting[firstline=14,lastline=23]{src/lp.hpp}
@@ -478,6 +597,25 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
 
 \section{Components}
 \subsection{Articulation Points}
+
+\begin{table}[h]
+\setcellgapes{3pt}
+\makegapedcells
+\centering
+\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\hline
+      \multirowcell{2}{
+            \textbf{Complexity} \\
+            $\mathcal{O}(|E|+|V|)$
+            }
+      & \textbf{Throws?} No & \textbf{Cycles?} No \\
+      & \textbf{Multi-edge?} No & \textbf{Directed?} Yes\\
+\hline
+\end{tabular}
+%\caption{Articulation Points Summary}
+\label{tab:articulation_pt_summary}
+\end{table}
+
 {\small
      \lstinputlisting[firstline=25,lastline=30]{src/connected_components.hpp}
 }
@@ -499,6 +637,25 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
 \end{itemdescr}
 
 \subsection{BiConnected Components}
+
+\begin{table}[h]
+\setcellgapes{3pt}
+\makegapedcells
+\centering
+\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\hline
+      \multirowcell{2}{
+            \textbf{Complexity} \\
+            $\mathcal{O}(|E|+|V|)$
+            }
+      & \textbf{Throws?} No & \textbf{Cycles?} No \\
+      & \textbf{Multi-edge?} No & \textbf{Directed?} Yes\\
+\hline
+\end{tabular}
+%\caption{BiConnected Components}
+\label{tab:bi_conn_comp}
+\end{table}
+
 {\small
      \lstinputlisting[firstline=34,lastline=40]{src/connected_components.hpp}
 }
@@ -520,6 +677,25 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
 \end{itemdescr}
 
 \subsection{Connected Components}
+
+\begin{table}[h]
+\setcellgapes{3pt}
+\makegapedcells
+\centering
+\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\hline
+      \multirowcell{2}{
+            \textbf{Complexity} \\
+            $\mathcal{O}(|E|+|V|)$
+            }
+      & \textbf{Throws?} No & \textbf{Cycles?} No \\
+      & \textbf{Multi-edge?} No & \textbf{Directed?} No\\
+\hline
+\end{tabular}
+%\caption{Connected Components Summary}
+\label{tab:conn_components}
+\end{table}
+
 {\small
      \lstinputlisting[firstline=45,lastline=49]{src/connected_components.hpp}
 }
@@ -542,6 +718,25 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
 
 \subsection{Strongly Connected Components}
 \subsubsection{Kosaraju's SCC}
+
+\begin{table}[h]
+\setcellgapes{3pt}
+\makegapedcells
+\centering
+\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\hline
+      \multirowcell{2}{
+            \textbf{Complexity} \\
+            $\mathcal{O}(|E|+|V|)$
+            }
+      & \textbf{Throws?} No & \textbf{Cycles?} No \\
+      & \textbf{Multi-edge?} No & \textbf{Directed?} Yes\\
+\hline
+\end{tabular}
+%\caption{Kosaraju's SCC Summary}
+\label{tab:kosaraju_scc}
+\end{table}
+
 {\small
       \lstinputlisting[firstline=4, lastline=11]{src/connected_components.hpp}
 }
@@ -567,6 +762,25 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
 \end{itemdescr}
 
 \subsubsection{Tarjan's SCC}
+
+\begin{table}[h]
+\setcellgapes{3pt}
+\makegapedcells
+\centering
+\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\hline
+      \multirowcell{2}{
+            \textbf{Complexity} \\
+            $\mathcal{O}(|E|+|V|)$
+            }
+      & \textbf{Throws?} No & \textbf{Cycles?} No \\
+      & \textbf{Multi-edge?} No & \textbf{Directed?} Yes\\
+\hline
+\end{tabular}
+%\caption{Tarjan's SCC Summary}
+\label{tab:tarjan_scc_summary2}
+\end{table}
+
 {\small
       \lstinputlisting[firstline=16,lastline=20]{src/connected_components.hpp}
 }

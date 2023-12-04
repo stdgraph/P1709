@@ -25,7 +25,7 @@ template <index_adjacency_list G,
 requires convertible_to<vertex_id_t<G>, range_value_t<Predecessor>> &&
          edge_weight_function2<G, WF, Distance>
 void dijkstra_shortest_paths(
-      const G&       g, 
+      const G&       graph, 
       vertex_id_t<G> source, 
       Distance&      distances, 
       Predecessor&   predecessors, 
@@ -40,7 +40,7 @@ template <index_adjacency_list G,
 requires convertible_to<vertex_id_t<G>, range_value_t<Predecessor>> &&
          basic_edge_weight_function2<G, WF, Distance, Compare, Combine>
 void dijkstra_shortest_paths(
-      const G&       g, 
+      const G&       graph, 
       vertex_id_t<G> source, 
       Distance&      distances, 
       Predecessor&   predecessors, 
