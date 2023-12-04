@@ -251,7 +251,10 @@ the user much.}
 
 \phil{Changes from previous: add description at beginning, add summary table of characteristics, remove shortest\_distances functions, 
 update source to reflect discussions with Andrew and current implementation, use longer names in source for clarity, simplified wording 
-of prerequisits and requires and returns sections. }
+of prerequisits and requires and returns sections.} \\
+\phil{Also simplified the definitions by replacing \tcode{adjacency_list} with 
+\tcode{index_adjacency_list}, expanded the defintion of \tcode{edge_value_function} and added a new \tcode{basic_edge_value_function} 
+for the general definition. }
 
 Compute the shortest path and associated distance from vertex \tcode{source} to all reachable vertices in graph \tcode{g}
 using non-negative weights.
@@ -286,6 +289,8 @@ using non-negative weights.
 {\small
       \lstinputlisting{src/dijkstra2.hpp}
 }
+
+\phil{Support \tcode{null_predecessors} special value to disable Predecessors tracking?}
 
 \begin{itemdescr}
       \pnum\mandates
