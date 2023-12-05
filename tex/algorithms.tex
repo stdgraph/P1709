@@ -16,7 +16,7 @@ Tier 1:
 \item Strongly connected components  
 \item Topological sort
 \item Maximal independent set
-\item Jaccard coefficient (?)
+\item Jaccard coefficient
 \item Kruskal MST
 \item Prim MST
 \end{itemize}
@@ -830,8 +830,21 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
 % It fits better in an example. 08-Nov-2023
 
 \subsection{Jaccard Coefficient}
-\andrew{Tier 1 or Tier 2?}
-
+{\small
+      \lstinputlisting[firstline=4,lastline=6]{src/jaccard.hpp}
+}
+\begin{itemdescr}
+      \pnum\preconditions
+      \begin{itemize}
+            \item
+              \lstinline{g} is an \lstinline{adjacency_list}.
+            \item
+              \lstinline{out} is an operator for setting the resulting Jaccard coefficient. This function is expected to be of the form \lstinline{out(vertex_id_t<G> uid, vertex_id_t<G> vid, edge_t<G> uv, T val)}.
+            \item
+              \pnum\complexity $\mathcal{O}(|N|^3)$
+      \end{itemize}
+      \pnum\effects For every pair of neighboring vertices \lstinline{(uid, vid)}, the function \lstinline{out} is called, passing the vertex ids, the edge \lstinline{uv} between them, and the calculated Jaccard coefficient.
+\end{itemdescr}
 
 \section{Minimum Spanning Tree}
 \andrew{Simplified ``driver'' for these also?}
