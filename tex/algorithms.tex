@@ -504,13 +504,8 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
       \lstinputlisting[firstline=4,lastline=6]{src/tc.hpp}
 }
 \begin{itemdescr}
-      \pnum\preconditions
-      \begin{itemize}
-            \item
-              \lstinline{g} is an \lstinline{adjacency_list}.
-            \item
-              \pnum\complexity $\mathcal{O}(N^3)$
-      \end{itemize}
+      \pnum\preconditions \\
+      \pnum\complexity $\mathcal{O}(N^3)$ \\
       \pnum\returns Number of triangles
 \end{itemdescr}
 
@@ -541,8 +536,6 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
 \begin{itemdescr}
       \pnum\preconditions
       \begin{itemize}
-            \item
-              \lstinline{g} is an \lstinline{adjacency_list}.
             \item
               \lstinline{label} is a random access range containing vertex labels.
             \item
@@ -579,8 +572,6 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
 \begin{itemdescr}
       \pnum\preconditions
       \begin{itemize}
-            \item
-              \lstinline{g} is an \lstinline{adjacency_list}.
             \item
               \lstinline{label} is a random access range containing vertex labels.
             \item
@@ -623,8 +614,6 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
       \pnum\preconditions
       \begin{itemize}
             \item
-              \lstinline{g} is an \lstinline{adjacency_list}.
-            \item
               Output iterator \lstinline{cut_vertices} can be assigned vertices of type \lstinline{vertex_id_t<G>} when dereferenced.
       \end{itemize}
       \pnum\effects
@@ -663,8 +652,6 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
       \pnum\preconditions
       \begin{itemize}
             \item
-              \lstinline{g} is an \lstinline{adjacency_list}.
-            \item
               \lstinline{components} is a container of containers. The inner container stores vertex ids.
       \end{itemize}
       \pnum\effects
@@ -702,8 +689,6 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
 \begin{itemdescr}
       \pnum\preconditions
       \begin{itemize}
-            \item
-                  \lstinline{g} is an \lstinline{adjacency_list}.
             \item
                   Size of \lstinline{component} is greater than or equal to \lstinline{num_vertices(g)}.
       \end{itemize}
@@ -744,10 +729,6 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
       \pnum\preconditions
       \begin{itemize}
             \item
-                  \lstinline{g} is an \lstinline{adjacency_list}, which is directed.
-            \item
-                  \lstinline{g_t} is an \lstinline{adjacency_list}, which is directed
-            \item
                   \lstinline{g_t} is the transpose of \lstinline{g}. Edge \lstinline{uv} in \lstinline{g} implies edge \lstinline{vu} in \lstinline{g_t}. \lstinline{num_vertices(g)} equals \lstinline{num_vertices(g_t)}.
             \item
                   Size of \lstinline{component} is greater than or equal to \lstinline{num_vertices(g)}.
@@ -778,7 +759,7 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
 \hline
 \end{tabular}
 %\caption{Tarjan's SCC Summary}
-\label{tab:tarjan_scc_summary2}
+\label{tab:tarjan_scc_summary}
 \end{table}
 
 {\small
@@ -787,8 +768,6 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
 \begin{itemdescr}
       \pnum\preconditions
       \begin{itemize}
-            \item
-                  \lstinline{g} is an \lstinline{adjacency_list}, which is directed.
             \item
                   Size of \lstinline{component} is greater than or equal to \lstinline{num_vertices(g)}.
       \end{itemize}
@@ -803,9 +782,28 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
 
 \section{Directed Acyclic Graphs}
 \subsection{Topological Sort}
+\phil{Do we need this as an algorithm, in addition to the view? What value does it bring?}
 
 \section{Maximal Independent Set}
 \subsection{Maximal Independent Set}
+
+\begin{table}[h]
+\setcellgapes{3pt}
+\makegapedcells
+\centering
+\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\hline
+      \multirowcell{2}{
+            \textbf{Complexity} \\
+            $\mathcal{O}(|E|)$
+            }
+      & \textbf{Throws?} No & \textbf{Cycles?} No \\
+      & \textbf{Multi-edge?} No & \textbf{Directed?} Yes\\
+\hline
+\end{tabular}
+%\caption{Maximal Independent Set Summary}
+\label{tab:mis_summary}
+\end{table}
 
 {\small
       \lstinputlisting{src/mis.hpp}
@@ -820,7 +818,11 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
             \item
                   \lstinline{mis} output iterator can be assigned vertices of type \lstinline{vertex_id_t<G>} when dereferenced.
       \end{itemize}
-      \pnum\effects Output iterator \lstinline{mis} contains maximal independent set of vertices containing \lstinline{seed}, which is a subset of \lstinline{vertices(graph)}.
+      \begin{itemize}
+            \item
+                  \pnum\effects Output iterator \lstinline{mis} contains maximal independent set of vertices containing \lstinline{seed}, 
+                    which is a subset of \lstinline{vertices(graph)}. \\
+      \end{itemize}
       \pnum\complexity $\mathcal{O}(|E|)$
 \end{itemdescr}
 
@@ -830,6 +832,25 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
 % It fits better in an example. 08-Nov-2023
 
 \subsection{Jaccard Coefficient}
+
+\begin{table}[h]
+\setcellgapes{3pt}
+\makegapedcells
+\centering
+\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\hline
+      \multirowcell{2}{
+            \textbf{Complexity} \\
+            $\mathcal{O}(|N|^3)$
+            }
+      & \textbf{Throws?} No & \textbf{Cycles?} No \\
+      & \textbf{Multi-edge?} No & \textbf{Directed?} Yes\\
+\hline
+\end{tabular}
+%\caption{Jaccard Coefficient Summary}
+\label{tab:jaccard_summary}
+\end{table}
+
 {\small
       \lstinputlisting[firstline=4,lastline=6]{src/jaccard.hpp}
 }
@@ -837,19 +858,40 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
       \pnum\preconditions
       \begin{itemize}
             \item
-              \lstinline{g} is an \lstinline{adjacency_list}.
-            \item
               \lstinline{out} is an operator for setting the resulting Jaccard coefficient. This function is expected to be of the form \lstinline{out(vertex_id_t<G> uid, vertex_id_t<G> vid, edge_t<G> uv, T val)}.
             \item
               \pnum\complexity $\mathcal{O}(|N|^3)$
       \end{itemize}
-      \pnum\effects For every pair of neighboring vertices \lstinline{(uid, vid)}, the function \lstinline{out} is called, passing the vertex ids, the edge \lstinline{uv} between them, and the calculated Jaccard coefficient.
+      \pnum\effects 
+      \begin{itemize}
+            \item
+                  For every pair of neighboring vertices \lstinline{(uid, vid)}, the function \lstinline{out} is called, passing the vertex ids, 
+                  the edge \lstinline{uv} between them, and the calculated Jaccard coefficient.
+      \end{itemize}
 \end{itemdescr}
 
 \section{Minimum Spanning Tree}
 \andrew{Simplified ``driver'' for these also?}
 
 \subsection{Kruskal Minimum Spanning Tree}
+
+\begin{table}[h]
+\setcellgapes{3pt}
+\makegapedcells
+\centering
+\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\hline
+      \multirowcell{2}{
+            \textbf{Complexity} \\
+            $\mathcal{O}(|E|)$
+            }
+      & \textbf{Throws?} No & \textbf{Cycles?} No \\
+      & \textbf{Multi-edge?} No & \textbf{Directed?} Yes\\
+\hline
+\end{tabular}
+%\caption{Kruskal Minimum Spanning Tree Summary}
+\label{tab:kruskal_mst_summary}
+\end{table}
 
 {\small
       \lstinputlisting[firstline=4,lastline=8]{src/mst.hpp}
@@ -860,13 +902,37 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
             \item
                   \lstinline{e} is an \lstinline{edgelist}.
             \item
-                  \lstinline{compare} operator is a valid comparison operation on two edge values of type \lstinline{edge_value_t<EL>} which returns a bool.
+                  \lstinline{compare} operator is a valid comparison operation on two edge values of type \lstinline{edge_value_t<EL>} 
+                  which returns a bool.
       \end{itemize}
-      \pnum\effects Edgelist \lstinline{t} contains edges representing a spanning tree or forest, which minimize the comparison operator. When \lstinline{compare} is \lstinline{<}, \lstinline{t} represents a minimum weight spanning tree.
+      \pnum\effects 
+      \begin{itemize}
+            \item
+                  Edgelist \lstinline{t} contains edges representing a spanning tree or forest, which minimize the comparison operator. 
+                  When \lstinline{compare} is \lstinline{<}, \lstinline{t} represents a minimum weight spanning tree.
+      \end{itemize}
       \pnum\complexity $\mathcal{O}(|E|)$
 \end{itemdescr}
 
 \subsection{Prim Minimum Spanning Tree}
+
+\begin{table}[h]
+\setcellgapes{3pt}
+\makegapedcells
+\centering
+\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\hline
+      \multirowcell{2}{
+            \textbf{Complexity} \\
+            $\mathcal{O}(|E|log|V|)$
+            }
+      & \textbf{Throws?} No & \textbf{Cycles?} No \\
+      & \textbf{Multi-edge?} No & \textbf{Directed?} No \\
+\hline
+\end{tabular}
+%\caption{Prim Minimum Spanning Tree Summary}
+\label{tab:prim_mst_summary}
+\end{table}
 
 {\small
       \lstinputlisting[firstline=13,lastline=29]{src/mst.hpp}
@@ -874,8 +940,6 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
 \begin{itemdescr}
       \pnum\preconditions
       \begin{itemize}
-            \item
-                  \lstinline{g} is an \lstinline{adjacency_list}, which is undirected.
             \item
                   \lstinline{0 <= seed < num_vertices(g)}.
             \item
@@ -890,7 +954,6 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
             \item
                   If \lstinline{predecessor} and \lstinline{weight} are not initialized by user, and the graph is not fully connected, \lstinline{predecessor[v]} and \lstinline{weight[v]} will be undefined for vertices not in the same connected component as \lstinline{seed}.
       \end{itemize}
-
       \pnum\complexity $\mathcal{O}(|E|log|V|)$
 \end{itemdescr}
 
