@@ -6,6 +6,48 @@
 \chapter{Introduction}
 \label{ch:introduction}
 
+\section{Motivation}
+
+The original STL revolutionized the way that C++ programmers could apply algorithms to different kinds of containers, by defining \emph{generic} algorithms, realized via function templates.  
+A hierarchy of \emph{iterators} were the mechanism by which algorithms could be made generic with respect to different kinds of containers,
+Named requirements specified the valid expressions and associated types that algorithms required of their arguments.  As of C++20, we now have both ranges and concepts, which
+now provide language-based mechanisms for specifying requirements for generic algorithms.
+
+As powerful as the algorithms in the standard library are, the underlying basis for them is a range (or iterator pair), which inherently can only specify a one-dimensional container.  
+Iterator pairs (equiv.\ ranges) specify a \lstinline{begin()} and an \lstinline{end()} and can move between those two limits in various ways, depending on the type of iterator.
+As a result, important classes of problems that programmers are regularly faced with use structures that are not one-dimensional containers, and so the standard library algorithms can't be directly used.
+Multi-dimensional arrays are an example of one such kind of data structure. Matrices do have the nice property that they (typically) have the ability to be ``raveled'', i.e., the data underlying the matrix can still be treated as a one-dimensional container.  Multi-dimensional arrays also have the property that, even though they can be thought of as hierarchical containers, the hierarchy is uniform---an N-dimensional array is a container of N-1 dimensional arrays.
+
+Another important problem domain that does not fit into the category of one-dimensional ranges is that of \emph{graph algorithms and data structures}.
+Graphs are a powerful abstraction for modeling relationships between entities in a given problem domain,
+irrespective of what the actual entities are, and irrespective of what the actual relationships are.
+In that sense, graphs are, by there very nature, generic.
+Graphs are a fundamental abstraction in computer science, and are ubiquitous in real-world applications.
+
+Any problem concerned with connectivity can be modeled as a graph.  
+Just a small set of examples include
+Internet routing, circuit partitioning and layout, finding the best route to take to a destination on map.
+There are also relationships between entities that are inferred from large sets of data, for example the graph of consumers who have purchased the same product, or who have viewed the same movie.
+Yet more interesting structures arise (hypergraphs or k-partite graphs) can arise when we want to model relationships between diverse types of data, such as the graph of consumers, the products they have purchased, and the vendors of the products.
+And, of course, graphs play a critical role in multiple aspects of machine learning.
+
+On the flip side of graph structures are the graph algorithms that are widely used for problems such as the above.
+Well-known graph algorithms include breadth-first search, Dijkstra's algorithm, connected components, and so on.
+%
+Because graphs can come from so many different problem domains, they will also be represented with many different kinds of data structures.
+To make graph algorithms as usable as possible across arbitrary representation requires application of the same principles that were used in the original STL: 
+a collection of related algorithms from a problem domain (in our case, graphs),
+minimizing the requirements imposed by the algorithms on their arguments,
+systematically organizing the requirements, and
+realizing this framework of requirements in the form of concepts.
+
+There are also many uses of graphs that would not be met by a standard set of algorithms.  A standardized interface for graphs is eminently useful in such situations as well.  
+In the most basic case, it would provide a well-defined framework for development.  But in keeping with the foundational goal of generic programming to enable reuse, it would also empower users to develop and deploy their own reusable graph components.  In the best case, such algorithms would be available to the broader C++ programmer community.
+
+Because graphs are so ubiquitous and so important to modern software systems, a standardized library of graph algorithms and data structures would have enormous benefit to the C++ development community.
+This proposal contains the specification of such a library, developed using the principles above.
+
+
 
 \section{Example: Six Degrees of Kevin Bacon}
 \label{sec:bacon}
