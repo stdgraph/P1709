@@ -54,7 +54,7 @@ for(auto&& [uid] : basic_vertexlist(g,vvf)) {
      \lstinputlisting{src/vertex_descriptor.hpp}
 }
 
-Specializations are defined with \tcode{V}=void or \tcode{VV}=void to suppress the existance of their associated member variables, 
+Specializations are defined with \tcode{V=void} or \tcode{VV=void} to suppress the existance of their associated member variables, 
 giving the following valid combinations in Table \ref{tab:vertex-view} . For instance, the second entry, \tcode{vertex_descriptor<VId, V>} 
 has two members \tcode{\{id_type id; vertex_type vertex;\}} and \tcode{value_type} is \tcode{void}.
 \begin{table}[h!]
@@ -85,7 +85,9 @@ using copyable_vertex_t = vertex_descriptor<VId, void, VV>; // {id, value}
 \end{lstlisting}
 
 \subsubsection{\tcode{struct edge_descriptor<VId, Sourced, E, EV>}}\label{edge-view}\mbox{} \\
-\tcode{edge_descriptor} is used to return edge information. It is used by \tcode{incidence(g,u)}, \tcode{edgelist(g)}, \tcode{edges_breadth_first_search(g,u)}, \tcode{edges_depth_first_search(g,u)} and others. When \tcode{Sourced}=true, the \tcode{source_id} member is included with type \tcode{VId}. The \tcode{target_id} member always exists.
+\tcode{edge_descriptor} is used to return edge information. It is used by 
+\tcode{incidence(g,u), edgelist(g), edges_breadth_first_search(g,u), edges_depth_first_search(g,u)} and others. 
+When \tcode{Sourced}=true, the \tcode{source_id} member is included with type \tcode{VId}. The \tcode{target_id} member always exists.
 
 {\small
      \lstinputlisting{src/edge_descriptor.hpp}
@@ -123,7 +125,7 @@ and \tcode{value_type} is \tcode{void}.
 A useful type alias for copying edge values (excluding the edge reference) is also available.
 \begin{lstlisting}
 template <class VId, class EV>
-using copyable_edge_t = edge_descriptor<VId, true, void, EV>; // {source\_id, target\_id [, value]}
+using copyable_edge_t = edge_descriptor<VId, true, void, EV>; // source\_id,target\_id[,value]
 \end{lstlisting}
 
 
