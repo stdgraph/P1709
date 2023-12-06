@@ -222,13 +222,13 @@ the user much.}
 \begin{itemdescr}
       \pnum
       \effects:
-      \begin{itemize}
-            \item
-                  Each \lstinline{predessors[i]} is initialized to \lstinline{i}.
-            \item Each
-                  \lstinline{distance[i]} is initialized to \lstinline{std::numeric_limits::max()}
-                  or to \lstinline{init}.
-      \end{itemize}
+            \begin{itemize}
+                  \item
+                        Each \lstinline{predessors[i]} is initialized to \lstinline{i}.
+                  \item Each
+                        \lstinline{distance[i]} is initialized to \lstinline{std::numeric_limits::max()}
+                        or to \lstinline{init}.
+            \end{itemize}
 \end{itemdescr}
 
 
@@ -240,54 +240,54 @@ the user much.}
 
 \begin{itemdescr}
       \pnum\preconditions
-      \begin{itemize}
-            \item
-                  \lstinline{graph} is an \lstinline{adjacency_list}, which may be directed or
-                  undirected.
-            \item
-                  \lstinline{0 <= source < num_vertices(graph)}.
-            \item
-                  The \lstinline{distance} range must be initialized so that
-                  \lstinline{distance[i] == \lstinline{std::numeric_limits<range_value_t<D>>::max()}
-                  for all \lstinline{i}
-                  such that \lstinline{0 <= i < num_vertices(graph)}.  \andrew{invalid distance?}
-            \item
-                  The \lstinline{predecessors} range must be initialized so that
-                  \lstinline{precessors[i] == i} for all \lstinline{i} such that
-                  \lstinline{0 <= i <  num_vertices(graph)}.
-      \end{itemize}
+            \begin{itemize}
+                  \item
+                        \lstinline{graph} is an \lstinline{adjacency_list}, which may be directed or
+                        undirected.
+                  \item
+                        \lstinline{0 <= source < num_vertices(graph)}.
+                  \item
+                        The \lstinline{distance} range must be initialized so that
+                        \lstinline{distance[i] == \lstinline{std::numeric_limits<range_value_t<D>>::max()}
+                        for all \lstinline{i}
+                        such that \lstinline{0 <= i < num_vertices(graph)}.  \andrew{invalid distance?}
+                  \item
+                        The \lstinline{predecessors} range must be initialized so that
+                        \lstinline{precessors[i] == i} for all \lstinline{i} such that
+                        \lstinline{0 <= i <  num_vertices(graph)}.
+            \end{itemize}
       \pnum\requires:
-      \begin{itemize}
-            \item
-                  The return type of weight function \lstinline{w} must be able to
-                  be combined with the distance type \lstinline{D}.
-            \item
-                  The argument type for the weight
-                  function \lstinline{w} must be convertible from the edge type.
-            \item
-                  The weight function \lstinline{w} must return a non-negative value (that is
-                  a value \lstinline{x} such that \lstinline{dijkstra_zero() <= x},
-                  for any edge in \lstinline{graph}.
-      \end{itemize}
+            \begin{itemize}
+                  \item
+                        The return type of weight function \lstinline{w} must be able to
+                        be combined with the distance type \lstinline{D}.
+                  \item
+                        The argument type for the weight
+                        function \lstinline{w} must be convertible from the edge type.
+                  \item
+                        The weight function \lstinline{w} must return a non-negative value (that is
+                        a value \lstinline{x} such that \lstinline{dijkstra_zero() <= x},
+                        for any edge in \lstinline{graph}.
+            \end{itemize}
       \pnum\effects
       Compute the shortest path and associated distance from vertex
       \lstinline{source} to all reachable vertices in \lstinline{graph}.
       \pnum\returns
-      \begin{itemize}
-            \item
-                  For \lstinline{dijkstra_shortest_paths} and \lstinline{dijkstra_shortest_distances},
-                  if vertex with index \lstinline{i} is reachable from vertex \lstinline{source}, then
-                  \lstinline{distances[i]} will contain the distance from \lstinline{source} to vertex
-                  \lstinline{i}.  If vertex \lstinline{i} is not reachable from vertex
-                  \lstinline{source} then \lstinline{distances[i]} will contain
-                  \lstinline{std::numeric_limits<range_value_t<D>>::max()}.
-            \item
-                  For \lstinline{dijkstra_shortest_paths} if vertex with index \lstinline{i} is reachable
-                  from vertex \lstinline{source}, then \lstinline{predecessor[i]} will contain the
-                  predecessor vertex of vertex \lstinline{i}.  If vertex \lstinline{i} is not reachable
-                  from vertex \lstinline{source} then \lstinline{predecessors[i]} will contain
-                  \lstinline{i}.
-      \end{itemize}
+            \begin{itemize}
+                  \item
+                        For \lstinline{dijkstra_shortest_paths} and \lstinline{dijkstra_shortest_distances},
+                        if vertex with index \lstinline{i} is reachable from vertex \lstinline{source}, then
+                        \lstinline{distances[i]} will contain the distance from \lstinline{source} to vertex
+                        \lstinline{i}.  If vertex \lstinline{i} is not reachable from vertex
+                        \lstinline{source} then \lstinline{distances[i]} will contain
+                        \lstinline{std::numeric_limits<range_value_t<D>>::max()}.
+                  \item
+                        For \lstinline{dijkstra_shortest_paths} if vertex with index \lstinline{i} is reachable
+                        from vertex \lstinline{source}, then \lstinline{predecessor[i]} will contain the
+                        predecessor vertex of vertex \lstinline{i}.  If vertex \lstinline{i} is not reachable
+                        from vertex \lstinline{source} then \lstinline{predecessors[i]} will contain
+                        \lstinline{i}.
+            \end{itemize}
       %
       \pnum\complexity $\mathcal{O}((|E| + |V|)\log{|V|})$.  (Note: complexity may be
             $\mathcal{O}(|E| + |V|\log{|V|)}$ for certain implementations.)
@@ -296,12 +296,14 @@ the user much.}
 
 \subsubsection{Dijkstra Single Source Shortest Paths (Phil's revision)}
 
+\begin{comment}
 \phil{Changes from previous: add description at beginning, add summary table of characteristics, remove shortest\_distances functions, 
 update source to reflect discussions with Andrew and current implementation, use longer names in source for clarity, simplified wording 
 of prerequisits and requires and returns sections.} \\
 \phil{Also simplified the definitions by replacing \tcode{adjacency_list} with 
 \tcode{index_adjacency_list}, expanded the defintion of \tcode{edge_value_function} and added a new \tcode{basic_edge_value_function} 
 for the general definition. }
+\end{comment}
 
 Compute the shortest path and associated distance from vertex \tcode{source} to all reachable vertices in \tcode{graph}
 using non-negative weights.
@@ -352,52 +354,55 @@ Note that complexity may be $\mathcal{O}(|E| + |V|\log{|V|)}$ for certain implem
       \lstinputlisting{src/dijkstra2.hpp}
 }
 
-\phil{Support \tcode{null_predecessors} special value to disable Predecessors tracking?}
+\phil{Requires time/space to evalute predecessors whether they're needed or not. 
+      Use \tcode{null_predecessors} special value as a way to disable Predecessors evaluation?}
 
 \begin{itemdescr}
       \pnum\mandates
-      \begin{itemize}
-            \item
-                  The return type of weight function \lstinline{w} must be able to
-                  be combined with the distance type \lstinline{Distance}. The combination
-                  used in the first function is addition.
-            \item
-                  The argument type for the weight
-                  function \lstinline{w} must be convertible from the edge type.
-            \item
-                  The weight function \lstinline{w} must return a non-negative value.
-      \end{itemize}
+            \begin{itemize}
+                  \item
+                        The return type of weight function \lstinline{w} must be able to
+                        be combined with the distance type \lstinline{Distance}. The combination
+                        used in the first function is addition.
+                  \item
+                        The argument type for the weight
+                        function \lstinline{w} must be convertible from the edge type.
+                  \item
+                        The weight function \lstinline{w} must return a non-negative value.
+            \end{itemize}
       \pnum\preconditions
-      \begin{itemize}
-            \item
-                  \lstinline{0 <= source < num_vertices(graph)}. 
-                  \\ \andrew{Throw if \lstinline{source} out of range?}
-            \item
-                  \lstinline{distance[i] = numeric_limits<range_value_t<Distance>>::max()}
-                  for \lstinline{0 <= i < num_vertices(graph)}.  
-                  \\ \andrew{invalid distance?}
-            \item
-                  \lstinline{precessors[i] = i} for \lstinline{0 <= i <  num_vertices(graph)}.
-      \end{itemize}
+            \begin{itemize}
+                  \item
+                        \lstinline{0 <= source < num_vertices(graph)}. 
+                        \\ \andrew{Throw if \lstinline{source} out of range?}
+                        \phil{O(1) to evaluate. I vote Yes.}
+                  \item
+                        \lstinline{distance[i] = numeric_limits<range_value_t<Distance>>::max()}
+                        for \lstinline{0 <= i < num_vertices(graph)}.  
+                        \\ \andrew{invalid distance?}
+                        \phil{"Invalid" means != max()? O(V) to evaluate; too expensive? }
+                  \item
+                        \lstinline{precessors[i] = i} for \lstinline{0 <= i <  num_vertices(graph)}.
+            \end{itemize}
       \pnum\effects \\
       \pnum\result
-      \begin{itemize}
-            \item
-                  If vertex with index \lstinline{i} is reachable from vertex \lstinline{source}, then
-                  \lstinline{distances[i]} will contain the distance from \lstinline{source} to vertex
-                  \lstinline{i}.  Otherwise \lstinline{distances[i]} will contain
-                  \lstinline{numeric_limits<range_value_t<Distance>>::max()}.
-            \item
-                  If vertex with index \lstinline{i} is reachable
-                  from vertex \lstinline{source}, then \lstinline{predecessors[i]} will contain the
-                  predecessor vertex of vertex \lstinline{i}. Otherwise \lstinline{predecessors[i]} will contain
-                  \lstinline{i}.
-      \end{itemize}
+            \begin{itemize}
+                  \item
+                        If vertex with index \lstinline{i} is reachable from vertex \lstinline{source}, then
+                        \lstinline{distances[i]} will contain the distance from \lstinline{source} to vertex
+                        \lstinline{i}.  Otherwise \lstinline{distances[i]} will contain
+                        \lstinline{numeric_limits<range_value_t<Distance>>::max()}.
+                  \item
+                        If vertex with index \lstinline{i} is reachable
+                        from vertex \lstinline{source}, then \lstinline{predecessors[i]} will contain the
+                        predecessor vertex of vertex \lstinline{i}. Otherwise \lstinline{predecessors[i]} will contain
+                        \lstinline{i}.
+            \end{itemize}
       \pnum\returns \lstinline{void} \\
-      \pnum\throws \\
+      \pnum\throws None.\\
       \pnum\complexity \\
       \pnum\remarks Bellman-Ford Shortest Paths allows negative weights. \\
-      %\pnum\error
+      \pnum\errors
 \end{itemdescr}
 
 
@@ -406,21 +411,21 @@ Compute the shortest path and associated distance from vertex \tcode{source} to 
 
 
 \begin{table}[h]
-\setcellgapes{3pt}
-\makegapedcells
-\centering
-\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
-\hline
-      \multirowcell{2}{
-            \textbf{Complexity} \\
-                  $\mathcal{O}(|E| \cdot |V|)$ \\
-            }
-      & \textbf{Throws?} No & \textbf{Cycles?} No \\
-      & \textbf{Multi-edge?} No & \textbf{Directed?} Yes\\
-\hline
-\end{tabular}
-%\caption{Bellman-Ford Single Source Summary}
-\label{tab:bellford_ss_summary}
+      \setcellgapes{3pt}
+      \makegapedcells
+      \centering
+      \begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+      \hline
+            \multirowcell{2}{
+                  \textbf{Complexity} \\
+                        $\mathcal{O}(|E| \cdot |V|)$ \\
+                  }
+            & \textbf{Throws?} No & \textbf{Cycles?} No \\
+            & \textbf{Multi-edge?} No & \textbf{Directed?} Yes\\
+      \hline
+      \end{tabular}
+      %\caption{Bellman-Ford Single Source Summary}
+      \label{tab:bellford_ss_summary}
 \end{table}
 %\andrew{Complexity is really is atrocious.  Suitable only for really small graphs.}
 
@@ -436,46 +441,46 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
 
 \begin{itemdescr}
       \pnum\mandates
-      \begin{itemize}
-            \item
-                  The return type of weight function \lstinline{w} must be able to
-                  be combined with the distance type \lstinline{Distance}.
-            \item
-                  The argument type for the weight function \lstinline{w} must be convertible from the edge type.
-            \item
-                  The weight function \lstinline{w} must return a non-negative value.
-      \end{itemize}
+            \begin{itemize}
+                  \item
+                        The return type of weight function \lstinline{w} must be able to
+                        be combined with the distance type \lstinline{Distance}.
+                  \item
+                        The argument type for the weight function \lstinline{w} must be convertible from the edge type.
+                  \item
+                        The weight function \lstinline{w} must return a non-negative value.
+            \end{itemize}
       \pnum\preconditions
-      \begin{itemize}
-            \item
-                  \lstinline{0 <= source < num_vertices(g)}. 
-                  \\ \andrew{Throw if \lstinline{source} out of range?}
-            \item
-                  \lstinline{distance[i] = numeric_limits<range_value_t<Distance>>::max()}
-                  for \lstinline{0 <= i < num_vertices(g)}.  
-                  \\ \andrew{invalid distance?}
-            \item
-                  \lstinline{precessors[i] = i} for \lstinline{0 <= i <  num_vertices(g)}.
-      \end{itemize}
+            \begin{itemize}
+                  \item
+                        \lstinline{0 <= source < num_vertices(g)}. 
+                        \\ \andrew{Throw if \lstinline{source} out of range?}
+                  \item
+                        \lstinline{distance[i] = numeric_limits<range_value_t<Distance>>::max()}
+                        for \lstinline{0 <= i < num_vertices(g)}.  
+                        \\ \andrew{invalid distance?}
+                  \item
+                        \lstinline{precessors[i] = i} for \lstinline{0 <= i <  num_vertices(g)}.
+            \end{itemize}
       \pnum\effects \\
       \pnum\result
-      \begin{itemize}
-            \item
-                  If vertex with index \lstinline{i} is reachable from vertex \lstinline{source}, then
-                  \lstinline{distances[i]} will contain the distance from \lstinline{source} to vertex
-                  \lstinline{i}.  Otherwise \lstinline{distances[i]} will contain
-                  \lstinline{numeric_limits<range_value_t<Distance>>::max()}.
-            \item
-                  If vertex with index \lstinline{i} is reachable
-                  from vertex \lstinline{source}, then \lstinline{predecessors[i]} will contain the
-                  predecessor vertex of vertex \lstinline{i}. Otherwise \lstinline{predecessors[i]} will contain
-                  \lstinline{i}.
-      \end{itemize}
+            \begin{itemize}
+                  \item
+                        If vertex with index \lstinline{i} is reachable from vertex \lstinline{source}, then
+                        \lstinline{distances[i]} will contain the distance from \lstinline{source} to vertex
+                        \lstinline{i}.  Otherwise \lstinline{distances[i]} will contain
+                        \lstinline{numeric_limits<range_value_t<Distance>>::max()}.
+                  \item
+                        If vertex with index \lstinline{i} is reachable
+                        from vertex \lstinline{source}, then \lstinline{predecessors[i]} will contain the
+                        predecessor vertex of vertex \lstinline{i}. Otherwise \lstinline{predecessors[i]} will contain
+                        \lstinline{i}.
+            \end{itemize}
       \pnum\returns \lstinline{void} \\
       \pnum\throws None. \\
       \pnum\complexity \\
       \pnum\remarks Unlike Dijkstra's algorithm, Bellman-Ford allows negative edge weights. Performance constraints limit this to smaller graphs. \\
-      %\pnum\error
+      \pnum\errors
 \end{itemdescr}
 
 
@@ -504,13 +509,8 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
       \lstinputlisting[firstline=4,lastline=6]{src/tc.hpp}
 }
 \begin{itemdescr}
-      \pnum\preconditions
-      \begin{itemize}
-            \item
-              \lstinline{g} is an \lstinline{adjacency_list}.
-            \item
-              \pnum\complexity $\mathcal{O}(N^3)$
-      \end{itemize}
+      \pnum\preconditions \\
+      \pnum\complexity $\mathcal{O}(N^3)$ \\
       \pnum\returns Number of triangles
 \end{itemdescr}
 
@@ -540,19 +540,16 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
 }
 \begin{itemdescr}
       \pnum\preconditions
-      \begin{itemize}
-            \item
-              \lstinline{g} is an \lstinline{adjacency_list}.
-            \item
-              \lstinline{label} is a random access range containing vertex labels.
-            \item
-              \lstinline{rng} is a random number generator.
-            \item
-              \lstinline{max_iters} is the maximum number of iterations of the label propagation, or equivalently the maximum distance a label will propagate from its starting vertex.
-            \item
-              \pnum\complexity $\mathcal{O}(N)$ \kevin{???}
-      \end{itemize}
+            \begin{itemize}
+                  \item
+                  \lstinline{label} is a random access range containing vertex labels.
+                  \item
+                  \lstinline{rng} is a random number generator.
+                  \item
+                  \lstinline{max_iters} is the maximum number of iterations of the label propagation, or equivalently the maximum distance a label will propagate from its starting vertex.
+            \end{itemize}
       \pnum\effects \lstinline{label[uid]} is the label assignments of vertex id \lstinline{uid} discovered by label propagation.
+      \pnum\complexity $\mathcal{O}(N)$ \kevin{???} \\
 \end{itemdescr}
 
 \begin{table}[h]
@@ -578,21 +575,18 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
 }
 \begin{itemdescr}
       \pnum\preconditions
-      \begin{itemize}
-            \item
-              \lstinline{g} is an \lstinline{adjacency_list}.
-            \item
-              \lstinline{label} is a random access range containing vertex labels.
-            \item
-              \lstinline{empty_label} defines a label that is considered empty and will not be propagated.
-            \item
-              \lstinline{rng} is a random number generator.
-            \item
-              \lstinline{max_iters} is the maximum number of iterations of the label propagation, or equivalently the maximum distance a label will propagate from its starting vertex.
-            \item
-              \pnum\complexity $\mathcal{O}(N)$
-      \end{itemize}
+            \begin{itemize}
+                  \item
+                  \lstinline{label} is a random access range containing vertex labels.
+                  \item
+                  \lstinline{empty_label} defines a label that is considered empty and will not be propagated.
+                  \item
+                  \lstinline{rng} is a random number generator.
+                  \item
+                  \lstinline{max_iters} is the maximum number of iterations of the label propagation, or equivalently the maximum distance a label will propagate from its starting vertex.
+            \end{itemize}
       \pnum\effects \lstinline{label[uid]} is the label assignments of vertex id \lstinline{uid} discovered by label propagation.
+      \pnum\complexity $\mathcal{O}(N)$ \\
 \end{itemdescr}
 
 \section{Components}
@@ -621,18 +615,15 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
 }
 \begin{itemdescr}
       \pnum\preconditions
-      \begin{itemize}
-            \item
-              \lstinline{g} is an \lstinline{adjacency_list}.
-            \item
-              Output iterator \lstinline{cut_vertices} can be assigned vertices of type \lstinline{vertex_id_t<G>} when dereferenced.
-      \end{itemize}
+            \begin{itemize}
+                  \item
+                  Output iterator \lstinline{cut_vertices} can be assigned vertices of type \lstinline{vertex_id_t<G>} when dereferenced.
+            \end{itemize}
       \pnum\effects
-      \begin{itemize}
-            \item
-            Output iterator \lstinline{cut_vertices} contains articulation point vertices, those which removed increase the number of components of \lstinline{g}.
-      \end{itemize}
-
+            \begin{itemize}
+                  \item
+                  Output iterator \lstinline{cut_vertices} contains articulation point vertices, those which removed increase the number of components of \lstinline{g}.
+            \end{itemize}
       \pnum\complexity $\mathcal{O}(|E|+|V|)$
 \end{itemdescr}
 
@@ -661,18 +652,15 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
 }
 \begin{itemdescr}
       \pnum\preconditions
-      \begin{itemize}
-            \item
-              \lstinline{g} is an \lstinline{adjacency_list}.
-            \item
-              \lstinline{components} is a container of containers. The inner container stores vertex ids.
-      \end{itemize}
+            \begin{itemize}
+                  \item
+                  \lstinline{components} is a container of containers. The inner container stores vertex ids.
+            \end{itemize}
       \pnum\effects
-      \begin{itemize}
-            \item
-            \lstinline{components} contains groups of biconnected components.
-      \end{itemize}
-
+            \begin{itemize}
+                  \item
+                  \lstinline{components} contains groups of biconnected components.
+            \end{itemize}
       \pnum\complexity $\mathcal{O}(|E|+|V|)$
 \end{itemdescr}
 
@@ -701,18 +689,15 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
 }
 \begin{itemdescr}
       \pnum\preconditions
-      \begin{itemize}
-            \item
-                  \lstinline{g} is an \lstinline{adjacency_list}.
-            \item
-                  Size of \lstinline{component} is greater than or equal to \lstinline{num_vertices(g)}.
-      \end{itemize}
+            \begin{itemize}
+                  \item
+                        Size of \lstinline{component} is greater than or equal to \lstinline{num_vertices(g)}.
+            \end{itemize}
       \pnum\effects
-      \begin{itemize}
-            \item
-                  \lstinline{component[v]} is the connected component id of \lstinline{v}.
-      \end{itemize}
-
+            \begin{itemize}
+                  \item
+                        \lstinline{component[v]} is the connected component id of \lstinline{v}.
+            \end{itemize}
       \pnum\complexity $\mathcal{O}(|E|+|V|)$
 \end{itemdescr}
 
@@ -742,22 +727,17 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
 }
 \begin{itemdescr}
       \pnum\preconditions
-      \begin{itemize}
-            \item
-                  \lstinline{g} is an \lstinline{adjacency_list}, which is directed.
-            \item
-                  \lstinline{g_t} is an \lstinline{adjacency_list}, which is directed
-            \item
-                  \lstinline{g_t} is the transpose of \lstinline{g}. Edge \lstinline{uv} in \lstinline{g} implies edge \lstinline{vu} in \lstinline{g_t}. \lstinline{num_vertices(g)} equals \lstinline{num_vertices(g_t)}.
-            \item
-                  Size of \lstinline{component} is greater than or equal to \lstinline{num_vertices(g)}.
-      \end{itemize}
+            \begin{itemize}
+                  \item
+                        \lstinline{g_t} is the transpose of \lstinline{g}. Edge \lstinline{uv} in \lstinline{g} implies edge \lstinline{vu} in \lstinline{g_t}. \lstinline{num_vertices(g)} equals \lstinline{num_vertices(g_t)}.
+                  \item
+                        Size of \lstinline{component} is greater than or equal to \lstinline{num_vertices(g)}.
+            \end{itemize}
       \pnum\effects
-      \begin{itemize}
-            \item
-                  \lstinline{component[v]} is the strongly connected component id of \lstinline{v}.
-      \end{itemize}
-
+            \begin{itemize}
+                  \item
+                        \lstinline{component[v]} is the strongly connected component id of \lstinline{v}.
+            \end{itemize}
       \pnum\complexity $\mathcal{O}(|E|+|V|)$
 \end{itemdescr}
 
@@ -778,7 +758,7 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
 \hline
 \end{tabular}
 %\caption{Tarjan's SCC Summary}
-\label{tab:tarjan_scc_summary2}
+\label{tab:tarjan_scc_summary}
 \end{table}
 
 {\small
@@ -786,26 +766,42 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
 }
 \begin{itemdescr}
       \pnum\preconditions
-      \begin{itemize}
-            \item
-                  \lstinline{g} is an \lstinline{adjacency_list}, which is directed.
-            \item
-                  Size of \lstinline{component} is greater than or equal to \lstinline{num_vertices(g)}.
-      \end{itemize}
+            \begin{itemize}
+                  \item
+                        Size of \lstinline{component} is greater than or equal to \lstinline{num_vertices(g)}.
+            \end{itemize}
       \pnum\effects
-      \begin{itemize}
-            \item
-                  \lstinline{component[v]} is the strongly connected component id of \lstinline{v}.
-      \end{itemize}
-
+            \begin{itemize}
+                  \item
+                        \lstinline{component[v]} is the strongly connected component id of \lstinline{v}.
+            \end{itemize}
       \pnum\complexity $\mathcal{O}(|E|+|V|)$
 \end{itemdescr}
 
 \section{Directed Acyclic Graphs}
 \subsection{Topological Sort}
+\phil{Do we need this as an algorithm, in addition to the view? What value does it bring?}
 
 \section{Maximal Independent Set}
 \subsection{Maximal Independent Set}
+
+\begin{table}[h]
+\setcellgapes{3pt}
+\makegapedcells
+\centering
+\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\hline
+      \multirowcell{2}{
+            \textbf{Complexity} \\
+            $\mathcal{O}(|E|)$
+            }
+      & \textbf{Throws?} No & \textbf{Cycles?} No \\
+      & \textbf{Multi-edge?} No & \textbf{Directed?} Yes\\
+\hline
+\end{tabular}
+%\caption{Maximal Independent Set Summary}
+\label{tab:mis_summary}
+\end{table}
 
 {\small
       \lstinputlisting{src/mis.hpp}
@@ -820,7 +816,11 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
             \item
                   \lstinline{mis} output iterator can be assigned vertices of type \lstinline{vertex_id_t<G>} when dereferenced.
       \end{itemize}
-      \pnum\effects Output iterator \lstinline{mis} contains maximal independent set of vertices containing \lstinline{seed}, which is a subset of \lstinline{vertices(graph)}.
+      \begin{itemize}
+            \item
+                  \pnum\effects Output iterator \lstinline{mis} contains maximal independent set of vertices containing \lstinline{seed}, 
+                    which is a subset of \lstinline{vertices(graph)}. \\
+      \end{itemize}
       \pnum\complexity $\mathcal{O}(|E|)$
 \end{itemdescr}
 
@@ -830,20 +830,42 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
 % It fits better in an example. 08-Nov-2023
 
 \subsection{Jaccard Coefficient}
+
+\begin{table}[h]
+\setcellgapes{3pt}
+\makegapedcells
+\centering
+\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\hline
+      \multirowcell{2}{
+            \textbf{Complexity} \\
+            $\mathcal{O}(|N|^3)$
+            }
+      & \textbf{Throws?} No & \textbf{Cycles?} No \\
+      & \textbf{Multi-edge?} No & \textbf{Directed?} Yes\\
+\hline
+\end{tabular}
+%\caption{Jaccard Coefficient Summary}
+\label{tab:jaccard_summary}
+\end{table}
+
 {\small
       \lstinputlisting[firstline=4,lastline=6]{src/jaccard.hpp}
 }
 \begin{itemdescr}
       \pnum\preconditions
-      \begin{itemize}
-            \item
-              \lstinline{g} is an \lstinline{adjacency_list}.
-            \item
-              \lstinline{out} is an operator for setting the resulting Jaccard coefficient. This function is expected to be of the form \lstinline{out(vertex_id_t<G> uid, vertex_id_t<G> vid, edge_t<G> uv, T val)}.
-            \item
-              \pnum\complexity $\mathcal{O}(|N|^3)$
-      \end{itemize}
-      \pnum\effects For every pair of neighboring vertices \lstinline{(uid, vid)}, the function \lstinline{out} is called, passing the vertex ids, the edge \lstinline{uv} between them, and the calculated Jaccard coefficient.
+            \begin{itemize}
+                  \item
+                  \lstinline{out} is an operator for setting the resulting Jaccard coefficient. This function is expected to be of the form \lstinline{out(vertex_id_t<G> uid, vertex_id_t<G> vid, edge_t<G> uv, T val)}.
+                  \item
+                  \pnum\complexity $\mathcal{O}(|N|^3)$
+            \end{itemize}
+      \pnum\effects 
+            \begin{itemize}
+                  \item
+                        For every pair of neighboring vertices \lstinline{(uid, vid)}, the function \lstinline{out} is called, passing the vertex ids, 
+                        the edge \lstinline{uv} between them, and the calculated Jaccard coefficient.
+            \end{itemize}
 \end{itemdescr}
 
 \section{Minimum Spanning Tree}
@@ -851,46 +873,85 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
 
 \subsection{Kruskal Minimum Spanning Tree}
 
+\begin{table}[h]
+\setcellgapes{3pt}
+\makegapedcells
+\centering
+\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\hline
+      \multirowcell{2}{
+            \textbf{Complexity} \\
+            $\mathcal{O}(|E|)$
+            }
+      & \textbf{Throws?} No & \textbf{Cycles?} No \\
+      & \textbf{Multi-edge?} No & \textbf{Directed?} Yes\\
+\hline
+\end{tabular}
+%\caption{Kruskal Minimum Spanning Tree Summary}
+\label{tab:kruskal_mst_summary}
+\end{table}
+
 {\small
       \lstinputlisting[firstline=4,lastline=8]{src/mst.hpp}
 }
 \begin{itemdescr}
       \pnum\preconditions
-      \begin{itemize}
-            \item
-                  \lstinline{e} is an \lstinline{edgelist}.
-            \item
-                  \lstinline{compare} operator is a valid comparison operation on two edge values of type \lstinline{edge_value_t<EL>} which returns a bool.
-      \end{itemize}
-      \pnum\effects Edgelist \lstinline{t} contains edges representing a spanning tree or forest, which minimize the comparison operator. When \lstinline{compare} is \lstinline{<}, \lstinline{t} represents a minimum weight spanning tree.
+            \begin{itemize}
+                  \item
+                        \lstinline{e} is an \lstinline{edgelist}.
+                  \item
+                        \lstinline{compare} operator is a valid comparison operation on two edge values of type \lstinline{edge_value_t<EL>} 
+                        which returns a bool.
+            \end{itemize}
+      \pnum\effects 
+            \begin{itemize}
+                  \item
+                        Edgelist \lstinline{t} contains edges representing a spanning tree or forest, which minimize the comparison operator. 
+                        When \lstinline{compare} is \lstinline{<}, \lstinline{t} represents a minimum weight spanning tree.
+            \end{itemize}
       \pnum\complexity $\mathcal{O}(|E|)$
 \end{itemdescr}
 
 \subsection{Prim Minimum Spanning Tree}
+
+\begin{table}[h]
+\setcellgapes{3pt}
+\makegapedcells
+\centering
+\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\hline
+      \multirowcell{2}{
+            \textbf{Complexity} \\
+            $\mathcal{O}(|E|log|V|)$
+            }
+      & \textbf{Throws?} No & \textbf{Cycles?} No \\
+      & \textbf{Multi-edge?} No & \textbf{Directed?} No \\
+\hline
+\end{tabular}
+%\caption{Prim Minimum Spanning Tree Summary}
+\label{tab:prim_mst_summary}
+\end{table}
 
 {\small
       \lstinputlisting[firstline=13,lastline=29]{src/mst.hpp}
 }
 \begin{itemdescr}
       \pnum\preconditions
-      \begin{itemize}
-            \item
-                  \lstinline{g} is an \lstinline{adjacency_list}, which is undirected.
-            \item
-                  \lstinline{0 <= seed < num_vertices(g)}.
-            \item
-                  Size of \lstinline{weight} and \lstinline{predecessor} is greater than or equal to \lstinline{num_vertices(g)}.
-            \item
-                  \lstinline{compare} operator is a valid comparison operation on two edge values of type \lstinline{edge_value_t<G>} which returns a bool.
-      \end{itemize}
+            \begin{itemize}
+                  \item
+                        \lstinline{0 <= seed < num_vertices(g)}.
+                  \item
+                        Size of \lstinline{weight} and \lstinline{predecessor} is greater than or equal to \lstinline{num_vertices(g)}.
+                  \item
+                        \lstinline{compare} operator is a valid comparison operation on two edge values of type \lstinline{edge_value_t<G>} which returns a bool.
+            \end{itemize}
       \pnum\effects
-      \begin{itemize}
-            \item
-                  \lstinline{predecessor[v]} is the parent vertex of \lstinline{v} in a tree rooted at \lstinline{seed} and \lstinline{weight[v]} is the value of the edge between \lstinline{v} and \lstinline{predecessor[v]} in the tree. When \lstinline{compare} is \lstinline{<} and \lstinline{init_dist==+inf}, \lstinline{predecessor} represents a minimum weight spanning tree.
-            \item
-                  If \lstinline{predecessor} and \lstinline{weight} are not initialized by user, and the graph is not fully connected, \lstinline{predecessor[v]} and \lstinline{weight[v]} will be undefined for vertices not in the same connected component as \lstinline{seed}.
-      \end{itemize}
-
+            \begin{itemize}
+                  \item
+                        \lstinline{predecessor[v]} is the parent vertex of \lstinline{v} in a tree rooted at \lstinline{seed} and \lstinline{weight[v]} is the value of the edge between \lstinline{v} and \lstinline{predecessor[v]} in the tree. When \lstinline{compare} is \lstinline{<} and \lstinline{init_dist==+inf}, \lstinline{predecessor} represents a minimum weight spanning tree.
+                  \item
+                        If \lstinline{predecessor} and \lstinline{weight} are not initialized by user, and the graph is not fully connected, \lstinline{predecessor[v]} and \lstinline{weight[v]} will be undefined for vertices not in the same connected component as \lstinline{seed}.
+            \end{itemize}
       \pnum\complexity $\mathcal{O}(|E|log|V|)$
 \end{itemdescr}
 
