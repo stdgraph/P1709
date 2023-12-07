@@ -2,14 +2,16 @@
 \section*{P1709R4}
 This was a major redesign that incorporated all the experience and input from the past 3 years.
 \begin{itemize}
-\item Reduce the scope to focus on an edge list and adjacency graph with outgoing edges only, and remove mutable interface functions. 
-\item Replace directed and undirected concepts with overridable types of unordered\_edge for a graph implementation type.
+\item Revisit the algorithms to be considered.
+\item Reduce the scope to focus on an adjacency list with outgoing edges, edge list, and remove mutable interface functions. 
+\item Replace directed and undirected concepts with overridable types of unordered\_edge for a graph type.
 \item Simplify the Graph Container types and functions. In particular, const and non-const variations were consolidated to a single definition to handle both cases 
 when appropriate.
 \item All Graph Container Interface functions are customization points.
 \item Introduce Views, inspired by NWGraph design, resulting in simpler and cleaner interfaces to traverse a graph, and simplifying the container interface design.
-\item Revisit the algorithms to be considered. transitive\_closure has been dropped. The final list hasn't been finalized yet.
-\item Replace the two container implementations with compressed\_graph, based on the Compressed Sparse Row matrix.
+\item Add support for bipartite and multipartite graphs.
+\item Replace the two container implementations with compressed\_graph, based on the Compressed Sparse Row matrix, a commonly used 
+      data structure for high-performance graphs.
 \end{itemize}
 
 \section*{P1709R3}

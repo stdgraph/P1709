@@ -2,8 +2,13 @@
 
 The views in this section provide common ways that algorithms use to traverse graphs. They are a simple as iterating through the set of vertices, or more complex ways such as depth-first search and breadth-first search. The also provide a consistent and reliable way to access related elements using the View Return Types, and guaranteeing expected values, such as that the target is really the target on unordered edges.
 
-\section{Return Types}
-Views return one of the types in this section, providing a consistent set of values. They are templated so that the view can adjust the actual values returned to be appropriate for its use. The following examples show the general design and how it's used. While it focuses on vertexlist to iterate over all vertices, it applies to all view functions.
+\section{Return Types (Descriptors)}
+Views return one of the types in this section, providing a consistent set of values. They are templated so that the view can adjust the 
+actual values returned to be appropriate for its use. The three types, \tcode{vertex_descriptor, edge_descriptor} and 
+\tcode{neighbor_descriptor}, define the data model used by the algorithms.
+
+The following examples show the general design and how it's used. While it focuses 
+on vertexlist to iterate over all vertices, it applies to all descriptors and view functions.
 
 \begin{lstlisting}
 // the type of uu is vertex\_view<vertex\_id\_t<G>, vertex\_reference\_t<G>, void>
@@ -87,7 +92,7 @@ using copyable_vertex_t = vertex_descriptor<VId, void, VV>; // {id, value}
 \subsubsection{\tcode{struct edge_descriptor<VId, Sourced, E, EV>}}\label{edge-view}\mbox{} \\
 \tcode{edge_descriptor} is used to return edge information. It is used by 
 \tcode{incidence(g,u), edgelist(g), edges_breadth_first_search(g,u), edges_depth_first_search(g,u)} and others. 
-When \tcode{Sourced}=true, the \tcode{source_id} member is included with type \tcode{VId}. The \tcode{target_id} member always exists.
+When \tcode{Sourced=true}, the \tcode{source_id} member is included with type \tcode{VId}. The \tcode{target_id} member always exists.
 
 {\small
      \lstinputlisting{src/edge_descriptor.hpp}
@@ -164,6 +169,55 @@ and \tcode{value_type} is \tcode{void}.
 \label{tab:neighbor-view}
 \end{center}
 \end{table}
+
+\section{Copyable Descriptors}
+
+\subsection{Copyable Descriptor Types}
+Copyable descriptors are specializations of the descriptors that can be copied. More specifically, they don't include
+a vertex or edge reference. \tcode{copyable_vertex_t<G>} shows the simple definition.
+
+\begin{lstlisting}
+template <class VId, class VV>
+using copyable_vertex_t = vertex_descriptor<VId, void, VV>; // {id, value}
+\end{lstlisting}
+
+\begin{table}[h!]
+\begin{center}
+%\resizebox{\textwidth}{!}
+{\begin{tabular}{l L{12.0cm}}
+\hline
+    \textbf{Type} & \textbf{Definition} \\
+\hline
+    \tcode{copyable_vertex_t<T,VId,VV>} & \tcode{vertex_descriptor<VId, void, VV>} \\
+    \tcode{copyable_edge_t<T,Vid,EV>} & \tcode{edge_descriptor<VId, true, void, EV>>} \\
+    \tcode{copyable_neighbor_t<Vid,VV>} & \tcode{neighbor_descriptor<VId, true, void, VV>} \\
+\hline
+\end{tabular}}
+\caption{Descriptor Concepts}
+\label{tab:descriptor_concepts}
+\end{center}
+\end{table}
+
+\subsection{Copyable Descriptor Concepts}
+
+Given the copyable types, it's useful to have concepts to determine if a type is a desired copyable type.
+\begin{table}[h!]
+\begin{center}
+%\resizebox{\textwidth}{!}
+{\begin{tabular}{l L{12.0cm}}
+\hline
+    \textbf{Concept} & \textbf{Definition} \\
+\hline
+    \tcode{copyable_vertex<T,VId,VV>} & \tcode{convertible_to<T, copyable_vertex_t<VId, VV>>} \\
+    \tcode{copyable_edge<T,Vid,EV>} & \tcode{convertible_to<T, copyable_edge_t<VId, EV>>} \\
+    \tcode{copyable_neighbor<T,Vid,VV>} & \tcode{convertible_to<T, copyable_neighbor_t<VId, VV>>} \\
+\hline
+\end{tabular}}
+\caption{Descriptor Concepts}
+\label{tab:descriptor_concepts}
+\end{center}
+\end{table}
+
 
 \section{Common Types and Functions for ``Search'' }
 The depth\_first\_search, breadth\_first\_search, and toplogical\_sort searches there are a number of common types and functions that apply to them. 
@@ -324,6 +378,7 @@ Table \ref{tab:dfs} shows the functions and their return values.
 
 While not shown in the examples, all functions have a final, optional allocator parameter that defaults to \tcode{std::allocator<bool>}. It is used for containers that are internal to the view. The \tcode{<bool>} argument has no particular meaning.
 
+\phil{Need "basic" variants that don't include edge reference}
 \begin{table}[h!]
 \begin{center}
 \resizebox{\textwidth}{!}
@@ -352,6 +407,7 @@ Table \ref{tab:bfs} shows the functions and their return values.
 
 While not shown in the examples, all functions have a final, optional allocator parameter that defaults to \tcode{std::allocator<bool>}. It is used for containers that are internal to the view. The \tcode{<bool>} argument has no particular meaning.
 
+\phil{Need "basic" variants that don't include edge reference}
 \begin{table}[h!]
 \begin{center}
 \resizebox{\textwidth}{!}
@@ -380,6 +436,7 @@ Table \ref{tab:topo_sort} shows the functions and their return values.
 
 While not shown in the examples, all functions have a final, optional allocator parameter that defaults to \tcode{std::allocator<bool>}. It is used for containers that are internal to the view. The \tcode{<bool>} argument has no particular meaning.
 
+\phil{Need "basic" variants that don't include edge reference}
 \begin{table}[h!]
 \begin{center}
 \resizebox{\textwidth}{!}
@@ -402,4 +459,4 @@ While not shown in the examples, all functions have a final, optional allocator 
 \end{center}
 \end{table}
 
-\phil{Is Topological Sort a view or an algorithm?}
+\phil{Is Topological Sort a view, an algorithm or both?}
