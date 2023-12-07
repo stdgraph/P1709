@@ -1,11 +1,11 @@
 template <class DistanceValue>
 auto dijkstra_invalid_distance() {
-  return std::numeric_limits<DistanceValue>::max(); // exposition only
+  return std::numeric_limits<DistanceValue>::max();
 }
 
 template <class DistanceValue>
 auto dijkstra_zero() {
-  return {}; // exposition only
+  return {};
 }
 
 template <property P, property D>

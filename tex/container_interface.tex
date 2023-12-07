@@ -11,7 +11,11 @@ Table \ref{tab:graph_concepts} summarizes the concepts in the Graph Container In
 
 Sourced edges have a source\_id on them in addition to a target\_id. A \tcode{sourced_adjacency_list} has sourced edges.
 
+Indexed adjacency lists reflect a common use case where vertices are kept in a random access container and have an integral id.
+
 % is_sourced_edge and is_sourced_edge_v structs are not included the table for brevity. We may want to add them in the future for completeness.
+\phil{Need to resolve how to deal with "basic" concepts which don't require vertex or edge references. Can a GGI exist without the references?
+      Is it just a View artifact? }
 \begin{table}[h!]
 \begin{center}
 %\resizebox{\textwidth}{!}
@@ -21,17 +25,17 @@ Sourced edges have a source\_id on them in addition to a target\_id. A \tcode{so
 \hline
     \tcode{vertex_range<G>} & \tcode{vertices(g)} returns a sized, forward\_range; \tcode{vertex_id(g,ui)} exists\\
     \tcode{targeted_edge<G>} & \tcode{target_id(g,uv)} and \tcode{target(g,uv)} exist\\
+    \tcode{adjacency_list<G>} & Extends \tcode{vertex_range<G>} by adding \tcode{edges(g,u)} and \tcode{edges(g,uid)} that returns a forward\_range \\
+\hdashline
     \tcode{sourced_edge<G>} & \tcode{source_id(g,uv)} and \tcode{source(g,uv)} exist\\
-    \tcode{index_adjacency_list<G>} & \tcode{vertex_range<G>} and \tcode{targeted_edge<G,edge<G>>} and \tcode{edges(g,uid)} functions return a forward\_range\\
-    \tcode{adjacency_list<G>} & Extends \tcode{index_adjacency_list<G>} by adding \tcode{edges(g,u)} that returns a forward\_range\\
     \tcode{sourced_adjacency_list<G>} & \tcode{adjacency_list<G>} and \tcode{sourced_edge<G, edge_t<G>>} and \tcode{edge_id(g,uv)} exists \\
-\hline
-    \tcode{copyable_vertex<T,VId,VV>} & \tcode{convertible_to<T, copyable_vertex_t<VId, VV>>} \\
-    \tcode{copyable_edge<T,Vid,EV>} & \tcode{convertible_to<T, copyable_edge_t<VId, EV>>} \\
+\hdashline
+    \tcode{index_vertex_range<G>} & Extends \tcode{vertex_range<G>} by requiring \tcode{vertices(g)} return a random\_access\_range and \tcode{vertex_id(g)} return an integer \\
+    \tcode{index_adjacency_list<G>} & Extends \tcode{adjacency_list<G>} by requiring \tcode{vertices(g)} return a random\_access\_range and \tcode{vertex_id(g)} return an integer \\
 \hline
 \end{tabular}}
-\caption{Graph Container Interface Concepts}
-\label{tab:graph_concepts}
+\caption{Descriptor Concepts}
+\label{tab:descriptor_concepts}
 \end{center}
 \end{table}
 
@@ -72,7 +76,9 @@ Table \ref{tab:graph_traits} summarizes the type traits in the Graph Container I
 
 
 \section{Types}
-Table \ref{tab:graph_type} summarizes the type aliases in the Graph Container Interface. These are the types used to define the objects in a graph container, no matter its internal design and organization. Thus, it is designed to be able to reflect all forms of adjacency graphs including a vector of lists, CSR graph and adjacency matrix.
+Table \ref{tab:graph_type} summarizes the type aliases in the Graph Container Interface. These are the types used to define the objects 
+in a graph container, no matter its internal design and organization. Thus, it is designed to be able to reflect all forms of adjacency 
+graphs including a vector of lists, compressed\_graph and adjacency matrix.
 
 The type aliases are defined by either a function specialization for the underlying graph container, or a refinement of one of those types (e.g. an iterator of a range). Table \ref{tab:graph_func} describes the functions in more detail.
 

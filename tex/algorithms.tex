@@ -4,7 +4,7 @@ Our proposed set of algorithms are grouped into Tier 1, Tier 2, and Tier 3 (simi
 
 Tier 1:
 \begin{itemize}
-\item Shortest paths (driver interface)
+%\item Shortest paths (driver interface)
 \item Breadth-First search
 \item Dijkstra's algorithm
 \item Bellman-Ford
@@ -64,39 +64,53 @@ The parts of the table have the following meaning:
 
 \section{Algorithm Concepts}
 
-\andrew{Need to develop this ala CppCon 2021 talk.}
+%\andrew{Need to develop this ala CppCon 2021 talk.}
 
 The abstraction that is used for describing and analyzing almost all graph algorithms is the adjacency list.  Naturally then implementations of graph algorithms in C++ will operate on a data structure representing an adjacency list.  And generic algorithms will be written in terms of concepts that capture the essential operations that a concrete data structure must provide in order to be used as an abstraction of an adjacency list.
 
 Most fundamentally (as illustrated above), an adjacency list is a collection of vertices, each of which has a collection of outgoing edges.  In terms of existing C++ concepts, we can consider an adjacency list to be a range of ranges (or, more specifically, a random access range of forward ranges).  The outer range is the collection of vertices, and the inner ranges are the collections of outgoing edges.
-\andrew{We should probably have that discussion soon about what we specifically mean by ``vertex''...}
 
-\andrew{Is it better to list the concepts here or forward reference them?  Kind of a circularity.  But maybe the sequence of concepts - algorithms - concrete data types is the right one.  OTOH, std::ranges use ordering overview library-concepts-containers-algorithms.  Since a graph is a range of ranges, maybe we should follow that.}
+%\andrew{Is it better to list the concepts here or forward reference them?  Kind of a circularity.  But maybe the sequence of concepts - algorithms - concrete data types is the right one.  OTOH, std::ranges use ordering overview library-concepts-containers-algorithms.  Since a graph is a range of ranges, maybe we should follow that.}
 
-\phil{I think this is a good place, just before they're used in the text for this section.}
+%\phil{I think this is a good place, just before they're used in the text for this section.}
 % Additional concepts used by algorithms.
 
 \begin{lstlisting}
-template <class G, class F>
+template <class G, class WF, class DistVal, class Compare, class Combine>
+concept basic_edge_weight_function = // e.g. weight(uv)
+      is_arithmetic_v<DistVal> &&
+      strict_weak_order<Compare, DistVal, DistVal> &&
+      assignable_from<add_lvalue_reference_t<DistVal>, 
+                      invoke_result_t<Combine, invoke_result_t<WF, edge_reference_t<G>>>>;
+
+template <class G, class WF, class DistVal>
 concept edge_weight_function = // e.g. weight(uv)
-      copy_constructible<F> && is_arithmetic_v<invoke_result_t<F, edge_reference_t<G>>>;
+      is_arithmetic_v<invoke_result_t<WF, edge_reference_t<G>>> &&
+      basic_edge_weight_function<G,
+                                  WF,
+                                  Distance,
+                                  less<DistVal>,
+                                  plus<DistVal>>;
 \end{lstlisting}
 
-\begin{lstlisting}
-// queueableQ can represent std::queue and std::priority\_queue
-template <class Q>
-concept queueable = requires(Q&& q, Q::value_type value) {
-  Q::value_type;
-  Q::size_type;
-  Q::reference;
+\begin{comment}
+      \phil{Queueable isn't being used.}
+      \begin{lstlisting}
+      // queueableQ can represent std::queue and std::priority\_queue
+      template <class Q>
+      concept queueable = requires(Q&& q, Q::value_type value) {
+      Q::value_type;
+      Q::size_type;
+      Q::reference;
 
-  {q.top()};
-  {q.push(value)};
-  {q.pop()};
-  {q.empty()};
-  {q.size()};
-};
-\end{lstlisting}
+      {q.top()};
+      {q.push(value)};
+      {q.pop()};
+      {q.empty()};
+      {q.size()};
+      };
+      \end{lstlisting}
+\end{comment}
 
 
 
@@ -107,25 +121,27 @@ BGL does not have these (nor NWGraph).  We should discuss whether or not to cons
 
 
 
+\begin{comment}
+      \subsection{Driver Interface}
 
-\subsection{Driver Interface}
+      \andrew{I am not sure we should have the unified interface.  We need to be more parsimonious in our interfaces.  Users can read the documentation for which algorithms to use.  And, if they are using graph algorithms, we should assume a certain level of knowledge about graph algorithms.  OTOH, it is only a handful of algorithms.}
 
-\andrew{I am not sure we should have the unified interface.  We need to be more parsimonious in our interfaces.  Users can read the documentation for which algorithms to use.  And, if they are using graph algorithms, we should assume a certain level of knowledge about graph algorithms.  OTOH, it is only a handful of algorithms.}
-
-\andrew{I am also not sure we should have ``shortest distance'' variants.  That doubles the number of functions in the interface.
-      For each function we have shortest paths, s-t paths, multi-source paths, parallel = 6X variants for each base function.  If we add shortest distances, that will make 12X.  OTOH, we could consider not having s-t paths or not having multi-source paths -- which would leave 4X for each base function.  However, I think people will want s-t and multi-source.
-}
-\phil{\tcode{dijkstra_shortest_distances} includes predecessor and distances, so excluding \tcode{dijkstra_shortest_distances} won't impact 
-the user much.}
+      \andrew{I am also not sure we should have ``shortest distance'' variants.  That doubles the number of functions in the interface.
+            For each function we have shortest paths, s-t paths, multi-source paths, parallel = 6X variants for each base function.  If we add shortest distances, that will make 12X.  OTOH, we could consider not having s-t paths or not having multi-source paths -- which would leave 4X for each base function.  However, I think people will want s-t and multi-source.
+      }
+      \phil{\tcode{dijkstra_shortest_distances} includes predecessor and distances, so excluding \tcode{dijkstra_shortest_distances} won't impact 
+      the user much.}
 
 
-{\small
-      \lstinputlisting{src/shortest_paths.hpp}
-}
+      {\small
+            \lstinputlisting{src/shortest_paths.hpp}
+      }
 
-\andrew{The variety of algorithms was inspired by networkx....  Which also had ``distance'' variants.}
+      \andrew{The variety of algorithms was inspired by networkx....  Which also had ``distance'' variants.}
 
-\phil{I assume \tcode{adjacency_list_graph} is the same as our \tcode{adjacency_list}. \tcode{bidirectional_adjacency_list_graph} is new; what to do with it?}
+      \phil{I assume \tcode{adjacency_list_graph} is the same as our \tcode{adjacency_list}. \tcode{bidirectional_adjacency_list_graph} is new; what to do with it?}
+\end{comment}
+
 
 \subsection{Unweighted Shortest Paths: Breadth-First Search}
 
@@ -200,8 +216,6 @@ the user much.}
 
 \subsubsection{Dijkstra Initialization}
 
-\andrew{I don't think the "exposition only" is necessary.}
-
 \andrew{Actually, I don't think dijkstra\_invalid\_distance() or dijkstra\_zero() useful -- those
       need to be specified for the actual init functions.
       As free functions they don't really do anything.  Or are they meant to be CPOs? } 
@@ -234,102 +248,8 @@ the user much.}
 
 \subsubsection{Dijkstra Single Source Shortest Paths}
 
-{\small
-      \lstinputlisting{src/dijkstra.hpp}
-}
-
-\begin{itemdescr}
-      \pnum\preconditions
-            \begin{itemize}
-                  \item
-                        \lstinline{graph} is an \lstinline{adjacency_list}, which may be directed or
-                        undirected.
-                  \item
-                        \lstinline{0 <= source < num_vertices(graph)}.
-                  \item
-                        The \lstinline{distance} range must be initialized so that
-                        \lstinline{distance[i] == \lstinline{std::numeric_limits<range_value_t<D>>::max()}
-                        for all \lstinline{i}
-                        such that \lstinline{0 <= i < num_vertices(graph)}.  \andrew{invalid distance?}
-                  \item
-                        The \lstinline{predecessors} range must be initialized so that
-                        \lstinline{precessors[i] == i} for all \lstinline{i} such that
-                        \lstinline{0 <= i <  num_vertices(graph)}.
-            \end{itemize}
-      \pnum\requires:
-            \begin{itemize}
-                  \item
-                        The return type of weight function \lstinline{w} must be able to
-                        be combined with the distance type \lstinline{D}.
-                  \item
-                        The argument type for the weight
-                        function \lstinline{w} must be convertible from the edge type.
-                  \item
-                        The weight function \lstinline{w} must return a non-negative value (that is
-                        a value \lstinline{x} such that \lstinline{dijkstra_zero() <= x},
-                        for any edge in \lstinline{graph}.
-            \end{itemize}
-      \pnum\effects
-      Compute the shortest path and associated distance from vertex
-      \lstinline{source} to all reachable vertices in \lstinline{graph}.
-      \pnum\returns
-            \begin{itemize}
-                  \item
-                        For \lstinline{dijkstra_shortest_paths} and \lstinline{dijkstra_shortest_distances},
-                        if vertex with index \lstinline{i} is reachable from vertex \lstinline{source}, then
-                        \lstinline{distances[i]} will contain the distance from \lstinline{source} to vertex
-                        \lstinline{i}.  If vertex \lstinline{i} is not reachable from vertex
-                        \lstinline{source} then \lstinline{distances[i]} will contain
-                        \lstinline{std::numeric_limits<range_value_t<D>>::max()}.
-                  \item
-                        For \lstinline{dijkstra_shortest_paths} if vertex with index \lstinline{i} is reachable
-                        from vertex \lstinline{source}, then \lstinline{predecessor[i]} will contain the
-                        predecessor vertex of vertex \lstinline{i}.  If vertex \lstinline{i} is not reachable
-                        from vertex \lstinline{source} then \lstinline{predecessors[i]} will contain
-                        \lstinline{i}.
-            \end{itemize}
-      %
-      \pnum\complexity $\mathcal{O}((|E| + |V|)\log{|V|})$.  (Note: complexity may be
-            $\mathcal{O}(|E| + |V|\log{|V|)}$ for certain implementations.)
-      \pnum\throws none. \andrew{Throw if \lstinline{source} out of range?}
-\end{itemdescr}
-
-\subsubsection{Dijkstra Single Source Shortest Paths (Phil's revision)}
-
-\begin{comment}
-\phil{Changes from previous: add description at beginning, add summary table of characteristics, remove shortest\_distances functions, 
-update source to reflect discussions with Andrew and current implementation, use longer names in source for clarity, simplified wording 
-of prerequisits and requires and returns sections.} \\
-\phil{Also simplified the definitions by replacing \tcode{adjacency_list} with 
-\tcode{index_adjacency_list}, expanded the defintion of \tcode{edge_value_function} and added a new \tcode{basic_edge_value_function} 
-for the general definition. }
-\end{comment}
-
 Compute the shortest path and associated distance from vertex \tcode{source} to all reachable vertices in \tcode{graph}
 using non-negative weights.
-
-% The following table is retained for comparison to the new format.
-% After it's been reviewed it can be removed.
-\begin{table}[h]
-\setcellgapes{3pt}
-\makegapedcells
-\centering
-\begin{tabular}{|P{0.55\textwidth}|P{0.14\textwidth}|P{0.16\textwidth}|}
-\hline
-      \multirowcell{4}{
-            \textbf{Complexity} \\
-                  $\mathcal{O}((|E| + |V|)\log{|V|})$ \\
-                  (May be $\mathcal{O}(|E| + |V|\log{|V|)}$ for certain implementations)
-            }
-      & \textbf{Throws?} & No \\
-      & \textbf{Multi-edge?} & No \\
-      & \textbf{Cycles?} & No \\
-      & \textbf{Directed?} & Yes \\
-\hline
-\end{tabular}
-%\caption{Dijkstra Single Source Summary}
-\label{tab:dijkstra_ss_summary}
-\end{table}
 
 \begin{table}[h]
 \setcellgapes{3pt}
@@ -341,7 +261,7 @@ using non-negative weights.
             \textbf{Complexity} \\
                   $\mathcal{O}((|E| + |V|)\log{|V|})$
             }
-      & \textbf{Throws?} No & \textbf{Cycles?} No \\
+      & \textbf{Throws?} Yes & \textbf{Cycles?} No \\
       & \textbf{Multi-edge?} No & \textbf{Directed?} Yes \\
 \hline
 \end{tabular}
@@ -351,22 +271,12 @@ using non-negative weights.
 Note that complexity may be $\mathcal{O}(|E| + |V|\log{|V|)}$ for certain implementations.
 
 {\small
-      \lstinputlisting{src/dijkstra2.hpp}
+      \lstinputlisting{src/dijkstra.hpp}
 }
-
-\phil{Requires time/space to evalute predecessors whether they're needed or not. 
-      Use \tcode{null_predecessors} special value as a way to disable Predecessors evaluation?}
 
 \begin{itemdescr}
       \pnum\mandates
             \begin{itemize}
-                  \item
-                        The return type of weight function \lstinline{w} must be able to
-                        be combined with the distance type \lstinline{Distance}. The combination
-                        used in the first function is addition.
-                  \item
-                        The argument type for the weight
-                        function \lstinline{w} must be convertible from the edge type.
                   \item
                         The weight function \lstinline{w} must return a non-negative value.
             \end{itemize}
@@ -374,18 +284,14 @@ Note that complexity may be $\mathcal{O}(|E| + |V|\log{|V|)}$ for certain implem
             \begin{itemize}
                   \item
                         \lstinline{0 <= source < num_vertices(graph)}. 
-                        \\ \andrew{Throw if \lstinline{source} out of range?}
-                        \phil{O(1) to evaluate. I vote Yes.}
                   \item
                         \lstinline{distance[i] = numeric_limits<range_value_t<Distance>>::max()}
                         for \lstinline{0 <= i < num_vertices(graph)}.  
                         \\ \andrew{invalid distance?}
-                        \phil{"Invalid" means != max()? O(V) to evaluate; too expensive? }
                   \item
                         \lstinline{precessors[i] = i} for \lstinline{0 <= i <  num_vertices(graph)}.
             \end{itemize}
-      \pnum\effects \\
-      \pnum\result
+      \pnum\effects
             \begin{itemize}
                   \item
                         If vertex with index \lstinline{i} is reachable from vertex \lstinline{source}, then
@@ -398,11 +304,12 @@ Note that complexity may be $\mathcal{O}(|E| + |V|\log{|V|)}$ for certain implem
                         predecessor vertex of vertex \lstinline{i}. Otherwise \lstinline{predecessors[i]} will contain
                         \lstinline{i}.
             \end{itemize}
-      \pnum\returns \lstinline{void} \\
-      \pnum\throws None.\\
-      \pnum\complexity \\
-      \pnum\remarks Bellman-Ford Shortest Paths allows negative weights. \\
-      \pnum\errors
+      %\pnum\result
+      %\pnum\returns \lstinline{void} \\
+      \pnum\throws \tcode{out_of_range} is thrown when \tcode{source} is not in the range \tcode{0 <= source < num_vertices(graph)}.  \\
+      %\pnum\complexity \\
+      \pnum\remarks Bellman-Ford Shortest Paths allows negative weights with the consequence of greater complexity. \\
+      %\pnum\errors
 \end{itemdescr}
 
 
@@ -420,7 +327,7 @@ Compute the shortest path and associated distance from vertex \tcode{source} to 
                   \textbf{Complexity} \\
                         $\mathcal{O}(|E| \cdot |V|)$ \\
                   }
-            & \textbf{Throws?} No & \textbf{Cycles?} No \\
+            & \textbf{Throws?} Yes & \textbf{Cycles?} No \\
             & \textbf{Multi-edge?} No & \textbf{Directed?} Yes\\
       \hline
       \end{tabular}
@@ -440,21 +347,11 @@ Compute the shortest path and associated distance from vertex \tcode{source} to 
 I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
 
 \begin{itemdescr}
-      \pnum\mandates
-            \begin{itemize}
-                  \item
-                        The return type of weight function \lstinline{w} must be able to
-                        be combined with the distance type \lstinline{Distance}.
-                  \item
-                        The argument type for the weight function \lstinline{w} must be convertible from the edge type.
-                  \item
-                        The weight function \lstinline{w} must return a non-negative value.
-            \end{itemize}
+      %\pnum\mandates
       \pnum\preconditions
             \begin{itemize}
                   \item
                         \lstinline{0 <= source < num_vertices(g)}. 
-                        \\ \andrew{Throw if \lstinline{source} out of range?}
                   \item
                         \lstinline{distance[i] = numeric_limits<range_value_t<Distance>>::max()}
                         for \lstinline{0 <= i < num_vertices(g)}.  
@@ -463,7 +360,6 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
                         \lstinline{precessors[i] = i} for \lstinline{0 <= i <  num_vertices(g)}.
             \end{itemize}
       \pnum\effects \\
-      \pnum\result
             \begin{itemize}
                   \item
                         If vertex with index \lstinline{i} is reachable from vertex \lstinline{source}, then
@@ -476,11 +372,12 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
                         predecessor vertex of vertex \lstinline{i}. Otherwise \lstinline{predecessors[i]} will contain
                         \lstinline{i}.
             \end{itemize}
-      \pnum\returns \lstinline{void} \\
-      \pnum\throws None. \\
-      \pnum\complexity \\
+      %\pnum\result
+      %\pnum\returns \lstinline{void} \\
+      \pnum\throws \tcode{out_of_range} is thrown when \tcode{source} is not in the range \tcode{0 <= source < num_vertices(graph)}.  \\
+      %\pnum\complexity \\
       \pnum\remarks Unlike Dijkstra's algorithm, Bellman-Ford allows negative edge weights. Performance constraints limit this to smaller graphs. \\
-      \pnum\errors
+      %\pnum\errors
 \end{itemdescr}
 
 
@@ -869,7 +766,7 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
 \end{itemdescr}
 
 \section{Minimum Spanning Tree}
-\andrew{Simplified ``driver'' for these also?}
+%\andrew{Simplified ``driver'' for these also?}
 
 \subsection{Kruskal Minimum Spanning Tree}
 
@@ -1032,7 +929,7 @@ and their weighted distances to all vertices connected to a single seed vertex.
 \begin{lstlisting}
 template <adjacency_list G, class DistanceValue>
 auto dijkstra_invalid_distance() {
-  return numeric_limits<DistanceValue>::max(); // exposition only
+  return numeric_limits<DistanceValue>::max();
 }
 
 template <adjacency_list              G,
