@@ -59,30 +59,10 @@ That number is called the ``Bacon number'' of the actor. Kevin Bacon himself has
 Since Kevin Bacon appeared with Tom Cruise in ``A Few Good Men'', Tom Cruise has a Bacon number of 1.
 
 The following program computes the Bacon number for a small selection of actors.
-  {\small
-\begin{lstlisting}
-std::vector<std::string> actors { "Tom Cruise",       "Kevin Bacon",       "Hugo Weaving",
-                                  "Carrie-Anne Moss", "Natalie Portman",   "Jack Nicholson",
-                                  "Kelly McGillis",   "Harrison Ford",     "Sebastian Stan",
-                                  "Mila Kunis",       "Michelle Pfeiffer", "Keanu Reeves",
-                                  "Julia Roberts" };
 
-std::vector<std::vector<int>> costar_adjacency_list {
-    {1, 5, 6}, {7, 10, 0, 5, 12}, {4, 3, 11}, {2, 11}, {8, 9, 2, 12}, {0, 1}, {7, 0},
-    {6, 1, 10}, {4, 9}, {4, 8}, {7, 1}, {2, 3}, {1, 4} };
-
-int main() {
-  std::vector<int> bacon_number(size(actors));
-
-  for (auto&& [u, v] : bfs_edge_range(costar_adjacency_list, 1)) { // Vertex 1 -> Kevin Bacon
-    bacon_number[v] = bacon_number[u] + 1;
-  }
-
-  for (int i = 0; i < size(actors); ++i) {
-    std::cout << actors[i] << " has Bacon number " << bacon_number[i] << std::endl;
-  }
-}
-\end{lstlisting}
+\phil{Duplicated in Overview's Examples}
+{\small
+  \lstinputlisting[firstline=26,lastline=49]{src/bacon.cpp}
 }
 
   Output:
