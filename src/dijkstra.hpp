@@ -2,7 +2,7 @@
 // and clarity of purpose
 
 // A fake range with no values and does nothing
-inline static null_range_type null_distances;
+inline static null_range_type null_predecessors;
 
 template <index_adjacency_list G, 
           random_access_range  Distance,
@@ -13,8 +13,8 @@ requires convertible_to<vertex_id_t<G>, range_value_t<Predecessor>> &&
 void dijkstra_shortest_paths(
       const G&       graph, 
       vertex_id_t<G> source, 
-      Predecessor&   predecessors, 
-      Distance&      distances = null_distances, 
+      Distance&      distances, 
+      Predecessor&   predecessors = null_predecessors, 
       WF&& w = [](edge_reference_t<G> uv) { return range_value_t<Distance>(1); });
 
 template <index_adjacency_list G, 
@@ -30,6 +30,6 @@ void dijkstra_shortest_paths(
       vertex_id_t<G> source, 
       Compare&&      compare,
       Combine&&      combare
-      Predecessor&   predecessors, 
-      Distance&      distances = null_distances, 
+      Distance&      distances, 
+      Predecessor&   predecessors = null_predecessors, 
       WF&& w = [](edge_reference_t<G> uv) { return range_value_t<Distance>(1); });

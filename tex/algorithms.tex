@@ -17,8 +17,8 @@ Tier 1:
 \item Topological sort
 \item Maximal independent set
 \item Jaccard coefficient
-\item Kruskal MST
-\item Prim MST
+\item Kruskal Minimal Spanning Tree
+\item Prim Minimal Spanning Tree
 \end{itemize}
 
 \section{Introduction}
@@ -226,9 +226,6 @@ BGL does not have these (nor NWGraph).  We should discuss whether or not to cons
 
 \andrew{I would like to see a use case for the dijkstra invalid and dijkstra zero functions.}
 
-\phil{We're using preconditions to define the initial values using \tcode{numeric_limits<T>::max()} or an index.
-      I'm seeing less value for having the initialization functions.}
-
 {\small
       \lstinputlisting{src/dijkstra_helpers.hpp}
 }
@@ -308,7 +305,14 @@ Note that complexity may be $\mathcal{O}(|E| + |V|\log{|V|)}$ for certain implem
       %\pnum\returns \lstinline{void} \\
       \pnum\throws \tcode{out_of_range} is thrown when \tcode{source} is not in the range \tcode{0 <= source < num_vertices(graph)}.  \\
       %\pnum\complexity \\
-      \pnum\remarks Bellman-Ford Shortest Paths allows negative weights with the consequence of greater complexity. \\
+      \pnum\remarks 
+            \begin{itemize}
+                  \item 
+                        Passing \tcode{null_predecessors} in the \tcode{predecessors} parameter will result in a compile-time decision
+                        to not evaluate predecessors.
+                  \item 
+                        Bellman-Ford Shortest Paths allows negative weights with the consequence of greater complexity. \\
+            \end{itemize}
       %\pnum\errors
 \end{itemdescr}
 
@@ -341,11 +345,6 @@ Compute the shortest path and associated distance from vertex \tcode{source} to 
       \lstinputlisting{src/bellman_ford.hpp}
 }
 
-\phil{What's the \tcode{property} concept?} \\
-\phil{I assume \tcode{edge_list_graph} is the edge list we've been discussing.} \\
-\phil{\tcode{edgelist_range} is currently being used in the code instead of \tcode{edge_list_graph}. 
-I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
-
 \begin{itemdescr}
       %\pnum\mandates
       \pnum\preconditions
@@ -376,13 +375,21 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
       %\pnum\returns \lstinline{void} \\
       \pnum\throws \tcode{out_of_range} is thrown when \tcode{source} is not in the range \tcode{0 <= source < num_vertices(graph)}.  \\
       %\pnum\complexity \\
-      \pnum\remarks Unlike Dijkstra's algorithm, Bellman-Ford allows negative edge weights. Performance constraints limit this to smaller graphs. \\
+      \pnum\remarks 
+            \begin{itemize}
+                  \item 
+                        Passing \tcode{null_predecessors} in the \tcode{predecessors} parameter will result in a compile-time decision
+                        to not evaluate predecessors.
+                  \item
+                        Unlike Dijkstra's algorithm, Bellman-Ford allows negative edge weights. Performance constraints limit this to smaller graphs.
+            \end{itemize}
       %\pnum\errors
 \end{itemdescr}
 
 
 \section{Clustering}
 \subsection{Triangle Counting}
+\phil{Description needed}
 
 \begin{table}[h]
 \setcellgapes{3pt}
@@ -406,13 +413,21 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
       \lstinputlisting[firstline=4,lastline=6]{src/tc.hpp}
 }
 \begin{itemdescr}
-      \pnum\preconditions \\
-      \pnum\complexity $\mathcal{O}(N^3)$ \\
-      \pnum\returns Number of triangles
+      %\pnum\mandates
+      %\pnum\preconditions
+      %\pnum\effects
+      %\pnum\result
+      \pnum\returns Number of triangles \\
+      %\pnum\throws
+      %\pnum\complexity \\
+      %\pnum\remarks 
+      %\pnum\errors
 \end{itemdescr}
+
 
 \section{Communities}
 \subsection{Label Propagation}
+\phil{Description needed}
 
 \begin{table}[h]
 \setcellgapes{3pt}
@@ -436,17 +451,23 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
       \lstinputlisting[firstline=4,lastline=12]{src/lp.hpp}
 }
 \begin{itemdescr}
+      %\pnum\mandates
       \pnum\preconditions
             \begin{itemize}
                   \item
-                  \lstinline{label} is a random access range containing vertex labels.
+                  \lstinline{label} contains vertex labels.
                   \item
                   \lstinline{rng} is a random number generator.
                   \item
                   \lstinline{max_iters} is the maximum number of iterations of the label propagation, or equivalently the maximum distance a label will propagate from its starting vertex.
             \end{itemize}
       \pnum\effects \lstinline{label[uid]} is the label assignments of vertex id \lstinline{uid} discovered by label propagation.
-      \pnum\complexity $\mathcal{O}(N)$ \kevin{???} \\
+      %\pnum\result
+      %\pnum\returns
+      %\pnum\throws
+      %\pnum\complexity $\mathcal{O}(N)$ \kevin{???} \\
+      %\pnum\remarks 
+      %\pnum\errors
 \end{itemdescr}
 
 \begin{table}[h]
@@ -471,10 +492,11 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
       \lstinputlisting[firstline=14,lastline=23]{src/lp.hpp}
 }
 \begin{itemdescr}
+      %\pnum\mandates
       \pnum\preconditions
             \begin{itemize}
                   \item
-                  \lstinline{label} is a random access range containing vertex labels.
+                  \lstinline{label} contains vertex labels.
                   \item
                   \lstinline{empty_label} defines a label that is considered empty and will not be propagated.
                   \item
@@ -483,11 +505,17 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
                   \lstinline{max_iters} is the maximum number of iterations of the label propagation, or equivalently the maximum distance a label will propagate from its starting vertex.
             \end{itemize}
       \pnum\effects \lstinline{label[uid]} is the label assignments of vertex id \lstinline{uid} discovered by label propagation.
-      \pnum\complexity $\mathcal{O}(N)$ \\
+      %\pnum\result
+      %\pnum\returns
+      %\pnum\throws
+      %\pnum\complexity $\mathcal{O}(N)$ \\
+      %\pnum\remarks 
+      %\pnum\errors
 \end{itemdescr}
 
 \section{Components}
 \subsection{Articulation Points}
+\phil{Description needed}
 
 \begin{table}[h]
 \setcellgapes{3pt}
@@ -511,6 +539,7 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
      \lstinputlisting[firstline=25,lastline=30]{src/connected_components.hpp}
 }
 \begin{itemdescr}
+      %\pnum\mandates
       \pnum\preconditions
             \begin{itemize}
                   \item
@@ -521,10 +550,16 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
                   \item
                   Output iterator \lstinline{cut_vertices} contains articulation point vertices, those which removed increase the number of components of \lstinline{g}.
             \end{itemize}
-      \pnum\complexity $\mathcal{O}(|E|+|V|)$
+      %\pnum\result
+      %\pnum\returns
+      %\pnum\throws
+      %\pnum\complexity \\
+      %\pnum\remarks 
+      %\pnum\errors
 \end{itemdescr}
 
 \subsection{BiConnected Components}
+\phil{Description needed}
 
 \begin{table}[h]
 \setcellgapes{3pt}
@@ -548,6 +583,7 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
      \lstinputlisting[firstline=34,lastline=40]{src/connected_components.hpp}
 }
 \begin{itemdescr}
+      %\pnum\mandates
       \pnum\preconditions
             \begin{itemize}
                   \item
@@ -558,10 +594,16 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
                   \item
                   \lstinline{components} contains groups of biconnected components.
             \end{itemize}
-      \pnum\complexity $\mathcal{O}(|E|+|V|)$
+      %\pnum\result
+      %\pnum\returns
+      %\pnum\throws
+      %\pnum\complexity \\
+      %\pnum\remarks 
+      %\pnum\errors
 \end{itemdescr}
 
 \subsection{Connected Components}
+\phil{Description needed}
 
 \begin{table}[h]
 \setcellgapes{3pt}
@@ -585,6 +627,7 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
      \lstinputlisting[firstline=45,lastline=49]{src/connected_components.hpp}
 }
 \begin{itemdescr}
+      %\pnum\mandates
       \pnum\preconditions
             \begin{itemize}
                   \item
@@ -595,11 +638,17 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
                   \item
                         \lstinline{component[v]} is the connected component id of \lstinline{v}.
             \end{itemize}
-      \pnum\complexity $\mathcal{O}(|E|+|V|)$
+      %\pnum\result
+      %\pnum\returns
+      %\pnum\throws
+      %\pnum\complexity \\
+      %\pnum\remarks 
+      %\pnum\errors
 \end{itemdescr}
 
 \subsection{Strongly Connected Components}
 \subsubsection{Kosaraju's SCC}
+\phil{Description needed}
 
 \begin{table}[h]
 \setcellgapes{3pt}
@@ -623,6 +672,7 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
       \lstinputlisting[firstline=4, lastline=11]{src/connected_components.hpp}
 }
 \begin{itemdescr}
+      %\pnum\mandates
       \pnum\preconditions
             \begin{itemize}
                   \item
@@ -635,10 +685,16 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
                   \item
                         \lstinline{component[v]} is the strongly connected component id of \lstinline{v}.
             \end{itemize}
-      \pnum\complexity $\mathcal{O}(|E|+|V|)$
+      %\pnum\result
+      %\pnum\returns
+      %\pnum\throws
+      %\pnum\complexity \\
+      %\pnum\remarks 
+      %\pnum\errors
 \end{itemdescr}
 
 \subsubsection{Tarjan's SCC}
+\phil{Description needed}
 
 \begin{table}[h]
 \setcellgapes{3pt}
@@ -662,6 +718,7 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
       \lstinputlisting[firstline=16,lastline=20]{src/connected_components.hpp}
 }
 \begin{itemdescr}
+      %\pnum\mandates
       \pnum\preconditions
             \begin{itemize}
                   \item
@@ -672,11 +729,17 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
                   \item
                         \lstinline{component[v]} is the strongly connected component id of \lstinline{v}.
             \end{itemize}
-      \pnum\complexity $\mathcal{O}(|E|+|V|)$
+      %\pnum\result
+      %\pnum\returns
+      %\pnum\throws
+      %\pnum\complexity \\
+      %\pnum\remarks 
+      %\pnum\errors
 \end{itemdescr}
 
 \section{Directed Acyclic Graphs}
 \subsection{Topological Sort}
+\phil{Description needed} \\
 \phil{Do we need this as an algorithm, in addition to the view? What value does it bring?}
 
 \section{Maximal Independent Set}
@@ -693,7 +756,7 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
             $\mathcal{O}(|E|)$
             }
       & \textbf{Throws?} No & \textbf{Cycles?} No \\
-      & \textbf{Multi-edge?} No & \textbf{Directed?} Yes\\
+      & \textbf{Multi-edge?} No & \textbf{Directed?} No\\
 \hline
 \end{tabular}
 %\caption{Maximal Independent Set Summary}
@@ -704,21 +767,26 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
       \lstinputlisting{src/mis.hpp}
 }
 \begin{itemdescr}
+      %\pnum\mandates
       \pnum\preconditions
-      \begin{itemize}
-            \item
-                  \lstinline{graph} is an \lstinline{adjacency_list}, which is undirected.
-            \item
-                  \lstinline{0 <= seed < num_vertices(graph)}.
-            \item
-                  \lstinline{mis} output iterator can be assigned vertices of type \lstinline{vertex_id_t<G>} when dereferenced.
+            \begin{itemize}
+                  \item
+                        \lstinline{0 <= seed < num_vertices(graph)}.
+                  \item
+                        \lstinline{mis} output iterator can be assigned vertices of type \lstinline{vertex_id_t<G>} when dereferenced.
       \end{itemize}
-      \begin{itemize}
-            \item
-                  \pnum\effects Output iterator \lstinline{mis} contains maximal independent set of vertices containing \lstinline{seed}, 
-                    which is a subset of \lstinline{vertices(graph)}. \\
+      \pnum\effects
+            \begin{itemize}
+                  \item
+                        Output iterator \lstinline{mis} contains maximal independent set of vertices containing \lstinline{seed}, 
+                        which is a subset of \lstinline{vertices(graph)}. \\
       \end{itemize}
-      \pnum\complexity $\mathcal{O}(|E|)$
+      %\pnum\result
+      %\pnum\returns
+      %\pnum\throws
+      %\pnum\complexity \\
+      %\pnum\remarks 
+      %\pnum\errors
 \end{itemdescr}
 
 \section{Link Analysis}
@@ -727,6 +795,7 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
 % It fits better in an example. 08-Nov-2023
 
 \subsection{Jaccard Coefficient}
+\phil{Description needed}
 
 \begin{table}[h]
 \setcellgapes{3pt}
@@ -750,12 +819,11 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
       \lstinputlisting[firstline=4,lastline=6]{src/jaccard.hpp}
 }
 \begin{itemdescr}
+      %\pnum\mandates
       \pnum\preconditions
             \begin{itemize}
                   \item
                   \lstinline{out} is an operator for setting the resulting Jaccard coefficient. This function is expected to be of the form \lstinline{out(vertex_id_t<G> uid, vertex_id_t<G> vid, edge_t<G> uv, T val)}.
-                  \item
-                  \pnum\complexity $\mathcal{O}(|N|^3)$
             \end{itemize}
       \pnum\effects 
             \begin{itemize}
@@ -763,12 +831,19 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
                         For every pair of neighboring vertices \lstinline{(uid, vid)}, the function \lstinline{out} is called, passing the vertex ids, 
                         the edge \lstinline{uv} between them, and the calculated Jaccard coefficient.
             \end{itemize}
+      %\pnum\result
+      %\pnum\returns
+      %\pnum\throws
+      %\pnum\complexity \\
+      %\pnum\remarks 
+      %\pnum\errors
 \end{itemdescr}
 
 \section{Minimum Spanning Tree}
 %\andrew{Simplified ``driver'' for these also?}
 
 \subsection{Kruskal Minimum Spanning Tree}
+\phil{Description needed}
 
 \begin{table}[h]
 \setcellgapes{3pt}
@@ -792,6 +867,7 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
       \lstinputlisting[firstline=4,lastline=8]{src/mst.hpp}
 }
 \begin{itemdescr}
+      %\pnum\mandates
       \pnum\preconditions
             \begin{itemize}
                   \item
@@ -806,10 +882,17 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
                         Edgelist \lstinline{t} contains edges representing a spanning tree or forest, which minimize the comparison operator. 
                         When \lstinline{compare} is \lstinline{<}, \lstinline{t} represents a minimum weight spanning tree.
             \end{itemize}
-      \pnum\complexity $\mathcal{O}(|E|)$
+      %\pnum\result
+      %\pnum\returns
+      %\pnum\throws
+      %\pnum\complexity \\
+      %\pnum\remarks 
+      %\pnum\errors
 \end{itemdescr}
 
 \subsection{Prim Minimum Spanning Tree}
+\phil{Description needed} \\
+\phil{Use general form of dijkstra's shortest path?}
 
 \begin{table}[h]
 \setcellgapes{3pt}
@@ -833,6 +916,19 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
       \lstinputlisting[firstline=13,lastline=29]{src/mst.hpp}
 }
 \begin{itemdescr}
+      %\pnum\mandates
+      %\pnum\preconditions
+      %\pnum\effects
+      %\pnum\result
+      %\pnum\returns
+      %\pnum\throws
+      %\pnum\complexity \\
+      %\pnum\remarks 
+      %\pnum\errors
+\end{itemdescr}
+
+\begin{itemdescr}
+      %\pnum\mandates
       \pnum\preconditions
             \begin{itemize}
                   \item
@@ -849,7 +945,12 @@ I like \tcode{edge_list_graph} or \tcode{edgelist_graph} better.}
                   \item
                         If \lstinline{predecessor} and \lstinline{weight} are not initialized by user, and the graph is not fully connected, \lstinline{predecessor[v]} and \lstinline{weight[v]} will be undefined for vertices not in the same connected component as \lstinline{seed}.
             \end{itemize}
-      \pnum\complexity $\mathcal{O}(|E|log|V|)$
+      %\pnum\result
+      %\pnum\returns
+      %\pnum\throws
+      %\pnum\complexity \\
+      %\pnum\remarks 
+      %\pnum\errors
 \end{itemdescr}
 
 \section{Operators}

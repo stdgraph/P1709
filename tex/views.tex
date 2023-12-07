@@ -170,7 +170,7 @@ and \tcode{value_type} is \tcode{void}.
 \end{center}
 \end{table}
 
-\section{Additional Descriptor Types and Concepts}
+\section{Copyable Descriptors}
 
 \subsection{Copyable Descriptor Types}
 Copyable descriptors are specializations of the descriptors that can be copied. More specifically, they don't include
@@ -378,6 +378,7 @@ Table \ref{tab:dfs} shows the functions and their return values.
 
 While not shown in the examples, all functions have a final, optional allocator parameter that defaults to \tcode{std::allocator<bool>}. It is used for containers that are internal to the view. The \tcode{<bool>} argument has no particular meaning.
 
+\phil{Need "basic" variants that don't include edge reference}
 \begin{table}[h!]
 \begin{center}
 \resizebox{\textwidth}{!}
@@ -406,6 +407,7 @@ Table \ref{tab:bfs} shows the functions and their return values.
 
 While not shown in the examples, all functions have a final, optional allocator parameter that defaults to \tcode{std::allocator<bool>}. It is used for containers that are internal to the view. The \tcode{<bool>} argument has no particular meaning.
 
+\phil{Need "basic" variants that don't include edge reference}
 \begin{table}[h!]
 \begin{center}
 \resizebox{\textwidth}{!}
@@ -434,6 +436,7 @@ Table \ref{tab:topo_sort} shows the functions and their return values.
 
 While not shown in the examples, all functions have a final, optional allocator parameter that defaults to \tcode{std::allocator<bool>}. It is used for containers that are internal to the view. The \tcode{<bool>} argument has no particular meaning.
 
+\phil{Need "basic" variants that don't include edge reference}
 \begin{table}[h!]
 \begin{center}
 \resizebox{\textwidth}{!}
@@ -456,4 +459,4 @@ While not shown in the examples, all functions have a final, optional allocator 
 \end{center}
 \end{table}
 
-\phil{Is Topological Sort a view or an algorithm?}
+\phil{Is Topological Sort a view, an algorithm or both?}

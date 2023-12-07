@@ -14,7 +14,9 @@ The selection of the VId template argument impacts the inter storage requirement
 graph where the number of vertices is less than 256, and the number of edges is less than 256, 
 then a \tcode{uint8_t} would be sufficient.
 
-compressed\_graph supports multipartite graphs.
+compressed\_graph supports multipartite graphs. 
+
+All the \tcode{load} functions are supported, including \tcode{load_graph, load_vertices, load_partition} and \tcode{load_edges}.
 
 \begin{lstlisting}
 template <class    EV     = void,     // Edge Value type
@@ -40,4 +42,4 @@ public:
 
 \phil{Add table capabilities/limitations}
 
-\phil{State that all load\_graph() functions are supported}
+\phil{tilde in destructor is giving problems in latex}

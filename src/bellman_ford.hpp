@@ -1,72 +1,32 @@
-template <edge_list_graph G, property D, property P>
-void bellman_ford_shortest_paths(const G&          graph,
-                                 vertex_id_t<G>    source,
-                                 P&&               predecessors,
-                                 D&&               distances);
+// Concepts and types from std::ranges don't include the namespace prefix for brevity 
+// and clarity of purpose
 
-template <edge_list_graph G, class W, property D, property P, class Compare, class Combine>
-requires weight_function<W, edge_t<G>>
-void bellman_ford_shortest_paths(const G&       graph,
-                                 vertex_id_t<G> source,
-                                 W&&            w,
-                                 D&&            distances,
-                                 P&&            predecessors,
-                                 Compare&&      comp,
-                                 Combine&&      comb);
+template <index_adjacency_list G, 
+          random_access_range  Distance,
+          random_access_range  Predecessor
+          class WF = function<range_value_t<Distance>(edge_reference_t<G>)>>
+requires convertible_to<vertex_id_t<G>, range_value_t<Predecessor>> &&
+         edge_weight_function<G, WF, range_value_t<Distance>>
+void bellman_ford_shortest_paths(
+      const G&       graph, 
+      vertex_id_t<G> source, 
+      Distance&      distances, 
+      Predecessor&   predecessors = null_predecessors, 
+      WF&& w = [](edge_reference_t<G> uv) { return range_value_t<Distance>(1); });
 
-template <edge_list_graph G, class W, property D, property P>
-requires weight_function<W, edge_t<G>>
-void bellman_ford_shortest_paths(const G&          graph,
-                                 vertex_id_t<G>    source,
-                                 W&&               w,
-                                 D&&               distances,
-                                 P&&               predecessors);
-
-template <edge_list_graph G,
-          class W,
-          property D,
-          property P,
-          class Compare,
-          class Combine>
-requires weight_function<W, edge_t<G>>
-void bellman_ford_shortest_paths(const G&          graph,
-                                 vertex_id_t<G>    source,
-                                 W&&               w,
-                                 D&&               distances,
-                                 P&&               predecessors,
-                                 Compare&&         comp,
-                                 Combine&&         comb);
-
-template <edge_list_graph G, property D>
-void bellman_ford_shortest_distances(const G&          graph,
-                                     vertex_id_t<G>    source,
-                                     D&&               distances);
-
-template <edge_list_graph G, class W, property D, class Compare, class Combine>
-requires weight_function<W, edge_t<G>>
-void bellman_ford_shortest_distances(const G&       graph,
-                                     vertex_id_t<G> source,
-                                     W&&            w,
-                                     D&&            distances,
-                                     Compare&&      comp,
-                                     Combine&&      comb);
-
-template <edge_list_graph G, class W, property D>
-requires weight_function<W, edge_t<G>>
-void bellman_ford_shortest_distances(const G&       graph, 
-                                     vertex_id_t<G> source, 
-                                     W&&            w, 
-                                     D&&            distances);
-
-template <edge_list_graph G,
-          class W,
-          property D,
-          class Compare,
-          class Combine>
-requires weight_function<W, edge_t<G>>
-void bellman_ford_shortest_distances(const G&          graph,
-                                     vertex_id_t<G>    source,
-                                     W&&               w,
-                                     D&&               distances,
-                                     Compare&&         comp,
-                                     Combine&&         comb);
+template <index_adjacency_list G, 
+          random_access_range  Distance,
+          random_access_range  Predecessor,
+          class                Compare, 
+          class                Combine,
+          class WF = function<range_value_t<Distance>(edge_reference_t<G>)>>
+requires convertible_to<vertex_id_t<G>, range_value_t<Predecessor>> &&
+         basic_edge_weight_function<G, WF, range_value_t<Distance>, Compare, Combine>
+void bellman_ford_shortest_paths(
+      const G&       graph, 
+      vertex_id_t<G> source, 
+      Compare&&      compare,
+      Combine&&      combare,
+      Distance&      distances, 
+      Predecessor&   predecessors = null_predecessors, 
+      WF&& w = [](edge_reference_t<G> uv) { return range_value_t<Distance>(1); });
