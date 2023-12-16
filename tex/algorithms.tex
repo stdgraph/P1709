@@ -345,6 +345,8 @@ Compute the shortest path and associated distance from vertex \tcode{source} to 
       \lstinputlisting{src/bellman_ford.hpp}
 }
 
+\phil{Should negative weight cycles be a pre-condition, or should it be detected with an exception thrown when it exists?}
+
 \begin{itemdescr}
       %\pnum\mandates
       \pnum\preconditions
@@ -953,6 +955,7 @@ Compute the shortest path and associated distance from vertex \tcode{source} to 
       %\pnum\errors
 \end{itemdescr}
 
+\begin{comment}
 \section{Operators}
 \subsection{Degree}
 
@@ -967,6 +970,7 @@ Compute the shortest path and associated distance from vertex \tcode{source} to 
 
 
 \andrew{I've used NetworkX as inspiration for organization.  Oddly, NetworkX only has DFS as an adaptor (view).}
+\end{comment}
 
 
 \chapter{Other Algorithms}

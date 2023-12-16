@@ -11,7 +11,7 @@ The following examples show the general design and how it's used. While it focus
 on vertexlist to iterate over all vertices, it applies to all descriptors and view functions.
 
 \begin{lstlisting}
-// the type of uu is vertex\_view<vertex\_id\_t<G>, vertex\_reference\_t<G>, void>
+// the type of uu is vertex\_descriptor<vertex\_id\_t<G>, vertex\_reference\_t<G>, void>
 for(auto&& uu : vertexlist(g)) {
   vertex_id<G>          id = uu.id;
   vertex_reference_t<G> u  = uu.vertex;
@@ -29,16 +29,16 @@ for(auto&& [id, u] : vertexlist(g)) {
 A function object can also be passed to return a value from the vertex. In this case, \tcode{vertexlist(g)} returns \tcode{vertex_descriptor<vertex_id_t<G>, vertex_reference_t<G>, decltype(vvf(u))>}.
 \begin{lstlisting}
 // the type returned by vertexlist is 
-// vertex\_view<vertex\_id\_t<G>, 
-//             vertex\_reference\_t<G>, 
-//             decltype(vvf(vertex\_reference\_t<G>))>
+// vertex\_descriptor<vertex\_id\_t<G>, 
+//                    vertex\_reference\_t<G>, 
+//                    decltype(vvf(vertex\_reference\_t<G>))>
 auto vvf = [&g](vertex_reference_t<G> u) { return vertex_value(g,u); };
 for(auto&& [id, u, value] : vertexlist(g, vvf)) {
   // ... do something interesting
 }
 \end{lstlisting}
 
-A simpler version also exists if all you need is a vertex id.The vertex value function takes a vertex id
+A simpler version also exists if all you need is a vertex id. The vertex value function takes a vertex id
 instead of a vertex reference.
 \begin{lstlisting}
 for(auto&& [uid] : basic_vertexlist(g)) {
@@ -46,7 +46,7 @@ for(auto&& [uid] : basic_vertexlist(g)) {
 }
 
 auto vvf = [&g](vertex_id_t<G> uid) { return vertex_value(g,uid); };
-for(auto&& [uid] : basic_vertexlist(g,vvf)) {
+for(auto&& [uid, value] : basic_vertexlist(g,vvf)) {
   // ... do something interesting
 }
 \end{lstlisting}
@@ -84,6 +84,7 @@ has two members \tcode{\{id_type id; vertex_type vertex;\}} and \tcode{value_typ
 \end{table}
 
 A useful type alias for copying vertex values (excluding the vertex reference) is also available.
+\phil{Duplicate; remove}
 \begin{lstlisting}
 template <class VId, class VV>
 using copyable_vertex_t = vertex_descriptor<VId, void, VV>; // {id, value}
@@ -128,6 +129,7 @@ and \tcode{value_type} is \tcode{void}.
 \end{table}
 
 A useful type alias for copying edge values (excluding the edge reference) is also available.
+\phil{Duplicate; remove}
 \begin{lstlisting}
 template <class VId, class EV>
 using copyable_edge_t = edge_descriptor<VId, true, void, EV>; // source\_id,target\_id[,value]
@@ -220,6 +222,8 @@ Given the copyable types, it's useful to have concepts to determine if a type is
 
 
 \section{Common Types and Functions for ``Search'' }
+\phil{Do these apply to all "search" functions?}
+
 The depth\_first\_search, breadth\_first\_search, and toplogical\_sort searches there are a number of common types and functions that apply to them. 
 
 Here are the types and functions for cancelling a search, getting the current depth of the search, and active elements in the search (e.g. number of vertices in a stack or queue).

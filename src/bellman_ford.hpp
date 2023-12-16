@@ -26,7 +26,7 @@ void bellman_ford_shortest_paths(
       const G&       graph, 
       vertex_id_t<G> source, 
       Compare&&      compare,
-      Combine&&      combare,
+      Combine&&      combine,
       Distance&      distances, 
       Predecessor&   predecessors = null_predecessors, 
       WF&& w = [](edge_reference_t<G> uv) { return range_value_t<Distance>(1); });
