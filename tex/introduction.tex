@@ -97,25 +97,20 @@ Cormen, Leiserson, Rivest, and Stein (``CLRS'')~\cite{CLRS2022}.
 
 \subsection{Theoretical Terminology}
 
-A \emph{graph} $G$ is a set comprised of two other sets, the vertex set $V$ and the edge set $E$,
-typically expressed as $G=\{V,E\}$. We can number the members of the vertex set
-and write $V = \{ v_0, v_1, \ldots , v_{n-1} \}$. Similarly, we can write $E = \{ e_0, e_1, \ldots, e_{m-1} \}$. The number of elements in $V$ is denoted by $|V|$ and the number of elements in $E$ is denoted by $|E|$. Edges in $E$ are pairs of vertices; for any $e_k \in E$, we write $e_k = ( v_i, v_j )$, where $v_i \in V$ and $v_j\in V$. The edges in $E$ may be \emph{unordered}, in which case $(v_i, v_j) = (v_j, v_i)$ or \emph{ordered}, in which case $(v_i, v_j) \neq (v_j, v_i)$ (unless $i = j$).
-A graph consisting of unordered edges is said to be \emph{undirected};
-a graph consisting of ordered edges is said to be \emph{directed}.
-Since there is a single set of vertices in this definition of $G$, that is, edges connect
-vertices in $V$ to vertices in $V$, we say that
-$G$ is a \emph{unipartite} graph.
-If the graph further has no loops (edges connecting a vertex to itself)
-and no multiple edges (edges connecting the same pair of vertices),
-then $G$ is called a \emph{simple} graph.
-A \emph{complete graph} is a simple graph $G$ where every vertex is connected
-to every other vertex; a complete graph has
-$n$ vertices and $n(n-1)/2$ edges.
-A \emph{path} is a sequence of vertices $v_0, v_1, \ldots, v_{k-1}$ such that
-there is an edge from $v_0$ to $v_1$, an edge from $v_1$ to $v_2$, and so on.
-That is, a path is a set of edges $(v_i, v_{i+1}) \in E$ for all $i = 0, 1, \ldots, k-2$.
+To model the relationships between entities, a \emph{graph} $G$ comprises two sets:
+a \emph{vertex set} $V$, whose elements correspond to the entities, and an \emph{edge set} $E$, whose
+elements are pairs corresponding to elements in $V$ that have some relationship with each other.  That is,
+if $u$ and $v$ are members of $V$ that have some relationship that we wish to capture, then there is
+a pair $\{u, v\}$ in $E$.
 
-Graphs are often deipicted as a collection of nodes and links, as shown in
+To reason about graphs, and to write algorithms for them, we require a \emph{representation} of the graph.
+We note that \emph{a graph and its representation are not the same thing}.  It is therefore essential
+that we be precise about this distinction as we develop a software library of graph
+algorithms and data structures\footnote{In fact, if we are to be completely precise, the library we are
+proposing is one of algorithms and data structures for graph representations.  We will make concessions
+to commonly accepted terminology, while precisely defining that terminology.}.
+
+Graphs are often depicted as a collection of nodes and links, as shown in
 Figure~\ref{fig:node_link_graphs}. In this model, vertices are
 represented graphically as nodes, which are
 shown as circles (or some other shape, including points). Edges are represented as links,
@@ -132,74 +127,166 @@ shown as lines connecting the nodes.
   \end{center}
 \end{figure}
 
-Associated with every $v_i \in V$ is the integer $i$. We call $i$ the \emph{index}
-(or the \emph{vertex identifier}) of $v_i$. The index of a vertex is a unique
-identifier for that vertex. The index of a vertex is not necessarily the same
-as the position of the vertex in the vertex set $V$. For example, in the graph
-$G = \{ \{ 0, 1, 2, 3 \}, \{ (0, 1), (1, 2), (2, 3) \} \}$, the vertex $v_0$ has index 0,
-$v_1$ has index 1, $v_2$ has index 2, and $v_3$ has index 3. In the literature,
-a vertex and its index are often used interchangeably.
 
-\andrew{A separate proposal for this?  However, the Kevin Bacon example requires bipartite graphs.
-  I also have questions about bipartiteness (or labeling in general) at every talk I give about
-C++ graph libraries.}
+\subsection{Enumerating the Vertices}
 
-\phil{I don't think we need a separate proposal. I've added the types and functions I think we
-need for multipartite graphs and the compressed\_graph can be extended to support it.}
+The representations that we will be using are familiar ones: adjacency matrix, edge list, and adjacency list.
+We begin with a process that is so standard that we typically don't even notice it, but it forms
+the foundation of graph representations: we \emph{enumerate the vertices.}  That is, we assign an
+index to each element of $V$ and write $V = \{v_0, v_1, \ldots v_{n-1}\}$.  Given that enumeration,
+elements of $E$ are expressed in the form $\{v_i, v_j\}$.  Similarly, we can enumerate the edges, and write  
+$E = \{ e_0, e_1, \ldots e_{m-1}\}$, though the enumeration of $E$ does not play a role in our
+representation of graphs.
+%
+The number of elements in $V$ is denoted by $|V|$ and the number of elements in $E$ is denoted by $|E|$.
 
-A \emph{bipartite graph} is a graph $G$ with two disjoint sets of
-vertices $U$ and $V$ such that every edge in $E$ connects a vertex
-in $U$ to a vertex in $V$. A bipartite graph is useful for modeling
-connections between two different types of objects. For example,
-a bipartite graph can be used to model connections between
-actors and movies that they have appeared in. To obtain
-an actor-actor co-star graph from an actor-movie graph, we
-perform a \emph{join} operation on the graph and its \emph{transpose}, which is
-the graph connecting movies to actors, that is the graph with the same
-vertices as the original graph but with edge directions reversed, i.e., a graph
-connecting movies to actors (see Figure~\ref{fig:movie_actor}).
+We summarize some remaining terminology about vertices and edges.
+\begin{itemize}
+\item 
+An edge $e_k$ may  be \emph{directed} denoted as $e_k=(v_i, v_j)$, or it may be
+  \emph{undirected}, denoted as $e_k=\{v_i, v_j\}$.  The edges 
+in $E$ are either all directed or all undirected,
+  corresponding respectively to a \emph{directed graph} or to an \emph{undirected} graph.
+\item 
+If the edge set $E$ of a directed graph contains an edge $e_k = (v_i,v_j)$, then
+  vertex $v_j$ is said to be \emph{adjacent} to vertex $v_i$.  The edge $e_k$ is an
+  \emph{out-edge} of vertex $v_i$ and an in-edge of vertex $v_j$.  Vertex $v_i$ is the \emph{source} of
+  edge $e_k$, while $v_j$ is the \emph{target} of edge $e_k$.
+\item
+\item If the edge set $E$ of an undirected graph contains an edge $e_k = \{v_i,v_j\}$, then
+  $e_k$ is said to be \emph{incident} on the vertices $v_i$ and $v_j$.
+  Moreover, vertex $v_j$ is adjacent to vertex $v_i$
+  \emph{and} vertex $v_i$ is adjacent to vertex $v_j$.
+  The edge $e_k$ is an out-edge of both $v_i$ and $v_j$ and it is an in-edge of both $v_i$ and $v_j$.
+\item The \emph{neighbors} of a vertex $v_i$ are all the vertices $v_j$ adjacent to $v_i$.
+\end{itemize}
 
-\begin{figure}[ht]
-  \begin{center}
-    \includegraphics[width=0.25\textwidth]{movie_actor.pdf}\label{fig:movie_actor}
-    \caption{A movie-actor graph. The links indicate that an actor has appeared in a movie.\label{fig:movie_actor}}
-  \end{center}
-\end{figure}
 
-\subsection{Adjacency List}
+\subsection{Adjacency-Based Representations}
 
-An \emph{adjacency list} of $G$ is a data structure that represents a graph $G$ as an array
-indexed by the vertex indices of the vertices of $G$.
-The adjacency list of $G$ is denoted as $Adj(G)$.
-For each vertex $v_i \in G$, the array entry $Adj(G)[i]$ is a list of
-vertex indices of the vertices adjacent to $v_i$.
-The adjacency list is the most common representation of a graph in the graph literature
-and is used in the majority of graph algorithms as it has the important
-property for traversal that (in the case of a unipartite graph)
-an index $j$ stored neighbor list $Adj(G)[i]$ can
-be used to index back into $Adj(G)$. In this formulation, the adjacency list
-does not store vertices per se (rather, it stores vertex indices), it captures the
-structure of the graph. This structure is the essence of the graph abstraction and
-is the essential information needed for graph algorithms.
-Even so, it is still possible to store vertex data in the adjacency list by storing
-the vertex data in an auxiliary array indexed by vertex indices.
+We begin our development of graph representations
+with the almost universally-accepted definition of the
+\emph{adjacency matrix} representation of a graph.
+%
+The \emph{adjacency matrix representation} of a graph $G$ is a $|V|\times |V|$ matrix $A = (a_{ij})$ such that,
+respectively for a directed or undirected graph
+\[
+ a_{i j} = 
+ \left\{
+ \begin{array}{rl}
+  1 & \textrm{if } (v_i, v_j) \in E \\
+  0 & \textrm { otherwise }
+ \end{array}
+ \right.
+ \qquad\qquad
+ a_{i j} = a_{ji} =
+ \left\{
+ \begin{array}{rl}
+  1 & \textrm{if } (v_i, v_j) \in E \\ 
+  0 & \textrm { otherwise }
+ \end{array}
+ \right.
+\]
+That is, $a_{ij} = 1$ if and only if $v_j$ is adjacent to $v_i$ in the original graph $G$ (hence the name ``adjacency matrix``).
+%
+Here we can see why we said that the initial enumeration of $V$ foundational to representations:  \emph{The adjacency
+matrix is based solely on the indices used in that enumeration}.
 
-\subsection{Edge List}
+As a data structure to use for algorithms, the adjacency matrix is not very efficient. Instead of storing the entire
+adjacency matrix, we can simply store the index values of its non-zero elements.  A \emph{sparse coordinate adjacency
+matrix} is a container $C$ of pairs $(i, j)$ for every $a_{ij}$ in $A$.
+%
+At first glance, it may seem that we have simply created a data structure $C$ that has a pair $(i,j)$ if $E$ in the
+original graph has an edge from $v_i$ to $v_j$.  This is true in the directed case.  However, in the undirected case,
+if there is an edge between $v_i$ and $v_j$, then $v_i$ is adjacent to $v_j$ and $v_j$ is adjacent to $v_i$.  In other
+words, if there is an edge between $v_i$ and  $v_j$ in an undirected graph, then both the entries $a_{ij}$ and $a_{ji}$
+are equal to $1$\footnote{That is, the adjacency matrix is symmetric.} 
+--- and therefore for a single edge between $v_i$ and $v_j$,  $C$ contains two index pairs: $(i, j)$ 
+and $(j, i)$.  
+The sparse coordinate representation is commonly known as \emph{edge list}.  However, we caution the reader that
+it does not store edges, but rather indices and that, in the case that it represents an undirected graph, there
+is not a 1-1 correspondence betwee the edges in $E$ and the contents of $C$.
 
-An \emph{edge list} of $G$ is a data structure that contains the edges of $G$. More precisely, as
-with the adjacency list structure, the edge list stores pairs of vertex indices. That is, for
-every $(v_i, v_j) \in E$, the edge list contains the pair $(i, j)$. The edge list is
-a less common representation of a graph than the adjacency list, but it is useful for
-some graph algorithms. Moreover, it is a natural intermediate representation for
-converting between data that has not yet been interpreted as a graph, e.g., a table,
-and an adjacency list. Moreover, certain tasks, such as sorting or relabeling vertices, are
-more natural to express in terms of the edge list.
 
-% \subsection{Adjacency Matrix}
+Although the sparse coordinate adjacency matrix is much more efficient in terms of storage than the original adjacency
+matrix, it isn't as efficient as it could be.  Much more importantly, it does not at all useful for the types of
+operations used by most graph algorithms, which need to be able to get the set of neighbors of a given vertex in
+constant time.  To support this type of operation, we use a 
+\emph{compressed sparse adjacency matrix}, which 
+is an array $J$ with $|V|$ entries, where each $J[i]$ is a linear container of indices $\{ j \}$ such that $v_j$ is a neighbor of $v_i$ in $G$.  That is $j$ is contained in $J[i]$ if and only if there is an edge $(v_i, v_j)$ in $E$ (or, equivalently, if there is a pair $(i, j)$ in $C$ or, equivalently, if $a_{ij} = 1$)\footnote{The compressed sparse adjacency matrix is identical to the compressed sparse row format from linear algebra}.  We note that if $(v_i, v_j)$ is an edge in an undirected
+graph, $J[i]$ will contain $j$ and $J[j]$ will contain $i$.
+The common name for this data structure is
+\emph{adjacency list}.  Although this name is problematic (for instance, it is not actually a list), 
+it is so widely-used that we also use it here---but \emph{we take ``adjacency list'' to mean the compressed sparse
+adjacency matrix representation of a graph}\footnote{We concede that ``adjacency list'' rolls off the tongue much more
+easily than ``compressed sparse matrix representation of a graph.''}.  Again we emphasize the distinction between
+a graph and its representation:  an adjacency list is not a graph---it is a representation of a graph.
 
-% \andrew{Is this useful? Should it be included in std::graph?
-% I personally don't think it is very useful, but the committee may disagree
-% since it is often used in the literature (typically introductory).}
+
+\andrew{Where should this go?}
+Finally, we define a \emph{path} as a sequence of vertices $v_0, v_1, \ldots, v_{k-1}$ such that
+there is an edge from $v_0$ to $v_1$, an edge from $v_1$ to $v_2$, and so on.
+That is, a path is a set of edges $(v_i, v_{i+1}) \in E$ for all $i = 0, 1, \ldots, k-2$.
+
+
+
+\section{MultiPartite Graphs}
+
+\phil{Need to reword to accomodate multipartite graphs}
+So far, we have been considering graphs where the vertices are in a single set $V$
+and the edges are pairs of elements from $V$.  
+%
+% We refer to such a graph as a \emph{unipartite} graph.
+%
+But consider again the Kevin Bacon example.  The source for the information comprising the
+Kevin Bacon data is the Internet Movie Database (IMDB).  However, the IMDB does not contain
+the relationships between actors.  Rather it contains files of tabular data, one of which
+contains an entry for each movie with the list of actors that have appeared in that movie,
+and one of which contains an entry for each actor with the list of movies that actor has
+appeared in (``movie-actor'' and ``actor-movie'' tables, respectively).
+
+A graph, as we have previously defined it, cannot model the IMDB.  The relationships
+contained in the data are between actors and movies.
+
+
+
+, and both elements of an
+edge, are members of a single set $|V|$. A graph with a single vertex set is called a
+\emph{unipartite} graph. If the vertices in a graph can be partitioned into two
+disjoint sets such that all of the edges in the graph only connect vertices from one
+set of the vertices of the other set, the graph is called a \emph{bipartite} graph.
+\andrew{Set membership == vertex label.  How many labels can a vertex have?  How many sets can a vertex belong to?}
+
+Even if a graph is designated to be unipartite, it may be the case that its vertices
+can be partitioned into two disjont sets. In such a case, the graph is bipartite,
+but as a run-time property, not a compile-time property.
+That is, determining whether a given graph is bipartite requires a run-time analysis
+of the graph, with an appropriate algorithm.
+
+However, there are numerous cases of interest where the vertices of a graph fall
+naturally into two disjoint sets. For example, in the
+in a social network, the vertices
+represent people and the edges represent friendships. In such a case, it is natural
+Of particular interest for realizing a bipartite graph is when the graph is
+structurally bipartite, that is, when we are explicitly given two different
+sets of vertices and the corresponding set of edges that connect vertices of the two sets.
+This common---and important---use case arises when modeling relationships
+between different types of entities. For example, we might use a structurally
+bipartite graph in which one vertex set represents customers and another vertex
+set represents products. An edge between a customer and a product would be used
+to indicate that a customer has purchased a particular product.
+Another such example is from the Kevin Bacon game above, where
+one set represents actors and the other set represents movies; edges represent whether
+and actor appeared in a movie. Thus edges only connect vertices from the set of actors
+to the set of movies.
+
+We can refer to graphs of this form as \emph{structurally bipartite} graphs and
+denote them as $G = (U, V, E)$, where the vertex sets $U$ and $V$ are disjoint.
+
+\subsection{BiPartite Graph Models}
+
+\subsection{BiPartite Graph Implementations}
+
 
 
 \section{From Data to Graph}
@@ -325,45 +412,6 @@ edge list as argument.}
 % \andrew{Using a sort and group-by (or a sort, a run-length encoding, and a scan), we can compactify the edge-list reprentation and at the same time obtain an adjacency-list representation -- one that is memory and compute efficient.  Best of both worlds.  Has same basic structural principles as CSR / CSC matrices in linear algebra -- but much more general.}
 
 
-\section{BiPartite Graphs}
-
-\phil{Need to reword to accomodate multipartite graphs}
-So far, we have been considering graphs where the vertices, and both elements of an
-edge, are members of a single set $|V|$. A graph with a single vertex set is called a
-\emph{unipartite} graph. If the vertices in a graph can be partitioned into two
-disjoint sets such that all of the edges in the graph only connect vertices from one
-set of the vertices of the other set, the graph is called a \emph{bipartite} graph.
-\andrew{Set membership == vertex label.  How many labels can a vertex have?  How many sets can a vertex belong to?}
-
-Even if a graph is designated to be unipartite, it may be the case that its vertices
-can be partitioned into two disjont sets. In such a case, the graph is bipartite,
-but as a run-time property, not a compile-time property.
-That is, determining whether a given graph is bipartite requires a run-time analysis
-of the graph, with an appropriate algorithm.
-
-However, there are numerous cases of interest where the vertices of a graph fall
-naturally into two disjoint sets. For example, in the
-in a social network, the vertices
-represent people and the edges represent friendships. In such a case, it is natural
-Of particular interest for realizing a bipartite graph is when the graph is
-structurally bipartite, that is, when we are explicitly given two different
-sets of vertices and the corresponding set of edges that connect vertices of the two sets.
-This common---and important---use case arises when modeling relationships
-between different types of entities. For example, we might use a structurally
-bipartite graph in which one vertex set represents customers and another vertex
-set represents products. An edge between a customer and a product would be used
-to indicate that a customer has purchased a particular product.
-Another such example is from the Kevin Bacon game above, where
-one set represents actors and the other set represents movies; edges represent whether
-and actor appeared in a movie. Thus edges only connect vertices from the set of actors
-to the set of movies.
-
-We can refer to graphs of this form as \emph{structurally bipartite} graphs and
-denote them as $G = (U, V, E)$, where the vertex sets $U$ and $V$ are disjoint.
-
-\subsection{BiPartite Graph Models}
-
-\subsection{BiPartite Graph Implementations}
 
 \section{Naming Conventions}
 
