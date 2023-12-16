@@ -60,13 +60,15 @@ Since Kevin Bacon appeared with Tom Cruise in ``A Few Good Men'', Tom Cruise has
 
 The following program computes the Bacon number for a small selection of actors.
 
-\phil{Duplicated in Overview's Examples}
+% \phil{Duplicated in Overview's Examples}
 {\small
   \lstinputlisting[firstline=26,lastline=49]{src/bacon.cpp}
 }
 
-  Output:
-  { \small
+
+\noindent
+Output:
+\begin{lstlisting}
 Tom Cruise has Bacon number 1
 Kevin Bacon has Bacon number 0
 Hugo Weaving has Bacon number 3
@@ -80,22 +82,25 @@ Mila Kunis has Bacon number 3
 Michelle Pfeiffer has Bacon number 1
 Keanu Reeves has Bacon number 4
 Julia Roberts has Bacon number 1    
-    }
+\end{lstlisting}  
+
 
 In graph parlance, we are creating a graph where the vertices are actors and the edges are movies.
 The number of movies that connect an actor to Kevin Bacon is the shortest path in the graph
 from Kevin Bacon to that actor. In the example above, we compute shortest paths from Kevin
 Bacon to all other actors and print the results.
+Note, however, that actor-actor relationships are not how data about actors
+is available in the wild (from IMDB, for example).  Rather, two types of  relationships available are actor-movie and movie-actor.  See Section~\ref{sec:multipartite} below.
 
 
-\section{Graph Background and Terminology}
+\section{Graph Background} %  and Terminology}
 
 For clarity, we briefly review some of the basic terminology of graphs.
 We use commonly accepted terminology for graph data structures and algorithms and
 adopt the particular terminology used in the textbook by
 Cormen, Leiserson, Rivest, and Stein (``CLRS'')~\cite{CLRS2022}.
 
-\subsection{Theoretical Terminology}
+\subsection{Basic Terminology}
 
 To model the relationships between entities, a \emph{graph} $G$ comprises two sets:
 a \emph{vertex set} $V$, whose elements correspond to the entities, and an \emph{edge set} $E$, whose
@@ -135,16 +140,16 @@ We begin with a process that is so standard that we typically don't even notice 
 the foundation of graph representations: we \emph{enumerate the vertices.}  That is, we assign an
 index to each element of $V$ and write $V = \{v_0, v_1, \ldots v_{n-1}\}$.  Given that enumeration,
 elements of $E$ are expressed in the form $\{v_i, v_j\}$.  Similarly, we can enumerate the edges, and write  
-$E = \{ e_0, e_1, \ldots e_{m-1}\}$, though the enumeration of $E$ does not play a role in our
-representation of graphs.
+$E = \{ e_0, e_1, \ldots e_{m-1}\}$, though the enumeration of $E$ does not play a role in standard
+representations of graphs.
 %
 The number of elements in $V$ is denoted by $|V|$ and the number of elements in $E$ is denoted by $|E|$.
 
 We summarize some remaining terminology about vertices and edges.
 \begin{itemize}
 \item 
-An edge $e_k$ may  be \emph{directed} denoted as $e_k=(v_i, v_j)$, or it may be
-  \emph{undirected}, denoted as $e_k=\{v_i, v_j\}$.  The edges 
+An edge $e_k$ may  be \emph{directed} denoted as the ordered pair $e_k=(v_i, v_j)$, or it may be
+  \emph{undirected}, denoted as the (unordered) set $e_k=\{v_i, v_j\}$.  The edges 
 in $E$ are either all directed or all undirected,
   corresponding respectively to a \emph{directed graph} or to an \emph{undirected} graph.
 \item 
@@ -152,21 +157,22 @@ If the edge set $E$ of a directed graph contains an edge $e_k = (v_i,v_j)$, then
   vertex $v_j$ is said to be \emph{adjacent} to vertex $v_i$.  The edge $e_k$ is an
   \emph{out-edge} of vertex $v_i$ and an in-edge of vertex $v_j$.  Vertex $v_i$ is the \emph{source} of
   edge $e_k$, while $v_j$ is the \emph{target} of edge $e_k$.
-\item
 \item If the edge set $E$ of an undirected graph contains an edge $e_k = \{v_i,v_j\}$, then
   $e_k$ is said to be \emph{incident} on the vertices $v_i$ and $v_j$.
   Moreover, vertex $v_j$ is adjacent to vertex $v_i$
   \emph{and} vertex $v_i$ is adjacent to vertex $v_j$.
   The edge $e_k$ is an out-edge of both $v_i$ and $v_j$ and it is an in-edge of both $v_i$ and $v_j$.
-\item The \emph{neighbors} of a vertex $v_i$ are all the vertices $v_j$ adjacent to $v_i$.
+\item The \emph{neighbors} of a vertex $v_i$ are all the vertices $v_j$ that are adjacent to $v_i$.  The set of all of the neighbors is the \emph{neighborhood} of $v_i$.
+\item A \emph{path} as a sequence of vertices $v_0, v_1, \ldots, v_{k-1}$ such that
+there is an edge from $v_0$ to $v_1$, an edge from $v_1$ to $v_2$, and so on.
+That is, a path is a set of edges $(v_i, v_{i+1}) \in E$ for  $i = 0, 1, \ldots, k-2$.
 \end{itemize}
-
 
 \subsection{Adjacency-Based Representations}
 
 We begin our development of graph representations
 with the almost universally-accepted definition of the
-\emph{adjacency matrix} representation of a graph.
+adjacency matrix representation of a graph.
 %
 The \emph{adjacency matrix representation} of a graph $G$ is a $|V|\times |V|$ matrix $A = (a_{ij})$ such that,
 respectively for a directed or undirected graph
@@ -189,48 +195,31 @@ respectively for a directed or undirected graph
 \]
 That is, $a_{ij} = 1$ if and only if $v_j$ is adjacent to $v_i$ in the original graph $G$ (hence the name ``adjacency matrix``).
 %
-Here we can see why we said that the initial enumeration of $V$ foundational to representations:  \emph{The adjacency
-matrix is based solely on the indices used in that enumeration}.
+Here we can see why we said that the initial enumeration of $V$ foundational to representations:  \emph{The adjacency matrix is based solely on the indices used in that enumeration}.  It does not contain the vertices or edges themselves.
 
-As a data structure to use for algorithms, the adjacency matrix is not very efficient. Instead of storing the entire
+As a data structure to use for algorithms, the adjacency matrix is not very efficient, neither in terms of storage (which, at $|V|\times |V|$ is prohibitive), nor for computation. Instead of storing the entire
 adjacency matrix, we can simply store the index values of its non-zero elements.  A \emph{sparse coordinate adjacency
 matrix} is a container $C$ of pairs $(i, j)$ for every $a_{ij}$ in $A$.
 %
 At first glance, it may seem that we have simply created a data structure $C$ that has a pair $(i,j)$ if $E$ in the
-original graph has an edge from $v_i$ to $v_j$.  This is true in the directed case.  However, in the undirected case,
-if there is an edge between $v_i$ and $v_j$, then $v_i$ is adjacent to $v_j$ and $v_j$ is adjacent to $v_i$.  In other
-words, if there is an edge between $v_i$ and  $v_j$ in an undirected graph, then both the entries $a_{ij}$ and $a_{ji}$
-are equal to $1$\footnote{That is, the adjacency matrix is symmetric.} 
---- and therefore for a single edge between $v_i$ and $v_j$,  $C$ contains two index pairs: $(i, j)$ 
-and $(j, i)$.  
-The sparse coordinate representation is commonly known as \emph{edge list}.  However, we caution the reader that
-it does not store edges, but rather indices and that, in the case that it represents an undirected graph, there
-is not a 1-1 correspondence betwee the edges in $E$ and the contents of $C$.
+original graph has an edge from $v_i$ to $v_j$.  This is true in the directed case.  However, in the undirected case, if there is an edge between $v_i$ and $v_j$, then $v_i$ is adjacent to $v_j$ and $v_j$ is adjacent to $v_i$.  In other words, if there is an edge between $v_i$ and  $v_j$ in an undirected graph, then both the entries $a_{ij}$ and $a_{ji}$ are equal to $1$\footnote{That is, the adjacency matrix is symmetric.} --- and therefore for a single edge between $v_i$ and $v_j$,  $C$ contains two index pairs: $(i, j)$  and $(j, i)$.   The sparse coordinate representation is commonly known as \emph{edge list}.  However, we caution the reader that $C$ does not store edges, but rather indices and that, in the case that it represents an undirected graph, there is not a 1-1 correspondence between the edges in $E$ and the contents of $C$.
 
-
-Although the sparse coordinate adjacency matrix is much more efficient in terms of storage than the original adjacency
-matrix, it isn't as efficient as it could be.  Much more importantly, it does not at all useful for the types of
-operations used by most graph algorithms, which need to be able to get the set of neighbors of a given vertex in
-constant time.  To support this type of operation, we use a 
-\emph{compressed sparse adjacency matrix}, which 
-is an array $J$ with $|V|$ entries, where each $J[i]$ is a linear container of indices $\{ j \}$ such that $v_j$ is a neighbor of $v_i$ in $G$.  That is $j$ is contained in $J[i]$ if and only if there is an edge $(v_i, v_j)$ in $E$ (or, equivalently, if there is a pair $(i, j)$ in $C$ or, equivalently, if $a_{ij} = 1$)\footnote{The compressed sparse adjacency matrix is identical to the compressed sparse row format from linear algebra}.  We note that if $(v_i, v_j)$ is an edge in an undirected
-graph, $J[i]$ will contain $j$ and $J[j]$ will contain $i$.
-The common name for this data structure is
-\emph{adjacency list}.  Although this name is problematic (for instance, it is not actually a list), 
-it is so widely-used that we also use it here---but \emph{we take ``adjacency list'' to mean the compressed sparse
-adjacency matrix representation of a graph}\footnote{We concede that ``adjacency list'' rolls off the tongue much more
-easily than ``compressed sparse matrix representation of a graph.''}.  Again we emphasize the distinction between
-a graph and its representation:  an adjacency list is not a graph---it is a representation of a graph.
-
-
-\andrew{Where should this go?}
-Finally, we define a \emph{path} as a sequence of vertices $v_0, v_1, \ldots, v_{k-1}$ such that
-there is an edge from $v_0$ to $v_1$, an edge from $v_1$ to $v_2$, and so on.
-That is, a path is a set of edges $(v_i, v_{i+1}) \in E$ for all $i = 0, 1, \ldots, k-2$.
-
+Although the sparse coordinate adjacency matrix is much more efficient in terms of storage than the original adjacency matrix, it isn't as efficient as it could be.  
+Much more importantly, it does not at all useful for the types of operations used by most graph algorithms, which need to be able to get the set of neighbors of a given vertex in constant time.  
+To support this type of operation, we use a \emph{compressed sparse adjacency matrix}, which is an array $J$ with $|V|$ entries, where each $J[i]$ is a linear container of indices $\{ j \}$ such that $v_j$ is a neighbor of $v_i$ in $G$.  
+That is $j$ is contained in $J[i]$ if and only if there is an edge $(v_i, v_j)$ in $E$ (or, equivalently, if there is a pair $(i, j)$ in $C$ or, equivalently, if $a_{ij} = 1$)\footnote{The compressed sparse adjacency matrix is identical to the compressed sparse row format from linear algebra}.  
+We note that if $(v_i, v_j)$ is an edge in an undirected graph, $J[i]$ will contain $j$ and $J[j]$ will contain $i$. 
+The common name for this data structure is \emph{adjacency list}.  
+Although this name is problematic (for instance, it is not actually a list),  it is so widely used that we also use it here---but \emph{we mean specifically that an  ``adjacency list'' is the compressed sparse adjacency matrix representation of a graph}\footnote{We concede that ``adjacency list'' rolls off the tongue much more easily than ``compressed sparse adjacency matrix representation of a graph.''}.  
+Again we emphasize the distinction between a graph and its representation:  An adjacency list $J$ is not the same as the graph $G$---it is a representation of $G$.
 
 
 \section{MultiPartite Graphs}
+\label{sec:multipartite}
+
+\andrew{
+Need some definitions to properly include -- or exclude -- general labeled graphs.
+}
 
 \phil{Need to reword to accomodate multipartite graphs}
 So far, we have been considering graphs where the vertices are in a single set $V$
