@@ -106,7 +106,7 @@ To model the relationships between entities, a \emph{graph} $G$ comprises two se
 a \emph{vertex set} $V$, whose elements correspond to the entities, and an \emph{edge set} $E$, whose
 elements are pairs corresponding to elements in $V$ that have some relationship with each other.  That is,
 if $u$ and $v$ are members of $V$ that have some relationship that we wish to capture, then there is
-a pair $\{u, v\}$ in $E$.
+a pair $\{u, v\}$ in $E$.  We can express that together $V$ and $E$ define a graph as $G=\{V, E\}$.
 
 To reason about graphs, and to write algorithms for them, we require a \emph{representation} of the graph.
 We note that \emph{a graph and its representation are not the same thing}.  It is therefore essential
@@ -120,6 +120,39 @@ Figure~\ref{fig:node_link_graphs}. In this model, vertices are
 represented graphically as nodes, which are
 shown as circles (or some other shape, including points). Edges are represented as links,
 shown as lines connecting the nodes.
+%
+We can express the graphs in those examples as
+\[
+\begin{array}{rcl}
+G & = & \{ V, E \} \\[\smallskipamount]
+V & = & \{ \mathrm{SEA}, \mathrm{MSP}, \mathrm{SLC}, \mathrm{DTW}, \mathrm{ATL}, \mathrm{BOS} \} \\[\smallskipamount]
+E & = & \{ 
+\{ \mathrm{MSP}, \mathrm{DTW} \}, 
+\{ \mathrm{SLC}, \mathrm{SEA} \}, \\
+&&\:\: 
+\{ \mathrm{MSP}, \mathrm{SLC} \}, 
+\{ \mathrm{BOS}, \mathrm{SLC} \}, \\
+&&\:\: 
+\{ \mathrm{SEA}, \mathrm{BOS} \}, 
+\{ \mathrm{BOS}, \mathrm{ATL} \}, \\
+&&\:\: 
+\{ \mathrm{SEA}, \mathrm{MSP} \}, 
+\{ \mathrm{BOS}, \mathrm{DTW} \} \}
+\end{array}
+\qquad
+\begin{array}{rcl}
+  G & = & \{ V, E \} \\[\smallskipamount]
+        V & = & \{ \mathrm{0}, \mathrm{Vdd}, \mathrm{n0}, \mathrm{n1}, \mathrm{n2}, \mathrm{Vout} \} \\[\smallskipamount]
+        E & = & \{
+        ( \mathrm{n0}, \mathrm{n1} ),  ( \mathrm{Vdd}, \mathrm{0} ),
+        ( \mathrm{n0}, \mathrm{Vdd} ), ( \mathrm{n2}, \mathrm{Vdd} )\\
+        &&\:\:
+        ( \mathrm{0}, \mathrm{n2} ),  ( \mathrm{n2}, \mathrm{Vout} ),
+        ( \mathrm{0}, \mathrm{n0} ),  ( \mathrm{n2}, \mathrm{n1} ) \}
+      \end{array}
+\]
+
+
 
 
 \begin{figure}[ht]
@@ -138,7 +171,7 @@ shown as lines connecting the nodes.
 The representations that we will be using are familiar ones: adjacency matrix, edge list, and adjacency list.
 We begin with a process that is so standard that we typically don't even notice it, but it forms
 the foundation of graph representations: we \emph{enumerate the vertices.}  That is, we assign an
-index to each element of $V$ and write $V = \{v_0, v_1, \ldots v_{n-1}\}$.  Given that enumeration,
+index to each element of $V$ and write $V = \{v_0, v_1, \ldots v_{n-1}\}$.  Based on that enumeration,
 elements of $E$ are expressed in the form $\{v_i, v_j\}$.  Similarly, we can enumerate the edges, and write  
 $E = \{ e_0, e_1, \ldots e_{m-1}\}$, though the enumeration of $E$ does not play a role in standard
 representations of graphs.
@@ -148,7 +181,7 @@ The number of elements in $V$ is denoted by $|V|$ and the number of elements in 
 We summarize some remaining terminology about vertices and edges.
 \begin{itemize}
 \item 
-An edge $e_k$ may  be \emph{directed} denoted as the ordered pair $e_k=(v_i, v_j)$, or it may be
+An edge $e_k$ may  be \emph{directed}, denoted as the ordered pair $e_k=(v_i, v_j)$, or it may be
   \emph{undirected}, denoted as the (unordered) set $e_k=\{v_i, v_j\}$.  The edges 
 in $E$ are either all directed or all undirected,
   corresponding respectively to a \emph{directed graph} or to an \emph{undirected} graph.
@@ -167,6 +200,9 @@ If the edge set $E$ of a directed graph contains an edge $e_k = (v_i,v_j)$, then
 there is an edge from $v_0$ to $v_1$, an edge from $v_1$ to $v_2$, and so on.
 That is, a path is a set of edges $(v_i, v_{i+1}) \in E$ for  $i = 0, 1, \ldots, k-2$.
 \end{itemize}
+
+
+
 
 \subsection{Adjacency-Based Representations}
 
@@ -195,7 +231,7 @@ respectively for a directed or undirected graph
 \]
 That is, $a_{ij} = 1$ if and only if $v_j$ is adjacent to $v_i$ in the original graph $G$ (hence the name ``adjacency matrix``).
 %
-Here we can see why we said that the initial enumeration of $V$ foundational to representations:  \emph{The adjacency matrix is based solely on the indices used in that enumeration}.  It does not contain the vertices or edges themselves.
+Here we can see why we said that the initial enumeration of $V$ is foundational to representations:  \emph{The adjacency matrix is based solely on the indices used in that enumeration}.  It does not contain the vertices or edges themselves.
 
 As a data structure to use for algorithms, the adjacency matrix is not very efficient, neither in terms of storage (which, at $|V|\times |V|$ is prohibitive), nor for computation. Instead of storing the entire
 adjacency matrix, we can simply store the index values of its non-zero elements.  A \emph{sparse coordinate adjacency
@@ -216,19 +252,43 @@ Again we emphasize the distinction between a graph and its representation:  An a
 
 \subsection{From Data to Graph}
 
+
+Consider again the circuit diagram shown in Figure~\ref{subfig:circuit}.  We  model the circuit as a graph, identifying  nodes in the circuit as vertices, and circuit elements in the circuit as directed edges (since circuit elements are oriented).
+ Since circuit elements are oriented, we identify them with directed edges.  Thus, the graph model for the
+circuit is directed.  
+\[
+\begin{array}{rcl}
+  G & = & \{ V, E \} \\[\smallskipamount]
+        V & = & \{ \mathrm{0}, \mathrm{Vdd}, \mathrm{n0}, \mathrm{n1}, \mathrm{n2}, \mathrm{Vout} \} \\[\smallskipamount]
+        E & = & \{
+        ( \mathrm{n0}, \mathrm{n1} ),  ( \mathrm{Vdd}, \mathrm{0} ),
+        ( \mathrm{n0}, \mathrm{Vdd} ), ( \mathrm{n2}, \mathrm{Vdd} )\\
+        &&\:\:
+        ( \mathrm{0}, \mathrm{n2} ),  ( \mathrm{n2}, \mathrm{Vout} ),
+        ( \mathrm{0}, \mathrm{n0} ),  ( \mathrm{n2}, \mathrm{n1} ) \}
+      \end{array}
+\]
+
+
+A diagram of the graph model for the circuit is shown in Figure~\ref{fig:circuit-graph-no-edge-labels} and the mathematical representation for the graph is shown
+  in Figure~\ref{fig:circuit-graph-math}.
+  \item We enumerate the vertices of the graph given in Figure~\ref{fig:circuit-graph-math} from $0$ to $5$, as
+  shown in Figure~\ref{fig:circuit-vertex-enumeration}.  Using this enumeration, we can construct an adjacency matrix,
+  as shown in
+
 \begin{figure}[bh]
   \begin{subfigure}[t]{0.175\textwidth}
     \centering
     \includegraphics[width=0.4\linewidth]{circuit-vertex-enumeration}
     \caption{\label{fig:circuit-vertex-enumeration}
-    An enumeration of the circuit graph given in \protect\ref{fig:circuit-graph-math}.}
+    An enumeration of the circuit graph given in \protect\ref{subfig:circuit}.}
   \end{subfigure}
   \hspace{1em}
   \begin{subfigure}[t]{0.25\textwidth}
     \centering
     \includegraphics[width=\linewidth]{circuit-graph-adjacency-matrix}
     \caption{\label{fig:circuit-graph-adjacency-matrix}
-    The adjacency matrix representation of the graph given in Figure~\protect\ref{fig:circuit-graph-math},
+    The adjacency matrix representation of the graph given in Figure~\protect\ref{subfig:circuit},
     using the enumeration given in Figure~\protect\ref{fig:circuit-vertex-enumeration}.}
   \end{subfigure}
   \hspace{1em}
