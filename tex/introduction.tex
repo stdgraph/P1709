@@ -108,65 +108,33 @@ elements are pairs corresponding to elements in $V$ that have some relationship 
 if $u$ and $v$ are members of $V$ that have some relationship that we wish to capture, then there is
 a pair $\{u, v\}$ in $E$.  We can express that together $V$ and $E$ define a graph as $G=\{V, E\}$.
 
+Two examples of graph models are shown in Figures~\ref{airport-summary} and~\ref{circuit-summary},
+which respectively model a network of routes between and an electronic circuit.  
+The figures show the domain-specific data to be modeled and the sets $V$ and $E$ for each graph.
+Also shown for each graph is a
+ node and link diagram, a commonly-used graphical\footnote{An unfortunate collision of terminology.}
+notation.
+
+\begin{figure}[ht]
+  \begin{center}
+    \subcaptionbox{An undirected graph representing airline routes between cities.  Shown are the list of airports (the vertices) and the list of routes between them (the  edges).  Also shown are a node and link diagram and the set-based description.\label{subfig:airport}}
+    {\includegraphics[width=0.75\textwidth]{figs/airport-summary.pdf}}
+    \\
+    \subcaptionbox{A directed graph representing an electronic circuit.  Shown in the circuit diagram are the labeled circuit nodes (the vertices) and the circuit elements connecting the nodes (the edges). Since circuit elements are oriented, we use a directed graph to model the circuit.  Also shown are a node and link diagram and the set-based decription.\label{subfig:circuit}}
+    {\includegraphics[width=0.825\textwidth]{figs/circuit-summary.pdf}}
+    \caption{Graph models of an airline route system and of an electronic circuit.\label{fig:node_link_graphs}}
+  \end{center}
+\end{figure}
+
+
+\subsection{Graph Representation: Enumerating the Vertices}
+
 To reason about graphs, and to write algorithms for them, we require a \emph{representation} of the graph.
 We note that \emph{a graph and its representation are not the same thing}.  It is therefore essential
 that we be precise about this distinction as we develop a software library of graph
 algorithms and data structures\footnote{In fact, if we are to be completely precise, the library we are
 proposing is one of algorithms and data structures for graph representations.  We will make concessions
 to commonly accepted terminology, while precisely defining that terminology.}.
-
-Graphs are often depicted as a collection of nodes and links, as shown in
-Figure~\ref{fig:node_link_graphs}. In this model, vertices are
-represented graphically as nodes, which are
-shown as circles (or some other shape, including points). Edges are represented as links,
-shown as lines connecting the nodes.
-%
-We can express the graphs in those examples as
-\[
-\begin{array}{rcl}
-G & = & \{ V, E \} \\[\smallskipamount]
-V & = & \{ \mathrm{SEA}, \mathrm{MSP}, \mathrm{SLC}, \mathrm{DTW}, \mathrm{ATL}, \mathrm{BOS} \} \\[\smallskipamount]
-E & = & \{ 
-\{ \mathrm{MSP}, \mathrm{DTW} \}, 
-\{ \mathrm{SLC}, \mathrm{SEA} \}, \\
-&&\:\: 
-\{ \mathrm{MSP}, \mathrm{SLC} \}, 
-\{ \mathrm{BOS}, \mathrm{SLC} \}, \\
-&&\:\: 
-\{ \mathrm{SEA}, \mathrm{BOS} \}, 
-\{ \mathrm{BOS}, \mathrm{ATL} \}, \\
-&&\:\: 
-\{ \mathrm{SEA}, \mathrm{MSP} \}, 
-\{ \mathrm{BOS}, \mathrm{DTW} \} \}
-\end{array}
-\qquad
-\begin{array}{rcl}
-  G & = & \{ V, E \} \\[\smallskipamount]
-        V & = & \{ \mathrm{0}, \mathrm{Vdd}, \mathrm{n0}, \mathrm{n1}, \mathrm{n2}, \mathrm{Vout} \} \\[\smallskipamount]
-        E & = & \{
-        ( \mathrm{n0}, \mathrm{n1} ),  ( \mathrm{Vdd}, \mathrm{0} ),
-        ( \mathrm{n0}, \mathrm{Vdd} ), ( \mathrm{n2}, \mathrm{Vdd} )\\
-        &&\:\:
-        ( \mathrm{0}, \mathrm{n2} ),  ( \mathrm{n2}, \mathrm{Vout} ),
-        ( \mathrm{0}, \mathrm{n0} ),  ( \mathrm{n2}, \mathrm{n1} ) \}
-      \end{array}
-\]
-
-
-
-
-\begin{figure}[ht]
-  \begin{center}
-    \subcaptionbox{An undirected graph representing airline routes between cities.\label{subfig:airport}}
-    {\includegraphics[width=0.42\textwidth]{figs/airport.pdf}}
-    \subcaptionbox{A directed graph representing an electronic circuit.\label{subfig:circuit}}
-    {\includegraphics[width=0.56\textwidth]{figs/circuit.pdf}}
-    \caption{Node and link graph models, an intuitive representation of relationships between entities.\label{fig:node_link_graphs}}
-  \end{center}
-\end{figure}
-
-
-\subsection{Enumerating the Vertices}
 
 The representations that we will be using are familiar ones: adjacency matrix, edge list, and adjacency list.
 We begin with a process that is so standard that we typically don't even notice it, but it forms
@@ -200,8 +168,6 @@ If the edge set $E$ of a directed graph contains an edge $e_k = (v_i,v_j)$, then
 there is an edge from $v_0$ to $v_1$, an edge from $v_1$ to $v_2$, and so on.
 That is, a path is a set of edges $(v_i, v_{i+1}) \in E$ for  $i = 0, 1, \ldots, k-2$.
 \end{itemize}
-
-
 
 
 \subsection{Adjacency-Based Representations}
@@ -248,6 +214,79 @@ We note that if $(v_i, v_j)$ is an edge in an undirected graph, $J[i]$ will cont
 The common name for this data structure is \emph{adjacency list}.  
 Although this name is problematic (for instance, it is not actually a list),  it is so widely used that we also use it here---but \emph{we mean specifically that an  ``adjacency list'' is the compressed sparse adjacency matrix representation of a graph}\footnote{We concede that ``adjacency list'' rolls off the tongue much more easily than ``compressed sparse adjacency matrix representation of a graph.''}.  
 Again we emphasize the distinction between a graph and its representation:  An adjacency list $J$ is not the same as the graph $G$---it is a representation of $G$.
+
+
+Illustrations of the adjacency-matrix representations of the airline route graph and the electronic circuit graph are shown in Figures~\ref{fig:airport} and~\ref{fig:circuit}, respectively.
+
+\begin{figure}[bh]
+  \begin{subfigure}[t]{0.175\textwidth}
+    \centering
+    \includegraphics[width=0.4\linewidth]{airport-vertex-enumeration}
+    \caption{\label{fig:ariport-vertex-enumeration}
+    An enumeration of the airport graph given in \protect\ref{subfig:airport}.}
+  \end{subfigure}
+  \hspace{1em}
+  \begin{subfigure}[t]{0.25\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{airport-graph-adjacency-matrix}
+    \caption{\label{fig:airport-graph-adjacency-matrix}
+    The adjacency matrix representation of the graph given in Figure~\protect\ref{subfig:airport},
+    using the enumeration given in Figure~\protect\ref{fig:airport-vertex-enumeration}.}
+  \end{subfigure}
+  \hspace{1em}
+  \begin{subfigure}[t]{0.175\textwidth}
+    \small
+    \centering
+    \includegraphics[width=0.4\linewidth]{airport-coordinate-sparse-adjacency}
+    \caption{\label{fig:airport-coordinate-sparse-adjacency}
+    The coordinate sparse adjacency matrix representation.}
+  \end{subfigure}
+  \hspace{1em}
+  \begin{subfigure}[t]{0.3\textwidth}
+    \small
+    \centering
+    \includegraphics[width=0.75\linewidth]{airport-compressed-sparse-adjacency}
+    \caption{\label{fig:airport-compressed-sparse-adjacency}
+    The compressed sparse adjacency matrix representation.}
+  \end{subfigure}
+  \caption{Adjacency matrix representations of the airport graph model.\label{fig:airport-representation}}
+\end{figure}
+
+
+
+\begin{figure}[bh]
+  \begin{subfigure}[t]{0.175\textwidth}
+    \centering
+    \includegraphics[width=0.4\linewidth]{circuit-vertex-enumeration}
+    \caption{\label{fig:circuit-vertex-enumeration}
+    An enumeration of the circuit graph given in \protect\ref{subfig:circuit}.}
+  \end{subfigure}
+  \hspace{1em}
+  \begin{subfigure}[t]{0.25\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{circuit-graph-adjacency-matrix}
+    \caption{\label{fig:circuit-graph-adjacency-matrix}
+    The adjacency matrix representation of the graph given in Figure~\protect\ref{subfig:circuit},
+    using the enumeration given in Figure~\protect\ref{fig:circuit-vertex-enumeration}.}
+  \end{subfigure}
+  \hspace{1em}
+  \begin{subfigure}[t]{0.175\textwidth}
+    \small
+    \centering
+    \includegraphics[width=0.4\linewidth]{circuit-coordinate-sparse-adjacency}
+    \caption{\label{fig:circuit-coordinate-sparse-adjacency}
+    The coordinate sparse adjacency matrix representation.}
+  \end{subfigure}
+  \hspace{1em}
+  \begin{subfigure}[t]{0.3\textwidth}
+    \small
+    \centering
+    \includegraphics[width=0.75\linewidth]{circuit-compressed-sparse-adjacency}
+    \caption{\label{fig:circuit-compressed-sparse-adjacency}
+    The compressed sparse adjacency matrix representation.}
+  \end{subfigure}
+  \caption{Adjacency matrix representations of the circuit graph model.\label{fig:circuit-model}}
+\end{figure}
 
 
 \subsection{From Data to Graph}
