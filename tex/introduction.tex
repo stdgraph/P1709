@@ -214,6 +214,46 @@ Although this name is problematic (for instance, it is not actually a list),  it
 Again we emphasize the distinction between a graph and its representation:  An adjacency list $J$ is not the same as the graph $G$---it is a representation of $G$.
 
 
+\subsection{From Data to Graph}
+
+\begin{figure}[bh]
+  \begin{subfigure}[t]{0.175\textwidth}
+    \centering
+    \includegraphics[width=0.4\linewidth]{circuit-vertex-enumeration}
+    \caption{\label{fig:circuit-vertex-enumeration}
+    An enumeration of the circuit graph given in \protect\ref{fig:circuit-graph-math}.}
+  \end{subfigure}
+  \hspace{1em}
+  \begin{subfigure}[t]{0.25\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{circuit-graph-adjacency-matrix}
+    \caption{\label{fig:circuit-graph-adjacency-matrix}
+    The adjacency matrix representation of the graph given in Figure~\protect\ref{fig:circuit-graph-math},
+    using the enumeration given in Figure~\protect\ref{fig:circuit-vertex-enumeration}.}
+  \end{subfigure}
+  \hspace{1em}
+  \begin{subfigure}[t]{0.175\textwidth}
+    \small
+    \centering
+    \includegraphics[width=0.4\linewidth]{circuit-coordinate-sparse-adjacency}
+    \caption{\label{fig:circuit-coordinate-sparse-adjacency}
+    The coordinate sparse adjacency matrix representation.}
+  \end{subfigure}
+  \hspace{1em}
+  \begin{subfigure}[t]{0.3\textwidth}
+    \small
+    \centering
+    \includegraphics[width=0.75\linewidth]{circuit-compressed-sparse-adjacency}
+    \caption{\label{fig:circuit-compressed-sparse-adjacency}
+    The compressed sparse adjacency matrix representation.}
+  \end{subfigure}
+  \caption{Adjacency matrix representations of the circuit graph model.}
+\end{figure}
+
+
+
+
+
 \section{MultiPartite Graphs}
 \label{sec:multipartite}
 
