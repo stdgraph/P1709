@@ -108,7 +108,7 @@ elements are pairs corresponding to elements in $V$ that have some relationship 
 if $u$ and $v$ are members of $V$ that have some relationship that we wish to capture, then there is
 a pair $\{u, v\}$ in $E$.  We can express that together $V$ and $E$ define a graph as $G=\{V, E\}$.
 
-Two examples of graph models are shown in Figures~\ref{airport-summary} and~\ref{circuit-summary},
+Two examples of graph models are shown in Figures~\ref{airport} and~\ref{circuit},
 which respectively model a network of routes between and an electronic circuit.  
 The figures show the domain-specific data to be modeled and the sets $V$ and $E$ for each graph.
 Also shown for each graph is a
@@ -120,7 +120,7 @@ notation.
     \subcaptionbox{An undirected graph representing airline routes between cities.  Shown are the list of airports (the vertices) and the list of routes between them (the  edges).  Also shown are a node and link diagram and the set-based description.\label{subfig:airport}}
     {\includegraphics[width=0.75\textwidth]{figs/airport-summary.pdf}}
     \\
-    \subcaptionbox{A directed graph representing an electronic circuit.  Shown in the circuit diagram are the labeled circuit nodes (the vertices) and the circuit elements connecting the nodes (the edges). Since circuit elements are oriented, we use a directed graph to model the circuit.  Also shown are a node and link diagram and the set-based decription.\label{subfig:circuit}}
+    \subcaptionbox{A directed graph representing an electronic circuit.  Shown in the circuit diagram are the labeled circuit nodes (the vertices) and the circuit elements connecting the nodes (the edges). Since circuit elements are oriented, we use a directed graph to model the circuit.  Also shown are a node and link diagram and the set-based description.\label{subfig:circuit}}
     {\includegraphics[width=0.825\textwidth]{figs/circuit-summary.pdf}}
     \caption{Graph models of an airline route system and of an electronic circuit.\label{fig:node_link_graphs}}
   \end{center}
@@ -218,7 +218,7 @@ Again we emphasize the distinction between a graph and its representation:  An a
 
 Illustrations of the adjacency-matrix representations of the airline route graph and the electronic circuit graph are shown in Figures~\ref{fig:airport} and~\ref{fig:circuit}, respectively.
 
-\begin{figure}[bh]
+\begin{figure}[tbh]
   \begin{subfigure}[t]{0.175\textwidth}
     \centering
     \includegraphics[width=0.4\linewidth]{airport-vertex-enumeration}
@@ -254,7 +254,7 @@ Illustrations of the adjacency-matrix representations of the airline route graph
 
 
 
-\begin{figure}[bh]
+\begin{figure}[tbh]
   \begin{subfigure}[t]{0.175\textwidth}
     \centering
     \includegraphics[width=0.4\linewidth]{circuit-vertex-enumeration}
@@ -308,7 +308,7 @@ appeared in (``movie-actor'' and ``actor-movie'' tables, respectively).\footnote
 %
 Thus, a graph, as we have defined it, cannot model the IMDB.  
 
-There is a small generalization we can make to the definition of graph that will be able to model the IMDB.  In particular, we need one set of vertices corresponding to actors, another set of vertices corresponding to movies, and then a set of edges corresponding to the relationships between actors and movies.  There are two kinds of relationships to consider actors in movies or movies starring actors.  To be well-defined, the edge set may only contain one kind of relationship.  To capture this kind of model, we define a \emph{structurally bipartite graph} $H = \{ U, V, E \}$, where vertex sets $U$ and $V$ are enumerated $U = \{ u_0, u_1, \ldots , u_{n0} \}$ and $V  = \{ v_0, v_1, \ldots v_{n1}\}$, 
+There is a small generalization we can make to the definition of graph that will result in a suitable abstraction for modeling the IMDB.  In particular, we need one set of vertices corresponding to actors, another set of vertices corresponding to movies, and then a set of edges corresponding to the relationships between actors and movies.  There are two kinds of relationships to consider actors in movies or movies starring actors.  To be well-defined, the edge set may only contain one kind of relationship.  To capture this kind of model, we define a \emph{structurally bipartite graph} $H = \{ U, V, E \}$, where vertex sets $U$ and $V$ are enumerated $U = \{ u_0, u_1, \ldots , u_{n0} \}$ and $V  = \{ v_0, v_1, \ldots v_{n1}\}$, 
 and the edge set $E$ consists of pairs $(u_i, v_j)$ where $u_i$ is in $U$ and $v_j$ is in $V$.
 
 The \emph{adjacency matrix representation of a structurally bipartite graph} is
@@ -323,7 +323,9 @@ a $|U|\times |V|$ matrix $A = (a_{ij})$ such that,
  \right.
  \]
 
-An example of 
+\begin{figure}[ht]
+
+\end{figure}
 
 
 We distinguish a structurally bipartite graph from simply a bipartite graph because of the independent enumerations of $U$ and $V$.  In customary graph terminology, a \emph{bipartite} graph is one in which the vertices can be partitioned into two disjoint sets, such that all of the edges in the graph only connect vertices from one set to vertices of the other set.  In this setting, there is a single enumeration of the vertices, which are all presumed to be the same kind of entity.  This is not a natural way to model separate categories of entities, such as movies and actors.  Entities are categorized completely independently of others and therefore most appropriately have independent enumerations.

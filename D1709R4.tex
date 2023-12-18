@@ -1,8 +1,6 @@
 %% \documentclass[10pt,onecolumn]{article}
 \documentclass[10pt,oneside,openany,final]{memoir}
 
-
-
 \usepackage[
 	left=0.75in,
 	top=0.75in,
@@ -46,7 +44,6 @@
 \definecolor{bs_h1_h2_h3}{HTML}{005A9C}
 \definecolor{bs_a_href}{HTML}{034575}
 \definecolor{xcomment}{HTML}{0000A0}
-
 
 
 %% Customize code formatting
@@ -141,6 +138,11 @@
 \titlespacing*{\subsection}{0pt}{1.5ex plus 1ex minus .2ex}{1ex plus .2ex}
 \titlespacing*{\subsubsection}{0pt}{1.5ex plus 1ex minus .2ex}{1ex plus .2ex}
 
+%% Customize float handling
+\renewcommand{\topfraction}{0.9}      % Allow more at the top
+\renewcommand{\bottomfraction}{0.8}   % Allow more at the bottom
+\renewcommand{\textfraction}{0.1}     % Require less text on a page
+\renewcommand{\floatpagefraction}{0.7} % Allow less for a float-only page
 
 
 \begin{document}
