@@ -289,101 +289,62 @@ Illustrations of the adjacency-matrix representations of the airline route graph
 \end{figure}
 
 
-\subsection{From Data to Graph}
 
 
-Consider again the circuit diagram shown in Figure~\ref{subfig:circuit}.  We  model the circuit as a graph, identifying  nodes in the circuit as vertices, and circuit elements in the circuit as directed edges (since circuit elements are oriented).
- Since circuit elements are oriented, we identify them with directed edges.  Thus, the graph model for the
-circuit is directed.  
-\[
-\begin{array}{rcl}
-  G & = & \{ V, E \} \\[\smallskipamount]
-        V & = & \{ \mathrm{0}, \mathrm{Vdd}, \mathrm{n0}, \mathrm{n1}, \mathrm{n2}, \mathrm{Vout} \} \\[\smallskipamount]
-        E & = & \{
-        ( \mathrm{n0}, \mathrm{n1} ),  ( \mathrm{Vdd}, \mathrm{0} ),
-        ( \mathrm{n0}, \mathrm{Vdd} ), ( \mathrm{n2}, \mathrm{Vdd} )\\
-        &&\:\:
-        ( \mathrm{0}, \mathrm{n2} ),  ( \mathrm{n2}, \mathrm{Vout} ),
-        ( \mathrm{0}, \mathrm{n0} ),  ( \mathrm{n2}, \mathrm{n1} ) \}
-      \end{array}
-\]
+\section{Bipartite Graphs}
+\label{sec:bipartite}
 
-
-A diagram of the graph model for the circuit is shown in Figure~\ref{fig:circuit-graph-no-edge-labels} and the mathematical representation for the graph is shown
-  in Figure~\ref{fig:circuit-graph-math}.
-  \item We enumerate the vertices of the graph given in Figure~\ref{fig:circuit-graph-math} from $0$ to $5$, as
-  shown in Figure~\ref{fig:circuit-vertex-enumeration}.  Using this enumeration, we can construct an adjacency matrix,
-  as shown in
-
-\begin{figure}[bh]
-  \begin{subfigure}[t]{0.175\textwidth}
-    \centering
-    \includegraphics[width=0.4\linewidth]{circuit-vertex-enumeration}
-    \caption{\label{fig:circuit-vertex-enumeration}
-    An enumeration of the circuit graph given in \protect\ref{subfig:circuit}.}
-  \end{subfigure}
-  \hspace{1em}
-  \begin{subfigure}[t]{0.25\textwidth}
-    \centering
-    \includegraphics[width=\linewidth]{circuit-graph-adjacency-matrix}
-    \caption{\label{fig:circuit-graph-adjacency-matrix}
-    The adjacency matrix representation of the graph given in Figure~\protect\ref{subfig:circuit},
-    using the enumeration given in Figure~\protect\ref{fig:circuit-vertex-enumeration}.}
-  \end{subfigure}
-  \hspace{1em}
-  \begin{subfigure}[t]{0.175\textwidth}
-    \small
-    \centering
-    \includegraphics[width=0.4\linewidth]{circuit-coordinate-sparse-adjacency}
-    \caption{\label{fig:circuit-coordinate-sparse-adjacency}
-    The coordinate sparse adjacency matrix representation.}
-  \end{subfigure}
-  \hspace{1em}
-  \begin{subfigure}[t]{0.3\textwidth}
-    \small
-    \centering
-    \includegraphics[width=0.75\linewidth]{circuit-compressed-sparse-adjacency}
-    \caption{\label{fig:circuit-compressed-sparse-adjacency}
-    The compressed sparse adjacency matrix representation.}
-  \end{subfigure}
-  \caption{Adjacency matrix representations of the circuit graph model.}
-\end{figure}
-
-
-
-
-
-\section{MultiPartite Graphs}
-\label{sec:multipartite}
-
-\andrew{
-Need some definitions to properly include -- or exclude -- general labeled graphs.
-}
-
-\phil{Need to reword to accomodate multipartite graphs}
-So far, we have been considering graphs where the vertices are in a single set $V$
-and the edges are pairs of elements from $V$.  
+So far, we have been considering graphs where 
+edges in $E$ are pairs of vertices, which are taken from a single set $V$.
 %
 % We refer to such a graph as a \emph{unipartite} graph.
 %
-But consider again the Kevin Bacon example.  The source for the information comprising the
-Kevin Bacon data is the Internet Movie Database (IMDB).  However, the IMDB does not contain
-the relationships between actors.  Rather it contains files of tabular data, one of which
-contains an entry for each movie with the list of actors that have appeared in that movie,
-and one of which contains an entry for each actor with the list of movies that actor has
-appeared in (``movie-actor'' and ``actor-movie'' tables, respectively).
+But consider again the Kevin Bacon example.  The source for the information comprising the Kevin Bacon data is the Internet Movie Database (IMDB).  
+However, the IMDB does not contain any explicit information about the relationships between actors.  
+%
+Rather it contains files of tabular data, one of which contains an entry for each movie with the list of actors that have appeared in that movie,
+and another of which contains an entry for each actor with the list of movies that actor has
+appeared in (``movie-actor'' and ``actor-movie'' tables, respectively).\footnote{This is a simplified version of the CSV files that actually comprise the IMDB.  The full set of files is available for non-commercial use at~\url{https://datasets.imdbws.com}.}
+%
+Thus, a graph, as we have defined it, cannot model the IMDB.  
 
-A graph, as we have previously defined it, cannot model the IMDB.  The relationships
-contained in the data are between actors and movies.
+There is a small generalization we can make to the definition of graph that will be able to model the IMDB.  In particular, we need one set of vertices corresponding to actors, another set of vertices corresponding to movies, and then a set of edges corresponding to the relationships between actors and movies.  There are two kinds of relationships to consider actors in movies or movies starring actors.  To be well-defined, the edge set may only contain one kind of relationship.  To capture this kind of model, we define a \emph{structurally bipartite graph} $H = \{ U, V, E \}$, where vertex sets $U$ and $V$ are enumerated $U = \{ u_0, u_1, \ldots , u_{n0} \}$ and $V  = \{ v_0, v_1, \ldots v_{n1}\}$, 
+and the edge set $E$ consists of pairs $(u_i, v_j)$ where $u_i$ is in $U$ and $v_j$ is in $V$.
+
+The \emph{adjacency matrix representation of a structurally bipartite graph} is
+a $|U|\times |V|$ matrix $A = (a_{ij})$ such that,
+\[
+ a_{i j} = 
+ \left\{
+ \begin{array}{rl}
+  1 & \textrm{if } (v_i, v_j) \in E \\
+  0 & \textrm { otherwise }
+ \end{array}
+ \right.
+ \]
+
+An example of 
 
 
+We distinguish a structurally bipartite graph from simply a bipartite graph because of the independent enumerations of $U$ and $V$.  In customary graph terminology, a \emph{bipartite} graph is one in which the vertices can be partitioned into two disjoint sets, such that all of the edges in the graph only connect vertices from one set to vertices of the other set.  In this setting, there is a single enumeration of the vertices, which are all presumed to be the same kind of entity.  This is not a natural way to model separate categories of entities, such as movies and actors.  Entities are categorized completely independently of others and therefore most appropriately have independent enumerations.
 
-, and both elements of an
-edge, are members of a single set $|V|$. A graph with a single vertex set is called a
-\emph{unipartite} graph. If the vertices in a graph can be partitioned into two
-disjoint sets such that all of the edges in the graph only connect vertices from one
-set of the vertices of the other set, the graph is called a \emph{bipartite} graph.
-\andrew{Set membership == vertex label.  How many labels can a vertex have?  How many sets can a vertex belong to?}
+
+\subsection{Partitioned Graphs}
+
+In contrast to structurally bipartite graphs, there are certainly cases
+where one would want to maintain two categories of entities, or otherwise distinguish the vertices, in the same vertex set.  In that case, we would use a \emph{partitioned graph}, which we define as
+$G = \{ V, E \}$, where the vertex set $V$ consists of non-overlapping subsets, i.e.,
+$V = \{ V_0, V_1, \ldots \}$ which we enumerate as $V_0 = \{v_0, v_1, \ldots , v_{n0-1} \}$, 
+$V_1 = \{ v_{n0}, \ldots , v_{n1-1} \}$ and so on.  Each $V_i$ is a \emph{partition} of $V$.
+The total enumeration of $V$ is $V= \{ v_0, v_1, \ldots , v_{n-1} \}$.  Just as each $V_i$ is a partition of $V$, the enumeration of each $V_i$ is a partitioning of the enumeration of $V$.
+
+We note that partitioned graphs are not restricted to two partitions---a partitioned graph can represent an arbitrary number of partitions, i.e., a \emph{multipartite} graph (a graph with multiple subsets of vertices such that edges only go between subsets).
+While partitioned graphs can be used to model multipartite graphs, partitioned graphs are not necessarily multipartite; edges can comprise vertices within a partition as well as well as across partitions.
+
+
+A graph with a single vertex set is called a
+\emph{unipartite} graph. 
+
 
 Even if a graph is designated to be unipartite, it may be the case that its vertices
 can be partitioned into two disjont sets. In such a case, the graph is bipartite,
