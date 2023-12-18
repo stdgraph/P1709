@@ -222,7 +222,7 @@ Illustrations of the adjacency-matrix representations of the airline route graph
   \begin{subfigure}[t]{0.175\textwidth}
     \centering
     \includegraphics[width=0.4\linewidth]{airport-vertex-enumeration}
-    \caption{\label{fig:ariport-vertex-enumeration}
+    \caption{\label{fig:airport-vertex-enumeration}
     An enumeration of the airport graph given in \protect\ref{subfig:airport}.}
   \end{subfigure}
   \hspace{1em}
@@ -237,9 +237,9 @@ Illustrations of the adjacency-matrix representations of the airline route graph
   \begin{subfigure}[t]{0.175\textwidth}
     \small
     \centering
-    \includegraphics[width=0.4\linewidth]{airport-coordinate-sparse-adjacency}
+    \includegraphics[width=0.7\linewidth]{split-airport-coordinate-sparse-adjacency}
     \caption{\label{fig:airport-coordinate-sparse-adjacency}
-    The coordinate sparse adjacency matrix representation.}
+    The coordinate sparse adjacency matrix representation (shown split into two columns).}
   \end{subfigure}
   \hspace{1em}
   \begin{subfigure}[t]{0.3\textwidth}
@@ -289,22 +289,56 @@ Illustrations of the adjacency-matrix representations of the airline route graph
 \end{figure}
 
 
-
-
 \section{Bipartite Graphs}
 \label{sec:bipartite}
+
+\begin{figure}[ht]
+ \begin{subfigure}[t]{0.15\textwidth}
+    \small
+    \centering
+    \includegraphics[width=0.825\linewidth]{figs/actor-table.pdf}
+    \caption{\label{fig:actor-table}
+    Table of actors.}
+  \end{subfigure}
+\hspace{1em}
+   \begin{subfigure}[t]{0.167\textwidth}
+    \small
+    \centering
+    \includegraphics[width=0.825\linewidth]{figs/movie-table.pdf}
+    \caption{\label{fig:movie-table}
+    Table of movies.}
+  \end{subfigure}
+\hspace{1em}
+     \begin{subfigure}[t]{0.3\textwidth}
+    \small
+    \centering
+    \includegraphics[width=0.825\linewidth]{figs/actor-movie-table.pdf}
+    \caption{\label{fig:actor-movie-table}
+    A table of actors and movies they have appeared in.}
+  \end{subfigure}
+\hspace{1em}
+       \begin{subfigure}[t]{0.3\textwidth}
+    \small
+    \centering
+    \includegraphics[width=0.9\linewidth]{figs/movie-actor-table.pdf}
+    \caption{\label{fig:movie-actor-table}
+    A table of movies with starring actors.}
+  \end{subfigure}
+  \caption{Illustrative simplification of IMDB actor and movie data.\label{fig:imdb}}
+
+\end{figure}
 
 So far, we have been considering graphs where 
 edges in $E$ are pairs of vertices, which are taken from a single set $V$.
 %
-% We refer to such a graph as a \emph{unipartite} graph.
+We refer to such a graph as a \emph{unipartite} graph.
 %
 But consider again the Kevin Bacon example.  The source for the information comprising the Kevin Bacon data is the Internet Movie Database (IMDB).  
 However, the IMDB does not contain any explicit information about the relationships between actors.  
 %
 Rather it contains files of tabular data, one of which contains an entry for each movie with the list of actors that have appeared in that movie,
 and another of which contains an entry for each actor with the list of movies that actor has
-appeared in (``movie-actor'' and ``actor-movie'' tables, respectively).\footnote{This is a simplified version of the CSV files that actually comprise the IMDB.  The full set of files is available for non-commercial use at~\url{https://datasets.imdbws.com}.}
+appeared in (``movie-actor'' and ``actor-movie'' tables, respectively).  Such tables are shown in Figure~\ref{fig:imdb}.\footnote{This is a greatly simplified version of the CSV files that actually comprise the IMDB.  The full set of files is available for non-commercial use at~\url{https://datasets.imdbws.com}.}
 %
 Thus, a graph, as we have defined it, cannot model the IMDB.  
 
@@ -322,110 +356,79 @@ a $|U|\times |V|$ matrix $A = (a_{ij})$ such that,
  \end{array}
  \right.
  \]
+From this adjacency matrix representation we can readily construct  coordinate and compressed sparse representations.  The only structural difference between the representations of a structurally bipartite graph and that of a unipartite graph is that of vertex cardinality.  That is, in a unipartite graph, edges map from $V$ to $V$, and hence the values in the left hand column and in the right hand column of a coordinate representation would be in the same range: $[0, |V|)$.  However, for a structurally bipartite graph, this is no longer the case.  Although the coordinate representation still consists of pairs of vertex indices, the range of values in the left hand column is $[0, |U|)$, while in the right hand column it is $[0, |V|)$.  Similarly, the compressed representation will have $|U|$ entries, but the values stored in each entry may range from $[0, |V|)$.  We note that these are constraints on values, not on structure.
+ 
 
 \begin{figure}[ht]
-
+ \begin{subfigure}[t]{0.4\textwidth}
+    \small
+    \centering
+    \includegraphics[width=0.825\linewidth]{figs/movie-actor-sparse-adjacency}
+    \caption{\label{fig:actor-table}
+    Coordinate and compressed sparse adjacency representations for movies with their starring actors.}
+  \end{subfigure}
+\hspace{1em}  
+   \begin{subfigure}[t]{0.4\textwidth}
+    \small
+    \centering
+    \includegraphics[width=0.825\linewidth]{figs/actor-movie-sparse-adjacency}
+    \caption{\label{fig:movie-table}
+    Coordinate and compressed sparse adjacency representations for actors and the movies they have appeared in.}
+  \end{subfigure}
+  \caption{Sparse adjacency representations (edge lists and adjacency lists) for IMDB actor and movie data.}
 \end{figure}
 
+We distinguish a structurally bipartite graph from simply a bipartite graph because the former applies separate enumerations to $U$ and $V$.  
+In customary graph terminology, a \emph{bipartite} graph is one in which the vertices can be partitioned into two disjoint sets, such that all of the edges in the graph only connect vertices from one set to vertices of the other set.  However, although the vertices are partitioned, they are still taken from the same original vertex set $V$ and have a single enumeration.
+Whether a graph can be partitioned in this way is a run-time property inherent to the graph itself (which can be discovered with an appropriate algorithm).  
+This is not a natural way to model separate categories of entities, such as movies and actors, where entities are categorized completely independently of each other and it is therefore most appropriate to have independent enumerations for them.  
+A structurally bipartite graph explicitly captures distinct vertex categories.
+%
 
-We distinguish a structurally bipartite graph from simply a bipartite graph because of the independent enumerations of $U$ and $V$.  In customary graph terminology, a \emph{bipartite} graph is one in which the vertices can be partitioned into two disjoint sets, such that all of the edges in the graph only connect vertices from one set to vertices of the other set.  In this setting, there is a single enumeration of the vertices, which are all presumed to be the same kind of entity.  This is not a natural way to model separate categories of entities, such as movies and actors.  Entities are categorized completely independently of others and therefore most appropriately have independent enumerations.
-
-
-\subsection{Partitioned Graphs}
+\section{Partitioned Graphs}
 
 In contrast to structurally bipartite graphs, there are certainly cases
-where one would want to maintain two categories of entities, or otherwise distinguish the vertices, in the same vertex set.  In that case, we would use a \emph{partitioned graph}, which we define as
+where one would want to maintain two categories of entities, or otherwise distinguish the vertices, from the same vertex set.  In that case, we would use a \emph{partitioned graph}, which we define as
 $G = \{ V, E \}$, where the vertex set $V$ consists of non-overlapping subsets, i.e.,
 $V = \{ V_0, V_1, \ldots \}$ which we enumerate as $V_0 = \{v_0, v_1, \ldots , v_{n0-1} \}$, 
 $V_1 = \{ v_{n0}, \ldots , v_{n1-1} \}$ and so on.  Each $V_i$ is a \emph{partition} of $V$.
 The total enumeration of $V$ is $V= \{ v_0, v_1, \ldots , v_{n-1} \}$.  Just as each $V_i$ is a partition of $V$, the enumeration of each $V_i$ is a partitioning of the enumeration of $V$.
 
+The edge set $E$ still consists of edges $(v_i, v_j)$ (or $\{v_i, v_j\}$ where, in general, $v_i$ and $v_j$ may come from any partition.
+
 We note that partitioned graphs are not restricted to two partitions---a partitioned graph can represent an arbitrary number of partitions, i.e., a \emph{multipartite} graph (a graph with multiple subsets of vertices such that edges only go between subsets).
 While partitioned graphs can be used to model multipartite graphs, partitioned graphs are not necessarily multipartite; edges can comprise vertices within a partition as well as well as across partitions.
-
-
-A graph with a single vertex set is called a
-\emph{unipartite} graph. 
-
-
-Even if a graph is designated to be unipartite, it may be the case that its vertices
-can be partitioned into two disjont sets. In such a case, the graph is bipartite,
-but as a run-time property, not a compile-time property.
-That is, determining whether a given graph is bipartite requires a run-time analysis
-of the graph, with an appropriate algorithm.
-
-However, there are numerous cases of interest where the vertices of a graph fall
-naturally into two disjoint sets. For example, in the
-in a social network, the vertices
-represent people and the edges represent friendships. In such a case, it is natural
-Of particular interest for realizing a bipartite graph is when the graph is
-structurally bipartite, that is, when we are explicitly given two different
-sets of vertices and the corresponding set of edges that connect vertices of the two sets.
-This common---and important---use case arises when modeling relationships
-between different types of entities. For example, we might use a structurally
-bipartite graph in which one vertex set represents customers and another vertex
-set represents products. An edge between a customer and a product would be used
-to indicate that a customer has purchased a particular product.
-Another such example is from the Kevin Bacon game above, where
-one set represents actors and the other set represents movies; edges represent whether
-and actor appeared in a movie. Thus edges only connect vertices from the set of actors
-to the set of movies.
-
-We can refer to graphs of this form as \emph{structurally bipartite} graphs and
-denote them as $G = (U, V, E)$, where the vertex sets $U$ and $V$ are disjoint.
-
-\subsection{BiPartite Graph Models}
-
-\subsection{BiPartite Graph Implementations}
-
 
 
 \section{From Data to Graph}
 
 \subsection{Columnar Data}
-
-Figure~\ref{fig:edge_list_from_columnar_data}
-shows how one might create an unlabeled edge list from a table of data stored in a CSV file.
-The values in each row are assumed to be separated by whitespace.
+Here we show how one might create an unlabeled edge list from a table of data stored in a CSV file.  The following loads a list of directed edges from a CSV file (the values in each row are assumed to be separated by whitespace)\footnote{We take a broad view of what a comma is.}.
 The elements of the first column are considered to be the source vertices and the elements of
-the second column are the destination vertices. For edges with properties, the third column
-contains the property values.
-
-\begin{figure}[ht]
-  \begin{center}
-    \begin{subfigure}{0.48\textwidth}
-      \begin{lstlisting}[language=C++]
-    auto directed_edge_list<vertex_id_t, vertex_id_t>
-      std::vector<std::tuple<vertex_id_t, vertex_id_t> edges;
+the second column are the destination vertices. If the edges also had properties, the third column
+would contain the property values.  In this example, the edges are loaded into a vector of tuples, which meets the requirements of a (presumed) \lstinline{sparse_coordinate} concept.
+\begin{lstlisting}[language=C++]
+    auto sparse_coordinate edges = std::vector<std::tuple<vertex_id_t, vertex_id_t>;
     auto input = std::ifstream ("input.csv");
     vertex_id_t src, dst;
     while (input >> src >> dst) {
         edges.emplace_back (src, dst);
     }
-      \end{lstlisting}
-      \caption{Creating a directed edge list with no edge properties.
-      The edge list container is a vector of tuples.
-      \label{subfig:edge_list_no_properties}}
-    \end{subfigure}
-    \begin{subfigure}{0.48\textwidth}
-      \begin{lstlisting}[language=C++]
-    auto undirected_edge_list_graph<vertex_id_t, vertex_id_t, double>
-      graph<std::vector<vertex_id_t>, std::vector<vertex_id_t>, std::vector<double>> edges;
+\end{lstlisting}
+
+Similarly, we could load a list of undirected edges from a CSV file into a 
+\lstinline{sparse_coordinate} structure.  
+Note that, as discussed above, the coordinate sparse adjacency matrix representation (aka an edge list), contains an entry $(i, j)$ as well as an entry $(j, i)$ for each undirected edge $\{ v_i, v_j \}$.  Hence, we add both \lstinline{(src, dst)} and  \lstinline{(dst, src)} to \lstinline{edges}.
+\begin{lstlisting}[language=C++]
+    auto sparse_coordinate edges = std::vector<std::tuple<vertex_id_t, vertex_id_t, double> edges;
     auto input = std::ifstream ("input.csv");
     vertex_id_t src, dst;
     double val;
     while (input >> src >> dst >> val) {
         edges.emplace_back (src, dst, val);
+        edges.emplace_back (dst, src, val);
     }
-      \end{lstlisting}
-      \caption{Creating an undirected edge list with edge properties.
-      The edge list container is comprised of three vectors, wrapped by
-      the `lstinline{graph}' adapter.
-      \label{subfig:edge_list_with_properties}}
-    \end{subfigure}
-    \caption{Creating an edge list from columnar data.\label{fig:edge_list_from_columnar_data}}
-  \end{center}
-\end{figure}
+\end{lstlisting}
 
 These examples are meant to be illustrative and not necessarily
 comprehensive (nor efficient).
@@ -435,50 +438,37 @@ create an edge list from columnar data.
 
 \subsection{Converting an Edge List to an Adjacency List}
 
-\begin{figure}[ht]
-  \begin{center}
-    \begin{subfigure}{0.48\textwidth}
-      \begin{lstlisting}[language=C++]
-    auto edge_list<vertex_id_t, vertex_id_t> std::vector<std::tuple<vertex_id_t, vertex_id_t> edges;
-    auto adjacency_list<vertex_id_t> std::vector<std::vector<vertex_d_t>> adj_list;
+The following creates a compressed sparse representation (an adjacency list) from a coordinate sparse representation.  The adjacency list is represented as 
+a \lstinline{std::vector<std::vector<vertex_id_t>>;}
+\begin{lstlisting}[language=C++]
+    auto sparse_coordinate edges = std::vector<std::tuple<vertex_id_t, vertex_id_t>;
+    // Read the edges
+    auto sparse_compressed adj_list = std::vector<std::vector<vertex_id_t>>;
     for (auto [src, dst] : edges) {
       if (src >= adj_list.size()) {
         adj_list.resize(src + 1);
       }
       adj_list[src].push_back (dst);
     }
-      \end{lstlisting}
-      \caption{Creating an adjacency list from a directed edge list.
-      The adjacency list container is a vector of vectors.
-      \label{subfig:adj_list_from_directed_edge_list}}
-    \end{subfigure}
-    \begin{subfigure}{0.48\textwidth}
-      \begin{lstlisting}[language=C++]
-    auto edge_list_graph<vertex_id_t, vertex_id_t>
-      graph<std::vector<std::tuple<vertex_id_t, vertex_id_t>> edges;
-    auto adjaceny_list_graph<vertex_id_t, vertex_id_t, double>
-      graph<std::vector<std::vector<vertex_d_t>, std::vector<double>> adj_list{edges.num_vertices()};
+\end{lstlisting}
+
+We note that the \lstinline{sparse_coordinate} representation is agnostic as to whether it was originally created based on directed edges or undirected edges.  An optimization to the sparse coordinate representation would be to use a \emph{packed coordinate} representation, which would only maintain a single entry for each undirected edge.  In that case, we would need to have two complementary insertions into the adjacency list for each entry in the packed coordinate representation.
+
+The following example illustrates the use of a packed coordinate format to construct and adjacency list with edge property.
+\begin{lstlisting}[language=C++]
+    auto packed_sparse_coordinate edges = std::vector<std::tuple<vertex_id_t, vertex_id_t, double>;
+    // Read the edges
+    auto compressed_sparse adj_list = std::vector<std::vector<std::tuple<vertex_id_t, double>>>(edges.num_vertices();
     for (auto [src, dst, val] : edges) {
       adj_list[src].push_back (dst, val);
       adj_list[dst].push_back (src, val);
     }
-      \end{lstlisting}
-      \caption{Creating an adjacency list from an undirected edge list with properties.
-      Since the edges in the edge list are undirected, for a given edge $(u, v, w)$,
-        $u$ is a neighbor of $v$ and $v$ is a neighbor of $u$. Thus, we insert both
-        $(u, v, w)$ and $(v, u, w)$ into the adjacency list.
-        The adjacency list container is comprised of three vectors, wrapped by
-        the `lstinline{graph}' adapter.
-        \label{subfig:adj_list_from_undirected_edge_list}}
-    \end{subfigure}
-    \caption{Creating an adjacency list from an edge list with properties.\label{fig:adj_list_from_edge_list}}
-  \end{center}
-\end{figure}
+ \end{lstlisting}
 
-\andrew{We should have note that anything wrapped in a graph adapter has a `num\_vertices`
-method (and other members).
-We should also provide a constructor for the adapted adjacency list that takes and
-edge list as argument.}
+% \andrew{We should have note that anything wrapped in a graph adapter has a `num\_vertices`
+% method (and other members).
+% We should also provide a constructor for the adapted adjacency list that takes and
+% edge list as argument.}
 
 
 % The examples above basically cover what I intened here.  Though perhaps we should
@@ -501,52 +491,4 @@ edge list as argument.}
 % \andrew{Scan edge list and insert edgest into adjacency list.  Adjacency list must support insertion.}
 % \subsection{Edge List and Adjacency List: Compressed Edge List}
 % \andrew{Using a sort and group-by (or a sort, a run-length encoding, and a scan), we can compactify the edge-list reprentation and at the same time obtain an adjacency-list representation -- one that is memory and compute efficient.  Best of both worlds.  Has same basic structural principles as CSR / CSC matrices in linear algebra -- but much more general.}
-
-
-
-\section{Naming Conventions}
-
-
-Table~\ref{tab:name_conv} shows the naming conventions used throughout this document.
-
-\begin{table}[h!]
-  \begin{center}
-  {\begin{tabular}{l l l p{7cm}}
-     \hline
-     \textbf{Template}  &                                   & \textbf{Variable}    &                                                                                                                                                                                                  \\
-     \textbf{Parameter} & \textbf{Type Alias}               & \textbf{Names}       & \textbf{Description}                                                                                                                                                                             \\
-     \hline
-     \tcode{G}          &                                   &                      & Graph                                                                                                                                                                                            \\
-     & \tcode{graph_reference_t<G>}      & \tcode{g}            & Graph reference                                                                                                                                                                                  \\
-     \tcode{GV}         &                                   & \tcode{val}          & Graph Value, value or reference                                                                                                                                                                  \\
-     \hline
-     \tcode{V}          & \tcode{vertex_t<G>}               &                      & Vertex                                                                                                                                                                                           \\
-     & \tcode{vertex_reference_t<G>}     & \tcode{u,v,x,y}      & Vertex reference. \tcode{u} is the source (or only) vertex. \tcode{v} is the target vertex.                                                                                                      \\
-     \tcode{VId}        & \tcode{vertex_id_t<G>}            & \tcode{uid,vid,seed} & Vertex id. \tcode{uid} is the source (or only) vertex id. \tcode{vid} is the target vertex id.                                                                                                   \\
-     \tcode{VV}         & \tcode{vertex_value_t<G>}         & \tcode{val}          & Vertex Value, value or reference. This can be either the user-defined value on a vertex, or a value returned by a function object (e.g. \tcode{VVF}) that is related to the vertex.              \\
-     \tcode{VR}         & \tcode{vertex_range_t<G>}         & \tcode{ur,vr}        & Vertex Range                                                                                                                                                                                     \\
-     \tcode{VI}         & \tcode{vertex_iterator_t<G>}      & \tcode{ui,vi}        & Vertex Iterator. \tcode{ui} is the source (or only) vertex.                                                                                                                                      \\
-     &                                   & \tcode{first,last}   & \tcode{vi} is the target vertex.                                                                                                                                                                                    \\
-     \tcode{VVF}        &                                   & \tcode{vvf}          & Vertex Value Function: vvf(u) $\rightarrow$ vertex value                                                                                                                                         \\
-     \tcode{VProj}      &                                   & \tcode{vproj}        & Vertex descriptor projection function: \tcode{vproj(x)} $\rightarrow$ \tcode{vertex_descriptor<VId,VV>}.                                                                                         \\
-     \hdashline
-                        & \tcode{partition_id_t<G>}         & \tcode{pid}          & Partition id.                                                                                                                                                                                    \\
-                        &                                   & \tcode{P}            & Number of partitions.                                                                                                                                                                            \\
-     \tcode{PVR}        & \tcode{partition_vertex_range_t<G>} & \tcode{pur,pvr}    & Partition vertex range.                                                                                                                                                                          \\
-     \hline
-     \tcode{E}          & \tcode{edge_t<G>}                 &                      & Edge                                                                                                                                                                                             \\
-     & \tcode{edge_reference_t<G>}       & \tcode{uv,vw}        & Edge reference. \tcode{uv} is an edge from vertices \tcode{u} to \tcode{v}. \tcode{vw} is an edge from vertices \tcode{v} to \tcode{w}.                                                          \\
-     \tcode{EV}         & \tcode{edge_value_t<G>}           & \tcode{val}          & Edge Value, value or reference. This can be either the user-defined value on an edge, or a value returned by a function object (e.g. \tcode{EVF}) that is related to the edge.                   \\
-     \tcode{ER}         & \tcode{vertex_edge_range_t<G>}    &                      & Edge Range for edges of a vertex                                                                                                                                                                 \\
-     \tcode{EI}         & \tcode{vertex_edge_iterator_t<G>} & \tcode{uvi,vwi}      & Edge Iterator for an edge of a vertex. \tcode{uvi} is an iterator for an edge from vertices \tcode{u} to \tcode{v}. \tcode{vwi} is an iterator for an edge from vertices \tcode{v} to \tcode{w}. \\
-     \tcode{EVF}        &                                   & \tcode{evf}          & Edge Value Function: evf(uv) $\rightarrow$ edge value                                                                                                                                            \\
-     \tcode{EProj}      &                                   & \tcode{eproj}        & Edge descriptor projection function: \tcode{eproj(x)} $\rightarrow$ \tcode{edge_descriptor<VId,Sourced,EV>}.                                                                                     \\
-     \hdashline
-     \tcode{PER}        & \tcode{partition_edge_range_t<G>} &                      & Partition Edge Range for edges of a partition vertex.                                                                                                                                            \\
-     \hline
-  \end{tabular}}
-    \caption{Naming Conventions for Types and Variables}
-    \label{tab:name_conv}
-  \end{center}
-\end{table}
 
