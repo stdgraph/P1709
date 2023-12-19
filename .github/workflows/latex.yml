@@ -18,7 +18,7 @@ jobs:
       - name: Compile LaTeX document
         uses: xu-cheng/latex-action@v2
         with:
-          root_file: D1709R4.tex
+          root_file: D1709r5.tex
           latexmk_shell_escape: true
           
       - name: Upload PDF as an artifact
