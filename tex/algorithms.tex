@@ -215,18 +215,8 @@ BGL does not have these (nor NWGraph).  We should discuss whether or not to cons
 
 \subsubsection{Dijkstra Initialization}
 
-\andrew{Actually, I don't think dijkstra\_invalid\_distance() or dijkstra\_zero() useful -- those
-      need to be specified for the actual init functions.
-      As free functions they don't really do anything.  Or are they meant to be CPOs? } 
-
-\andrew{Is there a run-time overhead introduced by using functions and/or CPOs for things like
-      dijkstra invalid or dijkstra zero?
-}
-
-\andrew{I would like to see a use case for the dijkstra invalid and dijkstra zero functions.}
-
 {\small
-      \lstinputlisting{src/dijkstra_helpers.hpp}
+      \lstinputlisting{src/shortest_paths_helpers.hpp}
 }
 
 \begin{itemdescr}
@@ -956,7 +946,6 @@ Compute the shortest path and associated distance from vertex \tcode{source} to 
       %\pnum\errors
 \end{itemdescr}
 
-\begin{comment}
 \section{Operators}
 \subsection{Degree}
 
@@ -971,7 +960,6 @@ Compute the shortest path and associated distance from vertex \tcode{source} to 
 
 
 \andrew{I've used NetworkX as inspiration for organization.  Oddly, NetworkX only has DFS as an adaptor (view).}
-\end{comment}
 
 
 \chapter{Other Algorithms}
