@@ -39,7 +39,7 @@ int main() {
   std::vector<int> bacon_number(size(actors));
 
   // 1 -> Kevin Bacon
-  for (auto&& [uid,vid,uv] : sourced_edges_breadth_first_search(costar_adjacency_list, 1)) { 
+  for (auto&& [uid,vid] : basic_sourced_edges_bfs(costar_adjacency_list, 1)) { 
     bacon_number[vid] = bacon_number[uid] + 1;
   }
 

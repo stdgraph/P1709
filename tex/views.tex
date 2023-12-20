@@ -53,7 +53,7 @@ for(auto&& [uid, value] : basic_vertexlist(g,vvf)) {
 
 \subsubsection{\tcode{struct vertex_descriptor<VId, V, VV>}}\label{vertex-view}\mbox{} \\
 \tcode{vertex_descriptor} is used to return vertex information. It is used by \tcode{vertexlist(g)}, \tcode{vertices_breadth_first_search(g,u)}, 
-\tcode{vertices_depth_first_search(g,u)} and others. The \tcode{id} member always exists.
+\tcode{vertices_dfs(g,u)} and others. The \tcode{id} member always exists.
 
 {\small
      \lstinputlisting{src/vertex_descriptor.hpp}
@@ -92,7 +92,7 @@ using copyable_vertex_t = vertex_descriptor<VId, void, VV>; // {id, value}
 
 \subsubsection{\tcode{struct edge_descriptor<VId, Sourced, E, EV>}}\label{edge-view}\mbox{} \\
 \tcode{edge_descriptor} is used to return edge information. It is used by 
-\tcode{incidence(g,u), edgelist(g), edges_breadth_first_search(g,u), edges_depth_first_search(g,u)} and others. 
+\tcode{incidence(g,u), edgelist(g), edges_breadth_first_search(g,u), edges_dfs(g,u)} and others. 
 When \tcode{Sourced=true}, the \tcode{source_id} member is included with type \tcode{VId}. The \tcode{target_id} member always exists.
 
 {\small
@@ -224,7 +224,7 @@ Given the copyable types, it's useful to have concepts to determine if a type is
 \section{Common Types and Functions for ``Search'' }
 \phil{Do these apply to all "search" functions?}
 
-The depth\_first\_search, breadth\_first\_search, and toplogical\_sort searches there are a number of common types and functions that apply to them. 
+The Depth First, Breadth First, and Topological Sort searches share a number of common types and functions. 
 
 Here are the types and functions for cancelling a search, getting the current depth of the search, and active elements in the search (e.g. number of vertices in a stack or queue).
 \begin{lstlisting}
@@ -254,7 +254,7 @@ Of particular note, \tcode{size(dfs)} is typically the same as \tcode{depth(dfs)
 The following example shows how the functions  could be used, using \tcode{dfs} for one of the depth\_first\_search views. The same functions can be used for all all search views.
 \begin{lstlisting}
 auto&& g = ...; // graph
-auto&& dfs = vertices_depth_first_search(g,0); // start with vertex\_id=0
+auto&& dfs = vertices_dfs(g,0); // start with vertex\_id=0
 for(auto&& [vid,v] : dfs) {
   // No need to search deeper?
   if(depth(dfs) > 3) {
@@ -376,13 +376,13 @@ Table \ref{tab:edgelist} shows the \tcode{edgelist} function overloads and their
 \end{center}
 \end{table}
 
-\section{depth\_first\_search Views}
-depth\_first\_search views iterate over the vertices and edges from a given seed vertex, returning a \tcode{vertex_descriptor} or \tcode{edge_descriptor} on each iteration when it is first encountered, depending on the function used. 
+\section{Depth First Search Views}
+Depth First Search views iterate over the vertices and edges from a given seed vertex, returning a \tcode{vertex_descriptor} or \tcode{edge_descriptor} on each iteration when it is first encountered, depending on the function used. 
 Table \ref{tab:dfs} shows the functions and their return values.
 
-While not shown in the examples, all functions have a final, optional allocator parameter that defaults to \tcode{std::allocator<bool>}. It is used for containers that are internal to the view. The \tcode{<bool>} argument has no particular meaning.
+While not shown in the examples, all functions have a final, optional allocator parameter that defaults to \tcode{std::allocator<bool>}. 
+It is used for containers that are internal to the view. The \tcode{<bool>} argument has no particular meaning.
 
-\phil{Need "basic" variants that don't include edge reference}
 \begin{table}[h!]
 \begin{center}
 \resizebox{\textwidth}{!}
@@ -390,14 +390,23 @@ While not shown in the examples, all functions have a final, optional allocator 
 \hline
     \textbf{Example} & \textbf{Return} \\
 \hline
-    \tcode{for(auto\&\& [vid,v] : vertices_depth_first_search(g,seed))} & \tcode{vertex_descriptor<VId,V,void>} \\
-    \tcode{for(auto\&\& [vid,v,val] : vertices_depth_first_search(g,seed,vvf))} & \tcode{vertex_descriptor<VId,V,VV>} \\
+    \tcode{for(auto\&\& [vid] : basic_vertices_dfs(g,seed))} & \tcode{vertex_descriptor<VId,void,void>} \\
+    \tcode{for(auto\&\& [vid,val] : basic_vertices_dfs(g,seed,vvf))} & \tcode{vertex_descriptor<VId,void,VV>} \\
+\hdashline
+    \tcode{for(auto\&\& [vid,v] : vertices_dfs(g,seed))} & \tcode{vertex_descriptor<VId,V,void>} \\
+    \tcode{for(auto\&\& [vid,v,val] : vertices_dfs(g,seed,vvf))} & \tcode{vertex_descriptor<VId,V,VV>} \\
 \hline
-    \tcode{for(auto\&\& [vid,uv] : edges_depth_first_search(g,seed))} & \tcode{edge_descriptor<VId,false,E,void>} \\
-    \tcode{for(auto\&\& [vid,uv,val] : edges_depth_first_search(g,seed,evf))} & \tcode{edge_descriptor<VId,false,E,EV>} \\
+    \tcode{for(auto\&\& [vid] : basic_edges_dfs(g,seed))} & \tcode{edge_descriptor<VId,false,void,void>} \\
+    \tcode{for(auto\&\& [vid,val] : basic_edges_dfs(g,seed,evf))} & \tcode{edge_descriptor<VId,false,void,EV>} \\
+\hdashline
+    \tcode{for(auto\&\& [vid,uv] : edges_dfs(g,seed))} & \tcode{edge_descriptor<VId,false,E,void>} \\
+    \tcode{for(auto\&\& [vid,uv,val] : edges_dfs(g,seed,evf))} & \tcode{edge_descriptor<VId,false,E,EV>} \\
 \hline
-    \tcode{for(auto\&\& [uid,vid,uv] : sourced_edges_depth_first_search(g,seed))} & \tcode{edge_descriptor<VId,true,E,void>} \\
-    \tcode{for(auto\&\& [uid,vid,uv,val] : sourced_edges_depth_first_search(g,seed,evf))} & \tcode{edge_descriptor<VId,true,E,EV>} \\
+    \tcode{for(auto\&\& [uid,vid] : basic_sourced_edges_dfs(g,seed))} & \tcode{edge_descriptor<VId,true,void,void>} \\
+    \tcode{for(auto\&\& [uid,vid,val] : basic_sourced_edges_dfs(g,seed,evf))} & \tcode{edge_descriptor<VId,true,void,EV>} \\
+\hdashline
+    \tcode{for(auto\&\& [uid,vid,uv] : sourced_edges_dfs(g,seed))} & \tcode{edge_descriptor<VId,true,E,void>} \\
+    \tcode{for(auto\&\& [uid,vid,uv,val] : sourced_edges_dfs(g,seed,evf))} & \tcode{edge_descriptor<VId,true,E,EV>} \\
 \hline
 \end{tabular}}
 \caption{depth\_first\_search View Functions}
@@ -405,13 +414,13 @@ While not shown in the examples, all functions have a final, optional allocator 
 \end{center}
 \end{table}
 
-\section{breadth\_first\_search Views}
-breadth\_first\_search views iterate over the vertices and edges from a given seed vertex, returning a \tcode{vertex_descriptor} or \tcode{edge_descriptor} on each iteration when it is first encountered, depending on the function used. 
+\section{Breadth First Search Views}
+Breadth First Search views iterate over the vertices and edges from a given seed vertex, returning a \tcode{vertex_descriptor} 
+or \tcode{edge_descriptor} on each iteration when it is first encountered, depending on the function used. 
 Table \ref{tab:bfs} shows the functions and their return values.
 
 While not shown in the examples, all functions have a final, optional allocator parameter that defaults to \tcode{std::allocator<bool>}. It is used for containers that are internal to the view. The \tcode{<bool>} argument has no particular meaning.
 
-\phil{Need "basic" variants that don't include edge reference}
 \begin{table}[h!]
 \begin{center}
 \resizebox{\textwidth}{!}
@@ -419,14 +428,23 @@ While not shown in the examples, all functions have a final, optional allocator 
 \hline
     \textbf{Example} & \textbf{Return} \\
 \hline
-    \tcode{for(auto\&\& [vid,v] : vertices_breadth_first_search(g,seed))} & \tcode{vertex_descriptor<VId,V,void>} \\
-    \tcode{for(auto\&\& [vid,v,val] : vertices_breadth_first_search(g,seed,vvf))} & \tcode{vertex_descriptor<VId,V,VV>} \\
+    \tcode{for(auto\&\& [vid] : basic_vertices_bfs(g,seed))} & \tcode{vertex_descriptor<VId,void,void>} \\
+    \tcode{for(auto\&\& [vid,val] : basic_vertices_bfs(g,seed,vvf))} & \tcode{vertex_descriptor<VId,void,VV>} \\
+\hdashline
+    \tcode{for(auto\&\& [vid,v] : vertices_bfs(g,seed))} & \tcode{vertex_descriptor<VId,V,void>} \\
+    \tcode{for(auto\&\& [vid,v,val] : vertices_bfs(g,seed,vvf))} & \tcode{vertex_descriptor<VId,V,VV>} \\
 \hline
-    \tcode{for(auto\&\& [vid,uv] : edges_breadth_first_search(g,seed))} & \tcode{edge_descriptor<VId,false,E,void>} \\
-    \tcode{for(auto\&\& [vid,uv,val] : edges_breadth_first_search(g,seed,evf))} & \tcode{edge_descriptor<VId,false,E,EV>} \\
+    \tcode{for(auto\&\& [vid] : basic_edges_bfs(g,seed))} & \tcode{edge_descriptor<VId,false,void,void>} \\
+    \tcode{for(auto\&\& [vid,val] : basic_edges_bfs(g,seed,evf))} & \tcode{edge_descriptor<VId,false,void,EV>} \\
+\hdashline
+    \tcode{for(auto\&\& [vid,uv] : edges_bfs(g,seed))} & \tcode{edge_descriptor<VId,false,E,void>} \\
+    \tcode{for(auto\&\& [vid,uv,val] : edges_bfs(g,seed,evf))} & \tcode{edge_descriptor<VId,false,E,EV>} \\
 \hline
-    \tcode{for(auto\&\& [uid,vid,uv] : sourced_edges_breadth_first_search(g,seed))} & \tcode{edge_descriptor<VId,true,E,void>} \\
-    \tcode{for(auto\&\& [uid,vid,uv,val] : sourced_edges_breadth_first_search(g,seed,evf))} & \tcode{edge_descriptor<VId,true,E,EV>} \\
+    \tcode{for(auto\&\& [uid,vid] : basic_sourced_edges_bfs(g,seed))} & \tcode{edge_descriptor<VId,true,void,void>} \\
+    \tcode{for(auto\&\& [uid,vid,val] : basic_sourced_edges_bfs(g,seed,evf))} & \tcode{edge_descriptor<VId,true,void,EV>} \\
+\hdashline
+    \tcode{for(auto\&\& [uid,vid,uv] : sourced_edges_bfs(g,seed))} & \tcode{edge_descriptor<VId,true,E,void>} \\
+    \tcode{for(auto\&\& [uid,vid,uv,val] : sourced_edges_bfs(g,seed,evf))} & \tcode{edge_descriptor<VId,true,E,EV>} \\
 \hline
 \end{tabular}}
 \caption{breadth\_first\_search View Functions}
@@ -434,13 +452,13 @@ While not shown in the examples, all functions have a final, optional allocator 
 \end{center}
 \end{table}
 
-\section{topological\_sort Views}
-topological\_sort views iterate over the vertices and edges from a given seed vertex, returning a \tcode{vertex_descriptor} or \tcode{edge_descriptor} on each iteration when it is first encountered, depending on the function used. 
+\section{Topological Sort Views}
+Topological Sort views iterate over the vertices and edges from a given seed vertex, returning a \tcode{vertex_descriptor} or 
+\tcode{edge_descriptor} on each iteration when it is first encountered, depending on the function used. 
 Table \ref{tab:topo_sort} shows the functions and their return values.
 
 While not shown in the examples, all functions have a final, optional allocator parameter that defaults to \tcode{std::allocator<bool>}. It is used for containers that are internal to the view. The \tcode{<bool>} argument has no particular meaning.
 
-\phil{Need "basic" variants that don't include edge reference}
 \begin{table}[h!]
 \begin{center}
 \resizebox{\textwidth}{!}
@@ -448,12 +466,21 @@ While not shown in the examples, all functions have a final, optional allocator 
 \hline
     \textbf{Example} & \textbf{Return} \\
 \hline
+    \tcode{for(auto\&\& [vid] : basic_vertices_topological_sort(g,seed))} & \tcode{vertex_descriptor<VId,void,void>} \\
+    \tcode{for(auto\&\& [vid,val] : basic_vertices_topological_sort(g,seed,vvf))} & \tcode{vertex_descriptor<VId,void,VV>} \\
+\hdashline
     \tcode{for(auto\&\& [vid,v] : vertices_topological_sort(g,seed))} & \tcode{vertex_descriptor<VId,V,void>} \\
     \tcode{for(auto\&\& [vid,v,val] : vertices_topological_sort(g,seed,vvf))} & \tcode{vertex_descriptor<VId,V,VV>} \\
 \hline
+    \tcode{for(auto\&\& [vid] : basic_edges_topological_sort(g,seed))} & \tcode{edge_descriptor<VId,false,void,void>} \\
+    \tcode{for(auto\&\& [vid,val] : basic_edges_topological_sort(g,seed,evf))} & \tcode{edge_descriptor<VId,false,void,EV>} \\
+\hdashline
     \tcode{for(auto\&\& [vid,uv] : edges_topological_sort(g,seed))} & \tcode{edge_descriptor<VId,false,E,void>} \\
     \tcode{for(auto\&\& [vid,uv,val] : edges_topological_sort(g,seed,evf))} & \tcode{edge_descriptor<VId,false,E,EV>} \\
 \hline
+    \tcode{for(auto\&\& [uid,vid] : basic_sourced_edges_topological_sort(g,seed))} & \tcode{edge_descriptor<VId,true,void,void>} \\
+    \tcode{for(auto\&\& [uid,vid,val] : basic_sourced_edges_topological_sort(g,seed,evf))} & \tcode{edge_descriptor<VId,true,void,EV>} \\
+\hdashline
     \tcode{for(auto\&\& [uid,vid,uv] : sourced_edges_topological_sort(g,seed))} & \tcode{edge_descriptor<VId,true,E,void>} \\
     \tcode{for(auto\&\& [uid,vid,uv,val] : sourced_edges_topological_sort(g,seed,evf))} & \tcode{edge_descriptor<VId,true,E,EV>} \\
 \hline
