@@ -75,21 +75,21 @@ Most fundamentally (as illustrated above), an adjacency list is a collection of 
 % Additional concepts used by algorithms.
 
 \begin{lstlisting}
-template <class G, class WF, class DistVal, class Compare, class Combine>
+template <class G, class WF, class DistanceValue, class Compare, class Combine>
 concept basic_edge_weight_function = // e.g. weight(uv)
-      is_arithmetic_v<DistVal> &&
-      strict_weak_order<Compare, DistVal, DistVal> &&
-      assignable_from<add_lvalue_reference_t<DistVal>, 
-                      invoke_result_t<Combine, invoke_result_t<WF, edge_reference_t<G>>>>;
+      is_arithmetic_v<DistanceValue> && 
+      strict_weak_order<Compare, DistanceValue, DistanceValue> &&
+      assignable_from<add_lvalue_reference_t<DistanceValue>,
+            invoke_result_t<Combine, DistanceValue, invoke_result_t<WF, edge_reference_t<G>>>>;
 
-template <class G, class WF, class DistVal>
+template <class G, class WF, class DistanceValue>
 concept edge_weight_function = // e.g. weight(uv)
       is_arithmetic_v<invoke_result_t<WF, edge_reference_t<G>>> &&
       basic_edge_weight_function<G,
                                   WF,
-                                  Distance,
-                                  less<DistVal>,
-                                  plus<DistVal>>;
+                                  DistanceValue,
+                                  less<DistanceValue>,
+                                  plus<DistanceValue>>;
 \end{lstlisting}
 
 \begin{comment}
@@ -239,7 +239,7 @@ BGL does not have these (nor NWGraph).  We should discuss whether or not to cons
 \end{itemdescr}
 
 
-\subsubsection{Dijkstra Single Source Shortest Paths}
+\subsubsection{Dijkstra Single Source Shortest Paths and Shortest Distances}
 
 Compute the shortest path and associated distance from vertex \tcode{source} to all reachable vertices in \tcode{graph}
 using non-negative weights.
@@ -264,14 +264,15 @@ using non-negative weights.
 Note that complexity may be $\mathcal{O}(|E| + |V|\log{|V|)}$ for certain implementations.
 
 The following functions are split into the common and general cases, where the general cases allow the caller
-to specify \tcode{Compare} and \tcode{Combine} functions (e.g. less and add). They are further split into 
-overloads where one takes a \tcode{predecessors} argument and the other doesn't. Concepts and types from 
+to specify \tcode{Compare} and \tcode{Combine} functions (e.g. less and add). Concepts and types from 
 \tcode{std::ranges} don't include the namespace prefix for brevity and clarity of purpose.
 
 {\small
       \lstinputlisting{src/dijkstra_common.hpp}
       \lstinputlisting{src/dijkstra_general.hpp}
 }
+
+\phil{Need to add an allocator parameter for the internal queue to the general functions}
 
 \begin{itemdescr}
       \pnum\mandates
@@ -311,7 +312,7 @@ overloads where one takes a \tcode{predecessors} argument and the other doesn't.
 \end{itemdescr}
 
 
-\subsubsection{Bellman-Ford Single Source Shortest Paths}
+\subsubsection{Bellman-Ford Single Source Shortest Paths and Shortest Distances}
 Compute the shortest path and associated distance from vertex \tcode{source} to all reachable vertices in \tcode{graph}.
 
 
@@ -336,8 +337,7 @@ Compute the shortest path and associated distance from vertex \tcode{source} to 
 
 
 The following functions are split into the common and general cases, where the general cases allow the caller
-to specify \tcode{Compare} and \tcode{Combine} functions (e.g. less and add). They are further split into 
-overloads where one takes a \tcode{predecessors} argument and the other doesn't. Concepts and types from 
+to specify \tcode{Compare} and \tcode{Combine} functions (e.g. less and add). Concepts and types from 
 \tcode{std::ranges} don't include the namespace prefix for brevity and clarity of purpose.
 
 {\small

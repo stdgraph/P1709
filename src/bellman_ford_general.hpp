@@ -21,7 +21,7 @@ template <index_adjacency_list G,
           class                Combine,
           class WF = function<range_value_t<Distances>(edge_reference_t<G>)>>
 requires basic_edge_weight_function<G, WF, range_value_t<Distances>, Compare, Combine>
-void bellman_ford_shortest_paths(
+void bellman_ford_shortest_distances(
       const G&       graph, 
       vertex_id_t<G> source, 
       Distances&     distances, 

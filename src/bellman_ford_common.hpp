@@ -15,7 +15,7 @@ template <index_adjacency_list G,
           random_access_range  Distances,
           class WF = function<range_value_t<Distances>(edge_reference_t<G>)>>
 requires edge_weight_function<G, WF, range_value_t<Distances>>
-void bellman_ford_shortest_paths(
+void bellman_ford_shortest_distances(
       const G&       graph, 
       vertex_id_t<G> source, 
       Distances&     distancess, 
