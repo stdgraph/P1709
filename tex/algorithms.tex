@@ -213,7 +213,7 @@ BGL does not have these (nor NWGraph).  We should discuss whether or not to cons
 
 \subsection{Weighted Shortest Paths}
 
-\subsubsection{Dijkstra Initialization}
+\subsubsection{Shortest Paths Initialization}
 
 {\small
       \lstinputlisting{src/shortest_paths_helpers.hpp}
@@ -224,10 +224,17 @@ BGL does not have these (nor NWGraph).  We should discuss whether or not to cons
       \effects:
             \begin{itemize}
                   \item
-                        Each \lstinline{predessors[i]} is initialized to \lstinline{i}.
-                  \item Each
-                        \lstinline{distance[i]} is initialized to \lstinline{std::numeric_limits::max()}
-                        or to \lstinline{init}.
+                        \lstinline{init_shortest_paths(distances)} sets all elements in \lstinline{distance} to \lstinline{shortest_path_invalid_distance()}
+                  \item
+                        \lstinline{init_shortest_paths(distances,predecessors)} does the same as \lstinline{shortest_path_invalid_distance(distances)}
+                        and sets \lstinline{predecessors[i] = i} for \lstinline{i < size(predecessors)}.
+            \end{itemize}
+      \pnum\returns 
+            \begin{itemize}
+                  \item \lstinline{shortest_path_invalid_distance()} returns a sentinal value for an invalid distrance,
+                        typically \lstinline{numeric_limits<DistanceValue>::max()} for numeric types.
+                  \item \lstinline{shortest_path_zero()} returns a value for for a zero-length path,
+                        typically \lstinline{0} for numeric types.
             \end{itemize}
 \end{itemdescr}
 
@@ -256,8 +263,14 @@ using non-negative weights.
 \end{table}
 Note that complexity may be $\mathcal{O}(|E| + |V|\log{|V|)}$ for certain implementations.
 
+The following functions are split into the common and general cases, where the general cases allow the caller
+to specify \tcode{Compare} and \tcode{Combine} functions (e.g. less and add). They are further split into 
+overloads where one takes a \tcode{predecessors} argument and the other doesn't. Concepts and types from 
+\tcode{std::ranges} don't include the namespace prefix for brevity and clarity of purpose.
+
 {\small
-      \lstinputlisting{src/dijkstra.hpp}
+      \lstinputlisting{src/dijkstra_common.hpp}
+      \lstinputlisting{src/dijkstra_general.hpp}
 }
 
 \begin{itemdescr}
@@ -271,11 +284,9 @@ Note that complexity may be $\mathcal{O}(|E| + |V|\log{|V|)}$ for certain implem
                   \item
                         \lstinline{0 <= source < num_vertices(graph)}. 
                   \item
-                        \lstinline{distance[i] = numeric_limits<range_value_t<Distance>>::max()}
-                        for \lstinline{0 <= i < num_vertices(graph)}.  
-                        \\ \andrew{invalid distance?}
+                        \lstinline{distance} will be initialized with \lstinline{init_shortest_paths}.
                   \item
-                        \lstinline{precessors[i] = i} for \lstinline{0 <= i <  num_vertices(graph)}.
+                        \lstinline{precessors} will be initialized with \lstinline{init_shortest_paths}.
             \end{itemize}
       \pnum\effects
             \begin{itemize}
@@ -283,7 +294,7 @@ Note that complexity may be $\mathcal{O}(|E| + |V|\log{|V|)}$ for certain implem
                         If vertex with index \lstinline{i} is reachable from vertex \lstinline{source}, then
                         \lstinline{distances[i]} will contain the distance from \lstinline{source} to vertex
                         \lstinline{i}.  Otherwise \lstinline{distances[i]} will contain
-                        \lstinline{numeric_limits<range_value_t<Distance>>::max()}.
+                        \lstinline{shortest_path_invalid_distance()}.
                   \item
                         If vertex with index \lstinline{i} is reachable
                         from vertex \lstinline{source}, then \lstinline{predecessors[i]} will contain the
@@ -295,13 +306,7 @@ Note that complexity may be $\mathcal{O}(|E| + |V|\log{|V|)}$ for certain implem
       \pnum\throws \tcode{out_of_range} is thrown when \tcode{source} is not in the range \tcode{0 <= source < num_vertices(graph)}.  \\
       %\pnum\complexity \\
       \pnum\remarks 
-            \begin{itemize}
-                  \item 
-                        Passing \tcode{null_predecessors} in the \tcode{predecessors} parameter will result in a compile-time decision
-                        to not evaluate predecessors.
-                  \item 
                         Bellman-Ford Shortest Paths allows negative weights with the consequence of greater complexity. \\
-            \end{itemize}
       %\pnum\errors
 \end{itemdescr}
 
@@ -330,8 +335,14 @@ Compute the shortest path and associated distance from vertex \tcode{source} to 
 %\andrew{Complexity is really is atrocious.  Suitable only for really small graphs.}
 
 
+The following functions are split into the common and general cases, where the general cases allow the caller
+to specify \tcode{Compare} and \tcode{Combine} functions (e.g. less and add). They are further split into 
+overloads where one takes a \tcode{predecessors} argument and the other doesn't. Concepts and types from 
+\tcode{std::ranges} don't include the namespace prefix for brevity and clarity of purpose.
+
 {\small
-      \lstinputlisting{src/bellman_ford.hpp}
+      \lstinputlisting{src/bellman_ford_common.hpp}
+      \lstinputlisting{src/bellman_ford_general.hpp}
 }
 
 \phil{Should negative weight cycles be a pre-condition, or should it be detected with an exception thrown when it exists?}
@@ -341,21 +352,19 @@ Compute the shortest path and associated distance from vertex \tcode{source} to 
       \pnum\preconditions
             \begin{itemize}
                   \item
-                        \lstinline{0 <= source < num_vertices(g)}. 
+                        \lstinline{0 <= source < num_vertices(graph)}. 
                   \item
-                        \lstinline{distance[i] = numeric_limits<range_value_t<Distance>>::max()}
-                        for \lstinline{0 <= i < num_vertices(g)}.  
-                        \\ \andrew{invalid distance?}
+                        \lstinline{distance} will be initialized with \lstinline{init_shortest_paths}.
                   \item
-                        \lstinline{precessors[i] = i} for \lstinline{0 <= i <  num_vertices(g)}.
+                        \lstinline{precessors} will be initialized with \lstinline{init_shortest_paths}.
             \end{itemize}
-      \pnum\effects \\
+      \pnum\effects
             \begin{itemize}
                   \item
                         If vertex with index \lstinline{i} is reachable from vertex \lstinline{source}, then
                         \lstinline{distances[i]} will contain the distance from \lstinline{source} to vertex
                         \lstinline{i}.  Otherwise \lstinline{distances[i]} will contain
-                        \lstinline{numeric_limits<range_value_t<Distance>>::max()}.
+                        \lstinline{shortest_path_invalid_distance()}.
                   \item
                         If vertex with index \lstinline{i} is reachable
                         from vertex \lstinline{source}, then \lstinline{predecessors[i]} will contain the
@@ -368,9 +377,6 @@ Compute the shortest path and associated distance from vertex \tcode{source} to 
       %\pnum\complexity \\
       \pnum\remarks 
             \begin{itemize}
-                  \item 
-                        Passing \tcode{null_predecessors} in the \tcode{predecessors} parameter will result in a compile-time decision
-                        to not evaluate predecessors.
                   \item
                         Unlike Dijkstra's algorithm, Bellman-Ford allows negative edge weights. Performance constraints limit this to smaller graphs.
             \end{itemize}
