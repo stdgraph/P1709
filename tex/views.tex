@@ -276,6 +276,10 @@ for(auto&& [vid,v] : dfs) {
 \tcode{vertexlist} views iterate over a range of vertices, returning a \tcode{vertex_descriptor} on each iteration. 
 Table \ref{tab:vertexlist} shows the vertexlist functions overloads and their return values. \tcode{first} and \tcode{last} are vertex iterators.
 
+\phil{Change naming to \tcode{vertexlist} and \tcode{extended_vertexlist} instead of \tcode{basic_vertexlist} and \tcode{vertexlist}?}
+
+\phil{vvf needs to accept vertex\_reference or vertex\_id}
+
 \begin{table}[h!]
 \begin{center}
 %\resizebox{\textwidth}{!}
@@ -309,6 +313,8 @@ Table \ref{tab:incidence} shows the \tcode{incidence} function overloads and the
 
 Since the source vertex \tcode{u} is available when calling an \tcode{incidence} function, there's no need to include sourced versions of the function to include \tcode{source_id} in the output.
 
+\phil{evf needs to accept edge\_reference or edges\_id (sourced required)}
+
 \begin{table}[h!]
 \begin{center}
 %\resizebox{\textwidth}{!}
@@ -334,6 +340,8 @@ Table \ref{tab:neighbors} shows the \tcode{neighbors} function overloads and the
 
 Since the source vertex \tcode{u} is available when calling a \tcode{neighbors} function, there's no need to include sourced versions of the function to include \tcode{source_id} in the output.
 
+\phil{vvf needs to accept vertex\_reference or vertex\_id}
+
 \begin{table}[h!]
 \begin{center}
 %\resizebox{\textwidth}{!}
@@ -356,6 +364,8 @@ Since the source vertex \tcode{u} is available when calling a \tcode{neighbors} 
 \section{edgelist Views}
 \tcode{edgelist} views iterate over all edges for all vertices, returning a \tcode{edge_descriptor} on each iteration. 
 Table \ref{tab:edgelist} shows the \tcode{edgelist} function overloads and their return values. 
+
+\phil{evf needs to accept edge\_reference or edges\_id (sourced required)}
 
 \begin{table}[h!]
 \begin{center}
@@ -382,6 +392,10 @@ Table \ref{tab:dfs} shows the functions and their return values.
 
 While not shown in the examples, all functions have a final, optional allocator parameter that defaults to \tcode{std::allocator<bool>}. 
 It is used for containers that are internal to the view. The \tcode{<bool>} argument has no particular meaning.
+
+\phil{vvf needs to accept vertex\_reference or vertex\_id}
+
+\phil{evf needs to accept edge\_reference or edges\_id (sourced required)}
 
 \begin{table}[h!]
 \begin{center}
@@ -421,6 +435,10 @@ Table \ref{tab:bfs} shows the functions and their return values.
 
 While not shown in the examples, all functions have a final, optional allocator parameter that defaults to \tcode{std::allocator<bool>}. It is used for containers that are internal to the view. The \tcode{<bool>} argument has no particular meaning.
 
+\phil{vvf needs to accept vertex\_reference or vertex\_id}
+
+\phil{evf needs to accept edge\_reference or edges\_id (sourced required)}
+
 \begin{table}[h!]
 \begin{center}
 \resizebox{\textwidth}{!}
@@ -458,6 +476,10 @@ Topological Sort views iterate over the vertices and edges from a given seed ver
 Table \ref{tab:topo_sort} shows the functions and their return values.
 
 While not shown in the examples, all functions have a final, optional allocator parameter that defaults to \tcode{std::allocator<bool>}. It is used for containers that are internal to the view. The \tcode{<bool>} argument has no particular meaning.
+
+\phil{vvf needs to accept vertex\_reference or vertex\_id}
+
+\phil{evf needs to accept edge\_reference or edges\_id (sourced required)}
 
 \begin{table}[h!]
 \begin{center}
