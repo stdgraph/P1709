@@ -60,7 +60,7 @@ Since Kevin Bacon appeared with Tom Cruise in ``A Few Good Men'', Tom Cruise has
 
 The following program computes the Bacon number for a small selection of actors.
 
-% \phil{Duplicated in Overview's Examples}
+% \phil{Duplicated in Overview's Examples. OK?}
 {\small
   \lstinputlisting[firstline=26,lastline=49]{src/bacon.cpp}
 }
@@ -207,7 +207,7 @@ At first glance, it may seem that we have simply created a data structure $C$ th
 original graph has an edge from $v_i$ to $v_j$.  This is true in the directed case.  However, in the undirected case, if there is an edge between $v_i$ and $v_j$, then $v_i$ is adjacent to $v_j$ and $v_j$ is adjacent to $v_i$.  In other words, if there is an edge between $v_i$ and  $v_j$ in an undirected graph, then both the entries $a_{ij}$ and $a_{ji}$ are equal to $1$\footnote{That is, the adjacency matrix is symmetric.} --- and therefore for a single edge between $v_i$ and $v_j$,  $C$ contains two index pairs: $(i, j)$  and $(j, i)$.   The sparse coordinate representation is commonly known as \emph{edge list}.  However, we caution the reader that $C$ does not store edges, but rather indices and that, in the case that it represents an undirected graph, there is not a 1-1 correspondence between the edges in $E$ and the contents of $C$.
 
 Although the sparse coordinate adjacency matrix is much more efficient in terms of storage than the original adjacency matrix, it isn't as efficient as it could be.  
-Much more importantly, it does not at all useful for the types of operations used by most graph algorithms, which need to be able to get the set of neighbors of a given vertex in constant time.  
+Much more importantly, it is not useful for the types of operations used by most graph algorithms, which need to be able to get the set of neighbors of a given vertex in constant time.  
 To support this type of operation, we use a \emph{compressed sparse adjacency matrix}, which is an array $J$ with $|V|$ entries, where each $J[i]$ is a linear container of indices $\{ j \}$ such that $v_j$ is a neighbor of $v_i$ in $G$.  
 That is $j$ is contained in $J[i]$ if and only if there is an edge $(v_i, v_j)$ in $E$ (or, equivalently, if there is a pair $(i, j)$ in $C$ or, equivalently, if $a_{ij} = 1$)\footnote{The compressed sparse adjacency matrix is identical to the compressed sparse row format from linear algebra}.  
 We note that if $(v_i, v_j)$ is an edge in an undirected graph, $J[i]$ will contain $j$ and $J[j]$ will contain $i$. 
@@ -454,9 +454,9 @@ a \lstinline{std::vector<std::vector<vertex_id_t>>;}
 
 We note that the \lstinline{sparse_coordinate} representation is agnostic as to whether it was originally created based on directed edges or undirected edges.  An optimization to the sparse coordinate representation would be to use a \emph{packed coordinate} representation, which would only maintain a single entry for each undirected edge.  In that case, we would need to have two complementary insertions into the adjacency list for each entry in the packed coordinate representation.
 
-The following example illustrates the use of a packed coordinate format to construct and adjacency list with edge property.
+The following example illustrates the use of a packed coordinate format to construct an adjacency list with an edge property.
 \begin{lstlisting}[language=C++]
-    auto packed_sparse_coordinate edges = std::vector<std::tuple<vertex_id_t, vertex_id_t, double>;
+    auto packed_sparse_coordinate edges = std::vector<std::tuple<vertex_id_t, vertex_id_t, double>>;
     // Read the edges
     auto compressed_sparse adj_list = std::vector<std::vector<std::tuple<vertex_id_t, double>>>(edges.num_vertices();
     for (auto [src, dst, val] : edges) {
