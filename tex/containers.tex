@@ -14,9 +14,22 @@ The selection of the VId template argument impacts the inter storage requirement
 graph where the number of vertices is less than 256, and the number of edges is less than 256, 
 then a \tcode{uint8_t} would be sufficient.
 
-compressed\_graph supports multipartite graphs. 
-
-All the \tcode{load} functions are supported, including \tcode{load_graph, load_vertices, load_partition} and \tcode{load_edges}.
+\begin{table}[h]
+    \setcellgapes{3pt}
+    \makegapedcells
+    \centering
+    \begin{tabular}{|P{0.35\textwidth}|P{0.30\textwidth}|P{0.35\textwidth}|}
+    \hline
+    \textbf{Implements \tcode{load_graph}?} Yes & \textbf{Can append vertices?} No & \textbf{vertex\_id assignment:} Contiguous\\
+    \textbf{Implements \tcode{load_vertices}?} Yes & \textbf{Can append vertices?} No & \textbf{Vertices range:} Contiguous \\
+    \textbf{Implements \tcode{load_edges}?} Yes &  & \textbf{Edge range:} Contiguous \\
+    \textbf{Implements \tcode{load_partition}?} Yes &  & \\
+    \hline
+    \end{tabular}
+    %\caption{Jaccard Coefficient Summary}
+    \label{tab:compressed_graph_summary}
+\end{table}
+Vertices and edges cannot be appended to an existing partition, but they can be added to a new partition.
 
 \begin{lstlisting}
 template <class    EV     = void,     // Edge Value type
@@ -40,6 +53,5 @@ public:
 
 \phil{Additional members to define?}
 
-\phil{Add table capabilities/limitations}
-
 \phil{tilde in destructor is giving problems in latex}
+

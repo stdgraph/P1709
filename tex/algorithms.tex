@@ -166,51 +166,71 @@ BGL does not have these (nor NWGraph).  We should discuss whether or not to cons
 
 
 \subsubsection{Breadth-First Search, Single Source}
+Compute the breadth-first path and associated distance from vertex \tcode{source} to all reachable vertices in \tcode{graph}.
 
-\phil{What value does this bring over the \tcode{breadth_first_search} view? }
+\phil{Confirm: BFS=pred; Dijkstra=pred+dist, dist}
+
+\phil{Does the overload with distances overlap the Dijstra implementation? Requires weight function?}
+
+\phil{Important to have \tcode{q} parameter? Requires Queueable concept. (This was part of earlier discussions.) }
+
+\phil{Should we have general overloads with Compare and Combine like we do with Dijkstra?}
+
+\phil{Use shortest\_paths init functions instead of BFS-specific init functions?}
+
+\begin{table}[h]
+\setcellgapes{3pt}
+\makegapedcells
+\centering
+\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\hline
+      \multirowcell{2}{
+            \textbf{Complexity} \\
+                  $\mathcal{O}((|E| + |V|)\log{|V|})$
+            }
+      & \textbf{Throws?} Yes & \textbf{Cycles?} No \\
+      & \textbf{Multi-edge?} No & \textbf{Directed?} Yes \\
+\hline
+\end{tabular}
+%\caption{Dijkstra Single Source Summary}
+\label{tab:dijkstra_ss_summary}
+\end{table}
+Note that complexity may be $\mathcal{O}(|E| + |V|\log{|V|)}$ for certain implementations.
 
 {\small
       \lstinputlisting{src/breadth_first_search.hpp}
 }
 
 \begin{itemdescr}
-      \pnum\mandates
-            \begin{itemize}
-                  \item
-                        \lstinline{graph} is an \lstinline{adjacency_list}, which may be directed or undirected.
-            \end{itemize}
+      %\pnum\mandates
       \pnum\preconditions
             \begin{itemize}
                   \item
-                        \lstinline{0 <= source < num_vertices(graph)}.
-
+                        \lstinline{0 <= source < num_vertices(graph)}. 
                   \item
-                        \lstinline{distance[i] == std::numeric_limits<range_value_t<D>>::max()} \\
-                        for \lstinline{0 <= i < num_vertices(graph)}.  \andrew{invalid distance?}
+                        \lstinline{distance} will be initialized with \lstinline{init_shortest_paths}.
                   \item
-                        The \lstinline{predecessors} range must be initialized so that
-                        \lstinline{precessors[i] == i} for all \lstinline{i} such that
-                        \lstinline{0 <= i <  num_vertices(graph)}.
+                        \lstinline{precessors} will be initialized with \lstinline{init_shortest_paths}.
             \end{itemize}
-      \pnum\effects Compute the breadth-first path and associated distance from vertex
-                        \lstinline{source} to all reachable vertices in \lstinline{graph}.
-      \pnum\result 
+      \pnum\effects
             \begin{itemize}
-                  \item If vertex with index \lstinline{i} is reachable from vertex \lstinline{source}, then
-                        \lstinline{distances[i]} will contain the distance from \lstinline{source} to vertex
-                        \lstinline{i}.  Otherwise, \lstinline{distances[i]} will contain
-                        \lstinline{std::numeric_limits<range_value_t<D>>::max()}.
+                  %\item
+                  %      If vertex with index \lstinline{i} is reachable from vertex \lstinline{source}, then
+                  %      \lstinline{distances[i]} will contain the distance from \lstinline{source} to vertex
+                  %      \lstinline{i}.  Otherwise \lstinline{distances[i]} will contain
+                  %      \lstinline{shortest_path_invalid_distance()}.
                   \item
-                        For \lstinline{breadth_first_search} if vertex with index \lstinline{i} is reachable
-                        from vertex \lstinline{source}, then \lstinline{predecessor[i]} will contain the
-                        predecessor vertex of vertex \lstinline{i}.  Otherwise, \lstinline{predecessors[i]} 
-                        will contain \lstinline{i}.
+                        If vertex with index \lstinline{i} is reachable
+                        from vertex \lstinline{source}, then \lstinline{predecessors[i]} will contain the
+                        predecessor vertex of vertex \lstinline{i}. Otherwise \lstinline{predecessors[i]} will contain
+                        \lstinline{i}.
             \end{itemize}
-      \pnum\returns \lstinline{void} \\
-      \pnum\throws none. \andrew{Throw if \lstinline{source} out of range?} \\
-      \pnum\complexity $\mathcal{O}(|E| + |V|)$ \\
-      \pnum\remarks \\
-      %\pnum\error
+      %\pnum\result
+      %\pnum\returns \lstinline{void} \\
+      \pnum\throws \tcode{out_of_range} is thrown when \tcode{source} is not in the range \tcode{0 <= source < num_vertices(graph)}.  \\
+      %\pnum\complexity \\
+      %\pnum\remarks 
+      %\pnum\errors
 \end{itemdescr}
 
 
@@ -347,6 +367,8 @@ to specify \tcode{Compare} and \tcode{Combine} functions (e.g. less and add). Co
 }
 
 \phil{Should negative weight cycles be a pre-condition, or should it be detected with an exception thrown when it exists?}
+
+\phil{NetworkX has \tcode{negative_edge_cycle} and \tcode{find_negative_cycle}. These are needed if negative weight cycles are a pre-condition?}
 
 \begin{itemdescr}
       %\pnum\mandates
@@ -536,6 +558,9 @@ to specify \tcode{Compare} and \tcode{Combine} functions (e.g. less and add). Co
 {\small
      \lstinputlisting[firstline=23,lastline=25]{src/connected_components.hpp}
 }
+
+\phil{Should target of output iterator be convertible to vertex\_id, not same\_as vertex\_id?}
+
 \begin{itemdescr}
       %\pnum\mandates
       \pnum\preconditions
@@ -739,7 +764,32 @@ to specify \tcode{Compare} and \tcode{Combine} functions (e.g. less and add). Co
 \subsection{Topological Sort}
 \phil{Description needed}
 
+\begin{table}[h]
+      \setcellgapes{3pt}
+      \makegapedcells
+      \centering
+      \begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+      \hline
+            \multirowcell{2}{
+                  \textbf{Complexity} \\
+                  %$\mathcal{O}(|E|+|V|)$
+                  ?
+                  }
+            & \textbf{Throws?} ? & \textbf{Cycles?} No \\
+            & \textbf{Multi-edge?} ? & \textbf{Directed?} ?\\
+      \hline
+      \end{tabular}
+      %\caption{Tarjan's SCC Summary}
+      \label{tab:topo_sort_algo}
+      \end{table}
+      
+      \phil{Prototype needed}
+
+\phil{Characteristics needed}
+
 \phil{Do we need this as an algorithm, in addition to the view? What value does it bring?}
+
+\phil{Should prototype have a similar interface to BFS with predecessors and/or distance?}
 
 \section{Maximal Independent Set}
 \subsection{Maximal Independent Set}
@@ -817,6 +867,12 @@ to specify \tcode{Compare} and \tcode{Combine} functions (e.g. less and add). Co
 {\small
       \lstinputlisting[firstline=4,lastline=6]{src/jaccard.hpp}
 }
+
+\phil{Consider using \tcode{out(uid,vid,uv,val)} as the function descriptor in Preconditions to make it more readable.}
+
+\phil{Would an output iterator be appropriate? \tcode{pair<edge_id_t<G>>,T>} might work for the output type. This starts to get into the same realm of the views
+as to whether the edge reference is useful by the consumer or not (e.g. basic\_ vs. regular versions).}
+
 \begin{itemdescr}
       %\pnum\mandates
       \pnum\preconditions
@@ -837,8 +893,6 @@ to specify \tcode{Compare} and \tcode{Combine} functions (e.g. less and add). Co
       %\pnum\remarks 
       %\pnum\errors
 \end{itemdescr}
-
-\phil{Add Adamic-Adar index to proposal? To Tier 2?}
 
 \section{Minimum Spanning Tree}
 %\andrew{Simplified ``driver'' for these also?}
@@ -1011,6 +1065,8 @@ in this proposal.
 
 
 \andrew{All Pairs: Tier 2?  People bring this up alot -- but it is very expensive in terms of computation and memory.}
+
+\phil{Add Adamic-Adar index to complement Jaccard? To Tier 2?}
 
 % Floyd-Warshall $\mathcal{O}(N^2)$}
 % Johnson $\mathcal{O}(N^2)$}
