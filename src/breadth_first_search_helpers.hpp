@@ -1,13 +1,7 @@
-template <property P, property D>
-void init_breadth_first_search(P&& predecessors, D&& distances);
-
-template <property P, property D>
-void init_breadth_first_search(P&&                           predecessors,
-                               D&&                           distances,
-                               std::ranges::range_value_t<D> init);
-
-template <property D>
-void init_breadth_first_distances(D&& distances);
-
-template <property D>
-void init_breadth_first_distances(D&& distances, std::ranges::range_value_t<D> init);
+template <class Predecessors>
+constexpr void init_breadth_first_search(Predecessors& predecessors) {
+  // exposition only
+  size_t i = 0;
+  for(auto& pred : predecessors)
+    pred = i++;      
+}

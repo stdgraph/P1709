@@ -397,8 +397,7 @@ It is used for containers that are internal to the view. The \tcode{<bool>} argu
 \tcode{edges_dfs} views require a \tcode{evf(uv)} function. \tcode{basic_sourced_edges_dfs} views require a \tcode{evf(eid)} function. 
 A \tcode{basic_edges_dfs} view with a evf is not available because \tcode{evf(eid)} requires that the \tcode{source_id} is available.
 
-The \tcode{basic_sourced_edges_dfs(g,seed,evf)} basic view is required when using a \tcode{evf(eid)} function for edges. 
-A \tcode{basic_edges_dfs} view with an \tcode{evf} is not available because \tcode{evf(eid)} requires that the \tcode{source_id} is available.
+% basic_edges_dfs(g,seed,evf) implies the use of Sourced type internally to have source_id in the call call to evf(eid)
 
 \begin{table}[h!]
 \begin{center}
@@ -414,7 +413,7 @@ A \tcode{basic_edges_dfs} view with an \tcode{evf} is not available because \tco
     \tcode{for(auto\&\& [vid,v,val] : vertices_dfs(g,seed,vvf))} & \tcode{vertex_descriptor<VId,V,VV>} \\
 \hline
     \tcode{for(auto\&\& [vid] : basic_edges_dfs(g,seed))} & \tcode{edge_descriptor<VId,false,void,void>} \\
-    %\tcode{for(auto\&\& [vid,val] : basic_edges_dfs(g,seed,evf))} & \tcode{edge_descriptor<VId,false,void,EV>} \\ % requires source_ for evf(eid)
+    \tcode{for(auto\&\& [vid,val] : basic_edges_dfs(g,seed,evf))} & \tcode{edge_descriptor<VId,false,void,EV>} \\ % requires source_ for evf(eid)
 \hdashline
     \tcode{for(auto\&\& [vid,uv] : edges_dfs(g,seed))} & \tcode{edge_descriptor<VId,false,E,void>} \\
     \tcode{for(auto\&\& [vid,uv,val] : edges_dfs(g,seed,evf))} & \tcode{edge_descriptor<VId,false,E,EV>} \\
@@ -432,6 +431,8 @@ A \tcode{basic_edges_dfs} view with an \tcode{evf} is not available because \tco
 \end{table}
 
 \section{Breadth First Search Views}
+\phil{NetworkX provides an optional depth\_limit parameter for bfs. Add? }
+
 Breadth First Search views iterate over the vertices and edges from a given seed vertex, returning a \tcode{vertex_descriptor} 
 or \tcode{edge_descriptor} on each iteration when it is first encountered, depending on the function used. 
 Table \ref{tab:bfs} shows the functions and their return values.
@@ -444,8 +445,7 @@ While not shown in the examples, all functions have a final, optional allocator 
 \tcode{basic_sourced_edges_bfs} views require a \tcode{evf(eid)} function. 
 A \tcode{basic_edges_bfs} view with a evf is not available because \tcode{evf(eid)} requires that the \tcode{source_id} is available.
 
-The \tcode{basic_sourced_edges_bfs(g,seed,evf)} basic view is required when using a \tcode{evf(eid)} function for edges. 
-A \tcode{basic_edges_bfs} view with an \tcode{evf} is not available because \tcode{evf(eid)} requires that the \tcode{source_id} is available.
+% basic_edges_bfs(g,seed,evf) implies the use of Sourced type internally to have source_id in the call call to evf(eid)
 
 \begin{table}[h!]
 \begin{center}
@@ -461,7 +461,7 @@ A \tcode{basic_edges_bfs} view with an \tcode{evf} is not available because \tco
     \tcode{for(auto\&\& [vid,v,val] : vertices_bfs(g,seed,vvf))} & \tcode{vertex_descriptor<VId,V,VV>} \\
 \hline
     \tcode{for(auto\&\& [vid] : basic_edges_bfs(g,seed))} & \tcode{edge_descriptor<VId,false,void,void>} \\
-    %\tcode{for(auto\&\& [vid,val] : basic_edges_bfs(g,seed,evf))} & \tcode{edge_descriptor<VId,false,void,EV>} \\ % requires source_ for evf(eid)
+    \tcode{for(auto\&\& [vid,val] : basic_edges_bfs(g,seed,evf))} & \tcode{edge_descriptor<VId,false,void,EV>} \\ % requires source_ for evf(eid)
 \hdashline
     \tcode{for(auto\&\& [vid,uv] : edges_bfs(g,seed))} & \tcode{edge_descriptor<VId,false,E,void>} \\
     \tcode{for(auto\&\& [vid,uv,val] : edges_bfs(g,seed,evf))} & \tcode{edge_descriptor<VId,false,E,EV>} \\
@@ -488,8 +488,7 @@ While not shown in the examples, all functions have a final, optional allocator 
 \tcode{vertices_topological_sort} views require a \tcode{vvf(u)} function, and the \tcode{basic_vertices_topological_sort} views require a \tcode{vvf(uid)} function.
 \tcode{edges_topological_sort} views require a \tcode{evf(uv)} function. 
 
-The \tcode{basic_sourced_edges_topological_sort(g,seed,evf)} basic view is required when using a \tcode{evf(eid)} function for edges. 
-A \tcode{basic_edges_topological_sort} view with an \tcode{evf} is not available because \tcode{evf(eid)} requires that the \tcode{source_id} is available.
+% basic_edges_topological_sort(g,seed,evf) implies the use of Sourced type internally to have source_id in the call call to evf(eid)
 
 \begin{table}[h!]
 \begin{center}
@@ -505,7 +504,7 @@ A \tcode{basic_edges_topological_sort} view with an \tcode{evf} is not available
     \tcode{for(auto\&\& [vid,v,val] : vertices_topological_sort(g,seed,vvf))} & \tcode{vertex_descriptor<VId,V,VV>} \\
 \hline
     \tcode{for(auto\&\& [vid] : basic_edges_topological_sort(g,seed))} & \tcode{edge_descriptor<VId,false,void,void>} \\
-    %\tcode{for(auto\&\& [vid,val] : basic_edges_topological_sort(g,seed,evf))} & \tcode{edge_descriptor<VId,false,void,EV>} \\ % requires source_ for evf(eid)
+    \tcode{for(auto\&\& [vid,val] : basic_edges_topological_sort(g,seed,evf))} & \tcode{edge_descriptor<VId,false,void,EV>} \\ % requires source_ for evf(eid)
 \hdashline
     \tcode{for(auto\&\& [vid,uv] : edges_topological_sort(g,seed))} & \tcode{edge_descriptor<VId,false,E,void>} \\
     \tcode{for(auto\&\& [vid,uv,val] : edges_topological_sort(g,seed,evf))} & \tcode{edge_descriptor<VId,false,E,EV>} \\
