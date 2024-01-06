@@ -12,43 +12,43 @@ Other tiers are outlined in the section \ref{other_algo} Other Algorithms.
 \newcolumntype{P}[1]{p{#1-3\tabcolsep-\arrayrulewidth}}
 
 \begin{multicols}{3}
-      Shortest Paths
+      \emph{Shortest Paths}
       \begin{itemize}
             %\item Shortest paths (driver interface)
             \item Breadth-First search
             \item Dijkstra's algorithm
             \item Bellman-Ford
       \end{itemize}
-      Clustering
+      \emph{Clustering}
       \begin{itemize}
             \item Triangle counting
       \end{itemize}
-      Communities
+      \emph{Communities}
       \begin{itemize}
             \item Label propagation
       \end{itemize}
 \columnbreak
-      Components
+      \emph{Components}
       \begin{itemize}
             \item Articulation points
             \item Connected components
             \item Biconnected components
             \item Strongly connected components  
       \end{itemize}
-      Directed Acyclic Graphs
+      \emph{Directed Acyclic Graphs}
       \begin{itemize}
             \item Topological sort
       \end{itemize}
 \columnbreak
-      Maximal Independent Set
+      \emph{Maximal Independent Set}
       \begin{itemize}
             \item Maximal independent set
       \end{itemize}
-      Link Analysis
+      \emph{Link Analysis}
       \begin{itemize}
             \item Jaccard coefficient
       \end{itemize}
-      Minimal Spanning Tree
+      \emph{Minimal Spanning Tree}
       \begin{itemize}
             \item Kruskal Minimal Spanning Tree
             \item Prim Minimal Spanning Tree
@@ -189,18 +189,6 @@ concept edge_weight_function = // e.g. weight(uv)
 \subsubsection{Breadth-First Search, Single Source}
 Compute the breadth-first path and associated distance from vertex \tcode{source} to all reachable vertices in \tcode{graph}.
 
-\begin{comment}
-      \phil{Confirm: BFS=pred; Dijkstra=pred+dist, dist}
-
-      \phil{Does the overload with distances overlap the Dijstra implementation? Requires weight function?}
-
-      \phil{Important to have \tcode{q} parameter? Requires Queueable concept. (This was part of earlier discussions.) }
-
-      \phil{Should we have general overloads with Compare and Combine like we do with Dijkstra?}
-
-      \phil{Use shortest\_paths init functions instead of BFS-specific init functions?}
-\end{comment}
-
 \begin{table}[h]
 \setcellgapes{3pt}
 \makegapedcells
@@ -209,7 +197,7 @@ Compute the breadth-first path and associated distance from vertex \tcode{source
 \hline
       \multirowcell{2}{
             \textbf{Complexity} \\
-                  $\mathcal{O}((|E| + |V|)\log{|V|})$
+                  $\mathcal{O}((|E| + |V|))$
             }
       & \textbf{Throws?} Yes & \textbf{Cycles?} No \\
       & \textbf{Multi-edge?} No & \textbf{Directed?} Yes \\
@@ -224,7 +212,7 @@ Note that complexity may be $\mathcal{O}(|E| + |V|\log{|V|)}$ for certain implem
       \lstinputlisting{src/breadth_first_search.hpp}
 }
 
-\phil{NetworkX provides an optional depth\_limit parameter for bfs. Add? }
+\phil{NetworkX provides an optional depth\_limit parameter for bfs. Add?}
 
 \begin{itemdescr}
       %\pnum\mandates
@@ -779,35 +767,75 @@ to specify \tcode{Compare} and \tcode{Combine} functions (e.g. less and add). Co
 \end{itemdescr}
 
 \section{Directed Acyclic Graphs}
-\subsection{Topological Sort}
-\phil{Description needed}
+\subsection{Topological Sort, Single Source}
+A linear ordering of vertices such that for every directed edge (u,v) from vertex u to vertex v, u comes before v in the ordering.
+
+\subsubsection{Initialization}
+
+{\small
+      \lstinputlisting{src/topological_sort_helpers.hpp}
+}
+
+\begin{itemdescr}
+      \effects
+      \begin{itemize}
+            \item
+                  Each \lstinline{predecessors[i]} is initialized to \lstinline{i}.
+      \end{itemize}
+\end{itemdescr}
+
+\subsubsection{Topological Sort, Single Source}
 
 \begin{table}[h]
-      \setcellgapes{3pt}
-      \makegapedcells
-      \centering
-      \begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
-      \hline
-            \multirowcell{2}{
-                  \textbf{Complexity} \\
-                  %$\mathcal{O}(|E|+|V|)$
-                  ?
-                  }
-            & \textbf{Throws?} ? & \textbf{Cycles?} No \\
-            & \textbf{Multi-edge?} ? & \textbf{Directed?} ?\\
-      \hline
-      \end{tabular}
-      %\caption{Tarjan's SCC Summary}
-      \label{tab:topo_sort_algo}
-      \end{table}
-      
-      \phil{Prototype needed}
+\setcellgapes{3pt}
+\makegapedcells
+\centering
+\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\hline
+      \multirowcell{2}{
+            \textbf{Complexity} \\
+                  $\mathcal{O}((|E| + |V|))$
+            }
+      & \textbf{Throws?} Yes & \textbf{Cycles?} No \\
+      & \textbf{Multi-edge?} No & \textbf{Directed?} Yes \\
+\hline
+\end{tabular}
+%\caption{Topological Sort Single Source Summary}
+\label{tab:toposort_ss_summary}
+\end{table}
 
-\phil{Characteristics needed}
+{\small
+      \lstinputlisting{src/topological_sort.hpp}
+}
 
-\phil{Do we need this as an algorithm, in addition to the view? What value does it bring?}
+\begin{itemdescr}
+      %\pnum\mandates
+      \pnum\preconditions
+            \begin{itemize}
+                  \item
+                        \lstinline{0 <= source < num_vertices(graph)}. 
+                  \item
+                        \lstinline{predecessors} will be initialized with \lstinline{init_topological_sort}.
+            \end{itemize}
+      \pnum\effects
+            \begin{itemize}
+                  \item
+                        If vertex with index \lstinline{i} is reachable
+                        from vertex \lstinline{source}, then \lstinline{predecessors[i]} will contain the
+                        predecessor vertex of vertex \lstinline{i}. Otherwise \lstinline{predecessors[i]} will contain
+                        \lstinline{i}.
+            \end{itemize}
+      %\pnum\result
+      %\pnum\returns \lstinline{void} \\
+      \pnum\throws \tcode{out_of_range} is thrown when \tcode{source} is not in the range \tcode{0 <= source < num_vertices(graph)}.  \\
+      %\pnum\complexity \\
+      %\pnum\remarks 
+      %\pnum\errors
+\end{itemdescr}
 
-\phil{Should prototype have a similar interface to BFS with predecessors and/or distance?}
+
+
+
 
 \section{Maximal Independent Set}
 \subsection{Maximal Independent Set}
@@ -1041,6 +1069,7 @@ as to whether the edge reference is useful by the consumer or not (e.g. basic\_ 
 
 
 \andrew{I've used NetworkX as inspiration for organization.  Oddly, NetworkX only has DFS as an adaptor (view).}
+\phil{If the use of Yield is any indicator, then NetworkX implements topological sort as adaptor also.}
 
 
 \section{Other Algorithms} \label{other_algo}
@@ -1050,6 +1079,9 @@ It is assumed that future proposals will include them, with a recommendation of 
 Tier X algorithms are variations of shortest paths algorithms that complement the Single Source, Multiple Target algorithms 
 in this proposal.
 
+The Shortest Paths Driver is an idea of having a unified interface that chooses the best Shortest Path algorithm
+based on characteristics like non-negative edge weight, multi-threading, etc.
+
 \begin{table}[h!]
 \begin{center}
 %\resizebox{\textwidth}{!}
@@ -1057,19 +1089,19 @@ in this proposal.
 \hline
     \textbf{Tier 2} & \textbf{Tier 3} & \textbf{Tier X} \\
 \hline
-    All Pairs Shortest Paths & Jones Plassman & Single Source, Single Target: Shortest Paths\\
+    All Pairs Shortest Paths & Jones Plassman & Single Source, Single Target: Shortest Paths Driver\\
     Floyd-Warshall & Cores: k-cores & Single Source, Single Target: BFS \\
     Johnson & Cores: k-truss & Single Source, Single Target: Dijkstra \\
     Centrality: Betweenness Centrality & Subgraph Isomorphism & Single Source, Single Target: Bellman-Ford \\
     Coloring: Greedy & & Single Source, Single Target: Delta Stepping \\
     Communities: Louvain & &  \\
-    Connectivity: Minimum Cuts & & Multiple Source: Shortest Paths \\
+    Connectivity: Minimum Cuts & & Multiple Source: Shortest Paths Driver \\
     Transitive Closure & & Multiple Source: BFS \\
     Flows: Edmunds Karp & & Multiple Source: Dijkstra \\
     Flows: Push Relabel & & Multiple Source: Bellman-Ford \\
     Flows: Boykov Kolmogorov & & Multiple Source: Delta Stepping \\
     & &  \\
-    & & Multiple Source, Single Target: Shortest Paths \\
+    & & Multiple Source, Single Target: Shortest Paths Driver\\
     & & Multiple Source, Single Target: BFS \\
     & & Multiple Source, Single Target: Dijkstra \\
     & & Multiple Source, Single Target: Bellman-Ford \\
@@ -1083,11 +1115,15 @@ in this proposal.
 
 
 \andrew{All Pairs: Tier 2?  People bring this up alot -- but it is very expensive in terms of computation and memory.}
+\phil{If it's useful to enough people it should be included. Users can make their own determination of whether they want to use it, based on the cost.}
 
 \andrew{Note that NetworkX also specifies single source single target and multiple source versions of the shortest paths algorithms.  
 BGL does not have these (nor NWGraph).  We should discuss whether or not to consider those and whether or not to make them Tier 1, 2, 3, or infinity.}
+\phil{I think we're beyond considering these for the initial proposal. They can be added in the future, unless we're told otherwise.}
 
-\phil{Add Adamic-Adar index to complement Jaccard? To Tier 2?}
+\phil{The same variations for Shortest Paths algorithms can also be useful for topological sort.}
+
+\phil{Add Adamic-Adar Index to complement Jaccard? To Tier 2?}
 
 % Floyd-Warshall $\mathcal{O}(N^2)$}
 % Johnson $\mathcal{O}(N^2)$}
@@ -1096,153 +1132,151 @@ BGL does not have these (nor NWGraph).  We should discuss whether or not to cons
 
 \begin{comment}
 
-%Algorithms with [TBD] are candidates to consider but having been decided for being in the paper
-%We are targeting the paper to be under 50pp
-All algorithms are customization points.
+      %Algorithms with [TBD] are candidates to consider but having been decided for being in the paper
+      %We are targeting the paper to be under 50pp
+      All algorithms are customization points.
 
-\phil{Algorithms marked [TBD] are provisional and may be moved to a separate proposal to keep the size of this proposal manageable}
+      \phil{Algorithms marked [TBD] are provisional and may be moved to a separate proposal to keep the size of this proposal manageable}
 
-\subsection{Dijkstra's Shortest Paths and Shortest Distances}
-Dijkstra's algorithm \cite{REF_} is a single-source, shortest paths algorithm for non-negative weights. It finds the shortest paths
-and their weighted distances to all vertices connected to a single seed vertex.
+      \subsection{Dijkstra's Shortest Paths and Shortest Distances}
+      Dijkstra's algorithm \cite{REF_} is a single-source, shortest paths algorithm for non-negative weights. It finds the shortest paths
+      and their weighted distances to all vertices connected to a single seed vertex.
 
-\begin{lstlisting}
-template <adjacency_list G, class DistanceValue>
-auto dijkstra_invalid_distance() {
-  return numeric_limits<DistanceValue>::max();
-}
+      \begin{lstlisting}
+      template <adjacency_list G, class DistanceValue>
+      auto dijkstra_invalid_distance() {
+      return numeric_limits<DistanceValue>::max();
+      }
 
-template <adjacency_list              G,
-          ranges::random_access_range Distance,
-          ranges::random_access_range Predecessor,
-          class EVF   = std::function<ranges::range_value_t<Distance>(edge_reference_t<G>)>,
-          queueable Q = 
-              priority_queue<
-                  weighted_vertex<G,invoke_result_t<EVF,edge_reference_t<G>>>,
-                  vector<weighted_vertex<G,invoke_result_t<EVF,edge_reference_t<G>>>>,
-                  greater<weighted_vertex<G,invoke_result_t<EVF,edge_reference_t<G>>>>>>
-requires ranges::random_access_range<vertex_range_t<G>> &&                  //
-      integral<vertex_id_t<G>> &&                                           //
-      is_arithmetic_v<ranges::range_value_t<Distance>> &&                   //
-      convertible_to<vertex_id_t<G>, ranges::range_value_t<Predecessor>> && //
-      edge_weight_function<G, EVF>
-constexpr void dijkstra_shortest_paths(
-      G&&            g,           // graph
-      vertex_id_t<G> seed,        // starting vertex_id
-      Distance&      distance,    // out: distance[uid] of vertex_id uid from seed
-      Predecessor&   predecessor, // out: predecessor[uid] of vertex_id uid in path
-      EVF            weight_fn = [](edge_reference_t<G> uv)  // weight_fn(uv) -> 1
-                                         { return ranges::range_value_t<Distance>(1); },
-      Q              q = Q()
-      );
-\end{lstlisting}
+      template <adjacency_list              G,
+            ranges::random_access_range Distance,
+            ranges::random_access_range Predecessor,
+            class EVF   = std::function<ranges::range_value_t<Distance>(edge_reference_t<G>)>,
+            queueable Q = 
+                  priority_queue<
+                        weighted_vertex<G,invoke_result_t<EVF,edge_reference_t<G>>>,
+                        vector<weighted_vertex<G,invoke_result_t<EVF,edge_reference_t<G>>>>,
+                        greater<weighted_vertex<G,invoke_result_t<EVF,edge_reference_t<G>>>>>>
+      requires ranges::random_access_range<vertex_range_t<G>> &&                  //
+            integral<vertex_id_t<G>> &&                                           //
+            is_arithmetic_v<ranges::range_value_t<Distance>> &&                   //
+            convertible_to<vertex_id_t<G>, ranges::range_value_t<Predecessor>> && //
+            edge_weight_function<G, EVF>
+      constexpr void dijkstra_shortest_paths(
+            G&&            g,           // graph
+            vertex_id_t<G> seed,        // starting vertex_id
+            Distance&      distance,    // out: distance[uid] of vertex_id uid from seed
+            Predecessor&   predecessor, // out: predecessor[uid] of vertex_id uid in path
+            EVF            weight_fn = [](edge_reference_t<G> uv)  // weight_fn(uv) -> 1
+                                          { return ranges::range_value_t<Distance>(1); },
+            Q              q = Q()
+            );
+      \end{lstlisting}
 
-\begin{table}[h!]
-      %\begin{center}
-      %\resizebox{\textwidth}{!}
-      {\begin{tabular}{l l}
-                  \hline
-                  \textit{Complexity}     & O(V log(V)).                                                                                                                                                  \\
-                                          & Additional time will be required to pre-extend  or initialize the \tcode{distance} range by the caller.                                                       \\
-                                          & Additional time may also be required to pre-extend \tcode{predecessor}.                                                                                       \\
-                  \andrew{O((|E| + |V|)log(|V|) or O(|E| + |V|log(|V|).  Initializing distance and predecessor are O(|V|) so don't change the complexity.}
-                  \hline
-                  \textit{Constraints}    & Values returned by \tcode{weight_fn} must be non-negative.                                                                                                    \\
-                  \hline
-                  \textit{Preconditions}  & \tcode{seed >= 0                                                                                                               &  & seed < size(vertices(g))} \\
-                                          & \tcode{size(distance) >= size(vertices(g))}; caller must pre-extend with \tcode{dikstra_invalid_distance()}                                                   \\
-                                          & \tcode{size(predecessor) >= size(vertices(g))}; caller must pre-extend                                                                                        \\
-                                          & \tcode{distance[i] = dijkstra_invalid_distance()} for \tcode{i < size(vertices(g))}                                                                           \\
-                  \hline
-                  \textit{Postconditions} & \tcode{distance[seed] == 0}                                                                                                                                   \\
-                                          & \tcode{predecessor[seed] == seed}.                                                                                                                            \\
-                  \hline
-                  \textit{\effects}       & \tcode{distance[uid]} will be the shortest, weighted distance of vertex\_id \tcode{uid} from \tcode{seed}.                                                    \\
-                                          & If \tcode{uid} is not connected to \tcode{seed} by any edges then it will have a value of \tcode{dijkstra_invalid_distance()}.                                \\
-                                          &                                                                                                                                                               \\
-                                          & \tcode{predecessor[uid]} will have the preceding vertex\_id of \tcode{uid} in the weighted shortest path to \tcode{seed}                                      \\
-                                          & when \tcode{distance[uid] != dijkstra_invalid_distance()}.                                                                                                    \\
-                  \hline
-            \end{tabular}}
-      %\caption{\tcode{incidence} View Functions}
-      %\label{tab:incidence}
-      %\end{center}
-\end{table}
+      \begin{table}[h!]
+            %\begin{center}
+            %\resizebox{\textwidth}{!}
+            {\begin{tabular}{l l}
+                        \hline
+                        \textit{Complexity}     & O(V log(V)).                                                                                                                                                  \\
+                                                & Additional time will be required to pre-extend  or initialize the \tcode{distance} range by the caller.                                                       \\
+                                                & Additional time may also be required to pre-extend \tcode{predecessor}.                                                                                       \\
+                        \andrew{O((|E| + |V|)log(|V|) or O(|E| + |V|log(|V|).  Initializing distance and predecessor are O(|V|) so don't change the complexity.}
+                        \hline
+                        \textit{Constraints}    & Values returned by \tcode{weight_fn} must be non-negative.                                                                                                    \\
+                        \hline
+                        \textit{Preconditions}  & \tcode{seed >= 0                                                                                                               &  & seed < size(vertices(g))} \\
+                                                & \tcode{size(distance) >= size(vertices(g))}; caller must pre-extend with \tcode{dikstra_invalid_distance()}                                                   \\
+                                                & \tcode{size(predecessor) >= size(vertices(g))}; caller must pre-extend                                                                                        \\
+                                                & \tcode{distance[i] = dijkstra_invalid_distance()} for \tcode{i < size(vertices(g))}                                                                           \\
+                        \hline
+                        \textit{Postconditions} & \tcode{distance[seed] == 0}                                                                                                                                   \\
+                                                & \tcode{predecessor[seed] == seed}.                                                                                                                            \\
+                        \hline
+                        \textit{\effects}       & \tcode{distance[uid]} will be the shortest, weighted distance of vertex\_id \tcode{uid} from \tcode{seed}.                                                    \\
+                                                & If \tcode{uid} is not connected to \tcode{seed} by any edges then it will have a value of \tcode{dijkstra_invalid_distance()}.                                \\
+                                                &                                                                                                                                                               \\
+                                                & \tcode{predecessor[uid]} will have the preceding vertex\_id of \tcode{uid} in the weighted shortest path to \tcode{seed}                                      \\
+                                                & when \tcode{distance[uid] != dijkstra_invalid_distance()}.                                                                                                    \\
+                        \hline
+                  \end{tabular}}
+            %\caption{\tcode{incidence} View Functions}
+            %\label{tab:incidence}
+            %\end{center}
+      \end{table}
 
-\phil{Describe the pros and cons of different kinds of queues}
+      \phil{Describe the pros and cons of different kinds of queues}
 
-\andrew{Consider putting the queue template parameter on BFS and passing BFS as a parameter to Dijkstra. Kevin will think about it.} \\
+      The default weight function \tcode{weight_fn} returns a value of 1. When that is used, \tcode{distance[uid]} will have the shortest number of edges
+      between vertex \tcode{uid} and vertex \tcode{seed}. The distance from \tcode{seed} to itself is zero.
 
-The default weight function \tcode{weight_fn} returns a value of 1. When that is used, \tcode{distance[uid]} will have the shortest number of edges
-between vertex \tcode{uid} and vertex \tcode{seed}. The distance from \tcode{seed} to itself is zero.
+      If the caller wishes to use a different queue other than \tcode{priority_queue}, the queue will need to have elements of \tcode{weighted_vertex}
+      which is used internally by the algorithm.
+      \begin{lstlisting}
+      template <class G, class W>
+      requires is_default_constructible_v<vertex_id_t<G>> && is_default_constructible_v<W>
+      struct weighted_vertex {
+      vertex_id_t<G> vertex_id = vertex_id_t<G>();
+      W              weight    = W();
+      constexpr auto operator<=>(const weighted_vertex&) const noexcept; // compare vertex_id
+      };
+      \end{lstlisting}
 
-If the caller wishes to use a different queue other than \tcode{priority_queue}, the queue will need to have elements of \tcode{weighted_vertex}
-which is used internally by the algorithm.
-\begin{lstlisting}
-template <class G, class W>
-requires is_default_constructible_v<vertex_id_t<G>> && is_default_constructible_v<W>
-struct weighted_vertex {
-  vertex_id_t<G> vertex_id = vertex_id_t<G>();
-  W              weight    = W();
-  constexpr auto operator<=>(const weighted_vertex&) const noexcept; // compare vertex_id
-};
-\end{lstlisting}
+      The \tcode{dijkstra_shortest_distances} function is the same as \tcode{dijkstra_shortest_paths} except that it doesn't include
+      the \tcode{predecessor} parameter.
+      \begin{lstlisting}
+      template <adjacency_list              G,
+            ranges::random_access_range Distance,
+            class EVF   = std::function<ranges::range_value_t<Distance>(edge_reference_t<G>)>,
+            queueable Q = 
+                  priority_queue<
+                        weighted_vertex<G,invoke_result_t<EVF,edge_reference_t<G>>>,
+                        vector<weighted_vertex<G,invoke_result_t<EVF,edge_reference_t<G>>>>,
+                        greater<weighted_vertex<G,invoke_result_t<EVF,edge_reference_t<G>>>>>>
+      requires ranges::random_access_range<vertex_range_t<G>> &&                  //
+            integral<vertex_id_t<G>> &&                                           //
+            is_arithmetic_v<ranges::range_value_t<Distance>> &&                   //
+            edge_weight_function<G, EVF>
+      constexpr void dijkstra_shortest_distances(
+            G&&            g,           // graph
+            vertex_id_t<G> seed,        // starting vertex_id
+            Distance&      distance,    // out: distance[uid] of vertex_id uid from seed
+            EVF            weight_fn = [](edge_reference_t<G> uv)  // weight_fn(uv) -> 1
+                                          { return ranges::range_value_t<Distance>(1); },
+            Q              q = Q()
+            );
+      \end{lstlisting}
 
-The \tcode{dijkstra_shortest_distances} function is the same as \tcode{dijkstra_shortest_paths} except that it doesn't include
-the \tcode{predecessor} parameter.
-\begin{lstlisting}
-template <adjacency_list              G,
-          ranges::random_access_range Distance,
-          class EVF   = std::function<ranges::range_value_t<Distance>(edge_reference_t<G>)>,
-          queueable Q = 
-              priority_queue<
-                  weighted_vertex<G,invoke_result_t<EVF,edge_reference_t<G>>>,
-                  vector<weighted_vertex<G,invoke_result_t<EVF,edge_reference_t<G>>>>,
-                  greater<weighted_vertex<G,invoke_result_t<EVF,edge_reference_t<G>>>>>>
-requires ranges::random_access_range<vertex_range_t<G>> &&                  //
-      integral<vertex_id_t<G>> &&                                           //
-      is_arithmetic_v<ranges::range_value_t<Distance>> &&                   //
-      edge_weight_function<G, EVF>
-constexpr void dijkstra_shortest_distances(
-      G&&            g,           // graph
-      vertex_id_t<G> seed,        // starting vertex_id
-      Distance&      distance,    // out: distance[uid] of vertex_id uid from seed
-      EVF            weight_fn = [](edge_reference_t<G> uv)  // weight_fn(uv) -> 1
-                                         { return ranges::range_value_t<Distance>(1); },
-      Q              q = Q()
-      );
-\end{lstlisting}
+      \subsection{[TBD] Delta Stepping Shortest Paths}
+      The  algorithm \cite{REF_} ...
 
-\subsection{[TBD] Delta Stepping Shortest Paths}
-The  algorithm \cite{REF_} ...
+      \subsection{Bellman-Ford Shortest Paths}
+      The Bellman-Ford algorithm \cite{REF_} ...
 
-\subsection{Bellman-Ford Shortest Paths}
-The Bellman-Ford algorithm \cite{REF_} ...
+      \subsection{[TBD] Shortest Paths}
+      (Overloads to select appropriate algorithm based on inputs)
 
-\subsection{[TBD] Shortest Paths}
-(Overloads to select appropriate algorithm based on inputs)
+      \subsection{Connected Components}
+      Connected components \cite{REF_} ...
 
-\subsection{Connected Components}
-Connected components \cite{REF_} ...
+      \subsection{Strongly Connected Components}
+      Strongly connected components \cite{REF_} ...
 
-\subsection{Strongly Connected Components}
-Strongly connected components \cite{REF_} ...
+      \subsection{Biconnected Components}
+      Biconnected components \cite{REF_} ...
 
-\subsection{Biconnected Components}
-Biconnected components \cite{REF_} ...
+      \subsection{Articulation Points}
+      Articulation points \cite{REF_} ...
 
-\subsection{Articulation Points}
-Articulation points \cite{REF_} ...
+      \subsection{Minimum Spanning Tree}
+      Minimum Spanning Tree \cite{REF_} ...
 
-\subsection{Minimum Spanning Tree}
-Minimum Spanning Tree \cite{REF_} ...
-
-\subsection{[TBD] Betweenness Centrality}
-\subsection{[TBD] Triangle Count}
-\subsection{[TBD] Subgraph Isomorphism}
-\subsection{[TBD] Kruskell Minimum Spanning Tree}
-\subsection{[TBD] Prim Minimum Spanning Tree}
-\subsection{[TBD] Louvain (Community Detection)}
-\subsection{[TBD] Label propagation (Community Detection)}
+      \subsection{[TBD] Betweenness Centrality}
+      \subsection{[TBD] Triangle Count}
+      \subsection{[TBD] Subgraph Isomorphism}
+      \subsection{[TBD] Kruskell Minimum Spanning Tree}
+      \subsection{[TBD] Prim Minimum Spanning Tree}
+      \subsection{[TBD] Louvain (Community Detection)}
+      \subsection{[TBD] Label propagation (Community Detection)}
 
 \end{comment}
