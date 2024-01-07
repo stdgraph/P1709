@@ -197,7 +197,7 @@ Compute the breadth-first path and associated distance from vertex \tcode{source
 \hline
       \multirowcell{2}{
             \textbf{Complexity} \\
-                  $\mathcal{O}((|E| + |V|))$
+                  $\mathcal{O}((|E| + |V|)\log{|V|})$
             }
       & \textbf{Throws?} Yes & \textbf{Cycles?} No \\
       & \textbf{Multi-edge?} No & \textbf{Directed?} Yes \\
@@ -212,8 +212,6 @@ Note that complexity may be $\mathcal{O}(|E| + |V|\log{|V|)}$ for certain implem
       \lstinputlisting{src/breadth_first_search.hpp}
 }
 
-\phil{NetworkX provides an optional depth\_limit parameter for bfs. Add?}
-
 \begin{itemdescr}
       %\pnum\mandates
       \pnum\preconditions
@@ -221,10 +219,17 @@ Note that complexity may be $\mathcal{O}(|E| + |V|\log{|V|)}$ for certain implem
                   \item
                         \lstinline{0 <= source < num_vertices(graph)}. 
                   \item
+                        \lstinline{distances} will be initialized with \lstinline{init_breadth_first_search}.
+                  \item
                         \lstinline{predecessors} will be initialized with \lstinline{init_breadth_first_search}.
             \end{itemize}
       \pnum\effects
             \begin{itemize}
+                  \item
+                        If vertex with index \lstinline{i} is reachable from vertex \lstinline{source}, then
+                        \lstinline{distances[i]} will contain the lowest number of edges from \lstinline{source} to vertex
+                        \lstinline{i}.  Otherwise \lstinline{distances[i]} will contain
+                        \lstinline{breadth_first_search_invalid_distance()}.
                   \item
                         If vertex with index \lstinline{i} is reachable
                         from vertex \lstinline{source}, then \lstinline{predecessors[i]} will contain the
@@ -312,7 +317,7 @@ to specify \tcode{Compare} and \tcode{Combine} functions (e.g. less and add). Co
                   \item
                         \lstinline{0 <= source < num_vertices(graph)}. 
                   \item
-                        \lstinline{distance} will be initialized with \lstinline{init_shortest_paths}.
+                        \lstinline{distances} will be initialized with \lstinline{init_shortest_paths}.
                   \item
                         \lstinline{precessors} will be initialized with \lstinline{init_shortest_paths}.
             \end{itemize}

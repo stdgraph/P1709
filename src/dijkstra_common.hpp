@@ -14,7 +14,7 @@ void dijkstra_shortest_paths(
       Predecessors&  predecessors, // out: predecessor[uid] of uid in path
       WF&&           weight =
             [](edge_reference_t<G> uv) { return ranges::range_value_t<Distances>(1); },
-      Allocator alloc = Allocator())                                                  
+      Allocator alloc = Allocator());
 
 template <index_adjacency_list        G,
           ranges::random_access_range Distances,
