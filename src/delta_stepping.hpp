@@ -5,7 +5,7 @@ void delta_stepping_shortest_paths(ExecutionPolicy&& e,
                                    vertex_id_t<G>    source,
                                    W&&               w,
                                    D&&               distances,
-                                   P&&               predecessors) {}
+                                   P&&               predecessors);
 
 template <class ExecutionPolicy,
           adjacency_list_graph G,
@@ -22,7 +22,7 @@ void delta_stepping_shortest_paths(ExecutionPolicy&& e,
                                    D&&               distances,
                                    P&&               predecessors,
                                    Compare&&         comp,
-                                   Combine&&         comb) {}
+                                   Combine&&         comb);
 
 template <class ExecutionPolicy,
           adjacency_list_graph G,
@@ -37,7 +37,7 @@ void delta_stepping_shortest_paths(ExecutionPolicy&& e,
                                    W&&               w,
                                    D&&               distances,
                                    P&&               predecessors,
-                                   T                 delta) {}
+                                   T                 delta);
 
 template <class ExecutionPolicy,
           adjacency_list_graph G,
@@ -56,12 +56,12 @@ void delta_stepping_shortest_paths(ExecutionPolicy&& e,
                                    P&&               predecessors,
                                    Compare&&         comp,
                                    Combine&&         comb,
-                                   T                 delta) {}
+                                   T                 delta);
 
 template <class ExecutionPolicy, adjacency_list_graph G, class W, property D>
 requires weight_function<W, edge_t<G>>
 void delta_stepping_shortest_distances(
-      ExecutionPolicy&& e, const G& graph, vertex_id_t<G> source, W&& w, D&& distances) {}
+				       ExecutionPolicy&& e, const G& graph, vertex_id_t<G> source, W&& w, D&& distances);
 
 template <class ExecutionPolicy,
           adjacency_list_graph G,
@@ -76,7 +76,7 @@ void delta_stepping_shortest_distances(ExecutionPolicy&& e,
                                        W&&               w,
                                        D&&               distances,
                                        Compare&&         comp,
-                                       Combine&&         comb) {}
+                                       Combine&&         comb);
 
 template <class ExecutionPolicy, adjacency_list_graph G, class W, property D, class T>
 requires weight_function<W, edge_t<G>>
@@ -85,7 +85,7 @@ void delta_stepping_shortest_distances(ExecutionPolicy&& e,
                                        vertex_id_t<G>    source,
                                        W&&               w,
                                        D&&               distances,
-                                       T                 delta) {}
+                                       T                 delta);
 
 template <class ExecutionPolicy,
           adjacency_list_graph G,
@@ -102,4 +102,4 @@ void delta_stepping_shortest_distances(ExecutionPolicy&& e,
                                        D&&               distances,
                                        Compare&&         comp,
                                        Combine&&         comb,
-                                       T                 delta) {}
+                                       T                 delta);

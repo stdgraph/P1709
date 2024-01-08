@@ -265,7 +265,7 @@ Note that complexity may be $\mathcal{O}(|E| + |V|\log{|V|)}$ for certain implem
             \end{itemize}
       \pnum\returns 
             \begin{itemize}
-                  \item \lstinline{shortest_path_invalid_distance()} returns a sentinal value for an invalid distrance,
+                  \item \lstinline{shortest_path_invalid_distance()} returns a sentinel value for an invalid distance,
                         typically \lstinline{numeric_limits<DistanceValue>::max()} for numeric types.
                   \item \lstinline{shortest_path_zero()} returns a value for for a zero-length path,
                         typically \lstinline{0} for numeric types.
@@ -319,7 +319,7 @@ to specify \tcode{Compare} and \tcode{Combine} functions (e.g. less and add). Co
                   \item
                         \lstinline{distances} will be initialized with \lstinline{init_shortest_paths}.
                   \item
-                        \lstinline{precessors} will be initialized with \lstinline{init_shortest_paths}.
+                        \lstinline{predecessors} will be initialized with \lstinline{init_shortest_paths}.
             \end{itemize}
       \pnum\effects
             \begin{itemize}
@@ -390,7 +390,7 @@ to specify \tcode{Compare} and \tcode{Combine} functions (e.g. less and add). Co
                   \item
                         \lstinline{distance} will be initialized with \lstinline{init_shortest_paths}.
                   \item
-                        \lstinline{precessors} will be initialized with \lstinline{init_shortest_paths}.
+                        \lstinline{predecessors} will be initialized with \lstinline{init_shortest_paths}.
             \end{itemize}
       \pnum\effects
             \begin{itemize}
@@ -420,7 +420,7 @@ to specify \tcode{Compare} and \tcode{Combine} functions (e.g. less and add). Co
 
 \section{Clustering}
 \subsection{Triangle Counting}
-\phil{Description needed}
+Compute the number of triangles in a graph.
 
 \begin{table}[h]
 \setcellgapes{3pt}
@@ -451,7 +451,8 @@ to specify \tcode{Compare} and \tcode{Combine} functions (e.g. less and add). Co
       \pnum\returns Number of triangles \\
       %\pnum\throws
       %\pnum\complexity \\
-      %\pnum\remarks 
+      \pnum\remarks
+      To avoid duplicate counting, only directed triangles of a certain orientation will be detected. If \tcode{vertex_id(u) < vertex_id(v) < vertex_id(w)}, count triangle if graph contains edges \tcode{uv, vw, uw}.
       %\pnum\errors
 \end{itemdescr}
 
@@ -459,6 +460,9 @@ to specify \tcode{Compare} and \tcode{Combine} functions (e.g. less and add). Co
 \section{Communities}
 \subsection{Label Propagation}
 \phil{Description needed}
+Propagate vertex labels by setting each vertex's label to the most popular label of its neighboring vertices. Every vertex voting on its new label represents one iteration of label propagation. Vertex voting order is randomized every iteration. The algorithm will iterate until label convergence, or optionally for a user specified number of iterations. Convergence occurs when no vertex label changes from the previous iteration. $\mathcal{O}(M)$ complexity is based on the complexity of one iteration, with number of iterations required for convergence considered small relative to graph size.
+
+Some label propagation implementations use vertex ids as an initial labeling. This is not supported here because the label type can be more generic than the vertex id type. User is responsible for meaningful initial labeling.
 
 \begin{table}[h]
 \setcellgapes{3pt}
@@ -468,7 +472,7 @@ to specify \tcode{Compare} and \tcode{Combine} functions (e.g. less and add). Co
 \hline
       \multirowcell{2}{
             \textbf{Complexity} \\
-            $\mathcal{O}(N)$ \kevin{???} \\
+            $\mathcal{O}(M)$ \\
             }
       & \textbf{Throws?} No & \textbf{Cycles?} No \\
       & \textbf{Multi-edge?} No & \textbf{Directed?} Yes\\
@@ -486,9 +490,9 @@ to specify \tcode{Compare} and \tcode{Combine} functions (e.g. less and add). Co
       \pnum\preconditions
             \begin{itemize}
                   \item
-                  \lstinline{label} contains vertex labels.
+                  \lstinline{label} contains initial vertex labels.
                   \item
-                  \lstinline{rng} is a random number generator.
+                  \lstinline{rng} is a random number generator for vertex voting order.
                   \item
                   \lstinline{max_iters} is the maximum number of iterations of the label propagation, or equivalently the maximum distance a label will propagate from its starting vertex.
             \end{itemize}
@@ -496,8 +500,9 @@ to specify \tcode{Compare} and \tcode{Combine} functions (e.g. less and add). Co
       %\pnum\result
       %\pnum\returns
       %\pnum\throws
-      %\pnum\complexity $\mathcal{O}(N)$ \kevin{???} \\
-      %\pnum\remarks 
+      %\pnum\complexity
+      \pnum\remarks
+      User is responsible for initial vertex labels.
       %\pnum\errors
 \end{itemdescr}
 
@@ -509,7 +514,7 @@ to specify \tcode{Compare} and \tcode{Combine} functions (e.g. less and add). Co
 \hline
       \multirowcell{2}{
             \textbf{Complexity} \\
-            $\mathcal{O}(N)$ \\
+            $\mathcal{O}(M)$ \\
             }
       & \textbf{Throws?} No & \textbf{Cycles?} No \\
       & \textbf{Multi-edge?} No & \textbf{Directed?} Yes\\
@@ -527,11 +532,11 @@ to specify \tcode{Compare} and \tcode{Combine} functions (e.g. less and add). Co
       \pnum\preconditions
             \begin{itemize}
                   \item
-                  \lstinline{label} contains vertex labels.
+                  \lstinline{label} contains initial vertex labels.
                   \item
                   \lstinline{empty_label} defines a label that is considered empty and will not be propagated.
                   \item
-                  \lstinline{rng} is a random number generator.
+                  \lstinline{rng} is a random number generator for vertex voting order.
                   \item
                   \lstinline{max_iters} is the maximum number of iterations of the label propagation, or equivalently the maximum distance a label will propagate from its starting vertex.
             \end{itemize}
@@ -539,14 +544,16 @@ to specify \tcode{Compare} and \tcode{Combine} functions (e.g. less and add). Co
       %\pnum\result
       %\pnum\returns
       %\pnum\throws
-      %\pnum\complexity $\mathcal{O}(N)$ \\
-      %\pnum\remarks 
+      %\pnum\complexity
+      \pnum\remarks
+      User is responsible for initial vertex labels.
       %\pnum\errors
 \end{itemdescr}
 
 \section{Components}
 \subsection{Articulation Points}
 \phil{Description needed}
+Find articulation points, or cut vertices, which when removed disconnect the graph into multiple components. Time complexity based on Hopcroft-Tarjan algorithm.
 
 \begin{table}[h]
 \setcellgapes{3pt}
@@ -593,7 +600,7 @@ to specify \tcode{Compare} and \tcode{Combine} functions (e.g. less and add). Co
 \end{itemdescr}
 
 \subsection{BiConnected Components}
-\phil{Description needed}
+Find the biconnected components, or maximal biconnected subgraphs of a graph, which are components that will remain connected if a vertex is removed. Time complexity based on Hopcroft-Tarjan algorithm.
 
 \begin{table}[h]
 \setcellgapes{3pt}
@@ -637,7 +644,7 @@ to specify \tcode{Compare} and \tcode{Combine} functions (e.g. less and add). Co
 \end{itemdescr}
 
 \subsection{Connected Components}
-\phil{Description needed}
+Find weakly connected components of a graph. Weakly connected components are subgraphs where a path exists between all pairs of vertices when ignoring edge direction.
 
 \begin{table}[h]
 \setcellgapes{3pt}
@@ -682,7 +689,7 @@ to specify \tcode{Compare} and \tcode{Combine} functions (e.g. less and add). Co
 
 \subsection{Strongly Connected Components}
 \subsubsection{Kosaraju's SCC}
-\phil{Description needed}
+Find strongly connected components of a graph using Kosaraju's algorithm. Strongly connected components are subgraphs where a path exists between all pairs of vertices.
 
 \begin{table}[h]
 \setcellgapes{3pt}
@@ -728,7 +735,7 @@ to specify \tcode{Compare} and \tcode{Combine} functions (e.g. less and add). Co
 \end{itemdescr}
 
 \subsubsection{Tarjan's SCC}
-\phil{Description needed}
+Find strongly connected components of a graph using Tarjan's algorithm. Strongly connected components are subgraphs where a path exists between all pairs of vertices.
 
 \begin{table}[h]
 \setcellgapes{3pt}
@@ -844,6 +851,7 @@ A linear ordering of vertices such that for every directed edge (u,v) from verte
 
 \section{Maximal Independent Set}
 \subsection{Maximal Independent Set}
+Find a maximally independent set of vertices in a graph starting from a seed vertex. An independent vertex set indicates no pair of vertices in the set are adjacent.
 
 \begin{table}[h]
 \setcellgapes{3pt}
@@ -895,7 +903,7 @@ A linear ordering of vertices such that for every directed edge (u,v) from verte
 % It fits better in an example. 08-Nov-2023
 
 \subsection{Jaccard Coefficient}
-\phil{Description needed}
+Calculate the Jaccard coefficient of a graph
 
 \begin{table}[h]
 \setcellgapes{3pt}
@@ -949,7 +957,7 @@ as to whether the edge reference is useful by the consumer or not (e.g. basic\_ 
 %\andrew{Simplified ``driver'' for these also?}
 
 \subsection{Kruskal Minimum Spanning Tree}
-\phil{Description needed}
+Find the minimum weight spanning tree of a graph using Kruskal's algorithm.
 
 \begin{table}[h]
 \setcellgapes{3pt}
@@ -997,7 +1005,7 @@ as to whether the edge reference is useful by the consumer or not (e.g. basic\_ 
 \end{itemdescr}
 
 \subsection{Prim Minimum Spanning Tree}
-\phil{Description needed}
+Find the minimum weight spanning tree of a graph using Prim's algorithm.
 
 \phil{Use general form of dijkstra's shortest path?}
 
@@ -1191,7 +1199,7 @@ BGL does not have these (nor NWGraph).  We should discuss whether or not to cons
                         \textit{Constraints}    & Values returned by \tcode{weight_fn} must be non-negative.                                                                                                    \\
                         \hline
                         \textit{Preconditions}  & \tcode{seed >= 0                                                                                                               &  & seed < size(vertices(g))} \\
-                                                & \tcode{size(distance) >= size(vertices(g))}; caller must pre-extend with \tcode{dikstra_invalid_distance()}                                                   \\
+                                                & \tcode{size(distance) >= size(vertices(g))}; caller must pre-extend with \tcode{dijkstra_invalid_distance()}                                                   \\
                                                 & \tcode{size(predecessor) >= size(vertices(g))}; caller must pre-extend                                                                                        \\
                                                 & \tcode{distance[i] = dijkstra_invalid_distance()} for \tcode{i < size(vertices(g))}                                                                           \\
                         \hline
@@ -1279,7 +1287,7 @@ BGL does not have these (nor NWGraph).  We should discuss whether or not to cons
       \subsection{[TBD] Betweenness Centrality}
       \subsection{[TBD] Triangle Count}
       \subsection{[TBD] Subgraph Isomorphism}
-      \subsection{[TBD] Kruskell Minimum Spanning Tree}
+      \subsection{[TBD] Kruskal Minimum Spanning Tree}
       \subsection{[TBD] Prim Minimum Spanning Tree}
       \subsection{[TBD] Louvain (Community Detection)}
       \subsection{[TBD] Label propagation (Community Detection)}

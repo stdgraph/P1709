@@ -2,10 +2,10 @@
  * Kruskal's Algorithm
  */
 template <edgelist::edgelist E, edgelist::edgelist T>
-void kruskal(E&& e, T&& t) {}
+void kruskal(E&& e, T&& t);
 
 template <edgelist::edgelist E, edgelist::edgelist T, CompareOp>
-void kruskal(E&& e, T&& t, CompareOp compare) {}
+void kruskal(E&& e, T&& t, CompareOp compare);
 
 /*
  * Prim's Algorithm
@@ -13,7 +13,7 @@ void kruskal(E&& e, T&& t, CompareOp compare) {}
 template <index_adjacency_list        G,
           ranges::random_access_range Predecessor,
           ranges::random_access_range Weight>
-void prim(G&& g, Predecessor& predecessor, Weight& weight, vertex_id_t<G> seed = 0) {}
+void prim(G&& g, Predecessor& predecessor, Weight& weight, vertex_id_t<G> seed = 0);
 
 template <index_adjacency_list        G,
           ranges::random_access_range Predecessor,
@@ -24,4 +24,4 @@ void prim(G&&                           g,
           Weight&                       weight,
           CompareOp                     compare,
           ranges::range_value_t<Weight> init_dist,
-          vertex_id_t<G>                seed = 0) {}
+          vertex_id_t<G>                seed = 0);
