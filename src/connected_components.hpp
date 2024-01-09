@@ -29,7 +29,7 @@ void articulation_points(G&&  g, Iter cut_vertices);
  */
 template <index_adjacency_list G,
           ranges::forward_range OuterContainer>
-requires ranges::forward_range<std::ranges::range_value_t<OuterContainer>> &&
+requires ranges::forward_range<ranges::range_value_t<OuterContainer>> &&
          integral<ranges::forward_range_t<ranges::forward_range_t<OuterContainer>>>
 void biconnected_components(G&&             g,
 			    OuterContainer& components);
