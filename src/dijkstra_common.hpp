@@ -18,7 +18,7 @@ void dijkstra_shortest_paths(
 
 template <index_adjacency_list        G,
           ranges::random_access_range Distances,
-          class WF        = std::function<ranges::range_value_t<Distances>(edge_reference_t<G>)>,
+          class WF        = function<ranges::range_value_t<Distances>(edge_reference_t<G>)>,
           class Allocator = allocator<vertex_id_t<G>>
           >
 requires is_arithmetic_v<ranges::range_value_t<Distances>> &&
