@@ -8,7 +8,7 @@ Degree of a vertex in graph theory refers to the number of edges that are incide
       \pnum\preconditions
       \begin{itemize}
             \item
-                  \lstinline{graph} is an \lstinline{adjacency_list}, which can be directed or undirected. \muhammad{Support other graph types as well?}
+                  \lstinline{graph} is an \lstinline{index_adjacency_list}, which can be directed or undirected. \muhammad{Support other graph types as well?}
       \end{itemize}
       \pnum\effects Output iterator \lstinline{degrees_per_vertex} contains the degree of each vertex in the graph, accessible through \lstinline{degrees_per_vertex[uid]}, where uid is the \lstinline{vertex_id}. The caller must assure \lstinline{size(degrees_per_vertex) >= size(vertices(graph))}.
       \pnum\complexity $\mathcal{O}(|V|)$ where $V$ is the number of vertices in the graph.
@@ -19,52 +19,52 @@ Sort operator comes in many different variants, allows to sort the input graph b
 
 \subsection{Sort by Source Vertex}
 {\small
-      \lstinputlisting[firstline=2,lastline=4]{src/operators/sort.hpp}
+      \lstinputlisting[firstline=1,lastline=2]{src/operators/sort.hpp}
 }
 \begin{itemdescr}
     \pnum\preconditions
     \begin{itemize}
           \item
-                \lstinline{graph} is an \lstinline{adjacency_list}, which can be directed or undirected. The same API extends for \lstinline{edge_list}.
+                \lstinline{graph} is an \lstinline{index_adjacency_list}, which can be directed or undirected. The same API extends for \lstinline{edgelist}.
     \end{itemize}
     \pnum\effects \lstinline{graph}, which is now sorted by the source vertices in the graph.
 \end{itemdescr}
 
 \subsection{Sort by Target Vertex}
 {\small
-      \lstinputlisting[firstline=6,lastline=8]{src/operators/sort.hpp}
+      \lstinputlisting[firstline=4,lastline=5]{src/operators/sort.hpp}
 }
 \begin{itemdescr}
     \pnum\preconditions
     \begin{itemize}
           \item
-                \lstinline{graph} is an \lstinline{adjacency_list}, which can be directed or undirected. The same API extends for \lstinline{edge_list}.
+                \lstinline{graph} is an \lstinline{index_adjacency_list}, which can be directed or undirected. The same API extends for \lstinline{edgelist}.
     \end{itemize}
     \pnum\effects \lstinline{graph}, which is now sorted by the target vertices in the graph.
 \end{itemdescr}
 
 \subsection{Sort by Degree}
 {\small
-      \lstinputlisting[firstline=10,lastline=11]{src/operators/sort.hpp}
+      \lstinputlisting[firstline=7,lastline=8]{src/operators/sort.hpp}
 }
 \begin{itemdescr}
     \pnum\preconditions
     \begin{itemize}
           \item
-                \lstinline{graph} is an \lstinline{adjacency_list}, which can be directed or undirected. The same API extends for \lstinline{edge_list}.
+                \lstinline{graph} is an \lstinline{index_adjacency_list}, which can be directed or undirected. The same API extends for \lstinline{edgelist}.
     \end{itemize}
     \pnum\effects \lstinline{graph}, which is now sorted by the vertex degree.
 \end{itemdescr}
 
 \subsection{Sort by Edge Weight}
 {\small
-      \lstinputlisting[firstline=13,lastline=16]{src/operators/sort.hpp}
+      \lstinputlisting[firstline=10,lastline=12]{src/operators/sort.hpp}
 }
 \begin{itemdescr}
     \pnum\preconditions
     \begin{itemize}
           \item
-                \lstinline{graph} is an \lstinline{adjacency_list}, which can be directed or undirected. The same API extends for \lstinline{edge_list}.
+                \lstinline{graph} is an \lstinline{index_adjacency_list}, which can be directed or undirected. The same API extends for \lstinline{edgelist}.
           \item
                 \lstinline{w} The edge value function.
     \end{itemize}
@@ -81,7 +81,7 @@ Relabels the vertices of the graph according to a given mapping or to integers.
     \pnum\preconditions
     \begin{itemize}
           \item
-                \lstinline{graph} is an \lstinline{adjacency_list}, which can be directed or undirected. The same API extends for \lstinline{edge_list}.
+                \lstinline{graph} is an \lstinline{index_adjacency_list}, which can be directed or undirected. The same API extends for \lstinline{edgelist}.
             \item
                 \lstinline{mapping} is a \lstinline{std::map}, a dictionary with old labels as keys and new labels as values. If a partial mapping is provided (i.e. \lstinline{mapping.size() < size(vertices(graph))}), then only the specified vertices are relabeled.
     \end{itemize}
@@ -95,10 +95,38 @@ Relabels the vertices of the graph according to a given mapping or to integers.
     \pnum\preconditions
     \begin{itemize}
           \item
-                \lstinline{graph} is an \lstinline{adjacency_list}, which can be directed or undirected. The same API extends for \lstinline{edge_list}.
+                \lstinline{graph} is an \lstinline{index_adjacency_list}, which can be directed or undirected. The same API extends for \lstinline{edgelist}.
     \end{itemize}
     \pnum\effects \lstinline{graph}: the vertices of the graph are relabeled starting from 0 to \lstinline{size(vertices(graph))}.
 \end{itemdescr}
 
 \section{Transpose}
+Transpose returns a graph with edges reversed. For an adjacency graph, it is obtained by switching the outer range of vertices with an inner range of incidence edges on each vertex.
+
+{\small
+      \lstinputlisting[firstline=1,lastline=2]{src/operators/transpose.hpp}
+}
+\begin{itemdescr}
+    \pnum\preconditions
+    \begin{itemize}
+          \item
+                \lstinline{graph} is an \lstinline{index_adjacency_list}, which can be directed or undirected. The same API extends for \lstinline{edgelist}.
+    \end{itemize}
+    \pnum\effects \lstinline{graph}: the graph is transposed such that the edges for each vertex are reversed.
+\end{itemdescr}
+
+
 \section{Join}
+Combining of two graphs based on common vertices. The join operation (or Sparse General Matrix-Matrix Multiplication) is a useful operators for implementing graph algorithms. The result would be a new graph where the edges are determined by the multiplication of the adjacency containers. 
+
+{\small
+      \lstinputlisting[firstline=1,lastline=2]{src/operators/join.hpp}
+}
+\begin{itemdescr}
+    \pnum\preconditions
+    \begin{itemize}
+          \item
+                \lstinline{a}, \lstinline{b} and \lstinline{c} are \lstinline{index_adjacency_list} graphs, which can be directed or undirected.
+    \end{itemize}
+    \pnum\effects \lstinline{c}: the resulting graph where the entry (u, v) in the result represents the number of common neighbors between vertex u in Graph A and vertex v in Graph B.
+\end{itemdescr}
