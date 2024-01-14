@@ -21,7 +21,7 @@ attention in recent years. This paper presents an \textbf{interface} of the prop
 \item Vertices are required to be in random access containers with an integral vertex\_id in this proposal.
 \end{itemize}
 \item Graph views provide common traversals of a graph's vertices and edges that is more concise and consistant than using the graph container interface directly. They include simple traversals like vertexlist (all vertices in the graph) and incidence edges (edges on a vertex), as well as more complex traversals like depth-first and breath-first searches.
-\item All free functions are customization point objects, unless noted otherwise. Reasonable default implementations are provided whenever possible.
+\item All free functions are customization point objects in the Graph Container Interface and Views, unless noted otherwise. Reasonable default implementations are provided whenever possible.
 \item The Graph Container Interface provides a consistent interface that can be used by algorithms and views. It has the following characteristics:
 \begin{itemize}
 \item The interface models an adjacency graph container, which is an outer range of vertices with an inner range of outgoing (a.k.a. incidence) edges on each vertex. 
