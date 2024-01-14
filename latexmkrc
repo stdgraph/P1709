@@ -1,4 +1,5 @@
-$pdflatex = 'pdflatex -shell-escape %R';
+# $pdflatex = 'pdflatex -shell-escape %R';
+$pdflatex = 'pdflatex -shell-escape';
 $pdf_mode = 1; # TeX -> PDF;
 $dvi_mode = 0;
 $postscript_mode = 0;

@@ -1,11 +1,16 @@
 
 \chapter{Overview}
 
-This document proposes the addition of \textbf{graph algorithms}, \textbf{graph views}, \textbf{graph container interface} and a \textbf{graph container implementation} to the C++ library to support \textbf{machine learning} (ML), as well as other applications. ML is a large and growing field, both in the \textbf{research community} and \textbf{industry}, that has received a great deal of attention in recent years. This paper presents an \textbf{interface} of the proposed algorithms, views, graph functions and containers.
+Graphs, used in ML and other \textbf{scientific} domains, as well as \textbf{industrial} and \textbf{general} programming, 
+do \textbf{not} presently exist in the C++ standard. In ML, a graph forms the underlying structure of an \textbf{artificial neural network} (ANN). 
+In a \textbf{game}, a graph can be used to represent the \textbf{map} of a game world. In \textbf{business} environments, graphs arise as 
+\textbf{entity relationship diagrams} (ERD) or \textbf{data flow diagrams} (DFD). In the realm of \textbf{social media}, a graph represents a 
+\textbf{social network}.
 
-\section{Motivation}
-Graphs, used in ML and other \textbf{scientific} domains, as well as \textbf{industrial} and \textbf{general} programming, do \textbf{not} presently exist in the C++ standard. In ML, a graph forms the underlying structure of an \textbf{artificial neural network} (ANN). In a \textbf{game}, a graph can be used to
-represent the \textbf{map} of a game world. In \textbf{business} environments, graphs arise as \textbf{entity relationship diagrams} (ERD) or \textbf{data flow diagrams} (DFD). In the realm of \textbf{social media}, a graph represents a \textbf{social network}.
+This document proposes the addition of \textbf{graph algorithms}, \textbf{graph views}, \textbf{graph container interface} and a 
+\textbf{graph container implementation} to the C++ library to support \textbf{machine learning} (ML), as well as other applications. 
+ML is a large and growing field, both in the \textbf{research community} and \textbf{industry}, that has received a great deal of 
+attention in recent years. This paper presents an \textbf{interface} of the proposed algorithms, views, graph functions and containers.
 
 \section{Goals and Priorities}
 \begin{itemize}
@@ -25,38 +30,46 @@ represent the \textbf{map} of a game world. In \textbf{business} environments, g
 \item Type traits will be defined that can be overridden for each graph container to give additional hints that can be used by algorithms to refine their behavior, such as adjacency\_matrix and unordered\_edge.
 \end{itemize}
 \item Support of optional user-defined value types on an edge, vertex and/or the graph itself.
+\item Support bipartite and multipartite graphs, as long as the underlying graph supports it. If the underlying graph doesn't support either,
+      it is considered unipartite with a single partition.
 \item Allow for useful extensions of the graph data model in future proposals or in external graph implementations. 
 \end{itemize}
-\item An Edge List Container interface which specifies and interface for essential utility classes for representing lists of edges as well as any associated edge properties.
+\item Define an Edge List interface, required by some algorithms, that can be used by user-defined ranges for algorithms that require them.
 \item Provide an initial suite of useful functionality that includes algorithms, views, container interface, and at least one 
-model container implementation for each of the \tcode{adjacency_list} and
-\item A lightweight Graph Adaptor to provide a Graph Container or an Edge List interface to compositions of standard library components.
-\tcode{edge_list} concepts.
+model container implementation.
 \end{itemize}
 
 \section{Examples}
 
-\andrew{Where do examples really belong?  In P2300 they are up front here, but I think there is too much forward referencing for that.}
+%\andrew{Where do examples really belong?  In P2300 they are up front here, but I think there is too much forward referencing for that.}
 
+The following code demonstrates how a simple graph can be created as a range of ranges, using the standard containers. 
+
+\phil{Duplicated in Introduction. OK?}
+
+\phil{Validate that code works}
 
 {\small
-  \lstinputlisting[firstline=26,lastline=46]{src/bacon.cpp}
+  \lstinputlisting[firstline=26,lastline=49]{src/bacon.cpp}
 }
 
-
+\tcode{target_id(g,uv)} defines the required function to get a target\_id for an edge in the graph \tcode{G}. Other functions can also
+be overridden to allow a developer to adapt their own graph data structures to the library.
 
 \section{What this proposal is  \textbf{not}}
 
-This paper limits itself to adjacency graphs only, including an outer range of vertices with an inner range of outgoing edges on each vertex. It also includes an edgelist of all edges in the graph, either as a edgelist view or a simple range with a source\_id and target\_id. 
+This paper limits itself to adjacency graphs and edgelists only. An adjacency graph is an outer range of vertices with an inner range of outgoing
+edges on each vertex. An edgelist is a view of edges, which is either all the edges in the adjacency graph or a projection of a user-defined range.
 
-Multipartite graphs, including bipartite graphs, are supported as long as the underlying graph supports it. If the underlying graph doesn't support either,
-it is considered unipartite with a single partition.
-
-Parallel versions of the algorithms are not included for several reasons. The executors proposal in P2300r5 \cite{REF_P2300r5} is expected to introduce new and better ways to do parallel algorithms beyond that used in the parallel STL algorithms and we would like to wait for finalization of that proposal before committing to parallel implementations. Secondly, many graph algorithms don't benefit from parallel implementations so there is less need to offer an implementation. Lastly, it will help limit the size of this proposal which is already looking to be large without it. It is expected that future proposals will be submitted for parallel graph algorithms. 
+Parallel versions of the algorithms are not included for several reasons. The executors proposal in P2300r5 \cite{REF_P2300r5} is expected to introduce new 
+and better ways to do parallel algorithms beyond that used in the parallel STL algorithms and we would like to wait for finalization of that proposal before 
+committing to parallel implementations. Secondly, many graph algorithms don't benefit from parallel implementations so there is less need to offer an implementation. 
+Lastly, it will help limit the size of this proposal which is already looking to be large without it. It is expected that future proposals will be submitted for parallel graph algorithms. 
 
 Incoming edges on a vertex are not included, though it is hoped that a future proposal will be made for them.
 
-The algorithms and views in this proposal expect that vertex\_ids are densly assigned in a random access range, but it does not exclude the possibility of sparsely-defined vertex\_ids stored in containers like \lstinline{std::map} or \tcode{std::unordered_map} in future proposals. 
+The algorithms and views in this proposal expect that vertex\_ids are densly assigned in a random access range, but it does not exclude the possibility of 
+sparsely-defined vertex\_ids stored in containers like \lstinline{std::map} or \tcode{std::unordered_map} in future proposals. 
 
 The algorithms and views in this proposal expect that vertex\_ids are integal, but it does not exclude non-integral or user-defined types in future proposals.
 
@@ -69,12 +82,16 @@ This proposal is a pure \textbf{library} extension.
 There is no interaction with other proposals to the standard.
 
 \section{Implementation Experience}
-The github \href{https://github.com/stdgraph}{stdgraph} repository contains an implementation for this proposal.
+The github \href{https://github.com/stdgraph}{github.com/stdgraph} repository contains an implementation for this proposal.
 
 \section{Usage Experience}
+There is no current use of the library. There are plans to begin using it in the next year in a commercial setting.
+
 \section{Deployment Experience}
+There is no current deployment experience of the library. There are plans for this to follow the usage experience.
+
 \section{Performance Considerations}
-The algorithms are being ported from NWGraph to the \href{https://github.com/stdgraph}{stdgraph} implementation used for this proposal. Performance analysis from those algorithms can be found in the peer-reviewed paper for NWGraph \cite{REF_nwgraph_paper}.
+The algorithms are being ported from NWGraph to the \href{https://github.com/stdgraph}{github.com/stdgraph} implementation used for this proposal. Performance analysis from those algorithms can be found in the peer-reviewed papers for NWGraph~\cite{REF_nwgraph_paper,gapbs_2023}.
 
 \section{Prior Art}
 \textbf{boost::graph} has been an important C++ graph implementation since 2001. It was developed with the goal of providing
@@ -111,7 +128,9 @@ We believe this library can be used in a freestanding C++ implementation.
 
 \section{Namespaces}
 Graph containers and their views and algorithms are not interchangeable with existing containers and algorithms.
-It is believed that they are unique enough to warrant their own namespaces and is used in this proposal.
+Additionally, there are some domain-specific terms that may clash with existing or future names, such as 
+\tcode{degree} and \tcode{partition_id}.
+For these reasons, we recommend their own namespaces as follows. This assumption is used in this proposal.
 \begin{itemize}
 \item[]\tcode{std::graph}
 \item[]\tcode{std::graph::views}

@@ -235,25 +235,45 @@
 \newenvironment{note}[1][Note]{\noteintro{#1}}{\noteoutro{note}\space}
 \newenvironment{example}[1][Example]{\noteintro{#1}}{\noteoutro{example}\space}
 
-%% Library function descriptions
+
 \newcommand{\Fundescx}[1]{\textit{#1}}
 \newcommand{\Fundesc}[1]{\Fundescx{#1:}\space}
-\newcommand{\required}{\Fundesc{Required behavior}}
-\newcommand{\requires}{\Fundesc{Requires}}
-\newcommand{\preconditions}{\requires}
+
+%% Per n4928
+%% Constraints: the conditions for the function's participation in overload resolution (12.2).
+%% Mandates: the conditions that, if not met, render the program ill-formed.
+%% Preconditions: the conditions that the function assumes to hold whenever it is called; violation of any preconditions results in undefined behavior.
+%% Effects: the actions performed by the function.
+%% Synchronization: the synchronization operations (6.9.2) applicable to the function.
+%% Postconditions: the conditions (sometimes termed observable results) established by the function.
+%% Result: for a typename-specifier, a description of the named type; for an expression, a description of the type of the expression; the expression is an lvalue if the type is an lvalue reference type, an xvalue if the type is an rvalue reference type, and a prvalue otherwise.
+%% Returns: a description of the value(s) returned by the function.
+%% Throws: any exceptions thrown by the function, and the conditions that would cause the exception.
+%% Complexity: the time and/or space complexity of the function.
+%% Remarks: additional semantic constraints on the function.
+%% Error conditions: the error conditions for error codes reported by the function.
+
+
+%% Library function descriptions (per 4928)
 \newcommand{\constraints}{\Fundesc{Constraints}}
 \newcommand{\mandates}{\Fundesc{Mandates}}
-\newcommand{\expects}{\Fundesc{Expects}}
+\newcommand{\preconditions}{\Fundesc{Preconditions}}
 \newcommand{\effects}{\Fundesc{Effects}}
-\newcommand{\ensures}{\Fundesc{Ensures}}
-\newcommand{\postconditions}{\ensures}
+\newcommand{\sync}{\Fundesc{Synchronization}}
+\newcommand{\postconditions}{\Fundesc{Postconditions}}
+\newcommand{\result}{\Fundesc{Result}}
 \newcommand{\returns}{\Fundesc{Returns}}
 \newcommand{\throws}{\Fundesc{Throws}}
-\newcommand{\default}{\Fundesc{Default behavior}}
 \newcommand{\complexity}{\Fundesc{Complexity}}
 \newcommand{\remarks}{\Fundesc{Remarks}}
 \newcommand{\errors}{\Fundesc{Error conditions}}
-\newcommand{\sync}{\Fundesc{Synchronization}}
+
+%% Library function descriptions (other?)
+\newcommand{\required}{\Fundesc{Required behavior}}
+\newcommand{\requires}{\Fundesc{Requires (Deprecated)}}
+\newcommand{\expects}{\Fundesc{Expects}}
+\newcommand{\ensures}{\Fundesc{Ensures}}
+\newcommand{\default}{\Fundesc{Default behavior}}
 \newcommand{\implimits}{\Fundesc{Implementation limits}}
 \newcommand{\replaceable}{\Fundesc{Replaceable}}
 \newcommand{\returntype}{\Fundesc{Return type}}
@@ -365,45 +385,45 @@
 % within comments.  Comments are set in italics, keywords and strings
 % don't get special treatment.
 
-\lstset{language=C++,
-        basicstyle=\small\CodeStyle,
-        keywordstyle=,
-        stringstyle=,
-        xleftmargin=1em,
-        showstringspaces=false,
-        commentstyle=\itshape\rmfamily,
-        columns=fullflexible,
-        keepspaces=true,
-        texcl=true}
+%% \lstset{language=C++,
+%%         basicstyle=\small\CodeStyle,
+%%         keywordstyle=,
+%%         stringstyle=,
+%%         xleftmargin=1em,
+%%         showstringspaces=false,
+%%         commentstyle=\itshape\rmfamily,
+%%         columns=fullflexible,
+%%         keepspaces=true,
+%%         texcl=true}
 
-% Our usual abbreviation for 'listings'.  Comments are in
-% italics.  Arbitrary TeX commands can be used if they're
-% surrounded by @ signs.
-\newcommand{\CodeBlockSetup}{%
-\lstset{escapechar=@, aboveskip=\parskip, belowskip=0pt,
-        midpenalty=500, endpenalty=-50,
-        emptylinepenalty=-250, semicolonpenalty=0}%
-\renewcommand{\tcode}[1]{\textup{\CodeStylex{##1}}}%
-\renewcommand{\term}[1]{\textit{##1}}%
-\renewcommand{\grammarterm}[1]{\gterm{##1}}%
-}
+%% % Our usual abbreviation for 'listings'.  Comments are in
+%% % italics.  Arbitrary TeX commands can be used if they're
+%% % surrounded by @ signs.
+%% \newcommand{\CodeBlockSetup}{%
+%% \lstset{escapechar=@, aboveskip=\parskip, belowskip=0pt,
+%%         midpenalty=500, endpenalty=-50,
+%%         emptylinepenalty=-250, semicolonpenalty=0}%
+%% \renewcommand{\tcode}[1]{\textup{\CodeStylex{##1}}}%
+%% \renewcommand{\term}[1]{\textit{##1}}%
+%% \renewcommand{\grammarterm}[1]{\gterm{##1}}%
+%% }
 
-\lstnewenvironment{codeblock}{\CodeBlockSetup}{}
+%% \lstnewenvironment{codeblock}{\CodeBlockSetup}{}
 
-% An environment for command / program output that is not C++ code.
-\lstnewenvironment{outputblock}{\lstset{language=}}{}
+%% % An environment for command / program output that is not C++ code.
+%% \lstnewenvironment{outputblock}{\lstset{language=}}{}
 
-% A code block in which single-quotes are digit separators
-% rather than character literals.
-\lstnewenvironment{codeblockdigitsep}{
- \CodeBlockSetup
- \lstset{deletestring=[b]{'}}
-}{}
+%% % A code block in which single-quotes are digit separators
+%% % rather than character literals.
+%% \lstnewenvironment{codeblockdigitsep}{
+%%  \CodeBlockSetup
+%%  \lstset{deletestring=[b]{'}}
+%% }{}
 
-% Permit use of '@' inside codeblock blocks (don't ask)
-\makeatletter
-\newcommand{\atsign}{@}
-\makeatother
+%% % Permit use of '@' inside codeblock blocks (don't ask)
+%% \makeatletter
+%% \newcommand{\atsign}{@}
+%% \makeatother
 
 %%--------------------------------------------------
 %% Indented text
