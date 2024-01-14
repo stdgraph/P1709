@@ -572,7 +572,7 @@ Find articulation points, or cut vertices, which when removed disconnect the gra
 \end{table}
 
 {\small
-     \lstinputlisting[firstline=23,lastline=25]{src/connected_components.hpp}
+     \lstinputlisting[firstline=4,lastline=6]{src/connected_components.hpp}
 }
 
 \phil{Should target of output iterator be convertible to vertex\_id, not same\_as vertex\_id?}
@@ -619,7 +619,7 @@ Find the biconnected components, or maximal biconnected subgraphs of a graph, wh
 \end{table}
 
 {\small
-     \lstinputlisting[firstline=30,lastline=35]{src/connected_components.hpp}
+     \lstinputlisting[firstline=11,lastline=18]{src/connected_components.hpp}
 }
 
 \phil{\tcode{push_back}, \tcode{push_front} and \tcode{insert} are all valid ways to add to containers that support forward\_range,
@@ -672,7 +672,7 @@ Find weakly connected components of a graph. Weakly connected components are sub
 \end{table}
 
 {\small
-     \lstinputlisting[firstline=40,lastline=43]{src/connected_components.hpp}
+     \lstinputlisting[firstline=23,lastline=28]{src/connected_components.hpp}
 }
 
 \phil{Return number of components \tcode{C}? If \tcode{C==num_vertices(g)} then all components are of \tcode{size==1} (a.k.a. no components).}
@@ -724,7 +724,7 @@ Find strongly connected components of a graph using Kosaraju's algorithm. Strong
 \end{table}
 
 {\small
-      \lstinputlisting[firstline=4, lastline=9]{src/connected_components.hpp}
+      \lstinputlisting[firstline=33, lastline=40]{src/connected_components.hpp}
 }
 \phil{Return number of components \tcode{C}? If \tcode{C==num_vertices(g)} then all components are of \tcode{size==1} (a.k.a. no components).}
 
@@ -774,7 +774,7 @@ Find strongly connected components of a graph using Tarjan's algorithm. Strongly
 \end{table}
 
 {\small
-      \lstinputlisting[firstline=14,lastline=18]{src/connected_components.hpp}
+      \lstinputlisting[firstline=45,lastline=51]{src/connected_components.hpp}
 }
 
 \phil{Return number of components \tcode{C}? If \tcode{C==num_vertices(g)} then all components are of \tcode{size==1} (a.k.a. no components).}
