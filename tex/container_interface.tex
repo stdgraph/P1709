@@ -204,7 +204,7 @@ Table \ref{tab:graph_func} summarizes the functions in the Graph Container Inter
     \tcode{num_vertices(g)} & \tcode{integral} & constant & \tcode{size(vertices(g))} \\
     \tcode{find_vertex(g,uid)} & \tcode{vertex_iterator_t<G>} & constant & \tcode{begin(vertices(g)) + uid} \\
     & & & if \tcode{random_access_range<vertex_range_t<G>>}  \\
-    \tcode{vertex_id(g,ui)} & \tcode{vetex_id_t<G>} & constant & \tcode{ui - begin(vertices(g))} \\
+    \tcode{vertex_id(g,ui)} & \tcode{vetex_id_t<G>} & constant & \tcode{(size_t)(ui - begin(vertices(g)))} \\
     & & & Override to define a different \tcode{vertex_id_t<G>} type (e.g. int32\_t). \\
     \tcode{vertex_value(g,u)} & \tcode{vertex_value_t<G>} & constant & n/a, optional \\
     \tcode{vertex_value(g,uid)} & \tcode{vertex_value_t<G>} & constant & \tcode{vertex_value(g,*find_vertex(g,uid))}, optional \\

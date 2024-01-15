@@ -459,7 +459,6 @@ Compute the number of triangles in a graph.
 
 \section{Communities}
 \subsection{Label Propagation}
-\phil{Description needed}
 Propagate vertex labels by setting each vertex's label to the most popular label of its neighboring vertices. Every vertex voting on its new label represents one iteration of label propagation. Vertex voting order is randomized every iteration. The algorithm will iterate until label convergence, or optionally for a user specified number of iterations. Convergence occurs when no vertex label changes from the previous iteration. $\mathcal{O}(M)$ complexity is based on the complexity of one iteration, with number of iterations required for convergence considered small relative to graph size.
 
 Some label propagation implementations use vertex ids as an initial labeling. This is not supported here because the label type can be more generic than the vertex id type. User is responsible for meaningful initial labeling.
@@ -552,7 +551,6 @@ Some label propagation implementations use vertex ids as an initial labeling. Th
 
 \section{Components}
 \subsection{Articulation Points}
-\phil{Description needed}
 Find articulation points, or cut vertices, which when removed disconnect the graph into multiple components. Time complexity based on Hopcroft-Tarjan algorithm.
 
 \begin{table}[h]
@@ -574,7 +572,7 @@ Find articulation points, or cut vertices, which when removed disconnect the gra
 \end{table}
 
 {\small
-     \lstinputlisting[firstline=23,lastline=25]{src/connected_components.hpp}
+     \lstinputlisting[firstline=4,lastline=6]{src/connected_components.hpp}
 }
 
 \phil{Should target of output iterator be convertible to vertex\_id, not same\_as vertex\_id?}
@@ -621,8 +619,17 @@ Find the biconnected components, or maximal biconnected subgraphs of a graph, wh
 \end{table}
 
 {\small
-     \lstinputlisting[firstline=30,lastline=35]{src/connected_components.hpp}
+     \lstinputlisting[firstline=11,lastline=18]{src/connected_components.hpp}
 }
+
+\phil{\tcode{push_back}, \tcode{push_front} and \tcode{insert} are all valid ways to add to containers that support forward\_range,
+      depending on the specific container type. Are all supported?}
+
+\phil{I think \tcode{convertible_to<...,vertex_id<G>>} would be better than \tcode{integral<...>} because it will catch truncation when 
+      assigning vertex\_id to smaller ints in the inner container.}
+
+\phil{Is an allocator parameter needed?}
+
 \begin{itemdescr}
       %\pnum\mandates
       \pnum\preconditions
@@ -665,19 +672,26 @@ Find weakly connected components of a graph. Weakly connected components are sub
 \end{table}
 
 {\small
-     \lstinputlisting[firstline=40,lastline=43]{src/connected_components.hpp}
+     \lstinputlisting[firstline=23,lastline=28]{src/connected_components.hpp}
 }
+
+\phil{Return number of components \tcode{C}? If \tcode{C==num_vertices(g)} then all components are of \tcode{size==1} (a.k.a. no components).}
+
+\phil{Should there be an allocator parameter?}
+
 \begin{itemdescr}
       %\pnum\mandates
       \pnum\preconditions
             \begin{itemize}
                   \item
-                        Size of \lstinline{component} is greater than or equal to \lstinline{num_vertices(g)}.
+                        \lstinline{size(component) >= num_vertices(g)}.
             \end{itemize}
       \pnum\effects
             \begin{itemize}
                   \item
-                        \lstinline{component[v]} is the connected component id of \lstinline{v}.
+                        \lstinline{component[v]} is the connected component id of vertex \lstinline{v}.
+                  \item
+                        There is at least one Connected Component, with compondent id of \lstinline{0}, for \lstinline{num_vertices(g) > 0}.
             \end{itemize}
       %\pnum\result
       %\pnum\returns
@@ -710,8 +724,12 @@ Find strongly connected components of a graph using Kosaraju's algorithm. Strong
 \end{table}
 
 {\small
-      \lstinputlisting[firstline=4, lastline=9]{src/connected_components.hpp}
+      \lstinputlisting[firstline=33, lastline=40]{src/connected_components.hpp}
 }
+\phil{Return number of components \tcode{C}? If \tcode{C==num_vertices(g)} then all components are of \tcode{size==1} (a.k.a. no components).}
+
+\phil{Should there be an allocator parameter?}
+
 \begin{itemdescr}
       %\pnum\mandates
       \pnum\preconditions
@@ -719,12 +737,12 @@ Find strongly connected components of a graph using Kosaraju's algorithm. Strong
                   \item
                         \lstinline{g_t} is the transpose of \lstinline{g}. Edge \lstinline{uv} in \lstinline{g} implies edge \lstinline{vu} in \lstinline{g_t}. \lstinline{num_vertices(g)} equals \lstinline{num_vertices(g_t)}.
                   \item
-                        Size of \lstinline{component} is greater than or equal to \lstinline{num_vertices(g)}.
+                        \lstinline{size(component) >= num_vertices(g)}.
             \end{itemize}
       \pnum\effects
             \begin{itemize}
                   \item
-                        \lstinline{component[v]} is the strongly connected component id of \lstinline{v}.
+                        \lstinline{component[v]} is the strongly connected component id of vertex \lstinline{v}.
             \end{itemize}
       %\pnum\result
       %\pnum\returns
@@ -756,14 +774,19 @@ Find strongly connected components of a graph using Tarjan's algorithm. Strongly
 \end{table}
 
 {\small
-      \lstinputlisting[firstline=14,lastline=18]{src/connected_components.hpp}
+      \lstinputlisting[firstline=45,lastline=51]{src/connected_components.hpp}
 }
+
+\phil{Return number of components \tcode{C}? If \tcode{C==num_vertices(g)} then all components are of \tcode{size==1} (a.k.a. no components).}
+
+\phil{Should there be an allocator parameter?}
+
 \begin{itemdescr}
       %\pnum\mandates
       \pnum\preconditions
             \begin{itemize}
                   \item
-                        Size of \lstinline{component} is greater than or equal to \lstinline{num_vertices(g)}.
+                        \lstinline{size(component) >= num_vertices(g)}.
             \end{itemize}
       \pnum\effects
             \begin{itemize}
@@ -819,6 +842,8 @@ A linear ordering of vertices such that for every directed edge (u,v) from verte
 {\small
       \lstinputlisting{src/topological_sort.hpp}
 }
+
+\phil{Add overload with \tcode{distances}}
 
 \begin{itemdescr}
       %\pnum\mandates
