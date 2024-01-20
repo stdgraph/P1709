@@ -30,7 +30,6 @@ std::vector<std::string> actors { "Tom Cruise",       "Kevin Bacon",       "Hugo
                                   "Julia Roberts" };
 
 using G = std::vector<std::vector<int>>;
-auto target_id(const G& g, edge_reference_t<G> uv) {return get<0>(uv);}
 G costar_adjacency_list{
     {1, 5, 6}, {7, 10, 0, 5, 12}, {4, 3, 11}, {2, 11}, {8, 9, 2, 12}, {0, 1}, {7, 0},
     {6, 1, 10}, {4, 9}, {4, 8}, {7, 1}, {2, 3}, {1, 4} };

@@ -218,7 +218,7 @@ Table \ref{tab:graph_func} summarizes the functions in the Graph Container Inter
 \hline
     \tcode{edges(g,u)} & \tcode{vertex_edge_range_t<G>} & constant & \tcode{u} if \tcode{forward range<vertex_t<G>>}, n/a otherwise \\
     \tcode{edges(g,uid)} & \tcode{vertex_edge_range_t<G>} & constant & \tcode{edges(g,*find_vertex(g,uid))} \\
-    \tcode{target_id(g,uv)} & \tcode{vertex_id_t<G>} & constant & n/a \\
+    \tcode{target_id(g,uv)} & \tcode{vertex_id_t<G>} & constant & (see below) \\
     \tcode{target(g,uv)} & \tcode{vertex_t<G>} & constant & \tcode{*(begin(vertices(g)) + target_id(g, uv))} if \tcode{random_access_range<vertex_range_t<G>> \&\& integral<target_id(g,uv)>} \\
     \tcode{edge_value(g,uv)} & \tcode{edge_value_t<G>} & constant & \tcode{uv} if \tcode{forward_range<vertex_t<G>>}, n/a otherwise, optional \\
     \tcode{find_vertex_edge(g,u,vid)} & \tcode{vertex_edge_t<G>} & linear & \tcode{find(edges(g,u), [](uv) {target_id(g,uv)==vid;\})}} \\
@@ -241,6 +241,10 @@ Table \ref{tab:graph_func} summarizes the functions in the Graph Container Inter
 \end{center}
 \end{table}
 
+When the graph matches the pattern \tcode{forward_range<forward_range<integral>>} or \tcode{forward_range<forward_range<tuple<integral,...>>>},
+the default implementation for \tcode{target_id(g,uv)} will return the \tcode{integral}. Additionally, if the caller does not override 
+\tcode{vertex_id(g,ui)}, the \tcode{integral} value will define the \tcode{vertex_id_t<G>} type.
+
 Functions that have n/a for their Default Implementation must be defined by the author of a Graph Container implementation. 
 
 Value functions (\tcode{graph_value(g)}, \tcode{vertex_value(g,u)} and \tcode{edge_value(g,uv)}) can be optionally implemented, 
@@ -249,13 +253,23 @@ be scaler, struct, class, union, or tuple. These are abstract types used by the 
 values used by algorithms. As such it's valid to return the "enclosing" owning class (graph, vertex or edge), or some other
 embedded value in those objects.
 
-\tcode{vertex_id_t<G>} is defined by the type returned by \tcode{vertex_id(g)} and it defaults to the difference\_type of the underlying container used for vertices (e.g int64\_t for 64-bit systems). This is sufficient for all situations. However, there are often space and performance advantages if a smaller type is used, such as int32\_t or even int16\_t. It is recommended to consider overriding this function for optimal results, assuring that it is also large enough for the number of possible vertices and edges in the application. It will also need to be overridden if the implementation doesn't expose the vertices as a range.
-
 \tcode{find_vertex(g,uid)} is constant complexity because all algorithms in this proposal require that \tcode{vertex_range_t<G>} is a random access range. 
 
 If the concept requirements for the default implementation aren't met by the graph container the function will need to be overridden.
 
-Edgelists are assumed to be either be an edgelist view of an adjacency graph, or a standard range with source\_id and target\_id values. There is no need for additional functions when a range is used.
+\subsection{Determining the Vertex Id Type}
+To determine the type for \tcode{vertex_id_t<G>} the following steps are taken, in order, to determine its type.
+\begin{enumerate}
+    \item Use the type returned by \tcode{vertex_id(g,ui)} when overridden for a graph.
+    \item When the graph matches the pattern \tcode{forward_range<forward_range<integral>>} or \tcode{forward_range<forward_range<tuple<integral,...>>>},
+          use the \tcode{integral} type specified.
+    \item Use \tcode{size_t} in all other cases.
+\end{enumerate}
+
+\tcode{vertex_id_t<G>} is defined by the type returned by \tcode{vertex_id(g)} and it defaults to the difference\_type of the underlying container used for vertices (e.g int64\_t for 64-bit systems). 
+This is sufficient for all situations. However, there are often space and performance advantages if a smaller type is used, such as int32\_t or even int16\_t. It is recommended to consider overriding 
+this function for optimal results, assuring that it is also large enough for the number of possible vertices and edges in the application. It will also need to be overridden if the implementation doesn't 
+expose the vertices as a range.
 
 \section{Unipartite, Bipartite and Multipartite Graph Representation}
 
@@ -332,6 +346,11 @@ contiguously. \tcode{empty(vrng)} may be empty if there are no vertices in the p
 \end{center}
 \end{table}
 
+\subsection{Edgelists}
+An edgelist is a range of \tcode{edge_descriptor} values, used by some algorithms. Examples include the \tcode{edgelist} adjacency 
+list view, or possibly a transform of an existing range that projects \tcode{edge_descriptor} values. There is no concrete data
+structure in this proposal like there is for an adjacency list.
+
 \section{Using Existing Graph Data Structures}
 Reasonable defaults have been defined for the GCI functions to minimize the amount of work
 needed to adapt an existing graph data structure to be used by the views and algorithms.
@@ -347,7 +366,6 @@ can write loops to go through the vertices, and edges within each vertex, as fol
 
 \begin{lstlisting}
 using G = vector<forward_list<tuple<int,double>>>;
-auto target_id(const G& g, edge_t<const G>& uv) { return get<0>(uv); }
 auto weight = [&g](edge_t& uv) { return get<1>(uv); }
 
 G g;
