@@ -2,7 +2,7 @@
 \section{Degree}
 Degree of a vertex in graph theory refers to the number of edges that are incident to the vertex. Although the proposal provides customization point interface to access a degree of an individual vertex, a degree operator allows one to build a range of degrees of all vertices within a graph.
 {\small
-      \lstinputlisting{D9903/src/degree.hpp}
+      \lstinputlisting{src/operators/degree.hpp}
 }
 \begin{itemdescr}
       \pnum\preconditions
@@ -19,7 +19,7 @@ Sort operator comes in many different variants, allows to sort the input graph b
 
 \subsection{Sort by Source Vertex}
 {\small
-      \lstinputlisting[firstline=1,lastline=2]{D9903/src/sort.hpp}
+      \lstinputlisting[firstline=1,lastline=2]{src/operators/sort.hpp}
 }
 \begin{itemdescr}
     \pnum\preconditions
@@ -32,7 +32,7 @@ Sort operator comes in many different variants, allows to sort the input graph b
 
 \subsection{Sort by Target Vertex}
 {\small
-      \lstinputlisting[firstline=4,lastline=5]{D9903/src/sort.hpp}
+      \lstinputlisting[firstline=4,lastline=5]{src/operators/sort.hpp}
 }
 \begin{itemdescr}
     \pnum\preconditions
@@ -45,7 +45,7 @@ Sort operator comes in many different variants, allows to sort the input graph b
 
 \subsection{Sort by Degree}
 {\small
-      \lstinputlisting[firstline=7,lastline=8]{D9903/src/sort.hpp}
+      \lstinputlisting[firstline=7,lastline=8]{src/operators/sort.hpp}
 }
 \begin{itemdescr}
     \pnum\preconditions
@@ -58,7 +58,7 @@ Sort operator comes in many different variants, allows to sort the input graph b
 
 \subsection{Sort by Edge Weight}
 {\small
-      \lstinputlisting[firstline=10,lastline=12]{D9903/src/sort.hpp}
+      \lstinputlisting[firstline=10,lastline=12]{src/operators/sort.hpp}
 }
 \begin{itemdescr}
     \pnum\preconditions
@@ -75,7 +75,7 @@ Sort operator comes in many different variants, allows to sort the input graph b
 Relabels the vertices of the graph according to a given mapping or to integers.
 
 {\small
-      \lstinputlisting[firstline=1,lastline=2]{D9903/src/relabel.hpp}
+      \lstinputlisting[firstline=1,lastline=2]{src/operators/relabel.hpp}
 }
 \begin{itemdescr}
     \pnum\preconditions
@@ -89,7 +89,7 @@ Relabels the vertices of the graph according to a given mapping or to integers.
 \end{itemdescr}
 
 {\small
-      \lstinputlisting[firstline=4,lastline=5]{D9903/src/relabel.hpp}
+      \lstinputlisting[firstline=4,lastline=5]{src/operators/relabel.hpp}
 }
 \begin{itemdescr}
     \pnum\preconditions
@@ -104,7 +104,7 @@ Relabels the vertices of the graph according to a given mapping or to integers.
 Transpose returns a graph with edges reversed. For an adjacency graph, it is obtained by switching the outer range of vertices with an inner range of incidence edges on each vertex.
 
 {\small
-      \lstinputlisting[firstline=1,lastline=2]{D9903/src/transpose.hpp}
+      \lstinputlisting[firstline=1,lastline=2]{src/operators/transpose.hpp}
 }
 \begin{itemdescr}
     \pnum\preconditions
@@ -120,7 +120,7 @@ Transpose returns a graph with edges reversed. For an adjacency graph, it is obt
 Combining of two graphs based on common vertices. The join operation (or Sparse General Matrix-Matrix Multiplication) is a useful operators for implementing graph algorithms. The result would be a new graph where the edges are determined by the multiplication of the adjacency containers. 
 
 {\small
-      \lstinputlisting[firstline=1,lastline=2]{D9903/src/join.hpp}
+      \lstinputlisting[firstline=1,lastline=2]{src/operators/join.hpp}
 }
 \begin{itemdescr}
     \pnum\preconditions
