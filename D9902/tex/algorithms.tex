@@ -3,14 +3,6 @@
 Our proposed set of algorithms are grouped into Tier 1, Tier 2, and Tier 3. All Tier 1 algorithms are included in this proposal and summarized in the lists below. 
 Other tiers are outlined in the section \ref{other_algo} Other Algorithms.
 
-\newcommand{\tablistcommand}{% <-- for eliminating vertical space
-                             %     before and after itemize
-            \leavevmode\par\vspace{-\baselineskip}
-\end{itemize}
-\section{Introduction}
-                            }
-\newcolumntype{P}[1]{p{#1-3\tabcolsep-\arrayrulewidth}}
-
 \begin{multicols}{3}
       \emph{Shortest Paths}
       \begin{itemize}
@@ -56,40 +48,6 @@ Other tiers are outlined in the section \ref{other_algo} Other Algorithms.
 
 \vfill\null
 \end{multicols}
-
-
-\section{Introduction}
-
-Basic characteristics of the algorithms shown below are summarized in tables of the following form:
-\begin{table}[h]
-\setcellgapes{3pt}
-\makegapedcells
-\centering
-\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
-\hline
-      \multirowcell{2}{
-            \textbf{Complexity} \\
-            $\mathcal{O}(|E|+|V|)$
-            }
-      & \textbf{Throws?} No & \textbf{Cycles?} No \\
-      & \textbf{Multi-edge?} No & \textbf{Directed?} Yes\\
-\hline
-\end{tabular}
-%\caption{Algorithm Example}
-\label{tab:algo_example}
-\end{table}
-
-The parts of the table have the following meaning:
-\begin{itemize}
-      \item \textbf{Complexity} The complexity of the algorithm based on the number of vertices (V) and edges (E).
-      \item \textbf{Throws?} Will the algorithm throw at all? If so, look at the \textit{Throws} section after the function prototypes for details.
-      \item \textbf{Multi-edge?} Does the algorithm act as expected if more than one edge with the same direction exists between the same two vertices?
-      \item \textbf{Cycles?} Does the algorithm act act as expected if a vertex (or edge) is part of a cycle?
-      \item \textbf{Directed?} Is the algorithm only for directed graphs, or can it also be used for undirected graphs that have complimentary
-                               edges, with different directions, between two vertices.
-\end{itemize}
-
-\phil{The Directed? section needs work.}
 
 
 \section{Algorithm Concepts}
@@ -1099,7 +1057,7 @@ Find the minimum weight spanning tree of a graph using Prim's algorithm.
 \phil{If the use of Yield is any indicator, then NetworkX implements topological sort as adaptor also.}
 
 
-\section{Other Algorithms} \label{other_algo}
+\chapter{Other Algorithms} \label{other_algo}
 
 Additional algorithms that were considered but not included in this proposal are identified in Table \ref{tab:other_algorithms}. 
 It is assumed that future proposals will include them, with a recommendation of each Tier being in its own proposal.
