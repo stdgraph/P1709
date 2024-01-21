@@ -1,0 +1,40 @@
+\section{Introduction}
+
+\newcommand{\tablistcommand}{% <-- for eliminating vertical space
+                             %     before and after itemize
+            \leavevmode\par\vspace{-\baselineskip}
+\end{itemize}
+\section{Introduction}
+                            }
+\newcolumntype{P}[1]{p{#1-3\tabcolsep-\arrayrulewidth}}
+
+Basic characteristics of the algorithms shown below are summarized in tables of the following form:
+\begin{table}[h]
+\setcellgapes{3pt}
+\makegapedcells
+\centering
+\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\hline
+      \multirowcell{2}{
+            \textbf{Complexity} \\
+            $\mathcal{O}(|E|+|V|)$
+            }
+      & \textbf{Throws?} No & \textbf{Cycles?} No \\
+      & \textbf{Multi-edge?} No & \textbf{Directed?} Yes\\
+\hline
+\end{tabular}
+%\caption{Algorithm Example}
+\label{tab:algo_example}
+\end{table}
+
+The parts of the table have the following meaning:
+\begin{itemize}
+      \item \textbf{Complexity} The complexity of the algorithm based on the number of vertices (V) and edges (E).
+      \item \textbf{Throws?} Will the algorithm throw at all? If so, look at the \textit{Throws} section after the function prototypes for details.
+      \item \textbf{Multi-edge?} Does the algorithm act as expected if more than one edge with the same direction exists between the same two vertices?
+      \item \textbf{Cycles?} Does the algorithm act act as expected if a vertex (or edge) is part of a cycle?
+      \item \textbf{Directed?} Is the algorithm only for directed graphs, or can it also be used for undirected graphs that have complimentary
+                               edges, with different directions, between two vertices.
+\end{itemize}
+
+\phil{The Directed? section needs work.}
