@@ -2,7 +2,7 @@
 
 The views in this section provide common ways that algorithms use to traverse graphs. They are a simple as iterating through the set of vertices, or more complex ways such as depth-first search and breadth-first search. The also provide a consistent and reliable way to access related elements using the View Return Types, and guaranteeing expected values, such as that the target is really the target on unordered edges.
 
-\section{Return Types (Descriptors)}
+\section{Descriptors (Return Types)}
 Views return one of the types in this section, providing a consistent set of values. They are templated so that the view can adjust the 
 actual values returned to be appropriate for its use. The three types, \tcode{vertex_descriptor, edge_descriptor} and 
 \tcode{neighbor_descriptor}, define the data model used by the algorithms.
@@ -56,7 +56,7 @@ for(auto&& [uid, value] : basic_vertexlist(g,vvf)) {
 \tcode{vertices_dfs(g,u)} and others. The \tcode{id} member always exists.
 
 {\small
-     \lstinputlisting{src/vertex_descriptor.hpp}
+     \lstinputlisting{D9904/src/vertex_descriptor.hpp}
 }
 
 Specializations are defined with \tcode{V=void} or \tcode{VV=void} to suppress the existance of their associated member variables, 
@@ -83,20 +83,13 @@ has two members \tcode{\{id_type id; vertex_type vertex;\}} and \tcode{value_typ
 \end{center}
 \end{table}
 
-A useful type alias for copying vertex values (excluding the vertex reference) is also available.
-\phil{Duplicate; remove}
-\begin{lstlisting}
-template <class VId, class VV>
-using copyable_vertex_t = vertex_descriptor<VId, void, VV>; // {id, value}
-\end{lstlisting}
-
 \subsubsection{\tcode{struct edge_descriptor<VId, Sourced, E, EV>}}\label{edge-view}\mbox{} \\
 \tcode{edge_descriptor} is used to return edge information. It is used by 
 \tcode{incidence(g,u), edgelist(g), edges_breadth_first_search(g,u), edges_dfs(g,u)} and others. 
 When \tcode{Sourced=true}, the \tcode{source_id} member is included with type \tcode{VId}. The \tcode{target_id} member always exists.
 
 {\small
-     \lstinputlisting{src/edge_descriptor.hpp}
+     \lstinputlisting{D9904/src/edge_descriptor.hpp}
 }
 
 Specializations are defined with \tcode{Sourced=true|false}, \tcode{E=void} or \tcode{EV=void} to suppress the existance of the associated 
@@ -128,20 +121,12 @@ and \tcode{value_type} is \tcode{void}.
 \end{center}
 \end{table}
 
-A useful type alias for copying edge values (excluding the edge reference) is also available.
-\phil{Duplicate; remove}
-\begin{lstlisting}
-template <class VId, class EV>
-using copyable_edge_t = edge_descriptor<VId, true, void, EV>; // source\_id,target\_id[,value]
-\end{lstlisting}
-
-
 \subsubsection{\tcode{struct neighbor_descriptor<VId, Sourced, V, VV>}}\label{neighbor-view}\mbox{} \\
 \tcode{neighbor_descriptor} is used to return information for a neighbor vertex, through an edge. It is used by \tcode{neighbors(g,u)}. 
 When \tcode{Sourced=true}, the \tcode{source_id} member is included with type \tcode{source_id_type}. The \tcode{target_id} member always exists.
 
 {\small
-     \lstinputlisting{src/neighbor_descriptor.hpp}
+     \lstinputlisting{D9904/src/neighbor_descriptor.hpp}
 }
 
 Specializations are defined with \tcode{Sourced=true|false}, \tcode{E}=void or \tcode{EV}=void to suppress the existance of the 

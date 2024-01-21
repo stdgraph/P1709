@@ -3,14 +3,6 @@
 Our proposed set of algorithms are grouped into Tier 1, Tier 2, and Tier 3. All Tier 1 algorithms are included in this proposal and summarized in the lists below. 
 Other tiers are outlined in the section \ref{other_algo} Other Algorithms.
 
-\newcommand{\tablistcommand}{% <-- for eliminating vertical space
-                             %     before and after itemize
-            \leavevmode\par\vspace{-\baselineskip}
-\end{itemize}
-\section{Introduction}
-                            }
-\newcolumntype{P}[1]{p{#1-3\tabcolsep-\arrayrulewidth}}
-
 \begin{multicols}{3}
       \emph{Shortest Paths}
       \begin{itemize}
@@ -56,40 +48,6 @@ Other tiers are outlined in the section \ref{other_algo} Other Algorithms.
 
 \vfill\null
 \end{multicols}
-
-
-\section{Introduction}
-
-Basic characteristics of the algorithms shown below are summarized in tables of the following form:
-\begin{table}[h]
-\setcellgapes{3pt}
-\makegapedcells
-\centering
-\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
-\hline
-      \multirowcell{2}{
-            \textbf{Complexity} \\
-            $\mathcal{O}(|E|+|V|)$
-            }
-      & \textbf{Throws?} No & \textbf{Cycles?} No \\
-      & \textbf{Multi-edge?} No & \textbf{Directed?} Yes\\
-\hline
-\end{tabular}
-%\caption{Algorithm Example}
-\label{tab:algo_example}
-\end{table}
-
-The parts of the table have the following meaning:
-\begin{itemize}
-      \item \textbf{Complexity} The complexity of the algorithm based on the number of vertices (V) and edges (E).
-      \item \textbf{Throws?} Will the algorithm throw at all? If so, look at the \textit{Throws} section after the function prototypes for details.
-      \item \textbf{Multi-edge?} Does the algorithm act as expected if more than one edge with the same direction exists between the same two vertices?
-      \item \textbf{Cycles?} Does the algorithm act act as expected if a vertex (or edge) is part of a cycle?
-      \item \textbf{Directed?} Is the algorithm only for directed graphs, or can it also be used for undirected graphs that have complimentary
-                               edges, with different directions, between two vertices.
-\end{itemize}
-
-\phil{The Directed? section needs work.}
 
 
 \section{Algorithm Concepts}
@@ -160,7 +118,7 @@ concept edge_weight_function = // e.g. weight(uv)
 
 
       {\small
-            \lstinputlisting{src/shortest_paths.hpp}
+            \lstinputlisting{D9902/src/shortest_paths.hpp}
       }
 
       \andrew{The variety of algorithms was inspired by networkx....  Which also had ``distance'' variants.}
@@ -174,7 +132,7 @@ concept edge_weight_function = // e.g. weight(uv)
 \subsubsection{Breadth-First Search, Single Source, Initialization}
 
 {\small
-      \lstinputlisting{src/breadth_first_search_helpers.hpp}
+      \lstinputlisting{D9902/src/breadth_first_search_helpers.hpp}
 }
 
 \begin{itemdescr}
@@ -209,7 +167,7 @@ Compute the breadth-first path and associated distance from vertex \tcode{source
 Note that complexity may be $\mathcal{O}(|E| + |V|\log{|V|)}$ for certain implementations.
 
 {\small
-      \lstinputlisting{src/breadth_first_search.hpp}
+      \lstinputlisting{D9902/src/breadth_first_search.hpp}
 }
 
 \begin{itemdescr}
@@ -250,7 +208,7 @@ Note that complexity may be $\mathcal{O}(|E| + |V|\log{|V|)}$ for certain implem
 \subsubsection{Shortest Paths Initialization}
 
 {\small
-      \lstinputlisting{src/shortest_paths_helpers.hpp}
+      \lstinputlisting{D9902/src/shortest_paths_helpers.hpp}
 }
 
 \begin{itemdescr}
@@ -302,8 +260,8 @@ to specify \tcode{Compare} and \tcode{Combine} functions (e.g. less and add). Co
 \tcode{std::ranges} don't include the namespace prefix for brevity and clarity of purpose.
 
 {\small
-      \lstinputlisting{src/dijkstra_common.hpp}
-      \lstinputlisting{src/dijkstra_general.hpp}
+      \lstinputlisting{D9902/src/dijkstra_common.hpp}
+      \lstinputlisting{D9902/src/dijkstra_general.hpp}
 }
 
 \begin{itemdescr}
@@ -373,8 +331,8 @@ to specify \tcode{Compare} and \tcode{Combine} functions (e.g. less and add). Co
 \tcode{std::ranges} don't include the namespace prefix for brevity and clarity of purpose.
 
 {\small
-      \lstinputlisting{src/bellman_ford_common.hpp}
-      \lstinputlisting{src/bellman_ford_general.hpp}
+      \lstinputlisting{D9902/src/bellman_ford_common.hpp}
+      \lstinputlisting{D9902/src/bellman_ford_general.hpp}
 }
 
 \phil{Should negative weight cycles be a pre-condition, or should it be detected with an exception thrown when it exists?}
@@ -441,7 +399,7 @@ Compute the number of triangles in a graph.
 \end{table}
 
 {\small
-      \lstinputlisting[firstline=4,lastline=6]{src/tc.hpp}
+      \lstinputlisting[firstline=4,lastline=6]{D9902/src/tc.hpp}
 }
 \begin{itemdescr}
       %\pnum\mandates
@@ -482,7 +440,7 @@ Some label propagation implementations use vertex ids as an initial labeling. Th
 \end{table}
 
 {\small
-      \lstinputlisting[firstline=4,lastline=11]{src/lp.hpp}
+      \lstinputlisting[firstline=4,lastline=11]{D9902/src/lp.hpp}
 }
 \begin{itemdescr}
       %\pnum\mandates
@@ -524,7 +482,7 @@ Some label propagation implementations use vertex ids as an initial labeling. Th
 \end{table}
 
 {\small
-      \lstinputlisting[firstline=13,lastline=21]{src/lp.hpp}
+      \lstinputlisting[firstline=13,lastline=21]{D9902/src/lp.hpp}
 }
 \begin{itemdescr}
       %\pnum\mandates
@@ -572,7 +530,7 @@ Find articulation points, or cut vertices, which when removed disconnect the gra
 \end{table}
 
 {\small
-     \lstinputlisting[firstline=4,lastline=6]{src/connected_components.hpp}
+     \lstinputlisting[firstline=4,lastline=6]{D9902/src/connected_components.hpp}
 }
 
 \phil{Should target of output iterator be convertible to vertex\_id, not same\_as vertex\_id?}
@@ -619,7 +577,7 @@ Find the biconnected components, or maximal biconnected subgraphs of a graph, wh
 \end{table}
 
 {\small
-     \lstinputlisting[firstline=11,lastline=18]{src/connected_components.hpp}
+     \lstinputlisting[firstline=11,lastline=18]{D9902/src/connected_components.hpp}
 }
 
 \phil{\tcode{push_back}, \tcode{push_front} and \tcode{insert} are all valid ways to add to containers that support forward\_range,
@@ -672,7 +630,7 @@ Find weakly connected components of a graph. Weakly connected components are sub
 \end{table}
 
 {\small
-     \lstinputlisting[firstline=23,lastline=28]{src/connected_components.hpp}
+     \lstinputlisting[firstline=23,lastline=28]{D9902/src/connected_components.hpp}
 }
 
 \phil{Return number of components \tcode{C}? If \tcode{C==num_vertices(g)} then all components are of \tcode{size==1} (a.k.a. no components).}
@@ -724,7 +682,7 @@ Find strongly connected components of a graph using Kosaraju's algorithm. Strong
 \end{table}
 
 {\small
-      \lstinputlisting[firstline=33, lastline=40]{src/connected_components.hpp}
+      \lstinputlisting[firstline=33, lastline=40]{D9902/src/connected_components.hpp}
 }
 \phil{Return number of components \tcode{C}? If \tcode{C==num_vertices(g)} then all components are of \tcode{size==1} (a.k.a. no components).}
 
@@ -774,7 +732,7 @@ Find strongly connected components of a graph using Tarjan's algorithm. Strongly
 \end{table}
 
 {\small
-      \lstinputlisting[firstline=45,lastline=51]{src/connected_components.hpp}
+      \lstinputlisting[firstline=45,lastline=51]{D9902/src/connected_components.hpp}
 }
 
 \phil{Return number of components \tcode{C}? If \tcode{C==num_vertices(g)} then all components are of \tcode{size==1} (a.k.a. no components).}
@@ -808,7 +766,7 @@ A linear ordering of vertices such that for every directed edge (u,v) from verte
 \subsubsection{Initialization}
 
 {\small
-      \lstinputlisting{src/topological_sort_helpers.hpp}
+      \lstinputlisting{D9902/src/topological_sort_helpers.hpp}
 }
 
 \begin{itemdescr}
@@ -840,7 +798,7 @@ A linear ordering of vertices such that for every directed edge (u,v) from verte
 \end{table}
 
 {\small
-      \lstinputlisting{src/topological_sort.hpp}
+      \lstinputlisting{D9902/src/topological_sort.hpp}
 }
 
 \phil{Add overload with \tcode{distances}}
@@ -897,7 +855,7 @@ Find a maximally independent set of vertices in a graph starting from a seed ver
 \end{table}
 
 {\small
-      \lstinputlisting{src/mis.hpp}
+      \lstinputlisting{D9902/src/mis.hpp}
 }
 \begin{itemdescr}
       %\pnum\mandates
@@ -949,7 +907,7 @@ Calculate the Jaccard coefficient of a graph
 \end{table}
 
 {\small
-      \lstinputlisting[firstline=4,lastline=6]{src/jaccard.hpp}
+      \lstinputlisting[firstline=4,lastline=6]{D9902/src/jaccard.hpp}
 }
 
 \phil{Consider using \tcode{out(uid,vid,uv,val)} as the function descriptor in Preconditions to make it more readable.}
@@ -1003,7 +961,7 @@ Find the minimum weight spanning tree of a graph using Kruskal's algorithm.
 \end{table}
 
 {\small
-      \lstinputlisting[firstline=4,lastline=8]{src/mst.hpp}
+      \lstinputlisting[firstline=4,lastline=8]{D9902/src/mst.hpp}
 }
 \begin{itemdescr}
       %\pnum\mandates
@@ -1053,7 +1011,7 @@ Find the minimum weight spanning tree of a graph using Prim's algorithm.
 \end{table}
 
 {\small
-      \lstinputlisting[firstline=13,lastline=29]{src/mst.hpp}
+      \lstinputlisting[firstline=13,lastline=29]{D9902/src/mst.hpp}
 }
 \begin{itemdescr}
       %\pnum\mandates
@@ -1099,7 +1057,7 @@ Find the minimum weight spanning tree of a graph using Prim's algorithm.
 \phil{If the use of Yield is any indicator, then NetworkX implements topological sort as adaptor also.}
 
 
-\section{Other Algorithms} \label{other_algo}
+\chapter{Other Algorithms} \label{other_algo}
 
 Additional algorithms that were considered but not included in this proposal are identified in Table \ref{tab:other_algorithms}. 
 It is assumed that future proposals will include them, with a recommendation of each Tier being in its own proposal.

@@ -1,0 +1,5 @@
+#
+BasedOnStyle:  InheritParentConfig
+
+ColumnLimit:     96
+MaxEmptyLinesToKeep: 1

@@ -11,51 +11,51 @@ The Graph Container Interface is designed to support a wider scope of graph cont
 
 
 
-\section{Naming Conventions}
+% \section{Naming Conventions}
 
-Table~\ref{tab:name_conv} shows the naming conventions used throughout this document.
+% Table~\ref{tab:name_conv} shows the naming conventions used throughout this document.
 
-\begin{table}[h!]
-  \begin{center}
-  {\begin{tabular}{l l l p{7cm}}
-     \hline
-     \textbf{Template}  &                                   & \textbf{Variable}    &                                                                                                                                                                                                  \\
-     \textbf{Parameter} & \textbf{Type Alias}               & \textbf{Names}       & \textbf{Description}                                                                                                                                                                             \\
-     \hline
-     \tcode{G}          &                                   &                      & Graph                                                                                                                                                                                            \\
-     & \tcode{graph_reference_t<G>}      & \tcode{g}            & Graph reference                                                                                                                                                                                  \\
-     \tcode{GV}         &                                   & \tcode{val}          & Graph Value, value or reference                                                                                                                                                                  \\
-     \hline
-     \tcode{V}          & \tcode{vertex_t<G>}               &                      & Vertex                                                                                                                                                                                           \\
-     & \tcode{vertex_reference_t<G>}     & \tcode{u,v,x,y}      & Vertex reference. \tcode{u} is the source (or only) vertex. \tcode{v} is the target vertex.                                                                                                      \\
-     \tcode{VId}        & \tcode{vertex_id_t<G>}            & \tcode{uid,vid,seed} & Vertex id. \tcode{uid} is the source (or only) vertex id. \tcode{vid} is the target vertex id.                                                                                                   \\
-     \tcode{VV}         & \tcode{vertex_value_t<G>}         & \tcode{val}          & Vertex Value, value or reference. This can be either the user-defined value on a vertex, or a value returned by a function object (e.g. \tcode{VVF}) that is related to the vertex.              \\
-     \tcode{VR}         & \tcode{vertex_range_t<G>}         & \tcode{ur,vr}        & Vertex Range                                                                                                                                                                                     \\
-     \tcode{VI}         & \tcode{vertex_iterator_t<G>}      & \tcode{ui,vi}        & Vertex Iterator. \tcode{ui} is the source (or only) vertex.                                                                                                                                      \\
-     &                                   & \tcode{first,last}   & \tcode{vi} is the target vertex.                                                                                                                                                                                    \\
-     \tcode{VVF}        &                                   & \tcode{vvf}          & Vertex Value Function: vvf(u) $\rightarrow$ vertex value, or vvf(uid) $\rightarrow$ vertex value, depending on requirements of the consume algorithm or view.                                    \\
-     \tcode{VProj}      &                                   & \tcode{vproj}        & Vertex descriptor projection function: \tcode{vproj(x)} $\rightarrow$ \tcode{vertex_descriptor<VId,VV>}.                                                                                         \\
-     \hdashline
-                        & \tcode{partition_id_t<G>}         & \tcode{pid}          & Partition id.                                                                                                                                                                                    \\
-                        &                                   & \tcode{P}            & Number of partitions.                                                                                                                                                                            \\
-     \tcode{PVR}        & \tcode{partition_vertex_range_t<G>} & \tcode{pur,pvr}    & Partition vertex range.                                                                                                                                                                          \\
-     \hline
-     \tcode{E}          & \tcode{edge_t<G>}                 &                      & Edge                                                                                                                                                                                             \\
-     & \tcode{edge_reference_t<G>}       & \tcode{uv,vw}        & Edge reference. \tcode{uv} is an edge from vertices \tcode{u} to \tcode{v}. \tcode{vw} is an edge from vertices \tcode{v} to \tcode{w}.                                                                             \\
-     \tcode{EId}        & \tcode{edge_id_t<G>}              & \tcode{eid,uvid}     & Edge id, a pair of vertex\_ids.                                                                                                                                                                  \\
-     \tcode{EV}         & \tcode{edge_value_t<G>}           & \tcode{val}          & Edge Value, value or reference. This can be either the user-defined value on an edge, or a value returned by a function object (e.g. \tcode{EVF}) that is related to the edge.                   \\
-     \tcode{ER}         & \tcode{vertex_edge_range_t<G>}    &                      & Edge Range for edges of a vertex                                                                                                                                                                 \\
-     \tcode{EI}         & \tcode{vertex_edge_iterator_t<G>} & \tcode{uvi,vwi}      & Edge Iterator for an edge of a vertex. \tcode{uvi} is an iterator for an edge from vertices \tcode{u} to \tcode{v}. \tcode{vwi} is an iterator for an edge from vertices \tcode{v} to \tcode{w}. \\
-     \tcode{EVF}        &                                   & \tcode{evf}          & Edge Value Function: evf(uv) $\rightarrow$ edge value, or evf(eid) $\rightarrow$ edge value, depending on the requirements of the consuming algorithm or view.                                   \\
-     \tcode{EProj}      &                                   & \tcode{eproj}        & Edge descriptor projection function: \tcode{eproj(x)} $\rightarrow$ \tcode{edge_descriptor<VId,Sourced,EV>}.                                                                                     \\
-     \hdashline
-     \tcode{PER}        & \tcode{partition_edge_range_t<G>} &                      & Partition Edge Range for edges of a partition vertex.                                                                                                                                            \\
-     \hline
-  \end{tabular}}
-    \caption{Naming Conventions for Types and Variables}
-    \label{tab:name_conv}
-  \end{center}
-\end{table}
+% \begin{table}[h!]
+%   \begin{center}
+%   {\begin{tabular}{l l l p{7cm}}
+%      \hline
+%      \textbf{Template}  &                                   & \textbf{Variable}    &                                                                                                                                                                                                  \\
+%      \textbf{Parameter} & \textbf{Type Alias}               & \textbf{Names}       & \textbf{Description}                                                                                                                                                                             \\
+%      \hline
+%      \tcode{G}          &                                   &                      & Graph                                                                                                                                                                                            \\
+%      & \tcode{graph_reference_t<G>}      & \tcode{g}            & Graph reference                                                                                                                                                                                  \\
+%      \tcode{GV}         &                                   & \tcode{val}          & Graph Value, value or reference                                                                                                                                                                  \\
+%      \hline
+%      \tcode{V}          & \tcode{vertex_t<G>}               &                      & Vertex                                                                                                                                                                                           \\
+%      & \tcode{vertex_reference_t<G>}     & \tcode{u,v,x,y}      & Vertex reference. \tcode{u} is the source (or only) vertex. \tcode{v} is the target vertex.                                                                                                      \\
+%      \tcode{VId}        & \tcode{vertex_id_t<G>}            & \tcode{uid,vid,seed} & Vertex id. \tcode{uid} is the source (or only) vertex id. \tcode{vid} is the target vertex id.                                                                                                   \\
+%      \tcode{VV}         & \tcode{vertex_value_t<G>}         & \tcode{val}          & Vertex Value, value or reference. This can be either the user-defined value on a vertex, or a value returned by a function object (e.g. \tcode{VVF}) that is related to the vertex.              \\
+%      \tcode{VR}         & \tcode{vertex_range_t<G>}         & \tcode{ur,vr}        & Vertex Range                                                                                                                                                                                     \\
+%      \tcode{VI}         & \tcode{vertex_iterator_t<G>}      & \tcode{ui,vi}        & Vertex Iterator. \tcode{ui} is the source (or only) vertex.                                                                                                                                      \\
+%      &                                   & \tcode{first,last}   & \tcode{vi} is the target vertex.                                                                                                                                                                                    \\
+%      \tcode{VVF}        &                                   & \tcode{vvf}          & Vertex Value Function: vvf(u) $\rightarrow$ vertex value, or vvf(uid) $\rightarrow$ vertex value, depending on requirements of the consume algorithm or view.                                    \\
+%      \tcode{VProj}      &                                   & \tcode{vproj}        & Vertex descriptor projection function: \tcode{vproj(x)} $\rightarrow$ \tcode{vertex_descriptor<VId,VV>}.                                                                                         \\
+%      \hdashline
+%                         & \tcode{partition_id_t<G>}         & \tcode{pid}          & Partition id.                                                                                                                                                                                    \\
+%                         &                                   & \tcode{P}            & Number of partitions.                                                                                                                                                                            \\
+%      \tcode{PVR}        & \tcode{partition_vertex_range_t<G>} & \tcode{pur,pvr}    & Partition vertex range.                                                                                                                                                                          \\
+%      \hline
+%      \tcode{E}          & \tcode{edge_t<G>}                 &                      & Edge                                                                                                                                                                                             \\
+%      & \tcode{edge_reference_t<G>}       & \tcode{uv,vw}        & Edge reference. \tcode{uv} is an edge from vertices \tcode{u} to \tcode{v}. \tcode{vw} is an edge from vertices \tcode{v} to \tcode{w}.                                                                             \\
+%      \tcode{EId}        & \tcode{edge_id_t<G>}              & \tcode{eid,uvid}     & Edge id, a pair of vertex\_ids.                                                                                                                                                                  \\
+%      \tcode{EV}         & \tcode{edge_value_t<G>}           & \tcode{val}          & Edge Value, value or reference. This can be either the user-defined value on an edge, or a value returned by a function object (e.g. \tcode{EVF}) that is related to the edge.                   \\
+%      \tcode{ER}         & \tcode{vertex_edge_range_t<G>}    &                      & Edge Range for edges of a vertex                                                                                                                                                                 \\
+%      \tcode{EI}         & \tcode{vertex_edge_iterator_t<G>} & \tcode{uvi,vwi}      & Edge Iterator for an edge of a vertex. \tcode{uvi} is an iterator for an edge from vertices \tcode{u} to \tcode{v}. \tcode{vwi} is an iterator for an edge from vertices \tcode{v} to \tcode{w}. \\
+%      \tcode{EVF}        &                                   & \tcode{evf}          & Edge Value Function: evf(uv) $\rightarrow$ edge value, or evf(eid) $\rightarrow$ edge value, depending on the requirements of the consuming algorithm or view.                                   \\
+%      \tcode{EProj}      &                                   & \tcode{eproj}        & Edge descriptor projection function: \tcode{eproj(x)} $\rightarrow$ \tcode{edge_descriptor<VId,Sourced,EV>}.                                                                                     \\
+%      \hdashline
+%      \tcode{PER}        & \tcode{partition_edge_range_t<G>} &                      & Partition Edge Range for edges of a partition vertex.                                                                                                                                            \\
+%      \hline
+%   \end{tabular}}
+%     \caption{Naming Conventions for Types and Variables}
+%     \label{tab:name_conv}
+%   \end{center}
+% \end{table}
 
 
 
@@ -218,7 +218,7 @@ Table \ref{tab:graph_func} summarizes the functions in the Graph Container Inter
 \hline
     \tcode{edges(g,u)} & \tcode{vertex_edge_range_t<G>} & constant & \tcode{u} if \tcode{forward range<vertex_t<G>>}, n/a otherwise \\
     \tcode{edges(g,uid)} & \tcode{vertex_edge_range_t<G>} & constant & \tcode{edges(g,*find_vertex(g,uid))} \\
-    \tcode{target_id(g,uv)} & \tcode{vertex_id_t<G>} & constant & n/a \\
+    \tcode{target_id(g,uv)} & \tcode{vertex_id_t<G>} & constant & (see below) \\
     \tcode{target(g,uv)} & \tcode{vertex_t<G>} & constant & \tcode{*(begin(vertices(g)) + target_id(g, uv))} if \tcode{random_access_range<vertex_range_t<G>> \&\& integral<target_id(g,uv)>} \\
     \tcode{edge_value(g,uv)} & \tcode{edge_value_t<G>} & constant & \tcode{uv} if \tcode{forward_range<vertex_t<G>>}, n/a otherwise, optional \\
     \tcode{find_vertex_edge(g,u,vid)} & \tcode{vertex_edge_t<G>} & linear & \tcode{find(edges(g,u), [](uv) {target_id(g,uv)==vid;\})}} \\
@@ -241,6 +241,10 @@ Table \ref{tab:graph_func} summarizes the functions in the Graph Container Inter
 \end{center}
 \end{table}
 
+When the graph matches the pattern \tcode{forward_range<forward_range<integral>>} or \tcode{forward_range<forward_range<tuple<integral,...>>>},
+the default implementation for \tcode{target_id(g,uv)} will return the \tcode{integral}. Additionally, if the caller does not override 
+\tcode{vertex_id(g,ui)}, the \tcode{integral} value will define the \tcode{vertex_id_t<G>} type.
+
 Functions that have n/a for their Default Implementation must be defined by the author of a Graph Container implementation. 
 
 Value functions (\tcode{graph_value(g)}, \tcode{vertex_value(g,u)} and \tcode{edge_value(g,uv)}) can be optionally implemented, 
@@ -249,13 +253,23 @@ be scaler, struct, class, union, or tuple. These are abstract types used by the 
 values used by algorithms. As such it's valid to return the "enclosing" owning class (graph, vertex or edge), or some other
 embedded value in those objects.
 
-\tcode{vertex_id_t<G>} is defined by the type returned by \tcode{vertex_id(g)} and it defaults to the difference\_type of the underlying container used for vertices (e.g int64\_t for 64-bit systems). This is sufficient for all situations. However, there are often space and performance advantages if a smaller type is used, such as int32\_t or even int16\_t. It is recommended to consider overriding this function for optimal results, assuring that it is also large enough for the number of possible vertices and edges in the application. It will also need to be overridden if the implementation doesn't expose the vertices as a range.
-
 \tcode{find_vertex(g,uid)} is constant complexity because all algorithms in this proposal require that \tcode{vertex_range_t<G>} is a random access range. 
 
 If the concept requirements for the default implementation aren't met by the graph container the function will need to be overridden.
 
-Edgelists are assumed to be either be an edgelist view of an adjacency graph, or a standard range with source\_id and target\_id values. There is no need for additional functions when a range is used.
+\subsection{Determining the Vertex Id Type}
+To determine the type for \tcode{vertex_id_t<G>} the following steps are taken, in order, to determine its type.
+\begin{enumerate}
+    \item Use the type returned by \tcode{vertex_id(g,ui)} when overridden for a graph.
+    \item When the graph matches the pattern \tcode{forward_range<forward_range<integral>>} or \tcode{forward_range<forward_range<tuple<integral,...>>>},
+          use the \tcode{integral} type specified.
+    \item Use \tcode{size_t} in all other cases.
+\end{enumerate}
+
+\tcode{vertex_id_t<G>} is defined by the type returned by \tcode{vertex_id(g)} and it defaults to the difference\_type of the underlying container used for vertices (e.g int64\_t for 64-bit systems). 
+This is sufficient for all situations. However, there are often space and performance advantages if a smaller type is used, such as int32\_t or even int16\_t. It is recommended to consider overriding 
+this function for optimal results, assuring that it is also large enough for the number of possible vertices and edges in the application. It will also need to be overridden if the implementation doesn't 
+expose the vertices as a range.
 
 \section{Unipartite, Bipartite and Multipartite Graph Representation}
 
@@ -332,6 +346,11 @@ contiguously. \tcode{empty(vrng)} may be empty if there are no vertices in the p
 \end{center}
 \end{table}
 
+\subsection{Edgelists}
+An edgelist is a range of \tcode{edge_descriptor} values, used by some algorithms. Examples include the \tcode{edgelist} adjacency 
+list view, or possibly a transform of an existing range that projects \tcode{edge_descriptor} values. There is no concrete data
+structure in this proposal like there is for an adjacency list.
+
 \section{Using Existing Graph Data Structures}
 Reasonable defaults have been defined for the GCI functions to minimize the amount of work
 needed to adapt an existing graph data structure to be used by the views and algorithms.
@@ -347,7 +366,6 @@ can write loops to go through the vertices, and edges within each vertex, as fol
 
 \begin{lstlisting}
 using G = vector<forward_list<tuple<int,double>>>;
-auto target_id(const G& g, edge_t<const G>& uv) { return get<0>(uv); }
 auto weight = [&g](edge_t& uv) { return get<1>(uv); }
 
 G g;
@@ -362,8 +380,8 @@ for(auto&& [uid, u] : vertices(g)) {
 }
 \end{lstlisting}
 
-Note that \tcode{target_id(g,uv)} was the only CPO function overriden; all other functions were automatically defined
-based on the rules shown in Table \ref{tab:simple_graph}.
+Note that no function override was required and is a special case when the outer and inner containers are forward ranges,
+and the value type of the inner range is either \tcode{integral}, or a \tcode{tuple<integral, ...>}.
 
 \begin{table}[h!]
     \begin{center}
@@ -377,6 +395,7 @@ based on the rules shown in Table \ref{tab:simple_graph}.
         \tcode{edges(g,u)} & \tcode{forward_list<tuple<int,double>>} (when \tcode{random_access_range<vertex_range_t<G>>}) \\
         \tcode{uv} & \tcode{tuple<int,double>} & \\
         \tcode{edge_value(g,uv)} & \tcode{tuple<int,double>} (when \tcode{random_access_range<vertex_range_t<G>>}) \\
+        \tcode{target_id(g,uv)} & \tcode{integral}, when \tcode{uv} is either \tcode{integral}  or \tcode{tuple<integral,...>} \\
     \hline
     \end{tabular}}
     \caption{Types When Using Standard Containers}
@@ -387,6 +406,7 @@ based on the rules shown in Table \ref{tab:simple_graph}.
 \subsection{Using Other Graph Data Structures}
 For other graph data structures more function overrides are required. The following table identifies the common function
 overrides anticipated for most cases, keeping in mind that all functions in Table \ref{tab:graph_func} can be overridden.
+When they are defined they must be in the same namespace as the data structures.
 
 \begin{table}[h!]
     \begin{center}
