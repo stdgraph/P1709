@@ -59,39 +59,57 @@ The Graph Container Interface is designed to support a wider scope of graph cont
 
 
 
-\section{Concepts}
-Table \ref{tab:graph_concepts} summarizes the concepts in the Graph Container Interface, allowing views and algorithms to verify a graph implementation has the expected requirements for an \tcode{adjacency_list} or \tcode{sourced_adjacency_list}.
+\section{Core Concepts}
 
-Sourced edges have a source\_id on them in addition to a target\_id. A \tcode{sourced_adjacency_list} has sourced edges.
+This section describes the core concepts to describe the adjacency lists used for graphs in the Graph Library. There are a 
+number of prefixes used for adjacency list are as follows.
+\begin{itemize}
+    \item \textbf{basic} where there is only a vertex id but no vertex object.
+    \item \textbf{index} where the vertex range is random-access and the vertex id is integral.
+    \item \textbf{sourced} where an edge has a source id.
+\end{itemize}
 
-Indexed adjacency lists reflect a common use case where vertices are kept in a random access container and have an integral id.
+The types of edges that can occur in a graph are described with the edges concepts. The \tcode{E} edge template parameter allows
+for different types of edges, such as incoming and outgoing edge types.
+{\small
+     \lstinputlisting{D9905/src/concepts_edges.hpp}
+}
 
-% is_sourced_edge and is_sourced_edge_v structs are not included the table for brevity. We may want to add them in the future for completeness.
-\phil{Need to resolve how to deal with "basic" concepts which don't require vertex or edge references. 
-      Can a GGI exist with ids only, without the references?
-      Is it just a View artifact?}
-\begin{table}[h!]
-\begin{center}
-%\resizebox{\textwidth}{!}
-{\begin{tabular}{l L{12.0cm}}
-\hline
-    \textbf{Concept} & \textbf{Definition} \\
-\hline
-    \tcode{vertex_range<G>} & \tcode{vertices(g)} returns a sized, forward\_range; \tcode{vertex_id(g,ui)} exists\\
-    \tcode{targeted_edge<G>} & \tcode{target_id(g,uv)} and \tcode{target(g,uv)} exist\\
-    \tcode{adjacency_list<G>} & Extends \tcode{vertex_range<G>} by adding \tcode{edges(g,u)} and \tcode{edges(g,uid)} that returns a forward\_range \\
-\hdashline
-    \tcode{sourced_edge<G>} & \tcode{source_id(g,uv)} and \tcode{source(g,uv)} exist\\
-    \tcode{sourced_adjacency_list<G>} & \tcode{adjacency_list<G>} and \tcode{sourced_edge<G, edge_t<G>>} and \tcode{edge_id(g,uv)} exists \\
-\hdashline
-    \tcode{index_vertex_range<G>} & Extends \tcode{vertex_range<G>} by requiring \tcode{vertices(g)} return a random\_access\_range and \tcode{vertex_id(g)} return an integer \\
-    \tcode{index_adjacency_list<G>} & Extends \tcode{adjacency_list<G>} by requiring \tcode{vertices(g)} return a random\_access\_range and \tcode{vertex_id(g)} return an integer \\
-\hline
-\end{tabular}}
-\caption{Graph Container Interface Concepts}
-\label{tab:graph_concepts}
-\end{center}
-\end{table}
+There is a single edge range concept.
+
+\andrew{Some adjacency lists have only a vertex id without a vertex. We should have a separate \tcode{basic_edge_range} with only
+        \tcode{edges(g,uid)}. That should also be reflected as a \tcode{basic_adjacency_list}.}
+
+\phil{There is always a vertex reference internally in the GCI, even if it's just a vertex id. We do have the "basic" Views that 
+      exclude the vertex reference. Is that sufficient? If so, do we really need the "basic" concepts?}
+
+\phil{\tcode{edges(g,u)} isn't being used anywhere. We could use \tcode{basic_adjacency_list} in the View and algorihm definitions.}
+
+\phil{\tcode{edges(g,u)} is only needed when we use a map for vertices and don't want to incur O(log n) lookup when we only have uid.
+      Does this imply further concepts or separation of functions? For instance, should \tcode{degree(g,u)} only be available for
+      \tcode{adjacency_list} but not \tcode{basic_adjacency_list}, and vice versa? }
+
+
+{\small
+     \lstinputlisting{D9905/src/concepts_target_edge_range.hpp}
+}
+
+The \tcode{vertex_range} concept is the general definition used for adjacency lists while \tcode{index_vertex_range} is used for
+high performance graphs where vertices typically stored in a \tcode{vector}.
+{\small
+     \lstinputlisting{D9905/src/concepts_vertex_range.hpp}
+}
+
+The adjacency list concepts bring together the vertex and edge concepts used for core graph concepts. 
+All algorithms initially proposed for the Graph Library use the \tcode{index_adjacency_list}.
+{\small
+     \lstinputlisting{D9905/src/concepts_adj_list.hpp}
+}
+
+The basic adjacency lists add concepts where there is no vertex object, only a vertex id.
+{\small
+     \lstinputlisting{D9905/src/concepts_basic_adj_list.hpp}
+}
 
 \section{Traits}
 Table \ref{tab:graph_traits} summarizes the type traits in the Graph Container Interface, allowing views and algorithms to query the graph's characteristics.
