@@ -4,4 +4,10 @@
 
 \begin{itemize}
       \item Split from P1709r5. Added \textit{Getting Started} chapter.
+      \item Add default implementation for \tcode{target_id(g,uv)} when the graph type matches the 
+            pattern \tcode{forward_range<forward_range<integral>>} or \tcode{forward_range<forward_range<tuple<integral,...>>>};
+            \tcode{vertex_id_t<G>} also defaults to the \tcode{integral} type given.
+      \item Revised concept definitions, adding \tcode{sourced_targeted_edge} and \tcode{target_edge_range}, and replaced
+            summary table with code for clarity. Also assured that all combinations of adjacency list concepts for
+            \textit{basic}, \textit{index} and \textit{sourced} exist.
 \end{itemize}

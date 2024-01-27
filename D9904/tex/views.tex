@@ -1,5 +1,15 @@
 \chapter{Views}
 
+% Phil:
+% It's tempting to try to consolidate the views so there's no regular views that return a reference to a vertex/edge,
+% versus the basic_ views that don't include the reference. There doesn't appear to be any real need to include the
+% reference since the vvf/evf can be used to return the value(s) needed by the algorithm.
+%
+% That's true for the cases where the vertex_id/target_id is also returned by the view. However, for other types
+% of graph data structures, it may be better to have the vertex/edge reference for edges(g,u) or target_id(g,uv)
+% because there is likely a way to get the return value in O(1) time instead of O(log n) when using an id.
+%
+
 The views in this section provide common ways that algorithms use to traverse graphs. They are a simple as iterating through the set of vertices, or more complex ways such as depth-first search and breadth-first search. The also provide a consistent and reliable way to access related elements using the View Return Types, and guaranteeing expected values, such as that the target is really the target on unordered edges.
 
 \section{Descriptors (Return Types)}
