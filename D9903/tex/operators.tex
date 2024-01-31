@@ -1,46 +1,101 @@
-\chapter{Operators}
 \section{Degree}
-Degree of a vertex in graph theory refers to the number of edges that are incident to the vertex. Although the proposal provides customization point interface to access a degree of an individual vertex, a degree operator allows one to build a range of degrees of all vertices within a graph.
+Degree of a vertex in graph theory refers to the number of edges that are incident to the vertex. Although the Graph Container Interface provides customization point interface to access a degree of an individual vertex, a degree operator allows one to build a range of degrees of all vertices within a graph.
+
+\begin{table}[h]
+\setcellgapes{3pt}
+\makegapedcells
+\centering
+\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\hline
+      \multirowcell{2}{
+            \textbf{Complexity} \\
+            $\mathcal{O}(|V|)$
+            }
+      & \textbf{Throws?} No & \textbf{Cycles?} Yes \\
+      & \textbf{Multi-edge?} Yes & \textbf{Directed?} Yes\\
+\hline
+\end{tabular}
+%\caption{Algorithm Example}
+\label{tab:degree_operator}
+\end{table}
+
 {\small
       \lstinputlisting{D9903/src/degree.hpp}
 }
+\muhammad{Support other graph types besides \tcode{index_adjacency_list} as well?}
 \begin{itemdescr}
       \pnum\preconditions
       \begin{itemize}
             \item
-                  \lstinline{graph} is an \lstinline{index_adjacency_list}, which can be directed or undirected. \muhammad{Support other graph types as well?}
+                  \lstinline{size(degrees_per_vertex) >= size(vertices(graph))}.
       \end{itemize}
-      \pnum\effects Output iterator \lstinline{degrees_per_vertex} contains the degree of each vertex in the graph, accessible through \lstinline{degrees_per_vertex[uid]}, where uid is the \lstinline{vertex_id}. The caller must assure \lstinline{size(degrees_per_vertex) >= size(vertices(graph))}.
-      \pnum\complexity $\mathcal{O}(|V|)$ where $V$ is the number of vertices in the graph.
+      \pnum\effects 
+      \begin{itemize}
+            \item
+                  Output iterator \lstinline{degrees_per_vertex} contains the degree of each vertex in the graph, accessible through 
+                  \lstinline{degrees_per_vertex[uid]}, where \lstinline{uid} is the \lstinline{vertex_id}.
+      \end{itemize}
+      %\pnum\complexity $\mathcal{O}(|V|)$ where $V$ is the number of vertices in the graph.
 \end{itemdescr}
 
 \section{Sort}
 Sort operator comes in many different variants, allows to sort the input graph based on the source vertex, target vertex, the degree of the vertex or by the weight on the edges. Also relevant, \lstinline{topological_sort}, which returns a nonunique permutation of the vertices of a directed acyclic graph such that an edge from u to v implies that u appears before v in the topological sort order.
+
+The following algorithm summary represents all the Sort operators.
+\begin{table}[h]
+\setcellgapes{3pt}
+\makegapedcells
+\centering
+\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\hline
+      \multirowcell{2}{
+            \textbf{Complexity} \\
+            $\mathcal{O}(N log|N|)$
+            }
+      & \textbf{Throws?} No & \textbf{Cycles?} Yes \\
+      & \textbf{Multi-edge?} Yes & \textbf{Directed?} Yes\\
+\hline
+\end{tabular}
+%\caption{Algorithm Example}
+\label{tab:sort_operators}
+\end{table}
+
+\phil{Removed comments that said "The same API extends for \lstinline{edgelist}" for all Sort operators. The current 
+      view is that an edgelist is the result of a std::ranges::transform() with a value type of an edge\_descriptor. 
+      Since it's not an adacency\_list they won't work as-is. Are overloads needed?}
 
 \subsection{Sort by Source Vertex}
 {\small
       \lstinputlisting[firstline=1,lastline=2]{D9903/src/sort.hpp}
 }
 \begin{itemdescr}
-    \pnum\preconditions
-    \begin{itemize}
-          \item
-                \lstinline{graph} is an \lstinline{index_adjacency_list}, which can be directed or undirected. The same API extends for \lstinline{edgelist}.
-    \end{itemize}
-    \pnum\effects \lstinline{graph}, which is now sorted by the source vertices in the graph.
+      %\pnum\mandates
+      %\pnum\preconditions
+      \pnum\effects \lstinline{graph}, which is now sorted by the source vertices in the graph.
+      %\pnum\result
+      %\pnum\returns
+      %\pnum\throws
+      %\pnum\complexity
+      %\pnum\remarks
+      %\pnum\errors
 \end{itemdescr}
+\phil{What's being sorted? The edges? (Not the graph)}
+\phil{Is the sort key the source\_id?}
 
 \subsection{Sort by Target Vertex}
 {\small
       \lstinputlisting[firstline=4,lastline=5]{D9903/src/sort.hpp}
 }
 \begin{itemdescr}
-    \pnum\preconditions
-    \begin{itemize}
-          \item
-                \lstinline{graph} is an \lstinline{index_adjacency_list}, which can be directed or undirected. The same API extends for \lstinline{edgelist}.
-    \end{itemize}
-    \pnum\effects \lstinline{graph}, which is now sorted by the target vertices in the graph.
+      %\pnum\mandates
+      %\pnum\preconditions
+      \pnum\effects \lstinline{graph}, which is now sorted by the target vertices in the graph.
+      %\pnum\result
+      %\pnum\returns
+      %\pnum\throws
+      %\pnum\complexity
+      %\pnum\remarks
+      %\pnum\errors
 \end{itemdescr}
 
 \subsection{Sort by Degree}
@@ -48,12 +103,15 @@ Sort operator comes in many different variants, allows to sort the input graph b
       \lstinputlisting[firstline=7,lastline=8]{D9903/src/sort.hpp}
 }
 \begin{itemdescr}
-    \pnum\preconditions
-    \begin{itemize}
-          \item
-                \lstinline{graph} is an \lstinline{index_adjacency_list}, which can be directed or undirected. The same API extends for \lstinline{edgelist}.
-    \end{itemize}
-    \pnum\effects \lstinline{graph}, which is now sorted by the vertex degree.
+      %\pnum\mandates
+      %\pnum\preconditions
+      \pnum\effects \lstinline{graph}, which is now sorted by the vertex degree.
+      %\pnum\result
+      %\pnum\returns
+      %\pnum\throws
+      %\pnum\complexity
+      %\pnum\remarks
+      %\pnum\errors
 \end{itemdescr}
 
 \subsection{Sort by Edge Weight}
@@ -61,72 +119,161 @@ Sort operator comes in many different variants, allows to sort the input graph b
       \lstinputlisting[firstline=10,lastline=12]{D9903/src/sort.hpp}
 }
 \begin{itemdescr}
-    \pnum\preconditions
-    \begin{itemize}
-          \item
-                \lstinline{graph} is an \lstinline{index_adjacency_list}, which can be directed or undirected. The same API extends for \lstinline{edgelist}.
-          \item
-                \lstinline{w} The edge value function.
-    \end{itemize}
-    \pnum\effects \lstinline{graph}, which is now sorted by the edge weight.
+      %\pnum\mandates
+      %\pnum\preconditions
+      \pnum\effects \lstinline{graph}, which is now sorted by the edge weight.
+      %\pnum\result
+      %\pnum\returns
+      %\pnum\throws
+      %\pnum\complexity
+      %\pnum\remarks
+      %\pnum\errors
 \end{itemdescr}
 
 \section{Relabel}
 Relabels the vertices of the graph according to a given mapping or to integers.
 
+\begin{table}[h]
+\setcellgapes{3pt}
+\makegapedcells
+\centering
+\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\hline
+      \multirowcell{2}{
+            \textbf{Complexity} \\
+            $\mathcal{O}(?)$
+            }
+      & \textbf{Throws?} No & \textbf{Cycles?} Yes \\
+      & \textbf{Multi-edge?} Yes & \textbf{Directed?} Yes\\
+\hline
+\end{tabular}
+%\caption{Algorithm Example}
+\label{tab:relabel_map}
+\end{table}
+
 {\small
       \lstinputlisting[firstline=1,lastline=2]{D9903/src/relabel.hpp}
 }
 \begin{itemdescr}
-    \pnum\preconditions
-    \begin{itemize}
-          \item
-                \lstinline{graph} is an \lstinline{index_adjacency_list}, which can be directed or undirected. The same API extends for \lstinline{edgelist}.
-            \item
-                \lstinline{mapping} is a \lstinline{std::map}, a dictionary with old labels as keys and new labels as values. If a partial mapping is provided (i.e. \lstinline{mapping.size() < size(vertices(graph))}), then only the specified vertices are relabeled.
-    \end{itemize}
-    \pnum\effects \lstinline{graph}: the vertices of the graph are relabeled starting based on the mapping provided.
+      %\pnum\mandates
+      %\pnum\preconditions
+      \pnum\effects \lstinline{graph}: the vertices of the graph are relabeled starting based on the mapping provided. \\
+      %\pnum\result
+      %\pnum\returns
+      %\pnum\throws
+      %\pnum\complexity
+      \pnum\remarks
+            \begin{itemize}
+                  \item
+                  \lstinline{mapping} is a \lstinline{std::map}, a dictionary with old labels as keys and new labels as values. 
+                  If a partial mapping is provided (i.e. \lstinline{mapping.size() < size(vertices(graph))}), then only the 
+                  specified vertices are relabeled.
+            \end{itemize}
+      %\pnum\errors
 \end{itemdescr}
+
+\begin{table}[h]
+\setcellgapes{3pt}
+\makegapedcells
+\centering
+\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\hline
+      \multirowcell{2}{
+            \textbf{Complexity} \\
+            $\mathcal{O}(?)$
+            }
+      & \textbf{Throws?} No & \textbf{Cycles?} Yes \\
+      & \textbf{Multi-edge?} Yes & \textbf{Directed?} Yes\\
+\hline
+\end{tabular}
+%\caption{Algorithm Example}
+\label{tab:relabel_to_int}
+\end{table}
 
 {\small
       \lstinputlisting[firstline=4,lastline=5]{D9903/src/relabel.hpp}
 }
 \begin{itemdescr}
-    \pnum\preconditions
-    \begin{itemize}
-          \item
-                \lstinline{graph} is an \lstinline{index_adjacency_list}, which can be directed or undirected. The same API extends for \lstinline{edgelist}.
-    \end{itemize}
-    \pnum\effects \lstinline{graph}: the vertices of the graph are relabeled starting from 0 to \lstinline{size(vertices(graph))}.
+      %\pnum\mandates
+      %\pnum\preconditions
+      \pnum\effects \lstinline{graph}: the vertices of the graph are relabeled starting from 0 to \lstinline{size(vertices(graph))-1}.
+      %\pnum\result
+      %\pnum\returns
+      %\pnum\throws
+      %\pnum\complexity
+      %\pnum\remarks
+      %\pnum\errors
 \end{itemdescr}
 
 \section{Transpose}
 Transpose returns a graph with edges reversed. For an adjacency graph, it is obtained by switching the outer range of vertices with an inner range of incidence edges on each vertex.
 
+\begin{table}[h]
+\setcellgapes{3pt}
+\makegapedcells
+\centering
+\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\hline
+      \multirowcell{2}{
+            \textbf{Complexity} \\
+            $\mathcal{O}(?)$
+            }
+      & \textbf{Throws?} No & \textbf{Cycles?} Yes \\
+      & \textbf{Multi-edge?} Yes & \textbf{Directed?} Yes\\
+\hline
+\end{tabular}
+%\caption{Algorithm Example}
+\label{tab:transpose_operator}
+\end{table}
+
 {\small
       \lstinputlisting[firstline=1,lastline=2]{D9903/src/transpose.hpp}
 }
 \begin{itemdescr}
-    \pnum\preconditions
-    \begin{itemize}
-          \item
-                \lstinline{graph} is an \lstinline{index_adjacency_list}, which can be directed or undirected. The same API extends for \lstinline{edgelist}.
-    \end{itemize}
-    \pnum\effects \lstinline{graph}: the graph is transposed such that the edges for each vertex are reversed.
+      %\pnum\mandates
+      %\pnum\preconditions
+      \pnum\effects \lstinline{graph}: the graph is transposed such that the edges for each vertex are reversed.
+      %\pnum\result
+      %\pnum\returns
+      %\pnum\throws
+      %\pnum\complexity
+      %\pnum\remarks
+      %\pnum\errors
 \end{itemdescr}
-
 
 \section{Join}
 Combining of two graphs based on common vertices. The join operation (or Sparse General Matrix-Matrix Multiplication) is a useful operators for implementing graph algorithms. The result would be a new graph where the edges are determined by the multiplication of the adjacency containers. 
 
+\begin{table}[h]
+\setcellgapes{3pt}
+\makegapedcells
+\centering
+\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\hline
+      \multirowcell{2}{
+            \textbf{Complexity} \\
+            $\mathcal{O}(?)$
+            }
+      & \textbf{Throws?} No & \textbf{Cycles?} Yes \\
+      & \textbf{Multi-edge?} Yes & \textbf{Directed?} Yes\\
+\hline
+\end{tabular}
+%\caption{Algorithm Example}
+\label{tab:join_operator}
+\end{table}
+
 {\small
-      \lstinputlisting[firstline=1,lastline=2]{D9903/src/join.hpp}
+      \lstinputlisting[firstline=1,lastline=4]{D9903/src/join.hpp}
 }
+\phil{Should \tcode{a} and \tcode{b} be \tcode{const&}?}
 \begin{itemdescr}
-    \pnum\preconditions
-    \begin{itemize}
-          \item
-                \lstinline{a}, \lstinline{b} and \lstinline{c} are \lstinline{index_adjacency_list} graphs, which can be directed or undirected.
-    \end{itemize}
-    \pnum\effects \lstinline{c}: the resulting graph where the entry (u, v) in the result represents the number of common neighbors between vertex u in Graph A and vertex v in Graph B.
+      %\pnum\mandates
+      %\pnum\preconditions
+      \pnum\effects \lstinline{c}: the resulting graph where the entry (u, v) in the result represents the number of common neighbors between vertex u in Graph A and vertex v in Graph B.
+      %\pnum\result
+      %\pnum\returns
+      %\pnum\throws
+      %\pnum\complexity
+      %\pnum\remarks
+      %\pnum\errors
 \end{itemdescr}
