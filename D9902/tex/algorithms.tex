@@ -644,7 +644,7 @@ Find the biconnected components, or maximal biconnected subgraphs of a graph, wh
 \end{table}
 
 {\small
-     \lstinputlisting[firstline=11,lastline=18]{D9902/src/connected_components.hpp}
+     \lstinputlisting[firstline=11,lastline=16]{D9902/src/connected_components.hpp}
 }
 
 \phil{\tcode{push_back}, \tcode{push_front} and \tcode{insert} are all valid ways to add to containers that support forward\_range,
@@ -695,7 +695,7 @@ Find weakly connected components of a graph. Weakly connected components are sub
 \end{table}
 
 {\small
-     \lstinputlisting[firstline=23,lastline=28]{D9902/src/connected_components.hpp}
+     \lstinputlisting[firstline=21,lastline=24]{D9902/src/connected_components.hpp}
 }
 
 \phil{Return number of components \tcode{C}? If \tcode{C==num_vertices(g)} then all components are of \tcode{size==1} (a.k.a. no components).}
@@ -745,7 +745,7 @@ Find strongly connected components of a graph using Kosaraju's algorithm. Strong
 \end{table}
 
 {\small
-      \lstinputlisting[firstline=33, lastline=40]{D9902/src/connected_components.hpp}
+      \lstinputlisting[firstline=29, lastline=34]{D9902/src/connected_components.hpp}
 }
 \phil{Return number of components \tcode{C}? If \tcode{C==num_vertices(g)} then all components are of \tcode{size==1} (a.k.a. no components).}
 
@@ -793,7 +793,7 @@ Find strongly connected components of a graph using Tarjan's algorithm. Strongly
 \end{table}
 
 {\small
-      \lstinputlisting[firstline=45,lastline=51]{D9902/src/connected_components.hpp}
+      \lstinputlisting[firstline=39,lastline=43]{D9902/src/connected_components.hpp}
 }
 
 \phil{Return number of components \tcode{C}? If \tcode{C==num_vertices(g)} then all components are of \tcode{size==1} (a.k.a. no components).}
