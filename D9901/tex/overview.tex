@@ -85,7 +85,7 @@ There is no interaction with other proposals to the standard.
 The github \href{https://github.com/stdgraph}{github.com/stdgraph} repository contains an implementation for this proposal.
 
 \section{Usage Experience}
-There is no current use of the library. There are plans to begin using it in the next year in a commercial setting.
+There is no current use of the library. There are plans to begin using it in 2024 in a commercial setting.
 
 \section{Deployment Experience}
 There is no current deployment experience of the library. There are plans for this to follow the usage experience.
@@ -115,7 +115,7 @@ This proposal takes the best of NWGraph, with previous work done for P1709 to de
 embraces performance, ease-of-use and the ability to use the algorithms and views on externally defined graph containers.
 
 \section{Alternatives}
-There are no known alternative graph library we're aware of that meets the same requirements and uses concepts and ranges from C++20.
+We're unaware of any other library that meets the same requirements and uses concepts and ranges from C++20.
 
 %Later revisions should include this:
 %\section{Changes Library Evolution previously requested}
@@ -130,15 +130,16 @@ We believe this library can be used in a freestanding C++ implementation.
 Graph containers and their views and algorithms are not interchangeable with existing containers and algorithms.
 Additionally, there are some domain-specific terms that may clash with existing or future names, such as 
 \tcode{degree} and \tcode{partition_id}.
-For these reasons, we recommend their own namespaces as follows. This assumption is used in this proposal.
+For these reasons, we recommend their own namespaces. The following assumption is used in this proposal.
 \begin{itemize}
-\item[]\tcode{std::graph}
-\item[]\tcode{std::graph::views}
+\item[]\tcode{std::graph} and \tcode{std::graph::views}
 \end{itemize}
 
 \noindent
-Alternative locations for the above respective namespaces could also be as follows:
+Alternative locations include the following:
 \begin{itemize}
-\item[]\tcode{std::ranges}
-\item[]\tcode{std::ranges::views}
+\item[]\tcode{std::ranges} and \tcode{std::ranges::views}
+\item[]\tcode{std::ranges/graph} and \tcode{std::ranges::graph::views}
 \end{itemize}
+The advantage of these two options are that there would be no requirement to use the ranges:: prefix for things
+in the std::ranges namespace, a common occurance.
