@@ -1,9 +1,101 @@
 
-\chapter{Graph Container Implementation}
+\chapter{Graph Container Implementations}
+
+\section{Using Existing Graph Data Structures}
+Reasonable defaults have been defined for the GCI functions to minimize the amount of work
+needed to adapt an existing graph data structure to be used by the views and algorithms.
+
+There are two cases supported. The first is for the use of standard containers to define the graph and the other
+is for a broader set of more complicated implementations.
+
+\subsection{Using Standard Containers for the Graph Data Structure}
+
+For example this we'll use \tcode{G = vector<forward_list<tuple<int,double>>>} to define the graph, where \tcode{g} 
+is an instance of \tcode{G}. \tcode{tuple<int,double>} defines the target\_id and weight property respectively. We
+can write loops to go through the vertices, and edges within each vertex, as follows.
+
+\begin{lstlisting}
+using G = vector<forward_list<tuple<int,double>>>;
+auto weight = [&g](edge_t& uv) { return get<1>(uv); }
+
+G g;
+load_graph(g, ...); // load some data
+
+// Using GCI functions
+for(auto&& [uid, u] : vertices(g)) {
+  for(auto&& [vid, uv]: edges(g,u)) {
+    auto w = weight(uv);
+    // do something...
+  }
+}
+\end{lstlisting}
+
+Note that no function override was required and is a special case when the outer range is a \tcode{random_access_range} and
+and inner inner range is a \tcode{forward_range}, and the value type of the inner range is either \tcode{integral}
+ or \tcode{tuple<integral, ...>}. This extends to any range type. For instance, boost::containers can be used
+ just as easily as std containers. 
+
+\begin{table}[h!]
+    \begin{center}
+    \resizebox{\textwidth}{!}
+    {\begin{tabular}{l l p{1.5cm} L{7.0cm}}
+    \hline
+        \textbf{Function or Value} & \textbf{Concrete Type} \\
+    \hline
+        \tcode{vertices(g)} & \tcode{vector<forward_list<tuple<int,double>>>} (when \tcode{random_access_range<G>}) \\
+        \tcode{u} & \tcode{forward_list<tuple<int,double>>} & \\
+        \tcode{edges(g,u)} & \tcode{forward_list<tuple<int,double>>} (when \tcode{random_access_range<vertex_range_t<G>>}) \\
+        \tcode{uv} & \tcode{tuple<int,double>} & \\
+        \tcode{edge_value(g,uv)} & \tcode{tuple<int,double>} (when \tcode{random_access_range<vertex_range_t<G>>}) \\
+        \tcode{target_id(g,uv)} & \tcode{integral}, when \tcode{uv} is either \tcode{integral}  or \tcode{tuple<integral,...>} \\
+    \hline
+    \end{tabular}}
+    \caption{Types When Using Standard Containers}
+    \label{tab:simple_graph}
+    \end{center}
+\end{table}
+
+
+\subsection{Using Other Graph Data Structures}
+For other graph data structures more function overrides are required. Table \ref{tab:cmn_cpo_overrides} shows the 
+common function overrides anticipated for most cases, keeping in mind that all functions can be overridden.
+When they are defined they must be in the same namespace as the data structures.
+
+\begin{table}[h!]
+    \begin{center}
+    %\resizebox{\textwidth}{!}
+    {\begin{tabular}{l l p{1.5cm} L{7.0cm}}
+    \hline
+        \textbf{Function} & \textbf{Comment} \\
+    \hline
+        \tcode{vertices(g)} & \\
+        \tcode{edges(g,u)} & \\
+        \tcode{target_id(g,uv)} & \\
+        \tcode{edge_value(g,uv)} & If edges have value(s) in the graph \\
+        \tcode{vertex_value(g,u)} & If vertices have value(s) in the graph \\
+        \tcode{graph_value(g)} & If the graph has value(s) \\
+    \hline
+        \multicolumn{2}{c}{When edges have the optional source\_id on an edge} \\
+    \hdashline
+        \tcode{source_id(g,uv)} & \\
+    \hline
+        \multicolumn{2}{c}{When the graph supports multiple partitions} \\
+    \hdashline
+        \tcode{partition_count(g)} & \\
+        \tcode{partition_id(g,u)} & \\
+        \tcode{vertices(g,u,pid)} & \\
+    \hline
+    \end{tabular}}
+    \caption{Common CPO Function Overrides}
+    \label{tab:cmn_cpo_overrides}
+    \end{center}
+\end{table}
 
 \section{compressed\_graph}
-The compressed\_graph is a high-performance graph container that uses \href{https://en.wikipedia.org/wiki/Sparse_matrix#Compressed_sparse_row_\%28CSR\%2C_CRS_or_Yale_format\%29}{Compressed Sparse Row} format to store its vertices, edges and associated values. Once constructed, vertices and edges cannot be added or deleted but values on vertices and edges can be modified.
-\\
+The \tcode{compressed_graph} that is being proposed for the standard library. It is a high-performance graph container that 
+uses \href{https://en.wikipedia.org/wiki/Sparse_matrix#Compressed_sparse_row_\%28CSR\%2C_CRS_or_Yale_format\%29}{Compressed Sparse Row} 
+format to store its vertices, edges and associated values. Once constructed, vertices and edges cannot be added or deleted but values 
+on vertices and edges can be modified.
 
 The following listing shows the prototype for the \tcode{compressed_graph}. Only the members shown for \tcode{compressed_graph} are public. 
 No other member functions or types are exposed as part of the standard. All other types are only accessible through the types and functions 
@@ -21,7 +113,7 @@ then a \tcode{uint8_t} would be sufficient.
     \begin{tabular}{|P{0.35\textwidth}|P{0.30\textwidth}|P{0.35\textwidth}|}
     \hline
     \textbf{Implements \tcode{load_graph}?} Yes & \textbf{Can append vertices?} No & \textbf{vertex\_id assignment:} Contiguous\\
-    \textbf{Implements \tcode{load_vertices}?} Yes & \textbf{Can append vertices?} No & \textbf{Vertices range:} Contiguous \\
+    \textbf{Implements \tcode{load_vertices}?} Yes & \textbf{Can append edges?} No & \textbf{Vertices range:} Contiguous \\
     \textbf{Implements \tcode{load_edges}?} Yes &  & \textbf{Edge range:} Contiguous \\
     \textbf{Implements \tcode{load_partition}?} Yes &  & \\
     \hline

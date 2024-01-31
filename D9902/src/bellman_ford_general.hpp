@@ -3,8 +3,7 @@ template <index_adjacency_list        G,
           ranges::random_access_range Predecessors,
           class Compare,
           class Combine,
-          class WF        = function<ranges::range_value_t<Distances>(edge_reference_t<G>)>,
-          class Allocator = allocator<vertex_id_t<G>>
+          class WF        = function<ranges::range_value_t<Distances>(edge_reference_t<G>)>
           >
 requires is_arithmetic_v<ranges::range_value_t<Distances>> &&
          convertible_to<vertex_id_t<G>, ranges::range_value_t<Predecessors>> &&
@@ -17,15 +16,13 @@ void bellman_ford_shortest_paths(
       Compare&&      compare,
       Combine&&      combine,
       WF&&           weight = // default weight(uv) -> 1
-            [](edge_reference_t<G> uv) { return ranges::range_value_t<Distances>(1); },
-      Allocator alloc = Allocator());
+            [](edge_reference_t<G> uv) { return ranges::range_value_t<Distances>(1); });
 
 template <index_adjacency_list        G,
           ranges::random_access_range Distances,
           class Compare,
           class Combine,
-          class WF        = function<ranges::range_value_t<Distances>(edge_reference_t<G>)>,
-          class Allocator = allocator<vertex_id_t<G>>
+          class WF        = function<ranges::range_value_t<Distances>(edge_reference_t<G>)>
           >
 requires is_arithmetic_v<ranges::range_value_t<Distances>> &&
          basic_edge_weight_function<G, WF, ranges::range_value_t<Distances>, Compare, Combine>
@@ -36,5 +33,4 @@ void bellman_ford_shortest_distances(
       Compare&&      compare,
       Combine&&      combine,
       WF&&           weight = // default weight(uv) -> 1
-            [](edge_reference_t<G> uv) { return ranges::range_value_t<Distances>(1); },
-      Allocator alloc = Allocator());
+            [](edge_reference_t<G> uv) { return ranges::range_value_t<Distances>(1); });
