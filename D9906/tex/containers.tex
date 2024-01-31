@@ -57,8 +57,8 @@ and inner inner range is a \tcode{forward_range}, and the value type of the inne
 
 
 \subsection{Using Other Graph Data Structures}
-For other graph data structures more function overrides are required. The following table identifies the common function
-overrides anticipated for most cases, keeping in mind that all functions in Table \ref{tab:cmn_cpo_overrides} can be overridden.
+For other graph data structures more function overrides are required. Table \ref{tab:cmn_cpo_overrides} shows the 
+common function overrides anticipated for most cases, keeping in mind that all functions can be overridden.
 When they are defined they must be in the same namespace as the data structures.
 
 \begin{table}[h!]
@@ -92,8 +92,10 @@ When they are defined they must be in the same namespace as the data structures.
 \end{table}
 
 \section{compressed\_graph}
-The compressed\_graph is a high-performance graph container that uses \href{https://en.wikipedia.org/wiki/Sparse_matrix#Compressed_sparse_row_\%28CSR\%2C_CRS_or_Yale_format\%29}{Compressed Sparse Row} format to store its vertices, edges and associated values. Once constructed, vertices and edges cannot be added or deleted but values on vertices and edges can be modified.
-\\
+The \tcode{compressed_graph} that is being proposed for the standard library. It is a high-performance graph container that 
+uses \href{https://en.wikipedia.org/wiki/Sparse_matrix#Compressed_sparse_row_\%28CSR\%2C_CRS_or_Yale_format\%29}{Compressed Sparse Row} 
+format to store its vertices, edges and associated values. Once constructed, vertices and edges cannot be added or deleted but values 
+on vertices and edges can be modified.
 
 The following listing shows the prototype for the \tcode{compressed_graph}. Only the members shown for \tcode{compressed_graph} are public. 
 No other member functions or types are exposed as part of the standard. All other types are only accessible through the types and functions 
