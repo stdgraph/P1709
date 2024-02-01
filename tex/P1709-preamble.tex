@@ -70,6 +70,15 @@
 \newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
 \newcolumntype{R}[1]{>{\raggedleft\arraybackslash}p{#1}}
 
+\usepackage{multirow}
+\usepackage{multicol}
+\usepackage{makecell}
+
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{R}[1]{>{\raggedleft\arraybackslash}p{#1}}
+\newcolumntype{P}[1]{p{#1-3\tabcolsep-\arrayrulewidth}}
+
+
 \usepackage{arydshln}
 \usepackage{graphicx}
 \graphicspath{{figs/}}
@@ -90,3 +99,43 @@
 \newcommand{\andrew}[1]{\xcomment{Andrew}{#1}}
 \newcommand{\kevin}[1]{\xcomment{Kevin}{#1}}
 \newcommand{\muhammad}[1]{\xcomment{Muhammad}{#1}}
+
+\usepackage{comment}
+
+
+%%--------------------------------------------------
+%% Niko Macros
+\usepackage{enumitem}
+
+\newlist{indenthelper}{itemize}{1}
+\setlist[itemize]{parsep=\parskip, partopsep=0pt, itemsep=0pt, topsep=0pt,
+                  beginpenalty=10 }
+\setlist[enumerate]{parsep=\parskip, partopsep=0pt, itemsep=0pt, topsep=0pt}
+\setlist[indenthelper]{parsep=\parskip, partopsep=0pt, itemsep=0pt, topsep=0pt, label={}}
+%% \setlist[bnflist]{parsep=\parskip, partopsep=0pt, itemsep=0pt, topsep=0pt, label={},
+%%                   leftmargin=\bnfindentrest, listparindent=-\bnfindentinc, itemindent=\listparindent}
+
+\newenvironment{indented}[1][]
+{\begin{indenthelper}[#1]\item\relax}
+{\end{indenthelper}}
+\newenvironment{itemdescr}
+{
+ \begin{indented}[beginpenalty=3000, endpenalty=-300]}
+{
+ \end{indented}
+}
+%% Library function descriptions (per 4928)
+\newcommand{\Fundescx}[1]{\textit{#1}}
+\newcommand{\Fundesc}[1]{\Fundescx{#1:}\space}
+\newcommand{\constraints}{\Fundesc{Constraints}}
+\newcommand{\mandates}{\Fundesc{Mandates}}
+\newcommand{\preconditions}{\Fundesc{Preconditions}}
+\newcommand{\effects}{\Fundesc{Effects}}
+\newcommand{\sync}{\Fundesc{Synchronization}}
+\newcommand{\postconditions}{\Fundesc{Postconditions}}
+\newcommand{\result}{\Fundesc{Result}}
+\newcommand{\returns}{\Fundesc{Returns}}
+\newcommand{\throws}{\Fundesc{Throws}}
+\newcommand{\complexity}{\Fundesc{Complexity}}
+\newcommand{\remarks}{\Fundesc{Remarks}}
+\newcommand{\errors}{\Fundesc{Error conditions}}
