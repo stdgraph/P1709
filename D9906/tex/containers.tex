@@ -92,7 +92,7 @@ When they are defined they must be in the same namespace as the data structures.
 \end{table}
 
 \section{compressed\_graph}
-The \tcode{compressed_graph} that is being proposed for the standard library. It is a high-performance graph container that 
+\tcode{compressed_graph} is a graph container being proposed for the standard library. It is a high-performance data structure that 
 uses \href{https://en.wikipedia.org/wiki/Sparse_matrix#Compressed_sparse_row_\%28CSR\%2C_CRS_or_Yale_format\%29}{Compressed Sparse Row} 
 format to store its vertices, edges and associated values. Once constructed, vertices and edges cannot be added or deleted but values 
 on vertices and edges can be modified.
@@ -110,10 +110,10 @@ then a \tcode{uint8_t} would be sufficient.
     \setcellgapes{3pt}
     \makegapedcells
     \centering
-    \begin{tabular}{|P{0.35\textwidth}|P{0.30\textwidth}|P{0.35\textwidth}|}
+    \begin{tabular}{|P{0.37\textwidth}|P{0.25\textwidth}|P{0.38\textwidth}|}
     \hline
-    \textbf{Implements \tcode{load_graph}?} Yes & \textbf{Can append vertices?} No & \textbf{vertex\_id assignment:} Contiguous\\
-    \textbf{Implements \tcode{load_vertices}?} Yes & \textbf{Can append edges?} No & \textbf{Vertices range:} Contiguous \\
+    \textbf{Implements \tcode{load_graph}?} Yes & \textbf{Append vertices?} No & \textbf{vertex\_id assignment:} Contiguous\\
+    \textbf{Implements \tcode{load_vertices}?} Yes & \textbf{Append edges?} No & \textbf{Vertices range:} Contiguous \\
     \textbf{Implements \tcode{load_edges}?} Yes &  & \textbf{Edge range:} Contiguous \\
     \textbf{Implements \tcode{load_partition}?} Yes &  & \\
     \hline
