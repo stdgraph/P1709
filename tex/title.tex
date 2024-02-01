@@ -1,31 +1,71 @@
-\huge
-\textbf{\docno}
+\hypersetup{
+  pdftitle={Test document for \docno},
+  colorlinks=true,
+  linkcolor={blue},
+  filecolor={Maroon},
+  citecolor={blue},
+  urlcolor={blue},
+  pdfcreator={D990x}}
 
-\vspace{6pt}
-\textbf{\docname}
-\normalsize
+\title{\docname}
+\makeatletter
+\def\@maketitle{
+  \newpage \null \vskip 2em
+  {\center \LARGE \@title \par}
+  \vskip 1.5em
+  \begin{flushright}
+    \begin{tabular}{ll}
+Document \#:&\docno\\
+Date:       &\@date\\
+Project:    &Programming Language C++\\
+Audience:   &Library Evolution\\&Library\\
+Revises:    &\prevdocno\\
+Reply-to:   \@author
+    \end{tabular}
+  \end{flushright}
+}
+\makeatother
 
-\vspace{36pt}
-\begin{tabular}{@{}ll}
-  Project:      & ISO JTC1/SC22/WG21: Programming Language C++           \\
-  Date:         & 2024-02-11                                             \\
-  Reply to:     & Phil Ratzloff (phil.ratzloff@sas.com),                 \\
-                & Andrew Lumsdaine (lumsdaine@gmail.com)                 \\
-                &                                                        \\
-                &                                                        \\
-                &                                                        \\
-  Contributors: & Kevin Deweese                                          \\
-                & Muhammad Osama (AMD, Inc)                              \\
-                & Jesun Firoz                                            \\
-                & Michael Wong (Codeplay)                                \\
-                & Jens Maurer                                            \\
-                & Richard Dosselmann (University of Regina)              \\
-                & Matthew Galati (Amazon)                                \\
-                &                                                        \\
-  Audience:     & SG19, SG14, SG6, LEWG                                  \\
-  Source:       & \href{https://github.com/stdgraph/graph-v2}{github.com/stdgraph/graph-v2}    \\
-%  Prev. Version:& \href{https://www.wg21.link/\prevdocno}{www.wg21.link/\prevdocno}            \\
-\end{tabular}
+
+\makeatletter
+\providecommand{\subtitle}[1]{% add subtitle to \maketitle
+  \apptocmd{\@title}{\par {\large #1 \par}}{}{}
+}
+\makeatother
+% \subtitle{Visual inspection of various features of the framework}
+\author{&Author
+0\\&<\href{mailto:author0@gmail.com}{\nolinkurl{author0@gmail.com}}>\\&Author
+1\\&<\href{mailto:author1@gmail.com}{\nolinkurl{author1@gmail.com}}>\\}
+\date{2024-02-01}
+
+%% \huge
+%% \textbf{\docno}
+
+%% \vspace{6pt}
+%% \textbf{\docname}
+%% \normalsize
+
+%% \vspace{36pt}
+%% \begin{tabular}{@{}ll}
+%%   Project:      & ISO JTC1/SC22/WG21: Programming Language C++           \\
+%%   Date:         & 2024-02-11                                             \\
+%%   Reply to:     & Phil Ratzloff (phil.ratzloff@sas.com),                 \\
+%%                 & Andrew Lumsdaine (lumsdaine@gmail.com)                 \\
+%%                 &                                                        \\
+%%                 &                                                        \\
+%%                 &                                                        \\
+%%   Contributors: & Kevin Deweese                                          \\
+%%                 & Muhammad Osama (AMD, Inc)                              \\
+%%                 & Jesun Firoz                                            \\
+%%                 & Michael Wong (Codeplay)                                \\
+%%                 & Jens Maurer                                            \\
+%%                 & Richard Dosselmann (University of Regina)              \\
+%%                 & Matthew Galati (Amazon)                                \\
+%%                 &                                                        \\
+%%   Audience:     & SG19, SG14, SG6, LEWG                                  \\
+%%   Source:       & \href{https://github.com/stdgraph/graph-v2}{github.com/stdgraph/graph-v2}    \\
+%% %  Prev. Version:& \href{https://www.wg21.link/\prevdocno}{www.wg21.link/\prevdocno}            \\
+%% \end{tabular}
 
 %% \begin{titlepage}
 %% ~
