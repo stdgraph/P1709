@@ -139,3 +139,51 @@
 \newcommand{\complexity}{\Fundesc{Complexity}}
 \newcommand{\remarks}{\Fundesc{Remarks}}
 \newcommand{\errors}{\Fundesc{Error conditions}}
+
+%% \usepackage[⟨options⟩]{fancyhdr}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhead{} % clear all header fields
+\fancyhead[LO,LE]{\copyright\,\textsc{ISO/IEC}}
+\fancyhead[RO,RE]{\textbf{\docno}}
+\fancyfoot{} % clear all footer fields
+\fancyfoot[RO,RE]{\thepage}
+\fancyfoot[LO,LE]{\S\thesubsection}
+
+\newcounter{Paras}
+\counterwithin{Paras}{section}
+\counterwithin{Paras}{subsection}
+\counterwithin{Paras}{subsubsection}
+\counterwithin{Paras}{paragraph}
+\counterwithin{Paras}{subparagraph}
+
+\newcounter{Bullets1}[Paras]
+\newcounter{Bullets2}[Bullets1]
+\newcounter{Bullets3}[Bullets2]
+\newcounter{Bullets4}[Bullets3]
+
+\makeatletter
+\newcommand{\parabullnum}[2]{%
+\stepcounter{#1}%
+\noindent\makebox[0pt][l]{\makebox[#2][r]{%
+\scriptsize\raisebox{.7ex}%
+{%
+\ifnum \value{Paras}>0
+\ifnum \value{Bullets1}>0 (\fi%
+                          \arabic{Paras}%
+\ifnum \value{Bullets1}>0 .\arabic{Bullets1}%
+\ifnum \value{Bullets2}>0 .\arabic{Bullets2}%
+\ifnum \value{Bullets3}>0 .\arabic{Bullets3}%
+\fi\fi\fi%
+\ifnum \value{Bullets1}>0 )\fi%
+\fi%
+}%
+\hspace{\@totalleftmargin}\quad%
+}}}
+\makeatother
+\def\pnum{\parabullnum{Paras}{0pt}}
+
+\renewcommand{\labelitemi}{---\parabullnum{Bullets1}{\labelsep}}
+\renewcommand{\labelitemii}{---\parabullnum{Bullets2}{\labelsep}}
+\renewcommand{\labelitemiii}{---\parabullnum{Bullets3}{\labelsep}}
+\renewcommand{\labelitemiv}{---\parabullnum{Bullets4}{\labelsep}}
