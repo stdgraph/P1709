@@ -1,37 +1,5 @@
-%% \documentclass[10pt,onecolumn]{article}
-%% \documentclass[10pt,oneside,openany,final]{memoir}
-\documentclass[10pt,oneside,openany,final]{article}
-
-\usepackage[
-	left=0.75in,
-	top=0.75in,
-	right=0.75in,
-	bottom=0.75in]{geometry}
-\usepackage{soul}
-\usepackage{times}
-\usepackage[scaled=.90]{helvet} % Use helvetica for sf and scale to proper size
-\usepackage{amssymb} % for checkmark
-
-\usepackage{comment}
-
-\usepackage{multirow,makecell}
-%\usepackage{booktabs}
-\usepackage{paralist}
-\usepackage{enumitem}
-%\usepackage{caption}
-\usepackage{calc}
 
 
-%% \usepackage{url}  %% use hyperref instead
-
-
-%% Define colors
-\usepackage[hyperref]{xcolor}
-\usepackage{hyperref}
-\hypersetup{
-  colorlinks = true,
-  linkcolor = bs_h1_h2_h3% {0 .35 .61} % 005A9C
-}
 \definecolor{light-gray}{gray}{0.95}
 \definecolor{medium-gray}{gray}{0.33}
 
@@ -122,36 +90,3 @@
 \newcommand{\andrew}[1]{\xcomment{Andrew}{#1}}
 \newcommand{\kevin}[1]{\xcomment{Kevin}{#1}}
 \newcommand{\muhammad}[1]{\xcomment{Muhammad}{#1}}
-
-\input{niko/layout}
-\input{niko/styles}
-\input{niko/macros}
-\input{niko/tables}
-
-\usepackage{multicol}
-
-%% Customize section headings
-\usepackage{titlesec}
-\titleformat*{\section}{\normalfont\Large\bfseries\color{bs_h1_h2_h3}}
-\titleformat*{\subsection}{\normalfont\large\bfseries\color{bs_h1_h2_h3}}
-\titleformat*{\subsubsection}{\normalfont\normalsize\bfseries\color{bs_h1_h2_h3}}
-\titlespacing*{\chapter}{0pt}{1.5ex plus 1ex minus .2ex}{1ex plus .2ex}
-\titlespacing*{\section}{0pt}{1.5ex plus 1ex minus .2ex}{1ex plus .2ex}
-\titlespacing*{\subsection}{0pt}{1.5ex plus 1ex minus .2ex}{1ex plus .2ex}
-\titlespacing*{\subsubsection}{0pt}{1.5ex plus 1ex minus .2ex}{1ex plus .2ex}
-
-%% Customize float handling
-\renewcommand{\topfraction}{0.9}      % Allow more at the top
-\renewcommand{\bottomfraction}{0.8}   % Allow more at the bottom
-\renewcommand{\textfraction}{0.1}     % Require less text on a page
-\renewcommand{\floatpagefraction}{0.7} % Allow less for a float-only page
-
-%% For algorigth & container summary tables
-\newcommand{\tablistcommand}{% <-- for eliminating vertical space
-                             %     before and after itemize
-            \leavevmode\par\vspace{-\baselineskip}
-\end{itemize}
-\section{Introduction}
-                            }
-\newcolumntype{P}[1]{p{#1-3\tabcolsep-\arrayrulewidth}}
-
