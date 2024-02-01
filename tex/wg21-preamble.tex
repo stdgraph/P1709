@@ -137,13 +137,13 @@
 \renewcommand{\labelitemiv}{---}
 
 % https://github.com/cplusplus/draft/blob/97b615a5a6ab0598b624ee05402c531d0421cff6/source/layout.tex#L32-L68
-\makeatletter
-\newcommand{\pnum}[1]{%
-\noindent\makebox[0pt][l]{\makebox[0pt][r]{%
-\scriptsize\raisebox{.7ex}{#1}%
-\hspace{\@totalleftmargin}\quad%
-}}\ignorespaces}
-\makeatother
+%% \makeatletter
+%% \newcommand{\pnum}[1]{%
+%% \noindent\makebox[0pt][l]{\makebox[0pt][r]{%
+%% \scriptsize\raisebox{.7ex}{#1}%
+%% \hspace{\@totalleftmargin}\quad%
+%% }}\ignorespaces}
+%% \makeatother
 \ifLuaTeX
   \usepackage{selnolig}  % disable illegal ligatures
 \fi
