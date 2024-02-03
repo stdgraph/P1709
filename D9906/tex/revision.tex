@@ -6,4 +6,8 @@
       \item Split from P1709r5. Added \textit{Getting Started} chapter.
       \item Move text for graph data structures created from std containers from Graph Container Interface to 
             Container Implementation paper.
+      \item GCI overloads are no longer required for adjacency lists constructed with standard containers. Data structures that follow
+            the pattern \tcode{random_access_range<forward_range<integral>>} and \tcode{random_access_range<forward_range<tuple<integral,...>>>}
+            are automatically recognized as an adjacency list, including containers from non-standard libraries. The \tcode{integral}
+            value is used as the target\_id.
 \end{itemize}
