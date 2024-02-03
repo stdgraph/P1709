@@ -2,8 +2,11 @@
 % \chapter{Getting Started}
 \section{Getting Started}
 
-This paper is one of several interrelated proposals related to a Graph Library proposal that has been
-separated for easier consumption. The following table describes all the related papers.
+This paper is one of several interrelated papers for a proposed Graph Library for the Standard C++ Library. 
+The Table \ref{tab:papers} describes all the related papers. 
+
+Their order represents different layers of the library. Reading them in order will give the best overall picture, 
+but you're welcome to read in any order for the area that interests you the most.
 
 \begin{table}[h!]
     \begin{center}
@@ -26,7 +29,7 @@ separated for easier consumption. The following table describes all the related 
        P9906              & Active         & \textbf{Graph Container Implementations} describing use of standard containers
                                              and a new  high-performance \tcode{compressed_graph} container, based on a 
                                              Compressed Sparse Row matrix layout. \\
-       P9907              & Future         & \textbf{Adaptors} containing useful utilities to convert graphs to different forms.\\
+       P9907              & Future         & \textbf{Adaptors} containing useful utilities to create adjacency lists from other data structures.\\
        P9908              & Active         & \textbf{Background and Terminology} providing the theoretical background and terminology used across the other documents.\\
        \hline
     \end{tabular}}
