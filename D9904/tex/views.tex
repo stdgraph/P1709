@@ -228,8 +228,6 @@ Given the copyable types, it's useful to have concepts to determine if a type is
 \tcode{vertexlist} views iterate over a range of vertices, returning a \tcode{vertex_descriptor} on each iteration. 
 Table \ref{tab:vertexlist} shows the vertexlist functions overloads and their return values. \tcode{first} and \tcode{last} are vertex iterators.
 
-\phil{Change naming to \tcode{vertexlist} and \tcode{extended_vertexlist} instead of \tcode{basic_vertexlist} and \tcode{vertexlist}?}
-
 \tcode{vertexlist} views require a \tcode{vvf(u)} function, and the \tcode{basic_vertexlist} views require a \tcode{vvf(uid)} function.
 
 \begin{table}[h!]
@@ -525,4 +523,3 @@ While not shown in the examples, all functions have a final, optional allocator 
 \end{center}
 \end{table}
 
-\phil{Is Topological Sort a view, an algorithm or both?}
