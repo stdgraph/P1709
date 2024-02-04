@@ -19,12 +19,33 @@ Basic characteristics of algorithms are summarized in tables of the following fo
 \label{tab:algo_example}
 \end{table}
 
+% Alternative table including Self-loops
+% \begin{table}[h]
+% \setcellgapes{3pt}
+% \makegapedcells
+% \centering
+% \begin{tabular}{|P{0.30\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|}
+% \hline
+%       \multirowcell{2}{
+%             \textbf{Complexity} \\
+%             $\mathcal{O}(|E|+|V|)$
+%             }
+%       & \textbf{Directed?} Yes & \textbf{Cycles?} No & \textbf{Throws?} No \\
+%       & \textbf{Multi-edge?} No & \textbf{Self-loops} Yes & \\
+% \hline
+% \end{tabular}
+% %\caption{Algorithm Example}
+% \label{tab:algo_example}
+% \end{table}
+
+
 The parts of the table have the following meaning:
 \begin{itemize}
       \item \textbf{Complexity} The complexity of the algorithm based on the number of vertices (V) and edges (E).
       \item \textbf{Throws?} Will the algorithm throw at all? If so, look at the \textit{Throws} section after the function prototypes for details.
       \item \textbf{Multi-edge?} Does the algorithm act as expected if more than one edge with the same direction exists between the same two vertices?
       \item \textbf{Cycles?} Does the algorithm act act as expected if a vertex (or edge) is part of a cycle?
+      %\item \textbf{Self-loops?} Does the algorithm act act as expected if an edge exists with the same source and target?
       \item \textbf{Directed?} Is the algorithm only for directed graphs, or can it also be used for undirected graphs that have complimentary
                                edges, with different directions, between two vertices.
 \end{itemize}

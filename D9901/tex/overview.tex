@@ -8,10 +8,11 @@ In a \textbf{game}, a graph can be used to represent the \textbf{map} of a game 
 \textbf{entity relationship diagrams} (ERD) or \textbf{data flow diagrams} (DFD). In the realm of \textbf{social media}, a graph represents a 
 \textbf{social network}.
 
-This document proposes the addition of \textbf{graph algorithms}, \textbf{graph views}, \textbf{graph container interface} and a 
-\textbf{graph container implementation} to the C++ library to support \textbf{machine learning} (ML), as well as other applications. 
-ML is a large and growing field, both in the \textbf{research community} and \textbf{industry}, that has received a great deal of 
-attention in recent years. This paper presents an \textbf{interface} of the proposed algorithms, views, graph functions and containers.
+All documents, taken as a whole for a Graph Library, proposes the addition of \textbf{graph algorithms, operators, views, adaptors}, the 
+\textbf{graph container interface} and a \textbf{graph container implementation} to the C++ library to support \textbf{machine learning} (ML), 
+as well as other applications. ML is a large and growing field, both in the \textbf{research community} and \textbf{industry}, that has 
+received a great deal of attention in recent years. This documents presents an \textbf{interface} of the proposed algorithms, operators, adaptors,
+views, graph functions and containers.
 
 \section{Goals and Priorities}
 
@@ -59,7 +60,7 @@ be overridden to allow a developer to adapt their own graph data structures to t
 
 \section{What this proposal is  \textbf{not}}
 
-This paper limits itself to adjacency graphs and edgelists only. An adjacency graph is an outer range of vertices with an inner range of outgoing
+The Graph Library proposal limits itself to adjacency graphs and edgelists only. An adjacency graph is an outer range of vertices with an inner range of outgoing
 edges on each vertex. An edgelist is a view of edges, which is either all the edges in the adjacency graph or a projection of a user-defined range.
 
 Parallel versions of the algorithms are not included for several reasons. The executors proposal in P2300r5 \cite{REF_P2300r5} is expected to introduce new 
@@ -80,7 +81,7 @@ Hypergraphs are not supported.
 This proposal is a pure \textbf{library} extension.
 
 \section{Interaction wtih Other Papers}
-There is no interaction with other proposals to the standard.
+Other than the papers identified as part of the Graph Libary, there is no interaction with other proposals to the standard.
 
 \section{Implementation Experience}
 The github \href{https://github.com/stdgraph}{github.com/stdgraph} repository contains an implementation for this proposal.
@@ -92,7 +93,8 @@ There is no current use of the library. There are plans to begin using it in 202
 There is no current deployment experience of the library. There are plans for this to follow the usage experience.
 
 \section{Performance Considerations}
-The algorithms are being ported from NWGraph to the \href{https://github.com/stdgraph}{github.com/stdgraph} implementation used for this proposal. Performance analysis from those algorithms can be found in the peer-reviewed papers for NWGraph~\cite{REF_nwgraph_paper,gapbs_2023}.
+The algorithms are being ported from NWGraph to the \href{https://github.com/stdgraph}{github.com/stdgraph} implementation used for this proposal. 
+Performance analysis from those algorithms can be found in the peer-reviewed papers for NWGraph~\cite{REF_nwgraph_paper,gapbs_2023}.
 
 \section{Prior Art}
 \textbf{boost::graph} has been an important C++ graph implementation since 2001. It was developed with the goal of providing
