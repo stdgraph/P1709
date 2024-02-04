@@ -35,7 +35,8 @@ in this proposal. The algorithms selected are a result of balancing a few things
             \item Articulation points
             \item Connected components
             \item Biconnected components
-            \item Strongly connected components  
+            \item Kosaraju's Strongly CC
+            \item Tarjan's Strongly CC
       \end{itemize}
       \emph{Directed Acyclic Graphs}
       \begin{itemize}
@@ -52,19 +53,21 @@ in this proposal. The algorithms selected are a result of balancing a few things
       \end{itemize}
       \emph{Minimal Spanning Tree}
       \begin{itemize}
-            \item Kruskal Minimal Spanning Tree
-            \item Prim Minimal Spanning Tree
+            \item Kruskal's MST
+            \item Prim's MST
       \end{itemize}
 
 \vfill\null
 \end{multicols}
 
+Shortest Paths and Topological Sort are all single source with multiple targets.
 
 \subsection{Other Algorithms}
-Additional algorithms that were considered but not included in this proposal are identified in Table \ref{tab:other_algorithms}. 
-It is assumed that future proposals will include them, with a recommendation of each Tier being in its own proposal.
+Additional algorithms that were considered but not included in this proposal are shown in Table \ref{tab:other_algorithms}. 
 Tier X algorithms are variations of shortest paths algorithms that complement the Single Source, Multiple Target algorithms 
 in this proposal.
+It is assumed that future proposals will include them, thought the exact mix for each proposal will depend on feedback received
+and our experience with the current proposal.
 
 \phil{We may want to revisit the Driver idea in the future after we have more algorithms.}
 %The Shortest Paths Driver is an idea of having a unified interface that chooses the best Shortest Path algorithm
@@ -107,8 +110,6 @@ in this proposal.
 \andrew{Note that NetworkX also specifies single source single target and multiple source versions of the shortest paths algorithms.  
 BGL does not have these (nor NWGraph).  We should discuss whether or not to consider those and whether or not to make them Tier 1, 2, 3, or infinity.}
 \phil{I think we're beyond considering these for the initial proposal. They can be added in the future, unless we're told otherwise.}
-
-\phil{Verify Adamic-Adar Index, A* and Best-first search belong in Tier 2}
 
 \phil{The same variations for Shortest Paths algorithms can also be useful for topological sort.}
 
