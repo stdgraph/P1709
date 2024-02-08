@@ -151,21 +151,30 @@ in the std::ranges namespace, a common occurance.
 There are some interesting observations that can be made about graphs and how they compare and contrast to the 
 standard library that may not be obvious.
 \begin{itemize}
-    \item The adjacency list, the primary data structure for this proposal, is a compound data structure of a
+      \item The adjacency list, the primary data structure for this proposal, is a compound data structure of a
           range of ranges. This introduces a new form of container beyond a simple range.
-    \item The Graph Container Interface (GCI) is to adjacency lists as Ranges is to standard containers. This is a loose comparison,
-          but may be helpful to understand it's purpose. It also provides ways to adapt existing adjacency lists
-          to it. 
-    \item Algorithms will often use views, though they can use the GCI functions when needed.
-    \item There is more than one possible value type, one each for edge, vertex and graph. Each is optional.
-          This is in contrast to existing practice where the value type is the distinguishing difference between
-          different containers, such as for \tcode{set} and \tcode{map}.
-    \item Algorithms often need to allocate memory internally to achieve their purpose. This is a departure from most
-          existing algorithms in the standard.
-    \item The initial proposals are for using an integral vertex\_id which works well with vertices in random-access 
-          containers. When considering future requirements, consider storing vertices in a \tcode{map}. It's more
-          important to use references for a vertex because we don't want to incur a O(log(n)) cost when calling 
-          \tcode{edges(g,uid)}. If we already have the vertex reference we'll want to use \tcode{edges(g,u)} instead. 
-          This implies that algorithms will have different overloads based on the container type for 
-          the vertices, using concepts to distinguish them.
+      \begin{itemize}
+            \item The Graph Container Interface (GCI) is to adjacency lists as Ranges is to standard containers. This is a loose comparison,
+                  but may be helpful to understand it's purpose. It also provides ways to adapt existing adjacency lists
+                  to it. 
+            \item There is more than one possible value type, one each for edge, vertex and graph. Each is optional.
+                  This is in contrast to existing practice where the value type is the distinguishing difference between
+                  different containers, such as for \tcode{set} and \tcode{map}.
+      \end{itemize}
+      \item Algorithms will often use views, though they can use the GCI functions when needed.
+      \item Algorithms and Views often need to allocate memory internally to achieve their purpose. This is a departure from
+            common practice in the standard.
+\end{itemize}
+
+The initial proposal is for an \tcode{index_adjacency_list}, where vertices are in a random access range
+and the vertex\_id is integral. The underlying design should be flexible enough to represent a larger 
+set of graph data structures, where performance must be balanced with flexibility to achieve required 
+functionality, such as a slowly changing graph structure. The following are examples that are on our road map.
+\begin{itemize}
+      \item Sparse vertex\_id assignment, requiring vertices to be stored in bi-directional containers
+            such as \tcode{map} and \tcode{unordered_map}. When doing this, it's more important to use
+            vertex references instead of ids to avoid O(log(n)) cost when calling \tcode{edges(g,uid)}. 
+            This is expected to result in overloading of existing algorithms, distinguished with concepts.
+      \item Support for bi-directional graphs where vertices have incoming and outgoing edges.
+      \item Support for non-integral vertex\_ids.
 \end{itemize}
