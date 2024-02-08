@@ -9,18 +9,18 @@ Degree of a vertex in graph theory refers to the number of edges that are incide
 \setcellgapes{3pt}
 \makegapedcells
 \centering
-\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\begin{tabular}{|P{0.30\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|}
 \hline
       \multirowcell{2}{
             \textbf{Complexity} \\
-            $\mathcal{O}(|V|)$
+                  $\mathcal{O}(|V|)$
             }
-      & \textbf{Throws?} No & \textbf{Cycles?} Yes \\
-      & \textbf{Multi-edge?} Yes & \textbf{Directed?} Yes\\
+      & \textbf{Directed?} Yes & \textbf{Cycles?} Yes & \textbf{Throws?} No \\
+      & \textbf{Multi-edge?} Yes & \textbf{Self-loops} Yes & \\
 \hline
 \end{tabular}
 %\caption{Algorithm Example}
-\label{tab:degree_operator}
+\label{tab:algo_example}
 \end{table}
 
 {\small
@@ -52,18 +52,18 @@ The following algorithm summary represents all the Sort operators.
 \setcellgapes{3pt}
 \makegapedcells
 \centering
-\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\begin{tabular}{|P{0.30\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|}
 \hline
       \multirowcell{2}{
             \textbf{Complexity} \\
             $\mathcal{O}(N log|N|)$
             }
-      & \textbf{Throws?} No & \textbf{Cycles?} Yes \\
-      & \textbf{Multi-edge?} Yes & \textbf{Directed?} Yes\\
+      & \textbf{Directed?} Yes & \textbf{Cycles?} Yes & \textbf{Throws?} No \\
+      & \textbf{Multi-edge?} Yes & \textbf{Self-loops} Yes & \\
 \hline
 \end{tabular}
 %\caption{Algorithm Example}
-\label{tab:sort_operators}
+\label{tab:algo_example}
 \end{table}
 
 \phil{Removed comments that said "The same API extends for \lstinline{edgelist}" for all Sort operators. The current 
@@ -143,18 +143,18 @@ Relabels the vertices of the graph according to a given mapping or to integers.
 \setcellgapes{3pt}
 \makegapedcells
 \centering
-\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\begin{tabular}{|P{0.30\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|}
 \hline
       \multirowcell{2}{
             \textbf{Complexity} \\
             $\mathcal{O}(?)$
             }
-      & \textbf{Throws?} No & \textbf{Cycles?} Yes \\
-      & \textbf{Multi-edge?} Yes & \textbf{Directed?} Yes\\
+      & \textbf{Directed?} Yes & \textbf{Cycles?} Yes & \textbf{Throws?} No \\
+      & \textbf{Multi-edge?} Yes & \textbf{Self-loops} Yes & \\
 \hline
 \end{tabular}
 %\caption{Algorithm Example}
-\label{tab:relabel_map}
+\label{tab:algo_example}
 \end{table}
 
 \phil{Graph parameters should be \tcode{const &g} or \tcode{&g}, depending on whether the graph will be changed or not.}
@@ -184,18 +184,18 @@ Relabels the vertices of the graph according to a given mapping or to integers.
 \setcellgapes{3pt}
 \makegapedcells
 \centering
-\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\begin{tabular}{|P{0.30\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|}
 \hline
       \multirowcell{2}{
             \textbf{Complexity} \\
             $\mathcal{O}(?)$
             }
-      & \textbf{Throws?} No & \textbf{Cycles?} Yes \\
-      & \textbf{Multi-edge?} Yes & \textbf{Directed?} Yes\\
+      & \textbf{Directed?} Yes & \textbf{Cycles?} Yes & \textbf{Throws?} No \\
+      & \textbf{Multi-edge?} Yes & \textbf{Self-loops} Yes & \\
 \hline
 \end{tabular}
 %\caption{Algorithm Example}
-\label{tab:relabel_to_int}
+\label{tab:algo_example}
 \end{table}
 
 {\small
@@ -220,18 +220,18 @@ Transpose returns a graph with edges reversed. For an adjacency graph, it is obt
 \setcellgapes{3pt}
 \makegapedcells
 \centering
-\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\begin{tabular}{|P{0.30\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|}
 \hline
       \multirowcell{2}{
             \textbf{Complexity} \\
             $\mathcal{O}(?)$
             }
-      & \textbf{Throws?} No & \textbf{Cycles?} Yes \\
-      & \textbf{Multi-edge?} Yes & \textbf{Directed?} Yes\\
+      & \textbf{Directed?} Yes & \textbf{Cycles?} Yes & \textbf{Throws?} No \\
+      & \textbf{Multi-edge?} Yes & \textbf{Self-loops} Yes & \\
 \hline
 \end{tabular}
 %\caption{Algorithm Example}
-\label{tab:transpose_operator}
+\label{tab:algo_example}
 \end{table}
 
 \phil{Graph parameters should be \tcode{const &g} or \tcode{&g}, depending on whether the graph will be changed or not.}
@@ -260,18 +260,18 @@ Combining of two graphs based on common vertices. The join operation (or Sparse 
 \setcellgapes{3pt}
 \makegapedcells
 \centering
-\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\begin{tabular}{|P{0.30\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|}
 \hline
       \multirowcell{2}{
             \textbf{Complexity} \\
             $\mathcal{O}(?)$
             }
-      & \textbf{Throws?} No & \textbf{Cycles?} Yes \\
-      & \textbf{Multi-edge?} Yes & \textbf{Directed?} Yes\\
+      & \textbf{Directed?} Yes & \textbf{Cycles?} Yes & \textbf{Throws?} No \\
+      & \textbf{Multi-edge?} Yes & \textbf{Self-loops} Yes & \\
 \hline
 \end{tabular}
 %\caption{Algorithm Example}
-\label{tab:join_operator}
+\label{tab:algo_example}
 \end{table}
 
 {\small
