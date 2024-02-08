@@ -1,4 +1,5 @@
 
+\clearpage
 %% \chapter{Graph Container Interface}
 \section{Graph Container Interface}
 
@@ -61,9 +62,9 @@ The Graph Container Interface is designed to support a wider scope of graph cont
 \section{Core Concepts}
 
 This section describes the core concepts to describe the adjacency lists used for graphs in the Graph Library. There are a 
-number of prefixes used for adjacency list are as follows.
+number of qualifiers concept names that are are used.
 \begin{itemize}
-    \item \textbf{basic} where there is only a vertex id but no vertex object.
+    \item \textbf{basic} where there is only a vertex id but no vertex reference.
     \item \textbf{index} where the vertex range is random-access and the vertex id is integral.
     \item \textbf{sourced} where an edge has a source id.
 \end{itemize}
@@ -75,7 +76,7 @@ for different types of edges, such as incoming and outgoing edge types.
      \lstinputlisting{D9905/src/concepts_edges.hpp}
 }
 
-There is a single edge range concept.
+There are two edge range concepts.
 
 \phil{\tcode{edges(g,u)} isn't being used anywhere. We could use \tcode{basic_adjacency_list} in the View and algorihm definitions.}
 
