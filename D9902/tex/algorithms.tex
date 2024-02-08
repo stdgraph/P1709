@@ -221,18 +221,18 @@ Compute the breadth-first path and associated distance from vertex \tcode{source
 \setcellgapes{3pt}
 \makegapedcells
 \centering
-\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\begin{tabular}{|P{0.30\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|}
 \hline
       \multirowcell{2}{
             \textbf{Complexity} \\
-                  $\mathcal{O}((|E| + |V|)\log{|V|})$
+            $\mathcal{O}((|E| + |V|)\log{|V|})$
             }
-      & \textbf{Throws?} No & \textbf{Cycles?} No \\
-      & \textbf{Multi-edge?} No & \textbf{Directed?} Yes \\
+      & \textbf{Directed?} Yes & \textbf{Cycles?} No & \textbf{Throws?} No \\
+      & \textbf{Multi-edge?} No & \textbf{Self-loops} Yes & \\
 \hline
 \end{tabular}
-%\caption{Dijkstra Single Source Summary}
-\label{tab:dijkstra_ss_summary}
+%\caption{Algorithm Example}
+\label{tab:algo_example}
 \end{table}
 Note that complexity may be $\mathcal{O}(|E| + |V|\log{|V|)}$ for certain implementations.
 
@@ -311,19 +311,20 @@ using non-negative weights.
 \setcellgapes{3pt}
 \makegapedcells
 \centering
-\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\begin{tabular}{|P{0.30\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|}
 \hline
       \multirowcell{2}{
             \textbf{Complexity} \\
-                  $\mathcal{O}((|E| + |V|)\log{|V|})$
+            $\mathcal{O}((|E| + |V|)\log{|V|})$
             }
-      & \textbf{Throws?} No & \textbf{Cycles?} No \\
-      & \textbf{Multi-edge?} No & \textbf{Directed?} Yes \\
+      & \textbf{Directed?} Yes & \textbf{Cycles?} No & \textbf{Throws?} No \\
+      & \textbf{Multi-edge?} No & \textbf{Self-loops} Yes & \\
 \hline
 \end{tabular}
-%\caption{Dijkstra Single Source Summary}
-\label{tab:dijkstra_ss_summary}
+%\caption{Algorithm Example}
+\label{tab:algo_example}
 \end{table}
+
 Note that complexity may be $\mathcal{O}(|E| + |V|\log{|V|)}$ for certain implementations.
 
 The following functions are split into the common and general cases, where the general cases allow the caller
@@ -376,24 +377,24 @@ to specify \tcode{Compare} and \tcode{Combine} functions (e.g. less and add). Co
 \subsubsection{Bellman-Ford Single Source Shortest Paths and Shortest Distances}
 Compute the shortest path and associated distance from vertex \tcode{source} to all reachable vertices in \tcode{graph}.
 
-
 \begin{table}[h]
-      \setcellgapes{3pt}
-      \makegapedcells
-      \centering
-      \begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
-      \hline
-            \multirowcell{2}{
-                  \textbf{Complexity} \\
-                        $\mathcal{O}(|E| \cdot |V|)$ \\
-                  }
-            & \textbf{Throws?} No & \textbf{Cycles?} No \\
-            & \textbf{Multi-edge?} No & \textbf{Directed?} Yes\\
-      \hline
-      \end{tabular}
-      %\caption{Bellman-Ford Single Source Summary}
-      \label{tab:bellford_ss_summary}
+\setcellgapes{3pt}
+\makegapedcells
+\centering
+\begin{tabular}{|P{0.30\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|}
+\hline
+      \multirowcell{2}{
+            \textbf{Complexity} \\
+                  $\mathcal{O}(|E| \cdot |V|)$ \\
+            }
+      & \textbf{Directed?} Yes & \textbf{Cycles?} No & \textbf{Throws?} No \\
+      & \textbf{Multi-edge?} No & \textbf{Self-loops} Yes & \\
+\hline
+\end{tabular}
+%\caption{Algorithm Example}
+\label{tab:algo_example}
 \end{table}
+
 %\andrew{Complexity is really is atrocious.  Suitable only for really small graphs.}
 
 
@@ -455,18 +456,18 @@ Compute the number of triangles in a graph.
 \setcellgapes{3pt}
 \makegapedcells
 \centering
-\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\begin{tabular}{|P{0.30\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|}
 \hline
       \multirowcell{2}{
             \textbf{Complexity} \\
-            $\mathcal{O}(N^3)$ \\
+                  $\mathcal{O}(N^3)$ \\
             }
-      & \textbf{Throws?} No & \textbf{Cycles?} No \\
-      & \textbf{Multi-edge?} No & \textbf{Directed?} Yes\\
+      & \textbf{Directed?} Yes & \textbf{Cycles?} No & \textbf{Throws?} No \\
+      & \textbf{Multi-edge?} No & \textbf{Self-loops} No & \\
 \hline
 \end{tabular}
-%\caption{Triangle Counting Summary}
-\label{tab:triangle_counting_summary}
+%\caption{Algorithm Example}
+\label{tab:algo_example}
 \end{table}
 
 {\small
@@ -496,19 +497,21 @@ Some label propagation implementations use vertex ids as an initial labeling. Th
 \setcellgapes{3pt}
 \makegapedcells
 \centering
-\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\begin{tabular}{|P{0.30\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|}
 \hline
       \multirowcell{2}{
             \textbf{Complexity} \\
-            $\mathcal{O}(M)$ \\
+                  $\mathcal{O}(M)$ \\
             }
-      & \textbf{Throws?} No & \textbf{Cycles?} No \\
-      & \textbf{Multi-edge?} No & \textbf{Directed?} Yes\\
+      & \textbf{Directed?} Yes & \textbf{Cycles?} Yes & \textbf{Throws?} No \\
+      & \textbf{Multi-edge?} Yes & \textbf{Self-loops} Yes & \\
 \hline
 \end{tabular}
-%\caption{Label Propagation 1 Summary}
-\label{tab:label_prop_1}
+%\caption{Algorithm Example}
+\label{tab:algo_example}
 \end{table}
+
+\phil{What is M?}
 
 {\small
       \lstinputlisting[firstline=4,lastline=11]{D9902/src/lp.hpp}
@@ -538,18 +541,18 @@ Some label propagation implementations use vertex ids as an initial labeling. Th
 \setcellgapes{3pt}
 \makegapedcells
 \centering
-\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\begin{tabular}{|P{0.30\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|}
 \hline
       \multirowcell{2}{
             \textbf{Complexity} \\
-            $\mathcal{O}(M)$ \\
+                  $\mathcal{O}(M)$ \\
             }
-      & \textbf{Throws?} No & \textbf{Cycles?} No \\
-      & \textbf{Multi-edge?} No & \textbf{Directed?} Yes\\
+      & \textbf{Directed?} Yes & \textbf{Cycles?} Yes & \textbf{Throws?} No \\
+      & \textbf{Multi-edge?} Yes & \textbf{Self-loops} Yes & \\
 \hline
 \end{tabular}
-%\caption{Label Propagation 2 Summary}
-\label{tab:label_prop_2}
+%\caption{Algorithm Example}
+\label{tab:algo_example}
 \end{table}
 
 {\small
@@ -586,18 +589,18 @@ Find articulation points, or cut vertices, which when removed disconnect the gra
 \setcellgapes{3pt}
 \makegapedcells
 \centering
-\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\begin{tabular}{|P{0.30\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|}
 \hline
       \multirowcell{2}{
             \textbf{Complexity} \\
-            $\mathcal{O}(|E|+|V|)$
+                  $\mathcal{O}(|E|+|V|)$
             }
-      & \textbf{Throws?} No & \textbf{Cycles?} No \\
-      & \textbf{Multi-edge?} No & \textbf{Directed?} Yes\\
+      & \textbf{Directed?} Yes & \textbf{Cycles?} Yes & \textbf{Throws?} No \\
+      & \textbf{Multi-edge?} No & \textbf{Self-loops} Yes & \\
 \hline
 \end{tabular}
-%\caption{Articulation Points Summary}
-\label{tab:articulation_pt_summary}
+%\caption{Algorithm Example}
+\label{tab:algo_example}
 \end{table}
 
 {\small
@@ -633,18 +636,18 @@ Find the biconnected components, or maximal biconnected subgraphs of a graph, wh
 \setcellgapes{3pt}
 \makegapedcells
 \centering
-\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\begin{tabular}{|P{0.30\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|}
 \hline
       \multirowcell{2}{
             \textbf{Complexity} \\
-            $\mathcal{O}(|E|+|V|)$
+                  $\mathcal{O}(|E|+|V|)$
             }
-      & \textbf{Throws?} No & \textbf{Cycles?} No \\
-      & \textbf{Multi-edge?} No & \textbf{Directed?} Yes\\
+      & \textbf{Directed?} Yes & \textbf{Cycles?} Yes & \textbf{Throws?} No \\
+      & \textbf{Multi-edge?} No & \textbf{Self-loops} Yes & \\
 \hline
 \end{tabular}
-%\caption{BiConnected Components}
-\label{tab:bi_conn_comp}
+%\caption{Algorithm Example}
+\label{tab:algo_example}
 \end{table}
 
 {\small
@@ -684,18 +687,18 @@ Find weakly connected components of a graph. Weakly connected components are sub
 \setcellgapes{3pt}
 \makegapedcells
 \centering
-\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\begin{tabular}{|P{0.30\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|}
 \hline
       \multirowcell{2}{
             \textbf{Complexity} \\
-            $\mathcal{O}(|E|+|V|)$
+                  $\mathcal{O}(|E|+|V|)$
             }
-      & \textbf{Throws?} No & \textbf{Cycles?} No \\
-      & \textbf{Multi-edge?} No & \textbf{Directed?} No\\
+      & \textbf{Directed?} No & \textbf{Cycles?} Yes & \textbf{Throws?} No \\
+      & \textbf{Multi-edge?} No & \textbf{Self-loops} Yes & \\
 \hline
 \end{tabular}
-%\caption{Connected Components Summary}
-\label{tab:conn_components}
+%\caption{Algorithm Example}
+\label{tab:algo_example}
 \end{table}
 
 {\small
@@ -734,18 +737,18 @@ Find strongly connected components of a graph using Kosaraju's algorithm. Strong
 \setcellgapes{3pt}
 \makegapedcells
 \centering
-\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\begin{tabular}{|P{0.30\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|}
 \hline
       \multirowcell{2}{
             \textbf{Complexity} \\
-            $\mathcal{O}(|E|+|V|)$
+                  $\mathcal{O}(|E|+|V|)$
             }
-      & \textbf{Throws?} No & \textbf{Cycles?} No \\
-      & \textbf{Multi-edge?} No & \textbf{Directed?} Yes\\
+      & \textbf{Directed?} Yes & \textbf{Cycles?} Yes & \textbf{Throws?} No \\
+      & \textbf{Multi-edge?} No & \textbf{Self-loops} Yes & \\
 \hline
 \end{tabular}
-%\caption{Kosaraju's SCC Summary}
-\label{tab:kosaraju_scc}
+%\caption{Algorithm Example}
+\label{tab:algo_example}
 \end{table}
 
 {\small
@@ -782,18 +785,18 @@ Find strongly connected components of a graph using Tarjan's algorithm. Strongly
 \setcellgapes{3pt}
 \makegapedcells
 \centering
-\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\begin{tabular}{|P{0.30\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|}
 \hline
       \multirowcell{2}{
             \textbf{Complexity} \\
-            $\mathcal{O}(|E|+|V|)$
+                  $\mathcal{O}(|E|+|V|)$
             }
-      & \textbf{Throws?} No & \textbf{Cycles?} No \\
-      & \textbf{Multi-edge?} No & \textbf{Directed?} Yes\\
+      & \textbf{Directed?} Yes & \textbf{Cycles?} Yes & \textbf{Throws?} No \\
+      & \textbf{Multi-edge?} No & \textbf{Self-loops} Yes & \\
 \hline
 \end{tabular}
-%\caption{Tarjan's SCC Summary}
-\label{tab:tarjan_scc_summary}
+%\caption{Algorithm Example}
+\label{tab:algo_example}
 \end{table}
 
 {\small
@@ -846,18 +849,18 @@ A linear ordering of vertices such that for every directed edge (u,v) from verte
 \setcellgapes{3pt}
 \makegapedcells
 \centering
-\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\begin{tabular}{|P{0.30\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|}
 \hline
       \multirowcell{2}{
             \textbf{Complexity} \\
-                  $\mathcal{O}((|E| + |V|))$
+                  $\mathcal{O}(|E|+|V|)$
             }
-      & \textbf{Throws?} No & \textbf{Cycles?} No \\
-      & \textbf{Multi-edge?} No & \textbf{Directed?} Yes \\
+      & \textbf{Directed?} Yes & \textbf{Cycles?} No & \textbf{Throws?} No \\
+      & \textbf{Multi-edge?} No & \textbf{Self-loops} Yes & \\
 \hline
 \end{tabular}
-%\caption{Topological Sort Single Source Summary}
-\label{tab:toposort_ss_summary}
+%\caption{Algorithm Example}
+\label{tab:algo_example}
 \end{table}
 
 {\small
@@ -903,18 +906,18 @@ Find a maximally independent set of vertices in a graph starting from a seed ver
 \setcellgapes{3pt}
 \makegapedcells
 \centering
-\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\begin{tabular}{|P{0.30\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|}
 \hline
       \multirowcell{2}{
             \textbf{Complexity} \\
-            $\mathcal{O}(|E|)$
+                  $\mathcal{O}(|E|)$
             }
-      & \textbf{Throws?} No & \textbf{Cycles?} No \\
-      & \textbf{Multi-edge?} No & \textbf{Directed?} No\\
+      & \textbf{Directed?} Yes & \textbf{Cycles?} No & \textbf{Throws?} No \\
+      & \textbf{Multi-edge?} No & \textbf{Self-loops} No & \\
 \hline
 \end{tabular}
-%\caption{Maximal Independent Set Summary}
-\label{tab:mis_summary}
+%\caption{Algorithm Example}
+\label{tab:algo_example}
 \end{table}
 
 {\small
@@ -955,18 +958,18 @@ Calculate the Jaccard coefficient of a graph
 \setcellgapes{3pt}
 \makegapedcells
 \centering
-\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\begin{tabular}{|P{0.30\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|}
 \hline
       \multirowcell{2}{
             \textbf{Complexity} \\
-            $\mathcal{O}(|N|^3)$
+                  $\mathcal{O}(|N|^3)$
             }
-      & \textbf{Throws?} No & \textbf{Cycles?} No \\
-      & \textbf{Multi-edge?} No & \textbf{Directed?} Yes\\
+      & \textbf{Directed?} Yes & \textbf{Cycles?} No & \textbf{Throws?} No \\
+      & \textbf{Multi-edge?} No & \textbf{Self-loops} No & \\
 \hline
 \end{tabular}
-%\caption{Jaccard Coefficient Summary}
-\label{tab:jaccard_summary}
+%\caption{Algorithm Example}
+\label{tab:algo_example}
 \end{table}
 
 {\small
@@ -1009,18 +1012,18 @@ Find the minimum weight spanning tree of a graph using Kruskal's algorithm.
 \setcellgapes{3pt}
 \makegapedcells
 \centering
-\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\begin{tabular}{|P{0.30\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|}
 \hline
       \multirowcell{2}{
             \textbf{Complexity} \\
             $\mathcal{O}(|E|)$
             }
-      & \textbf{Throws?} No & \textbf{Cycles?} No \\
-      & \textbf{Multi-edge?} No & \textbf{Directed?} Yes\\
+      & \textbf{Directed?} Yes & \textbf{Cycles?} No & \textbf{Throws?} No \\
+      & \textbf{Multi-edge?} No & \textbf{Self-loops} No & \\
 \hline
 \end{tabular}
-%\caption{Kruskal Minimum Spanning Tree Summary}
-\label{tab:kruskal_mst_summary}
+%\caption{Algorithm Example}
+\label{tab:algo_example}
 \end{table}
 
 {\small
@@ -1059,18 +1062,18 @@ Find the minimum weight spanning tree of a graph using Prim's algorithm.
 \setcellgapes{3pt}
 \makegapedcells
 \centering
-\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\begin{tabular}{|P{0.30\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|}
 \hline
       \multirowcell{2}{
             \textbf{Complexity} \\
             $\mathcal{O}(|E|log|V|)$
             }
-      & \textbf{Throws?} No & \textbf{Cycles?} No \\
-      & \textbf{Multi-edge?} No & \textbf{Directed?} No \\
+      & \textbf{Directed?} No & \textbf{Cycles?} No & \textbf{Throws?} No \\
+      & \textbf{Multi-edge?} No & \textbf{Self-loops} No & \\
 \hline
 \end{tabular}
-%\caption{Prim Minimum Spanning Tree Summary}
-\label{tab:prim_mst_summary}
+%\caption{Algorithm Example}
+\label{tab:algo_example}
 \end{table}
 
 {\small
