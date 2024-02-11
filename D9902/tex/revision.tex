@@ -4,8 +4,10 @@
 
 \begin{itemize}
       \item Split from P1709r5. Added \textit{Getting Started} section.
-      \item Added A*, Best-first search and Adamic-Adar Index to Tier 2 algorithms.
-      \item Removed allocator parameters for consistency with algorithms in general. More input is needed before we can add allocators.
-      \item Removed exception throwing from algorithms to reduce friction. 
-            This may be revisited in the future, based on input.
+      \item Added A*, Best-first search and Adamic-Adar Index to Tier 2 algorithms based on input.
+      \item Removed allocator parameters for consistency with existing algorithms. It was observed that \tcode{stable_sort} 
+            allocates memory, but does not take an allocator parameter.
+      \item Removed exception throwing from algorithms to support free-standing C++. The caller will need to
+            follow the preconditions to avoid undefined behavior. The other option considered was to return
+            an error code.
 \end{itemize}

@@ -90,7 +90,7 @@ The number of movies that connect an actor to Kevin Bacon is the shortest path i
 from Kevin Bacon to that actor. In the example above, we compute shortest paths from Kevin
 Bacon to all other actors and print the results.
 Note, however, that actor-actor relationships are not how data about actors
-is available in the wild (from IMDB, for example).  Rather, two types of  relationships available are actor-movie and movie-actor.  See Section~\ref{sec:multipartite} below.
+is available in the wild (from IMDB, for example).  Rather, two types of  relationships available are actor-movie and movie-actor.  See Section~\ref{sec:bipartite} below.
 
 
 \section{Graph Background} %  and Terminology}
@@ -108,7 +108,7 @@ elements are pairs corresponding to elements in $V$ that have some relationship 
 if $u$ and $v$ are members of $V$ that have some relationship that we wish to capture, then there is
 a pair $\{u, v\}$ in $E$.  We can express that together $V$ and $E$ define a graph as $G=\{V, E\}$.
 
-Two examples of graph models are shown in Figures~\ref{airport} and~\ref{circuit},
+Two examples of graph models are shown in Figures~\ref{subfig:airport} and~\ref{subfig:circuit},
 which respectively model a network of routes between and an electronic circuit.  
 The figures show the domain-specific data to be modeled and the sets $V$ and $E$ for each graph.
 Also shown for each graph is a
@@ -216,7 +216,7 @@ Although this name is problematic (for instance, it is not actually a list),  it
 Again we emphasize the distinction between a graph and its representation:  An adjacency list $J$ is not the same as the graph $G$---it is a representation of $G$.
 
 
-Illustrations of the adjacency-matrix representations of the airline route graph and the electronic circuit graph are shown in Figures~\ref{fig:airport} and~\ref{fig:circuit}, respectively.
+Illustrations of the adjacency-matrix representations of the airline route graph and the electronic circuit graph are shown in Figures~\ref{fig:airport-representation} and~\ref{fig:circuit-model}, respectively.
 
 \begin{figure}[tbh]
   \begin{subfigure}[t]{0.175\textwidth}
