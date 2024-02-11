@@ -16,13 +16,12 @@ but you're welcome to read in any order for the area that interests you the most
        \hline
        P1709              & Inactive       & Original proposal, now separated into the following papers. \\
        \hdashline
-       P9901              & Active         & \textbf{Overview and Introduction}, describing the big
-                                             picture of what we are proposing. \\
+       P9901              & Active         & \textbf{Overview}, describing the big picture of what we are proposing. \\
        P9908              & Active         & \textbf{Background and Terminology} providing the theoretical background and terminology used across the other documents.\\
        P9902              & Active         & \textbf{Algorithms} covering the initial algorithms 
                                              as well as the ones we'd like to see in the future. \\
-       P9903              & Future         & \textbf{Operators} includes useful utility functions when
-                                             working with graphs. \\
+       %P9903              & Future         & \textbf{Operators} includes useful utility functions when
+       %                                      working with graphs. \\
        P9904              & Active         & \textbf{Views} has helpful views for traversing a graph. \\
        P9905              & Active         & \textbf{Graph Container Interface} is the core interface used
                                              for uniformly accessing graph data structures by views and algorithms.
@@ -30,12 +29,22 @@ but you're welcome to read in any order for the area that interests you the most
        P9906              & Active         & \textbf{Graph Container Implementations} describing use of standard containers
                                              and a new  high-performance \tcode{compressed_graph} container, based on a 
                                              Compressed Sparse Row matrix layout. \\
-       P9907              & Future         & \textbf{Adaptors} containing useful utilities to create adjacency lists from other data structures.\\
+       %P9907              & Future         & \textbf{Adaptors} containing useful utilities to create adjacency lists from other data structures.\\
        \hline
     \end{tabular}}
       \caption{Graph Library Papers}
       \label{tab:papers}
     \end{center}
 \end{table}
+
+\textbf{Reading Guide:} 
+\begin{itemize}
+  \item If you're \textbf{new to the Graph Library}, we recommend starting with the \textit{Overview} paper (P9901).
+  \item If you want to \textbf{understand the theoretical background} underpins what we're doing, you should read the \textit{Background and Terminology} paper (P9908).
+  \item If you want to \textbf{use the algorithms}, you should read the \textit{Algorithms} paper (P9902) and \textbf{Graph Container Implementations} paper (9906).
+  \item If you want to \textbf{write algorithms}, you should read the \textit{Views} paper (P9905), \textit{Graph Container Interface} paper (P9905) and \textit{Graph Container Implementations} paper (P9906).
+  \item If you want to \textbf{use your own graph container}, you should read the \textit{Graph Container Interface} paper (P9905) and \textit{Graph Container Implementations} paper (P9906).
+\end{itemize}
+
   
 %\input{tex/conventions}
