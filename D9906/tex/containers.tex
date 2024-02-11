@@ -134,7 +134,7 @@ template <class    EV     = void,     // Edge Value type
 class compressed_graph {
 public:
     compressed_graph();
-    compressed_graph(size_t num_partitions); // multi-partite
+    explicit compressed_graph(size_t num_partitions); // multi-partite
     compressed_graph(const compressed_graph&);
     compressed_graph(compressed_graph&&);
     {tilde}compressed_graph();
@@ -144,7 +144,11 @@ public:
 }
 \end{lstlisting}
 
+
 \phil{Additional members to define?}
 
 \phil{tilde in destructor is giving problems in latex}
 
+\phil{Describe rebinding of Alloc for internal containers}
+
+\phil{add preconditions and postconditions}
