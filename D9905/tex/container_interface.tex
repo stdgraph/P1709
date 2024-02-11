@@ -3,6 +3,8 @@
 %% \chapter{Graph Container Interface}
 \section{Graph Container Interface}
 
+\phil{Add \tcode{num_edges(g)} to GCI?}
+
 The Graph Container Interface defines the primitive concepts, traits, types and functions used to define and access an adacency graph, no matter its internal design and organization. Thus, it is designed to reflect all forms of adjacency graphs including a vector of lists, CSR-based graph and adjacency matrix, whether they are in the standard or external to the standard.
 
 All algorithms in this proposal require that vertices are stored in random access containers and that \tcode{vertex_id_t<G>} is integral, and it is assumed that all future algorithm proposals will also have the same requirements. 

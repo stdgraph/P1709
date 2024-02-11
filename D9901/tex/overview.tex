@@ -16,32 +16,66 @@ views, graph functions and containers.
 
 \section{Goals and Priorities}
 
+Because graphs and their algorithms cover a broad range of capabilities and implementations, we have defined a focused set of 
+goals and priorities that will provide an initial set of useful functionality, as well as a sound foundation for future work.
+
 \begin{itemize}
-  \item Follow the separation of algorithms, ranges, views and containers established by the standard library.
-  \item Graph algorithms have the following characteristics
-  \begin{itemize}
-    \item Support syntax that is simple, expressive and easy to understand. This should not compromise the ability to write high-performance algorithms.
-    \item Vertices are required to be in random access containers with an integral vertex\_id in this proposal. The design should allow for graphs
-          with other requirements in the future, such as using a \tcode{map} for sparse vertex\_ids, or non-integral vertex\_ids.
-  \end{itemize}
-  \item Graph views provide common traversals of a graph's vertices and edges that is more concise and consistant than using the graph container interface directly. They include simple traversals like vertexlist (all vertices in the graph) and incidence edges (edges on a vertex), as well as more complex traversals like depth-first and breath-first searches.
-  \item All free functions are customization point objects in the Graph Container Interface and Views, unless noted otherwise. Reasonable default implementations are provided whenever possible.
-  \item The Graph Container Interface provides a consistent interface that can be used by algorithms and views. It has the following characteristics:
-  \begin{itemize}
-    \item The interface models an adjacency list container, which is an outer range of vertices with an inner range of outgoing (a.k.a. incidence) edges on each vertex.
-    \item Definition of concepts, types, type traits, type aliases, and functions used by algorithms and views.
-    \begin{itemize}
-      \item Type traits will be defined that can be overridden for each graph container to give additional hints that can be used by algorithms to refine their behavior, such as adjacency\_matrix and unordered\_edge.
-    \end{itemize}
-    \item Support of optional user-defined value types on an edge, vertex and/or the graph itself.
-    \item Support bipartite and multipartite graphs, as long as the underlying graph supports it. If the underlying graph doesn't support either,
-          it is considered unipartite with a single partition.
-    \item Allow for useful extensions of the graph data model in future proposals or in external graph implementations. 
-  \end{itemize}
-  \item Define an Edge List interface, required by some algorithms, that can be used by user-defined ranges for algorithms that require them.
-  \item Provide an initial suite of useful functionality that includes algorithms, views, container interface, and at least one 
-  graph container implementation.
+      \item Provide a firm theoretical foundation for the library.
+      \item Follow the separation of algorithms, ranges, views and containers established by the standard library.
+      \item Include a rich enough set of algorithms for the library to be useful.
+            \begin{itemize}
+                  \item The syntax for an algorithm's implementation should be simple, expressive and easy to understand. 
+                  \item The ability to write high-performance algorithms should not be compromised.
+                  \item In the initial proposal, algorithms expect vertices to be in a random access range with an integral vertex id. 
+            \end{itemize}
+      \item Include views for common traversals of a graph's vertices and edges that is concise and consistant without having to use a lower level interface.
+            \begin{itemize}
+                  \item Simple views include vertexlist, incidence edges on a vertes, neighbors of a vertex, and edges of a graph.
+                  \item Complex views include depth-first search, breath-first search, and topological sort.
+            \end{itemize}
+      \item A Graph Container Interface, used by Views and Algorithms, that provides a consistent interface for different graph data structures. The interface
+            includes concepts, types, traits and functions and provides a similar role to the Ranges library for standard containers.
+            \begin{itemize}
+                  \item Descriptors that are used to project a consistent data model for vertex, edge and neighbor by views and edge lists.
+
+                  \item Adjacency list, an outer range of vertices with an inner range of outgoing edges on each vertex.
+                        \begin{itemize}
+                              \item A set of customization point functions to access a graph data structure. 
+                              \item Integration of existing graph data structures by overriding a small number of functions. Reasonable default implementations 
+                                    are provided to reduce the work required. When using a standard container to define a graph, no additional work is required.
+                              \item Support for optional user-defined value types on an edge, vertex and/or the graph itself.
+                              \item Support bipartite and multipartite graphs.
+                        \end{itemize}
+
+                  \item Edge list, which is a range of edge descriptors.
+                        \begin{itemize}
+                              \item From an \tcode{edgelist} view.
+                              \item From a user-defined range that uses \tcode{std::ranges::transform_view}.
+                        \end{itemize}
+            \end{itemize}
+      \item A graph container that can be used with the algorithms.
+            \begin{itemize}
+                  \item A high-performance \tcode{compressed_graph} container, based on the Compressed Sparse Row matrix.
+                  \item The ability to create simple graph container from standard containers, e.g. \tcode{vector<vector<int>>}.
+            \end{itemize}
 \end{itemize}
+
+The design should not hinder the ability to extend the functionality to support expanded functionality identified in the future roadmap
+that follows.
+
+\subsection{Future Roadmap}
+
+The following are areas we'd like to see in future proposals, after the initial proposal is accepted. We endeavor to investigate
+these to assure the existing design will support them.
+\begin{itemize}
+      \item Additional graph algorithms. The Graph Algorithms paper identifies algorithms additional algorithms we'd like to see added.
+      \item Parallel algorithms.
+      \item Support for sparse vertex ids, implying the use of bi-directional containers such as \tcode{map} and \tcode{unordered_map} for vertices.
+      \item Bi-directional graphs, where vertices have incoming and outgoing edges.
+      \item Non-integral vertex ids.
+      \item Constexpr graphs, where vertices and edges are stored in \tcode{std::array} or other const-friendly container.
+\end{itemize}
+
 
 \section{Examples}
 
@@ -153,31 +187,19 @@ standard library that may not be obvious.
 \begin{itemize}
       \item The adjacency list, the primary data structure for this proposal, is a compound data structure of a
           range of ranges. This introduces a new form of container beyond a simple range.
-      \begin{itemize}
-            \item The Graph Container Interface (GCI) is to adjacency lists as Ranges is to standard containers. This is a loose comparison,
-                  but may be helpful to understand it's purpose. It also provides ways to adapt existing adjacency lists
-                  to it. 
-            \item There is more than one possible value type, one each for edge, vertex and graph. Each is optional.
-                  This is in contrast to existing practice where the value type is the distinguishing difference between
-                  different containers, such as for \tcode{set} and \tcode{map}.
-      \end{itemize}
-      \item \tcode{constexpr} graphs, made with std::array.
+      \item There is more than one possible value type, one each for edge, vertex and graph. Each is optional.
+            This is in contrast to existing practice where the value type is the distinguishing difference between
+            different containers, such as for \tcode{set} and \tcode{map}.
       \item Algorithms will often use views, though they can use the GCI functions when needed.
       \item Algorithms and Views often need to allocate memory internally to achieve their purpose. This is a departure from
             common practice in the standard.
+      \item Storing vertices in a \tcode{map} (bi-directional range) requires a different style of programming 
+            algorithms, compared to being kept in a \tcode{vector} (random access range). When using a \tcode{vector},
+            \tcode{edges(g,uid)} would normally be used without much thought. Using that with a \tcode{map} would
+            incur a $\mathcal{O}(\log(V))$ cost. Instead, it will use vertex id once to get the vertex reference 
+            and then use \tcode{edges(g,uv)}. This is expected to result in overloading of existing algorithms based on the
+            range type of container, distinguished with concepts.
 \end{itemize}
 
-The initial proposal is for an \tcode{index_adjacency_list}, where vertices are in a random access range
-and the vertex\_id is integral. The underlying design should be flexible enough to represent a larger 
-set of graph data structures, where performance must be balanced with flexibility to achieve required 
-functionality, such as a slowly changing graph structure. The following are examples that are on our road map.
-\begin{itemize}
-      \item Sparse vertex\_id assignment, requiring vertices to be stored in bi-directional containers
-            such as \tcode{map} and \tcode{unordered_map}. When doing this, it's more important to use
-            vertex references instead of ids to avoid O(log(n)) cost when calling \tcode{edges(g,uid)}. 
-            This is expected to result in overloading of existing algorithms, distinguished with concepts.
-      \item Support for bi-directional graphs where vertices have incoming and outgoing edges.
-      \item Support for non-integral vertex\_ids.
-\end{itemize}
 
 \andrew{Compare code with boost::graph}
