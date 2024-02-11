@@ -254,7 +254,7 @@ Table \ref{tab:graph_func} summarizes the functions in the Graph Container Inter
 \end{center}
 \end{table}
 
-When the graph matches the pattern \tcode{forward_range<forward_range<integral>>} or \tcode{forward_range<forward_range<tuple<integral,...>>>},
+When the graph matches the pattern \tcode{random_access_range<forward_range<integral>>} or \tcode{random_access_range<forward_range<tuple<integral,...>>>},
 the default implementation for \tcode{target_id(g,uv)} will return the \tcode{integral}. Additionally, if the caller does not override 
 \tcode{vertex_id(g,ui)}, the \tcode{integral} value will define the \tcode{vertex_id_t<G>} type.
 
@@ -274,7 +274,7 @@ If the concept requirements for the default implementation aren't met by the gra
 To determine the type for \tcode{vertex_id_t<G>} the following steps are taken, in order, to determine its type.
 \begin{enumerate}
     \item Use the type returned by \tcode{vertex_id(g,ui)} when overridden for a graph.
-    \item When the graph matches the pattern \tcode{forward_range<forward_range<integral>>} or \tcode{forward_range<forward_range<tuple<integral,...>>>},
+    \item When the graph matches the pattern \tcode{random_access_range<forward_range<integral>>} or \tcode{random_access_range<forward_range<tuple<integral,...>>>},
           use the \tcode{integral} type specified.
     \item Use \tcode{size_t} in all other cases.
 \end{enumerate}
