@@ -1,3 +1,7 @@
+\clearpage
+
+\phil{Can any of these functions use \tcode{adjacency_list} or \tcode{basic_adjacency_list} instead of \tcode{index_adjancy_list}?}
+
 \section{Degree}
 Degree of a vertex in graph theory refers to the number of edges that are incident to the vertex. Although the Graph Container Interface provides customization point interface to access a degree of an individual vertex, a degree operator allows one to build a range of degrees of all vertices within a graph.
 
@@ -5,18 +9,18 @@ Degree of a vertex in graph theory refers to the number of edges that are incide
 \setcellgapes{3pt}
 \makegapedcells
 \centering
-\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\begin{tabular}{|P{0.30\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|}
 \hline
       \multirowcell{2}{
             \textbf{Complexity} \\
-            $\mathcal{O}(|V|)$
+                  $\mathcal{O}(|V|)$
             }
-      & \textbf{Throws?} No & \textbf{Cycles?} Yes \\
-      & \textbf{Multi-edge?} Yes & \textbf{Directed?} Yes\\
+      & \textbf{Directed?} Yes & \textbf{Cycles?} Yes & \textbf{Throws?} No \\
+      & \textbf{Multi-edge?} Yes & \textbf{Self-loops} Yes & \\
 \hline
 \end{tabular}
 %\caption{Algorithm Example}
-\label{tab:degree_operator}
+\label{tab:algo_example}
 \end{table}
 
 {\small
@@ -41,23 +45,25 @@ Degree of a vertex in graph theory refers to the number of edges that are incide
 \section{Sort}
 Sort operator comes in many different variants, allows to sort the input graph based on the source vertex, target vertex, the degree of the vertex or by the weight on the edges. Also relevant, \lstinline{topological_sort}, which returns a nonunique permutation of the vertices of a directed acyclic graph such that an edge from u to v implies that u appears before v in the topological sort order.
 
+\phil{Graph parameters should be \tcode{const&}, not \tcode{&&}, the the graph is going to change}
+
 The following algorithm summary represents all the Sort operators.
 \begin{table}[h]
 \setcellgapes{3pt}
 \makegapedcells
 \centering
-\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\begin{tabular}{|P{0.30\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|}
 \hline
       \multirowcell{2}{
             \textbf{Complexity} \\
             $\mathcal{O}(N log|N|)$
             }
-      & \textbf{Throws?} No & \textbf{Cycles?} Yes \\
-      & \textbf{Multi-edge?} Yes & \textbf{Directed?} Yes\\
+      & \textbf{Directed?} Yes & \textbf{Cycles?} Yes & \textbf{Throws?} No \\
+      & \textbf{Multi-edge?} Yes & \textbf{Self-loops} Yes & \\
 \hline
 \end{tabular}
 %\caption{Algorithm Example}
-\label{tab:sort_operators}
+\label{tab:algo_example}
 \end{table}
 
 \phil{Removed comments that said "The same API extends for \lstinline{edgelist}" for all Sort operators. The current 
@@ -137,19 +143,21 @@ Relabels the vertices of the graph according to a given mapping or to integers.
 \setcellgapes{3pt}
 \makegapedcells
 \centering
-\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\begin{tabular}{|P{0.30\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|}
 \hline
       \multirowcell{2}{
             \textbf{Complexity} \\
             $\mathcal{O}(?)$
             }
-      & \textbf{Throws?} No & \textbf{Cycles?} Yes \\
-      & \textbf{Multi-edge?} Yes & \textbf{Directed?} Yes\\
+      & \textbf{Directed?} Yes & \textbf{Cycles?} Yes & \textbf{Throws?} No \\
+      & \textbf{Multi-edge?} Yes & \textbf{Self-loops} Yes & \\
 \hline
 \end{tabular}
 %\caption{Algorithm Example}
-\label{tab:relabel_map}
+\label{tab:algo_example}
 \end{table}
+
+\phil{Graph parameters should be \tcode{const &g} or \tcode{&g}, depending on whether the graph will be changed or not.}
 
 {\small
       \lstinputlisting[firstline=1,lastline=2]{D9903/src/relabel.hpp}
@@ -176,18 +184,18 @@ Relabels the vertices of the graph according to a given mapping or to integers.
 \setcellgapes{3pt}
 \makegapedcells
 \centering
-\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\begin{tabular}{|P{0.30\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|}
 \hline
       \multirowcell{2}{
             \textbf{Complexity} \\
             $\mathcal{O}(?)$
             }
-      & \textbf{Throws?} No & \textbf{Cycles?} Yes \\
-      & \textbf{Multi-edge?} Yes & \textbf{Directed?} Yes\\
+      & \textbf{Directed?} Yes & \textbf{Cycles?} Yes & \textbf{Throws?} No \\
+      & \textbf{Multi-edge?} Yes & \textbf{Self-loops} Yes & \\
 \hline
 \end{tabular}
 %\caption{Algorithm Example}
-\label{tab:relabel_to_int}
+\label{tab:algo_example}
 \end{table}
 
 {\small
@@ -212,19 +220,21 @@ Transpose returns a graph with edges reversed. For an adjacency graph, it is obt
 \setcellgapes{3pt}
 \makegapedcells
 \centering
-\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\begin{tabular}{|P{0.30\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|}
 \hline
       \multirowcell{2}{
             \textbf{Complexity} \\
             $\mathcal{O}(?)$
             }
-      & \textbf{Throws?} No & \textbf{Cycles?} Yes \\
-      & \textbf{Multi-edge?} Yes & \textbf{Directed?} Yes\\
+      & \textbf{Directed?} Yes & \textbf{Cycles?} Yes & \textbf{Throws?} No \\
+      & \textbf{Multi-edge?} Yes & \textbf{Self-loops} Yes & \\
 \hline
 \end{tabular}
 %\caption{Algorithm Example}
-\label{tab:transpose_operator}
+\label{tab:algo_example}
 \end{table}
+
+\phil{Graph parameters should be \tcode{const &g} or \tcode{&g}, depending on whether the graph will be changed or not.}
 
 {\small
       \lstinputlisting[firstline=1,lastline=2]{D9903/src/transpose.hpp}
@@ -244,22 +254,24 @@ Transpose returns a graph with edges reversed. For an adjacency graph, it is obt
 \section{Join}
 Combining of two graphs based on common vertices. The join operation (or Sparse General Matrix-Matrix Multiplication) is a useful operators for implementing graph algorithms. The result would be a new graph where the edges are determined by the multiplication of the adjacency containers. 
 
+\phil{Graph parameters should be \tcode{const &g} or \tcode{&g}, depending on whether the graph will be changed or not.}
+
 \begin{table}[h]
 \setcellgapes{3pt}
 \makegapedcells
 \centering
-\begin{tabular}{|P{0.30\textwidth}|P{0.25\textwidth}|P{0.25\textwidth}|}
+\begin{tabular}{|P{0.30\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|}
 \hline
       \multirowcell{2}{
             \textbf{Complexity} \\
             $\mathcal{O}(?)$
             }
-      & \textbf{Throws?} No & \textbf{Cycles?} Yes \\
-      & \textbf{Multi-edge?} Yes & \textbf{Directed?} Yes\\
+      & \textbf{Directed?} Yes & \textbf{Cycles?} Yes & \textbf{Throws?} No \\
+      & \textbf{Multi-edge?} Yes & \textbf{Self-loops} Yes & \\
 \hline
 \end{tabular}
 %\caption{Algorithm Example}
-\label{tab:join_operator}
+\label{tab:algo_example}
 \end{table}
 
 {\small
