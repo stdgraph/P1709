@@ -6,14 +6,14 @@ The documents are as follows (temporary numbers are given until official names h
 | Paper | Status | Description                     | 
 | :-----| :------| :-------------------------------|
 | P1709 | Retired| Original, split into following papers|
-| D9901 | Active | Overview and Introduction       |
-| D9902 | Active | Algorithms                      |
+| D3126 | Active | Overview and Introduction       |
+| D3127 | Future | Background and Terminology      |
+| D3128 | Active | Algorithms                      |
+| D3129 | Active | Views                           |
+| D3130 | Active | Graph Container Interface       |
+| D3131 | Active | Graph Container Implementations |
 | D9903 | Active | Operators                       |
-| D9904 | Active | Views                           |
-| D9905 | Active | Graph Container Interface       |
-| D9906 | Active | Graph Container Implementations |
 | D9907 | Future | Adaptors                        |
-| D9908 | Future | Background and Terminology      |
 
 
 ## Building
@@ -30,7 +30,7 @@ will build them all.  Intermediate files are kept in the aux subdirectory.  Fina
 
 Individual pdfs can be built thusly:
 ```
-% make D9901.pdf
+% make D3129.pdf
 ```
 
 The intermediate files can all be cleaned up:
