@@ -20,6 +20,7 @@ jobs:
         with:
           root_file: |
             D3126_Overview.tex
+            D3127_Terminology.tex
             D9902.tex
             D9903.tex
             D9904.tex
