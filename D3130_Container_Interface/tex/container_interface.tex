@@ -75,7 +75,7 @@ number of qualifiers concept names that are are used.
 The types of edges that can occur in a graph are described with the edges concepts. The \tcode{E} edge template parameter allows
 for different types of edges, such as incoming and outgoing edge types.
 {\small
-     \lstinputlisting{D9905/src/concepts_edges.hpp}
+     \lstinputlisting{D3130_Container_Interface/src/concepts_edges.hpp}
 }
 
 There are two edge range concepts.
@@ -84,26 +84,26 @@ There are two edge range concepts.
 
 
 {\small
-     \lstinputlisting{D9905/src/concepts_target_edge_range.hpp}
+     \lstinputlisting{D3130_Container_Interface/src/concepts_target_edge_range.hpp}
 }
 
 \subsection{Vertex Concepts}
 The \tcode{vertex_range} concept is the general definition used for adjacency lists while \tcode{index_vertex_range} is used for
 high performance graphs where vertices typically stored in a \tcode{vector}.
 {\small
-     \lstinputlisting{D9905/src/concepts_vertex_range.hpp}
+     \lstinputlisting{D3130_Container_Interface/src/concepts_vertex_range.hpp}
 }
 
 \subsection{Adjacency List Concepts}
 The basic adjacency lists add concepts where there is no vertex object, only a vertex id.
 {\small
-     \lstinputlisting{D9905/src/concepts_basic_adj_list.hpp}
+     \lstinputlisting{D3130_Container_Interface/src/concepts_basic_adj_list.hpp}
 }
 
 The adjacency list concepts bring together the vertex and edge concepts used for core graph concepts. 
 All algorithms initially proposed for the Graph Library use the \tcode{index_adjacency_list}.
 {\small
-     \lstinputlisting{D9905/src/concepts_adj_list.hpp}
+     \lstinputlisting{D3130_Container_Interface/src/concepts_adj_list.hpp}
 }
 
 \section{Traits}
