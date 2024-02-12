@@ -82,7 +82,7 @@ for(auto&& [uid, value] : basic_vertexlist(g,vvf)) {
 \tcode{vertices_dfs(g,u)} and others. The \tcode{id} member always exists.
 
 {\small
-     \lstinputlisting{D9904/src/vertex_descriptor.hpp}
+     \lstinputlisting{D3129_Views/src/vertex_descriptor.hpp}
 }
 
 Specializations are defined with \tcode{V=void} or \tcode{VV=void} to suppress the existance of their associated member variables, 
@@ -115,7 +115,7 @@ has two members \tcode{\{id_type id; vertex_type vertex;\}} and \tcode{value_typ
 When \tcode{Sourced=true}, the \tcode{source_id} member is included with type \tcode{VId}. The \tcode{target_id} member always exists.
 
 {\small
-     \lstinputlisting{D9904/src/edge_descriptor.hpp}
+     \lstinputlisting{D3129_Views/src/edge_descriptor.hpp}
 }
 
 Specializations are defined with \tcode{Sourced=true|false}, \tcode{E=void} or \tcode{EV=void} to suppress the existance of the associated 
@@ -152,7 +152,7 @@ and \tcode{value_type} is \tcode{void}.
 When \tcode{Sourced=true}, the \tcode{source_id} member is included with type \tcode{source_id_type}. The \tcode{target_id} member always exists.
 
 {\small
-     \lstinputlisting{D9904/src/neighbor_descriptor.hpp}
+     \lstinputlisting{D3129_Views/src/neighbor_descriptor.hpp}
 }
 
 Specializations are defined with \tcode{Sourced=true|false}, \tcode{E}=void or \tcode{EV}=void to suppress the existance of the 
