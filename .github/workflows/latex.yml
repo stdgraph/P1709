@@ -21,7 +21,7 @@ jobs:
           root_file: |
             D3126_Overview.tex
             D3127_Terminology.tex
-            D9902.tex
+            D3128_Algorithms.tex
             D9903.tex
             D9904.tex
             D9905.tex
