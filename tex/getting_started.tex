@@ -5,9 +5,6 @@
 This paper is one of several interrelated papers for a proposed Graph Library for the Standard C++ Library. 
 The Table \ref{tab:papers} describes all the related papers. 
 
-Their order represents different layers of the library. Reading them in order will give the best overall picture, 
-but you're welcome to read in any order for the area that interests you the most.
-
 \begin{table}[h!]
     \begin{center}
     {\begin{tabular}{l l p{14cm}}
@@ -16,19 +13,19 @@ but you're welcome to read in any order for the area that interests you the most
        \hline
        P1709              & Inactive       & Original proposal, now separated into the following papers. \\
        \hdashline
-       P9901              & Active         & \textbf{Overview}, describing the big picture of what we are proposing. \\
-       P9908              & Active         & \textbf{Background and Terminology} providing the theoretical background and terminology used across the other documents.\\
-       P9902              & Active         & \textbf{Algorithms} covering the initial algorithms 
+       \href{https://www.wg21.link/P3126}{P3126} & Active         & \textbf{Overview}, describing the big picture of what we are proposing. \\
+       \href{https://www.wg21.link/P3127}{P3127} & Active         & \textbf{Background and Terminology} providing the motivation, theoretical background and terminology used across the other documents.\\
+       \href{https://www.wg21.link/P3128}{P3128} & Active         & \textbf{Algorithms} covering the initial algorithms 
                                              as well as the ones we'd like to see in the future. \\
        %P9903              & Future         & \textbf{Operators} includes useful utility functions when
        %                                      working with graphs. \\
-       P9904              & Active         & \textbf{Views} has helpful views for traversing a graph. \\
-       P9905              & Active         & \textbf{Graph Container Interface} is the core interface used
+       \href{https://www.wg21.link/P3129}{P3129} & Active         & \textbf{Views} has helpful views for traversing a graph. \\
+       \href{https://www.wg21.link/P3130}{P3130} & Active         & \textbf{Graph Container Interface} is the core interface used
                                              for uniformly accessing graph data structures by views and algorithms.
                                              It is also designed to easily adapt to existing graph data structures.\\
-       P9906              & Active         & \textbf{Graph Container Implementations} describing use of standard containers
-                                             and a new  high-performance \tcode{compressed_graph} container, based on a 
-                                             Compressed Sparse Row matrix. \\
+       \href{https://www.wg21.link/P3131}{P3131} & Active         & \textbf{Graph Containers} describing a proposed high-performance \tcode{compressed_graph} container.
+                                              It also discusses how to use containers in the standard library to define a graph, and how 
+                                              to adapt existing graph data structures.\\
        %P9907              & Future         & \textbf{Adaptors} containing useful utilities to create adjacency lists from other data structures.\\
        \hline
     \end{tabular}}
@@ -37,13 +34,17 @@ but you're welcome to read in any order for the area that interests you the most
     \end{center}
 \end{table}
 
-\textbf{Reading Guide:} 
+Reading them in order will give the best overall picture.
+If you're limited on time, you can use the following guide to focus on the papers that are most relevant to your needs.
+
+\textbf{Reading Guide} 
 \begin{itemize}
-  \item If you're \textbf{new to the Graph Library}, we recommend starting with the \textit{Overview} paper (P9901).
-  \item If you want to \textbf{understand the theoretical background} that underpins what we're doing, you should read the \textit{Background and Terminology} paper (P9908).
-  \item If you want to \textbf{use the algorithms}, you should read the \textit{Algorithms} paper (P9902) and \textbf{Graph Container Implementations} paper (9906).
-  \item If you want to \textbf{write algorithms}, you should read the \textit{Views} paper (P9905), \textit{Graph Container Interface} paper (P9905) and \textit{Graph Container Implementations} paper (P9906).
-  \item If you want to \textbf{use your own graph container}, you should read the \textit{Graph Container Interface} paper (P9905) and \textit{Graph Container Implementations} paper (P9906).
+  \item If you're \textbf{new to the Graph Library}, we recommend starting with the \textit{Overview} paper (\href{https://www.wg21.link/P3126}{P3126}) to understand focus and scope of our proposals.
+  \item If you want to \textbf{understand the theoretical background} that underpins what we're doing, you should read the \textit{Background and Terminology} paper (\href{https://www.wg21.link/P3127}{P3127}).
+  \item If you want to \textbf{use the algorithms}, you should read the \textit{Algorithms} paper (\href{https://www.wg21.link/P3128}{P3128}) and \textit{Graph Containers} paper (\href{https://www.wg21.link/P3131}{P3131}).
+  \item If you want to \textbf{write new algorithms}, you should read the \textit{Views} paper (\href{https://www.wg21.link/P3129}{P3129}), \textit{Graph Container Interface} paper (\href{https://www.wg21.link/P3130}{P3130}) and \textit{Graph Containers} paper (\href{https://www.wg21.link/P3131}{P3131}).
+        You'll also want to review existing implementations in the reference library for examples of how to write the algorithms.
+  \item If you want to \textbf{use your own graph container}, you should read the \textit{Graph Container Interface} paper (\href{https://www.wg21.link/P3130}{P3130}) and \textit{Graph Containers} paper (\href{https://www.wg21.link/P3131}{P3131}).
 \end{itemize}
 
   
