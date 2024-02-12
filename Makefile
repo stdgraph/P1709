@@ -1,7 +1,7 @@
 
 
 # List of document sources to build. 
-SRCS	 	:= D3126_Overview D9902 D9903 D9904 D9905 D9906 D9907 # D9908
+SRCS	 	:= D3126_Overview D3127_Terminology D9902 D9903 D9904 D9905 D9906 D9907
 TEX_SRCS 	:= $(addsuffix .tex, $(SRCS))
 PDFS     	:= $(addsuffix .pdf, $(SRCS))
 
