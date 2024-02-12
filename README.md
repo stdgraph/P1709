@@ -7,12 +7,12 @@ The documents are as follows (temporary numbers are given until official names h
 | :-----| :------| :-------------------------------|
 | P1709 | Retired| Original, split into following papers|
 | D3126 | Active | Overview and Introduction       |
-| D3127 | Future | Background and Terminology      |
+| D3127 | Active | Background and Terminology      |
 | D3128 | Active | Algorithms                      |
 | D3129 | Active | Views                           |
 | D3130 | Active | Graph Container Interface       |
 | D3131 | Active | Graph Container Implementations |
-| D9903 | Active | Operators                       |
+| D9903 | Future | Operators                       |
 | D9907 | Future | Adaptors                        |
 
 
@@ -30,7 +30,7 @@ will build them all.  Intermediate files are kept in the aux subdirectory.  Fina
 
 Individual pdfs can be built thusly:
 ```
-% make D3129.pdf
+% make D3128.pdf
 ```
 
 The intermediate files can all be cleaned up:
