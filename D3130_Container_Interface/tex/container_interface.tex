@@ -3,7 +3,7 @@
 %% \chapter{Graph Container Interface}
 \section{Graph Container Interface}
 
-\phil{Add \tcode{num_edges(g)} and/or \tcode{has_edges(g)} to GCI?}
+\phil{Add \tcode{num_edges(g)} and/or \tcode{has_edge(g)} to GCI?}
 
 The Graph Container Interface defines the primitive concepts, traits, types and functions used to define and access an adacency graph, no matter its internal design and organization. Thus, it is designed to reflect all forms of adjacency graphs including a vector of lists, CSR-based graph and adjacency matrix, whether they are in the standard or external to the standard.
 
@@ -199,7 +199,64 @@ No additional functionality is added beyond that provided by \tcode{runtime_erro
 
 \section{Functions}
 
-Table \ref{tab:graph_func} summarizes the functions in the Graph Container Interface. These are the primitive functions used to access an adacency graph, no matter its internal design and organization. Thus, it is designed to be able to reflect all forms of adjacency graphs including a vector of lists, CSR-based graph and adjacency matrix.
+Tables \ref{tab:graph_func}, \ref{tab:vertex_func} and \ref{tab:edge_func} summarize the primitive functions in the Graph Container Interface.
+used to access an adacency graph, no matter its internal design and organization. Thus, it is designed 
+to be able to reflect all forms of adjacency graphs including a vector of lists, CSR-based graph and adjacency matrix.
+
+
+\begin{table}[h!]
+\begin{center}
+\resizebox{\textwidth}{!}
+{\begin{tabular}{l l p{2.3cm} L{6.2cm}}
+\hline
+    \textbf{Function} & \textbf{Return Type} & \textbf{Complexity} & \textbf{Default Implementation} \\
+\hline
+    \tcode{graph_value(g)} & \tcode{graph_value_t<G>} & constant & n/a, optional \\
+    \tcode{vertices(g)} & \tcode{vertex_range_t<G>} & constant & \tcode{g} if \tcode{random_access_range<G>}, n/a otherwise \\
+    \tcode{num_vertices(g)} & \tcode{integral} & constant & \tcode{size(vertices(g))} \\
+    \tcode{num_edges(g)} & \tcode{integral} & constant to |E| & \tcode{n=0; for(u: vertices(g)) n+=distance(edges(g,u)); return n;} \\
+    \tcode{has_edge(g)} & \tcode{bool} & contant to |V| & \tcode{for(u: vertices(g)) if !empty(edges(g,u)) return true; return false;} \\
+\hdashline
+    \tcode{partition_count(g)} & \tcode{vertex_id_t<G>} & constant & 1 \\
+    \tcode{vertices(g,pid)} & \tcode{partition_vertex_range_t<G>} & constant & \tcode{vertices(g)} \\
+    \tcode{num_vertices(g,pid)} & \tcode{integral} & constant & \tcode{size(vertices(g))}  \\
+\hline
+\end{tabular}}
+\caption{Graph Functions}
+\label{tab:graph_func}
+\end{center}
+\end{table}
+The complexity of \tcode{num_edges(g)} and \tcode{has_edge(g)} is dependent on the underlying graph container's capabilities.
+
+\begin{table}[h!]
+\begin{center}
+\resizebox{\textwidth}{!}
+{\begin{tabular}{l l p{1.5cm} L{7.0cm}}
+\hline
+    \textbf{Function} & \textbf{Return Type} & \textbf{Complexity} & \textbf{Default Implementation} \\
+\hline
+    \tcode{find_vertex(g,uid)} & \tcode{vertex_iterator_t<G>} & constant & \tcode{begin(vertices(g)) + uid} \\
+    & & & if \tcode{random_access_range<vertex_range_t<G>>}  \\
+    \tcode{vertex_id(g,ui)} & \tcode{vetex_id_t<G>} & constant & \tcode{(size_t)(ui - begin(vertices(g)))} \\
+    & & & Override to define a different \tcode{vertex_id_t<G>} type (e.g. int32\_t). \\
+    \tcode{vertex_value(g,u)} & \tcode{vertex_value_t<G>} & constant & n/a, optional \\
+    \tcode{vertex_value(g,uid)} & \tcode{vertex_value_t<G>} & constant & \tcode{vertex_value(g,*find_vertex(g,uid))}, optional \\
+    \tcode{degree(g,u)} & \tcode{integral} & constant & \tcode{size(edges(g,u))} if \tcode{sized_range<vertex_edge_range_t<G>>} \\
+    \tcode{degree(g,uid)} & \tcode{integral} & constant & \tcode{size(edges(g,uid))} if \tcode{sized_range<vertex_edge_range_t<G>>} \\
+    \tcode{edges(g,u)} & \tcode{vertex_edge_range_t<G>} & constant & \tcode{u} if \tcode{forward range<vertex_t<G>>}, n/a otherwise \\
+    \tcode{edges(g,uid)} & \tcode{vertex_edge_range_t<G>} & constant & \tcode{edges(g,*find_vertex(g,uid))} \\
+\hdashline
+    \tcode{partition_id(g,u)} & \tcode{partition_id_t<G>} & constant & 0 \\
+    \tcode{partition_id(g,uid)} & \tcode{partition_id_t<G>} & constant & \tcode{partition_id(g,*find_vertex(g,uid))} \\
+    \tcode{edges(g,u,pid)} & \tcode{partition_edge_range_t<G>} & linear & \tcode{edges(g,u)} \\
+    \tcode{edges(g,uid,pid)} & \tcode{partition_edge_range_t<G>} & linear & \tcode{edges(g,uid)} \\
+\hline
+\end{tabular}}
+\caption{Vertex Functions}
+\label{tab:vertex_func}
+\end{center}
+\end{table}
+
 
 
 \begin{table}[h!]
@@ -209,28 +266,6 @@ Table \ref{tab:graph_func} summarizes the functions in the Graph Container Inter
 \hline
     \textbf{Function} & \textbf{Return Type} & \textbf{Complexity} & \textbf{Default Implementation} \\
 \hline
-    \tcode{graph_value(g)} & \tcode{graph_value_t<G>} & constant & n/a, optional \\
-\hdashline
-    \tcode{partition_count(g)} & \tcode{vertex_id_t<G>} & constant & 1 \\
-\hline
-    \tcode{vertices(g)} & \tcode{vertex_range_t<G>} & constant & \tcode{g} if \tcode{random_access_range<G>}, n/a otherwise \\
-    \tcode{num_vertices(g)} & \tcode{integral} & constant & \tcode{size(vertices(g))} \\
-    \tcode{find_vertex(g,uid)} & \tcode{vertex_iterator_t<G>} & constant & \tcode{begin(vertices(g)) + uid} \\
-    & & & if \tcode{random_access_range<vertex_range_t<G>>}  \\
-    \tcode{vertex_id(g,ui)} & \tcode{vetex_id_t<G>} & constant & \tcode{(size_t)(ui - begin(vertices(g)))} \\
-    & & & Override to define a different \tcode{vertex_id_t<G>} type (e.g. int32\_t). \\
-    \tcode{vertex_value(g,u)} & \tcode{vertex_value_t<G>} & constant & n/a, optional \\
-    \tcode{vertex_value(g,uid)} & \tcode{vertex_value_t<G>} & constant & \tcode{vertex_value(g,*find_vertex(g,uid))}, optional \\
-    \tcode{degree(g,u)} & \tcode{integral} & constant & \tcode{size(edges(g,u))} if \tcode{sized_range<vertex_edge_range_t<G>>} \\
-    \tcode{degree(g,uid)} & \tcode{integral} & constant & \tcode{size(edges(g,uid))} if \tcode{sized_range<vertex_edge_range_t<G>>} \\
-\hdashline
-    \tcode{partition_id(g,u)} & \tcode{partition_id_t<G>} & constant & 0 \\
-    \tcode{partition_id(g,uid)} & \tcode{partition_id_t<G>} & constant & \tcode{partition_id(g,*find_vertex(g,uid))} \\
-    \tcode{vertices(g,pid)} & \tcode{partition_vertex_range_t<G>} & constant & \tcode{vertices(g)} \\
-    \tcode{num_vertices(g,pid)} & \tcode{integral} & constant & \tcode{size(vertices(g))}  \\
-\hline
-    \tcode{edges(g,u)} & \tcode{vertex_edge_range_t<G>} & constant & \tcode{u} if \tcode{forward range<vertex_t<G>>}, n/a otherwise \\
-    \tcode{edges(g,uid)} & \tcode{vertex_edge_range_t<G>} & constant & \tcode{edges(g,*find_vertex(g,uid))} \\
     \tcode{target_id(g,uv)} & \tcode{vertex_id_t<G>} & constant & (see below) \\
     \tcode{target(g,uv)} & \tcode{vertex_t<G>} & constant & \tcode{*(begin(vertices(g)) + target_id(g, uv))} if \tcode{random_access_range<vertex_range_t<G>> \&\& integral<target_id(g,uv)>} \\
     \tcode{edge_value(g,uv)} & \tcode{edge_value_t<G>} & constant & \tcode{uv} if \tcode{forward_range<vertex_t<G>>}, n/a otherwise, optional \\
@@ -239,9 +274,6 @@ Table \ref{tab:graph_func} summarizes the functions in the Graph Container Inter
     \tcode{contains_edge(g,uid,vid)} & \tcode{bool} & constant & \tcode{uid < size(vertices(g)) \&\& vid < size(vertices(g))} if \tcode{is_adjacency_matrix_v<G>}.\\
     & & linear & \tcode{find_vertex_edge(g,uid) != end(edges(g,uid))} otherwise. \\
 \hdashline
-    \tcode{edges(g,u,pid)} & \tcode{partition_edge_range_t<G>} & linear & \tcode{edges(g,u)} \\
-    \tcode{edges(g,uid,pid)} & \tcode{partition_edge_range_t<G>} & linear & \tcode{edges(g,uid)} \\
-\hdashline
     \multicolumn{4}{c}{The following are only available when the optional \tcode{source_id(g,uv)} is defined for the edge} \\
 \hdashline
     \tcode{source_id(g,uv)} & \tcode{vertex_id_t<G>} & constant & n/a, optional \\
@@ -249,8 +281,8 @@ Table \ref{tab:graph_func} summarizes the functions in the Graph Container Inter
     \tcode{edge_id(g,uv)} & \tcode{edge_id_t<G>} & constant & \tcode{edge_descriptor<vertex_id_t<G>,true,void,void>\{source_id(g,uv),target_id(g,uv)\}} \\
 \hline
 \end{tabular}}
-\caption{Graph Container Interface Functions}
-\label{tab:graph_func}
+\caption{Edge Functions}
+\label{tab:edge_func}
 \end{center}
 \end{table}
 
