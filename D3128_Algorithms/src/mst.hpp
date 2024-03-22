@@ -1,11 +1,11 @@
 /*
  * Kruskal's Algorithm
  */
-template <edgelist::edgelist E, edgelist::edgelist T>
-void kruskal(E&& e, T&& t);
+template <index_edgelist_range IELR, index_edgelist_range OELR>
+void kruskal(IELR&& e, OELR&& t);
 
-template <edgelist::edgelist E, edgelist::edgelist T, CompareOp>
-void kruskal(E&& e, T&& t, CompareOp compare);
+template <index_edgelist_range IELR, index_edgelist_range OELR T, CompareOp>
+void kruskal(IELR&& e, OELR&& t, CompareOp compare);
 
 /*
  * Prim's Algorithm
