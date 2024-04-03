@@ -1,3 +1,5 @@
+// For exposition only
+
 template <class G> // (exposition only)
 concept _common_vertex_range = ranges::sized_range<vertex_range_t<G>> && //
                                requires(G&& g, vertex_iterator_t<G> ui) { vertex_id(g, ui); };

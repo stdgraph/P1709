@@ -1,3 +1,5 @@
+// For exposition only
+
 template <class G>
 concept basic_targeted_edge_range = requires(G&& g, vertex_id_t<G> uid) {
   { edges(g, uid) } -> ranges::forward_range;

@@ -1,3 +1,5 @@
+// For exposition only
+
 template <class G>
 concept adjacency_list = vertex_range<G> &&        //
                          targeted_edge_range<G> && //

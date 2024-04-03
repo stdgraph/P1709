@@ -1,3 +1,5 @@
+// For exposition only
+
 template <class G, class E>
 concept basic_targeted_edge = requires(G&& g, edge_reference_t<G> uv) { target_id(g, uv); };
 

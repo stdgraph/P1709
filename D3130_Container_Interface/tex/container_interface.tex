@@ -71,6 +71,9 @@ number of qualifiers concept names that are are used.
     \item \textbf{sourced} where an edge has a source id.
 \end{itemize}
 
+\emph{While we belive the use of concepts is appropriate for graphs as a range-of-ranges, we are marking them as "For exposition only" 
+until we have consensus of whether they belong in the standard or not.}
+
 \subsection{Edge Concepts}
 The types of edges that can occur in a graph are described with the edges concepts. The \tcode{E} edge template parameter allows
 for different types of edges, such as incoming and outgoing edge types.
@@ -196,6 +199,9 @@ in practice they will often be assigned contiguously. Gaps in \tcode{vertex_id}s
 The \tcode{graph_error} exception class is available, inherited from \tcode{runtime_error}. While any function may use it, it 
 is only anticipated to be used by the \tcode{load} functions at this time.
 No additional functionality is added beyond that provided by \tcode{runtime_error}.
+
+\emph{While we belive the use of concepts is appropriate for graphs as a range-of-ranges, we are marking them as "For exposition only" 
+until we have consensus of whether they belong in the standard or not.}
 
 \section{Functions}
 
