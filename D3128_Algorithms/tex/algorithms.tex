@@ -124,6 +124,7 @@ BGL does not have these (nor NWGraph).  We should discuss whether or not to cons
 % Floyd-Warshall $\mathcal{O}(N^2)$}
 % Johnson $\mathcal{O}(N^2)$}
 
+\clearpage
 \section{Algorithm Concepts}
 
 %\andrew{Need to develop this ala CppCon 2021 talk.}
@@ -138,6 +139,7 @@ Most fundamentally (as illustrated above), an adjacency list is a collection of 
 % Additional concepts used by algorithms.
 
 \begin{lstlisting}
+// For exposition only
 template <class G, class WF, class DistanceValue, class Compare, class Combine>
 concept basic_edge_weight_function = // e.g. weight(uv)
       is_arithmetic_v<DistanceValue> && 
@@ -145,6 +147,7 @@ concept basic_edge_weight_function = // e.g. weight(uv)
       assignable_from<add_lvalue_reference_t<DistanceValue>,
             invoke_result_t<Combine, DistanceValue, invoke_result_t<WF, edge_reference_t<G>>>>;
 
+// For exposition only
 template <class G, class WF, class DistanceValue>
 concept edge_weight_function = // e.g. weight(uv)
       is_arithmetic_v<invoke_result_t<WF, edge_reference_t<G>>> &&
