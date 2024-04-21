@@ -190,7 +190,7 @@ Copyable descriptors are specializations of the descriptors that can be copied. 
 a vertex or edge reference. \tcode{copyable_vertex_t<G>} shows the simple definition.
 
 \begin{lstlisting}
-template <class VId, class VV>
+template <class VId, class VV=void>
 using copyable_vertex_t = vertex_descriptor<VId, void, VV>; // {id, value}
 \end{lstlisting}
 
@@ -201,9 +201,9 @@ using copyable_vertex_t = vertex_descriptor<VId, void, VV>; // {id, value}
 \hline
     \textbf{Type} & \textbf{Definition} \\
 \hline
-    \tcode{copyable_vertex_t<T,VId,VV>} & \tcode{vertex_descriptor<VId, void, VV>} \\
-    \tcode{copyable_edge_t<T,Vid,EV>} & \tcode{edge_descriptor<VId, true, void, EV>>} \\
-    \tcode{copyable_neighbor_t<Vid,VV>} & \tcode{neighbor_descriptor<VId, true, void, VV>} \\
+    \tcode{copyable_vertex_t<T,VId,VV=void>} & \tcode{vertex_descriptor<VId, void, VV>} \\
+    \tcode{copyable_edge_t<T,Vid,EV=void>} & \tcode{edge_descriptor<VId, true, void, EV>>} \\
+    \tcode{copyable_neighbor_t<Vid,VV=void>} & \tcode{neighbor_descriptor<VId, true, void, VV>} \\
 \hline
 \end{tabular}}
 \caption{Descriptor Concepts}
@@ -221,9 +221,9 @@ Given the copyable types, it's useful to have concepts to determine if a type is
 \hline
     \textbf{Concept} & \textbf{Definition} \\
 \hline
-    \tcode{copyable_vertex<T,VId,VV>} & \tcode{convertible_to<T, copyable_vertex_t<VId, VV>>} \\
-    \tcode{copyable_edge<T,Vid,EV>} & \tcode{convertible_to<T, copyable_edge_t<VId, EV>>} \\
-    \tcode{copyable_neighbor<T,Vid,VV>} & \tcode{convertible_to<T, copyable_neighbor_t<VId, VV>>} \\
+    \tcode{copyable_vertex<T,VId,VV=void>} & \tcode{convertible_to<T, copyable_vertex_t<VId, VV>>} \\
+    \tcode{copyable_edge<T,Vid,EV=void>} & \tcode{convertible_to<T, copyable_edge_t<VId, EV>>} \\
+    \tcode{copyable_neighbor<T,Vid,VV=void>} & \tcode{convertible_to<T, copyable_neighbor_t<VId, VV>>} \\
 \hline
 \end{tabular}}
 \caption{Descriptor Concepts}

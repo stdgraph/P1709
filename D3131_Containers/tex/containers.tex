@@ -2,63 +2,65 @@
 \clearpage
 %% \chapter{Graph Container Implementations}
 
-\section{compressed\_graph}
+\section{compressed\_graph Graph Container}
 \tcode{compressed_graph} is a graph container being proposed for the standard library. It is a high-performance data structure that 
 uses \href{https://en.wikipedia.org/wiki/Sparse_matrix#Compressed_sparse_row_\%28CSR\%2C_CRS_or_Yale_format\%29}{Compressed Sparse Row} 
-format to store its vertices, edges and associated values. Once constructed, vertices and edges cannot be added or deleted but values 
-on vertices and edges can be modified.
+(CSR) format to store its vertices, edges and associated values. Once constructed, vertices and edges cannot be added or deleted 
+but values on vertices and edges can be modified.
 
-The following listing shows the prototype for the \tcode{compressed_graph}. Only the members shown for \tcode{compressed_graph} are public. 
-No other member functions or types are exposed as part of the standard. All other types are only accessible through the types and functions 
-in the Graph Container Interface. Multiple partitions (multi-partite) can be defined by passing the number of partitions in a constructor.
+There are a number of features added beyond the typical CSR implmentation:
+\begin{itemize}
+    \item   \textbf{User-defined values} Values can be associated with edge, vertices and and the graph itself by defining the 
+            \tcode{EV}, \tcode{VV}, and \tcode{GV} template arguments respectively. If the type is void, no memory overhead is 
+            incurred.
+    \item   \textbf{Index type sizes} The size of the integral indexes into the internal row and column structures can be controlled
+            by the \tcode{VId} and \tcode{EIndex} template arguments respectively to give a balance between storage and performance.
+    \item   \textbf{Multi-partite graphs} The vertices can optionally be partitioned into multiple partitions by passing the 
+            starting vertex id of each partition in the \tcode{part_start_ids} parameter in the constructors.
+\end{itemize}
+
+The following listings shows the prototype for the \tcode{compressed_graph} when the graph value type \tcode{GV} is non-\tcode{void} and a 
+class template specialization when it is \tcode{void}.
+
+Only the constuctors shown for \tcode{compressed_graph} are public. All other types or functions are only accessible through the types 
+and functions in the Graph Container Interface.
 
 \begin{table}[h]
     \setcellgapes{3pt}
     \makegapedcells
     \centering
-    \begin{tabular}{|P{0.37\textwidth}|P{0.25\textwidth}|P{0.38\textwidth}|}
+    \begin{tabular}{|P{0.38\textwidth}|P{0.35\textwidth}|P{0.25\textwidth}|}
     \hline
-    \textbf{Implements \tcode{load_graph}?} Yes & \textbf{Append vertices?} No & \textbf{vertex\_id assignment:} Contiguous\\
-    \textbf{Implements \tcode{load_vertices}?} Yes & \textbf{Append edges?} No & \textbf{Vertices range:} Contiguous \\
-    \textbf{Implements \tcode{load_edges}?} Yes &  & \textbf{Edge range:} Contiguous \\
-    \textbf{Implements \tcode{load_partition}?} Yes &  & \\
+    \textbf{vertex\_id assignment:} Contiguous & \textbf{\tcode{has_edge(g)}} $O(1)$ & \textbf{Append vertices?} No \\
+    \textbf{Vertices range:} Contiguous & \textbf{\tcode{num_edges(g)}} $O(1)$ & \textbf{Append edges?} No \\
+    \textbf{Edge range:} Contiguous & \textbf{\tcode{partition_id(g,uid)}} $O(log(P+1))$ & \textbf{Partions?} Yes\\
+    %O(log(P+1)) is the complexity of std::upper_bound; +1 is for the number of vertices added at the end of partition_start_ids
     \hline
     \end{tabular}
     %\caption{Jaccard Coefficient Summary}
     \label{tab:compressed_graph_summary}
 \end{table}
-
-\begin{lstlisting}
-template <class    EV     = void,     // Edge Value type
-          class    VV     = void,     // Vertex Value type
-          class    GV     = void,     // Graph Value type
-          integral VId    = uint32_t, // vertex id type
-          integral EIndex = uint32_t, // edge index type
-          class    Alloc  = allocator<VId>> // for internal containers
-class compressed_graph {
-public:
-    compressed_graph();
-    explicit compressed_graph(size_t num_partitions); // multi-partite
-    compressed_graph(const compressed_graph&);
-    compressed_graph(compressed_graph&&);
-    {tilde}compressed_graph();
-
-    compressed_graph& operator=(const compressed_graph&);
-    compressed_graph& operator=(compressed_graph&&);
-}
-\end{lstlisting}
-
-
-\phil{Additional members to define?}
+Note: $P$ is the number of partitions. It has a minimum of 1 for a unipartite graph, and is exepected to be small for all
+reasonable cases.
 
 \phil{tilde in destructor is giving problems in latex}
 
 \phil{What is allowed/required for EV, VV, GV? Default constructible, ...? Create concept, or describe in mandates or preconditions. Use tuple value as starting point.}
 
+\subsection{compressed\_graph when \tcode{GV} is not \tcode{void}}
+{\small
+      \lstinputlisting{D3131_Containers/src/compressed_graph.hpp}
+}
+
 \begin{itemdescr}
     \pnum\mandates
         \begin{itemize}
-            \item Vertices and edges cannot be appended to an existing partition in an existing graph, but they can be added to a new partition.
+            \item The \tcode{EProj} template argument must be a projection that returns a value of \tcode{copyable_edge<VId, true, EV>} type
+                  given a value of \tcode{erng}. If the value type of \tcode{Erng} is already a \tcode{copyable_edge<VId, true, EV>} type, 
+                  then \tcode{EProj} can be \tcode{identity}.
+            \item The \tcode{VProj} template argument must be a projection that returns a value of \tcode{copyable_vertex<VId, VV>} type,
+                  given a value of \tcode{vrng}. If the value type of \tcode{Vrng} is already a \tcode{copyable_vertex<VId, VV>} type, 
+                  then \tcode{VProj} can be \tcode{identity}.
         \end{itemize}
     \pnum\preconditions
         \begin{itemize}
@@ -66,6 +68,11 @@ public:
                   number of vertices in the graph. The size of this type impacts the size of the \textit{edges}.
             \item The \tcode{EIndex} template argument must be able to store a value of |E|+1, where |E| is the
                   number of edges in the graph. The size of this type impact the size of the \textit{vertices}.
+            \item The \tcode{EProj} and \tcode{VProj} template arguments must be valid projections.
+            \item The \tcode{part_start_ids} range includes the starting vertex id for each partition. If it is empty, then the graph is single-partite
+                    and the number of partitions is 1. If it is not empty, then the number of partitions is the size of the range, where the first element
+                    must be 0 and all remaining elements must be in ascending order, and not exceed the number of vertices in the graph. Any
+                    violation of these conditions results in undefined behavior.
         \end{itemize}
     \pnum\effects
         \begin{itemize}
@@ -85,6 +92,13 @@ public:
 %\pnum\errors
 \end{itemdescr}
 
+\subsection{compressed\_graph specialization when \tcode{GV} is \tcode{void}}
+When \tcode{GV} is void the number of constructors decreases significantly as shown in the following listing.
+It is a strict subset so there is no need to repeat the mandates, preconditions, effects, and remarks.
+
+{\small
+      \lstinputlisting{D3131_Containers/src/compressed_graph_gvoid.hpp}
+}
 
 \section{Using Existing Graph Data Structures}
 Reasonable defaults have been defined for the GCI functions to minimize the amount of work
@@ -166,7 +180,7 @@ When they are defined they must be in the same namespace as the data structures.
     \hline
         \multicolumn{2}{c}{When the graph supports multiple partitions} \\
     \hdashline
-        \tcode{partition_count(g)} & \\
+        \tcode{num_partitions(g)} & \\
         \tcode{partition_id(g,u)} & \\
         \tcode{vertices(g,u,pid)} & \\
     \hline
@@ -175,4 +189,3 @@ When they are defined they must be in the same namespace as the data structures.
     \label{tab:cmn_cpo_overrides}
     \end{center}
 \end{table}
-

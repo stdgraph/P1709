@@ -168,22 +168,21 @@ The type aliases are defined by either a function specialization for the underly
     \tcode{vertex_iterator_t<G>} & \tcode{iterator_t<vertex_range_t<G>>} & \\    
     \tcode{vertex_t<G>} & \tcode{range_value_t<vertex_range_t<G>>} & \\    
     \tcode{vertex_reference_t<G>} & \tcode{range_reference_t<vertex_range_t<G>>} & \\    
-    \tcode{vertex_id_t<G>} & \tcode{decltype(vertex_id(g))} & \\    
-    \tcode{vertex_value_t<G>} & \tcode{decltype(vertex_value(g))} & optional \\
+    \tcode{vertex_id_t<G>} & \tcode{decltype(vertex_id(g,ui))} & \\
+    \tcode{vertex_value_t<G>} & \tcode{decltype(vertex_value(g,u))} & optional \\
 \hline
     \tcode{vertex_edge_range_t<G>} & \tcode{decltype(edges(g,u))} & \\    
     \tcode{vertex_edge_iterator_t<G>} & \tcode{iterator_t<vertex_edge_range_t<G>>} & \\    
     \tcode{edge_t<G>} & \tcode{range_value_t<vertex_edge_range_t<G>>} & \\    
     \tcode{edge_reference_t<G>} & \tcode{range_reference_t<vertex_edge_range_t<G>>} & \\    
-    \tcode{edge_value_t<G>} & \tcode{decltype(edge_value(g))} & optional \\
+    \tcode{edge_value_t<G>} & \tcode{decltype(edge_value(g,uv))} & optional \\
 \hdashline
     \multicolumn{3}{c}{The following is only available when the optional \tcode{source_id(g,uv)} is defined for the edge} \\
 \hdashline
     \tcode{edge_id_t<G>} & \tcode{edge_descriptor<vertex_id_t<G>,true,void,void>} & \\    
 \hline
-    \tcode{partition_id_t<G>} & \tcode{decltype(partition_id(g,u))} & optional \\
+    \tcode{partition_id_t<G>} & \tcode{decltype(partition_id(g,uid))} & optional \\
     \tcode{partition_vertex_range_t<G>} & \tcode{vertices(g,pid)} & optional \\    
-    \tcode{partition_edge_range_t<G>} & \tcode{edges(g,u,pid)} & optional \\    
 \hline
 \end{tabular}}
 \caption{Graph Container Interface Type Aliases}
@@ -220,10 +219,10 @@ to be able to reflect all forms of adjacency graphs including a vector of lists,
     \tcode{graph_value(g)} & \tcode{graph_value_t<G>} & constant & n/a, optional \\
     \tcode{vertices(g)} & \tcode{vertex_range_t<G>} & constant & \tcode{g} if \tcode{random_access_range<G>}, n/a otherwise \\
     \tcode{num_vertices(g)} & \tcode{integral} & constant & \tcode{size(vertices(g))} \\
-    \tcode{num_edges(g)} & \tcode{integral} & constant to |E| & \tcode{n=0; for(u: vertices(g)) n+=distance(edges(g,u)); return n;} \\
-    \tcode{has_edge(g)} & \tcode{bool} & contant to |V| & \tcode{for(u: vertices(g)) if !empty(edges(g,u)) return true; return false;} \\
+    \tcode{num_edges(g)} & \tcode{integral} & |E| & \tcode{n=0; for(u: vertices(g)) n+=distance(edges(g,u)); return n;} \\
+    \tcode{has_edge(g)} & \tcode{bool} & |V| & \tcode{for(u: vertices(g)) if !empty(edges(g,u)) return true; return false;} \\
 \hdashline
-    \tcode{partition_count(g)} & \tcode{vertex_id_t<G>} & constant & 1 \\
+    \tcode{num_partitions(g)} & \tcode{integral} & constant & 1 \\
     \tcode{vertices(g,pid)} & \tcode{partition_vertex_range_t<G>} & constant & \tcode{vertices(g)} \\
     \tcode{num_vertices(g,pid)} & \tcode{integral} & constant & \tcode{size(vertices(g))}  \\
 \hline
@@ -232,7 +231,11 @@ to be able to reflect all forms of adjacency graphs including a vector of lists,
 \label{tab:graph_func}
 \end{center}
 \end{table}
-The complexity of \tcode{num_edges(g)} and \tcode{has_edge(g)} is dependent on the underlying graph container's capabilities.
+The complexity shown above for \tcode{num_edges(g)} and \tcode{has_edge(g)} is for the default implementation. 
+Specific graph implementations may have better characteristics.
+
+The complexity shown above for \tcode{vertices(g,pid)} and \tcode{num_vertices(g,pid)} is for the default
+implementation. Specific graph implementations may have different characteristics.
 
 \begin{table}[h!]
 \begin{center}
@@ -252,10 +255,7 @@ The complexity of \tcode{num_edges(g)} and \tcode{has_edge(g)} is dependent on t
     \tcode{edges(g,u)} & \tcode{vertex_edge_range_t<G>} & constant & \tcode{u} if \tcode{forward range<vertex_t<G>>}, n/a otherwise \\
     \tcode{edges(g,uid)} & \tcode{vertex_edge_range_t<G>} & constant & \tcode{edges(g,*find_vertex(g,uid))} \\
 \hdashline
-    \tcode{partition_id(g,u)} & \tcode{partition_id_t<G>} & constant & 0 \\
-    \tcode{partition_id(g,uid)} & \tcode{partition_id_t<G>} & constant & \tcode{partition_id(g,*find_vertex(g,uid))} \\
-    \tcode{edges(g,u,pid)} & \tcode{partition_edge_range_t<G>} & linear & \tcode{edges(g,u)} \\
-    \tcode{edges(g,uid,pid)} & \tcode{partition_edge_range_t<G>} & linear & \tcode{edges(g,uid)} \\
+    \tcode{partition_id(g,uid)} & \tcode{partition_id_t<G>} & constant & 0 \\
 \hline
 \end{tabular}}
 \caption{Vertex Functions}
@@ -324,11 +324,11 @@ expose the vertices as a range.
 
 \section{Unipartite, Bipartite and Multipartite Graph Representation}
 
-\tcode{partition_count(g)} returns the number of partitions, or partiteness, of the graph. It has a range of 1 to n, where 1 identifies 
+\tcode{num_partitions(g)} returns the number of partitions, or partiteness, of the graph. It has a range of 1 to n, where 1 identifies 
 a unipartite graph, 2 is a bipartite graph, and a value of 2 or more can be considered a multipartite graph. 
 
 If a graph data structure doesn't support partitions then it is unipartite with one partition and partite functions will reflect that. 
-For instance, \tcode{partition_count(g)} returns a value of 1, and \tcode{vertices(g,0)} (vertices in the first partition) will return a range that includes all vertices in the graph.
+For instance, \tcode{num_partitions(g)} returns a value of 1, and \tcode{vertices(g,0)} (vertices in the first partition) will return a range that includes all vertices in the graph.
 
 A partition identifies a type of a vertex, where the vertex value types are assumed to be uniform in each partition. This creates a dilemma because 
 the existing \tcode{vertex_value(g,u)} returns a single type based template parameter for the vertex value type. Supporting 
@@ -347,55 +347,6 @@ determine how to get the appropriate value.
 
 \tcode{edges(g,uid,pid)} and \tcode{edges(g,ui,pid)} filter the edges where the target is in the partition \tcode{pid} passed.
 This isn't needed for bipartite graphs.
-
-\section{Loading Graph Data}
-
-The \tcode{load} functions are used to load vertex and edge data into a graph. They may throw a \tcode{graph_error} exception.
-
-All graph data structures need to implement \tcode{load_graph}, \tcode{load_vertices} and \tcode{load_edges}. 
-Whether \tcode{load_vertices} or \tcode{load_edges} can be called multiple times, or after \tcode{load_graph} is called, is dependent on the underlying graph data structure.
-\tcode{load_partition} only needs to be implemented if a graph supports partitions.
-
-Projections are used to convert values in the input range to the expected copyable type. In the following \tcode{load_vertices} 
-prototype, \tcode{vproj(ranges::range_value_t<VRng>&)} $\rightarrow$ \tcode{vertex_descriptor<vertex_id_t<G>, vertex_value_t<G>>}.
-If there is no vertex value stored in the graph then \tcode{vertex_value_t<G>} will be \tcode{void} and the resulting 
-\tcode{vertex_descriptor} will have a single id member. If \tcode{vproj(ranges::range_value_t<VRng>&)} is the same as
-\tcode{vertex_descriptor<vertex_id_t<G>, vertex_value_t<G>>} then \tcode{VProj = identity} can be used.
-
-\begin{lstlisting}
-template <adjacency_list G, ranges::forward_range VRng, class VProj = identity>
-requires copyable_vertex<invoke_result<VProj, ranges::range_value_t<VRng>>,
-                         vertex_id_t<G>, vertex_value_t<G>>
-constexpr void load_vertices(G&, const VRng& vrng, VProj vproj);
-\end{lstlisting}
-
-The same pattern is applied using \tcode{ERng} and \tcode{EProj} for edges.
-
-For graphs with vertex values, \tcode{load_vertices} should be called before \tcode{load_edges}.
-
-Whether \tcode{load_vertices} or \tcode{load_edges} can be called multiple times is graph-dependent.
-
-For graphs with partititions, \tcode{load_partition} must be called to load vertices for each 
-partition \tcode{pid}. \tcode{pid} values must be contiguous and their vertices should be loaded
-contiguously. \tcode{empty(vrng)} may be empty if there are no vertices in the partition. 
-
-\begin{table}[h!]
-\begin{center}
-\resizebox{\textwidth}{!}
-{\begin{tabular}{l l p{1.5cm} L{7.0cm}}
-\hline
-    \textbf{Function} & \textbf{Return Type} & \textbf{Complexity} & \textbf{Default Implementation} \\
-\hline
-    \tcode{load_graph(g, erng, vrng, eproj=identity(), vproj=identity())} & void & V + E & n/a \\
-    \tcode{load_vertices(g, vrng, vproj=identity())} & void & V & n/a \\
-    \tcode{load_partition(g, pid, vrng, vproj=identity())} & void & V(p) & \tcode{load_vertices} is called if partitions are not supported; there will be a single partition. \\
-    \tcode{load_edges(g, erng, eproj=identity(), vertex_count=0)} & void & E & n/a \\
-\hline
-\end{tabular}}
-\caption{Graph Load Functions}
-\label{tab:load_func}
-\end{center}
-\end{table}
 
 \section{Edgelists}
 An edgelist is a range of \tcode{edge_descriptor} values, used by some algorithms. Examples include the \tcode{edgelist} adjacency 
