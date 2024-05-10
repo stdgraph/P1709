@@ -14,10 +14,6 @@
             Container Implementation paper.
       \item Identify all \tcode{concept} definitions as "For exposition only" until we have consensus of whether they 
             belong in the standard or not.
-      \item Revised partition functions after implementation to reflect usage, including: renaming \tcode{partition_count(g)} 
-            to \tcode{num_partitions(g)} to match other names used, changed \tcode{partition_id(g,u)} to \tcode{partition_id(g,uid)}
-            because vertices may not exist when the function is called, and removing \tcode{partition_vertex_edge_range_t} and 
-            \tcode{edges(g,u,pid)} because they don't add much value and may limit future type-based designs.
 \end{itemize}
 
 \subsection*{\paperno r1}
@@ -27,6 +23,10 @@
             vertex and edge functions because it was getting too big.
       \item Removed the Load Graph Data section with it's load functions from \href{https://www.wg21.link/P3130}{P3130 Graph Container Interface}
             because it unnecessarily complicates the interface with constructors for graph data structures. To complement this, constructors have 
-            been added for \tcode{compressed_graph} in \href{https://www.wg21.link/P3131}{P3131 Graph Containers}. An optional \tcode{part_start_ids} 
+            been added for \tcode{compressed_graph} in \href{https://www.wg21.link/P3131}{P3131 Graph Containers}. An optional \tcode{partition_start_ids} 
             parameter has also been added to constructors to identify the first vertex id of each partition for multi-partite graphs.
+      \item Revised partition functions after implementation to reflect usage, including: renaming \tcode{partition_count(g)} 
+            to \tcode{num_partitions(g)} to match other names used, changed \tcode{partition_id(g,u)} to \tcode{partition_id(g,uid)}
+            because vertices may not exist when the function is called, and removing \tcode{edges(g,u,pid)} because it can easily be 
+            implemented as a filter using ranges functionality when target vertices can be in different partitions.
 \end{itemize}
