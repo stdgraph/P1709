@@ -223,22 +223,21 @@ by the paper they are associated with.
             \begin{enumerate}
                   \item Complete the paper for additional utility functions including degree, sort, relabel, transpose and join.
             \end{enumerate}
+      \item Build on \tcode{mdspan} and try to standardize (or at least understand) what might reasonably be called an unstructured span
+            \begin{itemize}
+                  \item The statement assumes vertices are in a random-access range and prevents the use of bi-directional ranges like std::map, which 
+                        could be used for sparse vertex ids. The existing design should be able to adept easily to \tcode{mdspan.}
+                  \item I don't think I expressed myself very well here. I completely take your point about not assuming that vertices are in a random-access range. 
+                        But what I'm trying to get at is as follows. 
+                        
+                        Suppose someone standardizes unstructured span, as a natural extension of mdspan. What could we 
+                        learn from its api that may be relevant for graphs? In both cases, we will presumably have a method which allows iteration over the ith partition 
+                        (or edges of a given node, for graphs). Consistency of the stl may mean we want these to have the same look/feel.
+            \end{itemize}
 \end{itemize}
 
 \subsection{Open Reported Issues}
 \begin{itemize}
-      \item General
-            \begin{enumerate}
-                  \item Build on \tcode{mdspan} and try to standardize (or at least understand) what might reasonably be called an unstructured span
-                        \begin{itemize}
-                              \item The statement assumes vertices are in a random-access range and prevents the use of bi-directional ranges like std::map, which 
-                                    could be used for sparse vertex ids. The existing design should be able to adept easily to \tcode{mdspan,} so there's no reason to pursue this.
-                              \item I don't think I expressed myself very well here. I completely take your point about not assuming that vertices are in a random-access range. 
-                                    But what I'm trying to get at is as follows. Suppose someone standardizes unstructured span, as a natural extension of mdspan. What could we 
-                                    learn from its api that may be relevant for graphs? In both cases, we will presumably have a method which allows iteration over the ith partition 
-                                    (or edges of a given node, for graphs). Consistency of the stl may mean we want these to have the same look/feel.
-                        \end{itemize}
-            \end{enumerate}
       \item \href{https://www.wg21.link/P3126}{P3126 Overview}
             \begin{enumerate}
                   \item GraphBLAS is not included as part of the prior art.
@@ -260,10 +259,11 @@ by the paper they are associated with.
                                     (e.g. self loops, multi-edges) and the sort of trade-offs you get by allowing/not allowing them. Put another way, I think the 
                                     paper would be easier to follow if there's a technical narrative that reveals the way the authors are thinking about this huge area. 
 
-                                    I like the style of the motivation in R5; if this could be greatly extended to include the mathematical background that Andrew is 
+                                    I like the style of the motivation in P1709R5; if this could be greatly extended to include the mathematical background that Andrew is 
                                     working on, this would be really helpful. And beyond the mathematical background, as discussion of the computational tradeoffs for 
                                     both graph implementations and the associated algorithms, given certain choice, would be great to have.
-                              \item We plan on extending the paper to include a more rigorous mathematical description.
+                              \item This paper includes much of the content from P1709R5 for motivation. Andrew will be extending the paper to include a more rigorous 
+                                    mathematical description.
                         \end{itemize}
                   \item We need to add a mathematical perspective to the paper.
                         \begin{itemize}

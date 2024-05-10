@@ -45,6 +45,8 @@ are only accessible through the types and functions in the Graph Container Inter
 $P$ is the number of partitions and is exepected to be small, e.g. $P = 2$ for bipartite and $P \leq 10$ for typical 
 multi-partite graphs.
 
+\phil{Add \tcode{operator[](vertex_id_t<G>)}?}
+
 \subsection{compressed\_graph when \tcode{GV} is not \tcode{void}} \label{compressed_full}
 {\small
       \lstinputlisting{D3131_Containers/src/compressed_graph.hpp}
@@ -84,12 +86,21 @@ When \tcode{GV} is void the number of constructors decreases significantly as sh
             \item The \tcode{EProj} and \tcode{VProj} template arguments must be valid projections.
             \item The \tcode{partition_start_ids} range includes the starting vertex id for each partition. If it is empty, then the graph is single-partite
                     and the number of partitions is 1. If it is not empty, then the number of partitions is the size of the range, where the first element
-                    must be 0 and all remaining elements must be unique and in ascending order. A vertex id in the range must not exceed the number of 
+                    must be 0 and all elements are in ascending order. A vertex id in the range must not exceed the number of 
                     vertices in the graph. Any violation of these conditions results in undefined behavior.
         \end{itemize}
+\phil{If duplicate partition\_start\_ids exist they create an empty partition with no vertices.}
+
     \pnum\effects
         \begin{itemize}
             \item When \tcode{EV}, \tcode{VV}, or \tcode{GV} are \tcode{void}, no extra memory overhead is incurred for that type.
+         \end{itemize}
+    %\pnum\result
+    %\pnum\returns \lstinline{void} \\
+    %\pnum\throws \tcode{out_of_range} is thrown when \tcode{source} is not in the range \tcode{0 <= source < num_vertices(graph)}.  \\
+    %\pnum\complexity \\
+    \pnum\remarks 
+        \begin{itemize}
             \item  The \tcode{VId} and \tcode{EIndex} template arguments impact the capacity, internal storage requirements and performance.
                    The default of \tcode{uint32_t} is sufficient for most graphs and provides a good balance between storage and performance.
 
@@ -98,14 +109,7 @@ When \tcode{GV} is void the number of constructors decreases significantly as sh
                    where $|V|$ is the number of vertices and $|E|$ is the number of edges in the graph. $sizeof$ \tcode{void} is 0
                    when considering $sizeof$ for \tcode{VV}, \tcode{EV}, and \tcode{GV}. Alignment and overhead for internal vectors are 
                    not included in this calculation.
-         \end{itemize}
-    %\pnum\result
-    %\pnum\returns \lstinline{void} \\
-    %\pnum\throws \tcode{out_of_range} is thrown when \tcode{source} is not in the range \tcode{0 <= source < num_vertices(graph)}.  \\
-    %\pnum\complexity \\
-    \pnum\remarks 
-        \begin{itemize}
-            \item The default allocator type of \tcode{allocator<VId>} is rebound for different internal containers.
+            \item The allocator passed to constructors is rebound for different types used by different internal containers.
         \end{itemize}
 %\pnum\errors
 \end{itemdescr}
