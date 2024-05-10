@@ -42,6 +42,8 @@ Degree of a vertex in graph theory refers to the number of edges that are incide
       %\pnum\complexity $\mathcal{O}(|V|)$ where $V$ is the number of vertices in the graph.
 \end{itemdescr}
 
+\phil{We already have a \tcode{degree(g,u)} CPO. It might be tricky if we use the same name for the operator.}
+
 \section{Sort}
 Sort operator comes in many different variants, allows to sort the input graph based on the source vertex, target vertex, the degree of the vertex or by the weight on the edges. Also relevant, \lstinline{topological_sort}, which returns a nonunique permutation of the vertices of a directed acyclic graph such that an edge from u to v implies that u appears before v in the topological sort order.
 
@@ -278,6 +280,13 @@ Combining of two graphs based on common vertices. The join operation (or Sparse 
       \lstinputlisting[firstline=1,lastline=4]{D9903/src/join.hpp}
 }
 \phil{Should \tcode{a} and \tcode{b} be \tcode{const&}?}
+
+\phil{We need functions to return the mapping values for each graph a and b. The map values must be convertible between each other. What other requirements are needed? (e.g. the mapping values must be comparable, hashable, etc.)}
+
+\phil{Why isn't a new graph created and returned? Why pass it as a parameter (c)?}
+
+\phil{Should vertex value(s) be copied to c? Edge values?}
+
 \begin{itemdescr}
       %\pnum\mandates
       %\pnum\preconditions
