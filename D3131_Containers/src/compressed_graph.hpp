@@ -31,7 +31,7 @@ public: // Construction/Destruction/Assignment
            convertible_to<ranges::range_value_t<PartRng>, VId>
   constexpr compressed_graph(const ERng&    erng,
                              EProj          eprojection,
-                             const PartRng& part_start_ids = vector<VId>(),
+                             const PartRng& partition_start_ids = vector<VId>(),
                              const Alloc&   alloc          = Alloc());
 
   template <ranges::forward_range ERng, ranges::forward_range PartRng, class EProj = identity>
@@ -40,7 +40,7 @@ public: // Construction/Destruction/Assignment
   constexpr compressed_graph(const graph_value_type& value,
                              const ERng&             erng,
                              EProj                   eprojection,
-                             const PartRng&          part_start_ids = vector<VId>(),
+                             const PartRng&          partition_start_ids = vector<VId>(),
                              const Alloc&            alloc          = Alloc());
 
   template <ranges::forward_range ERng, ranges::forward_range PartRng, class EProj = identity>
@@ -49,7 +49,7 @@ public: // Construction/Destruction/Assignment
   constexpr compressed_graph(graph_value_type&& value,
                              const ERng&        erng,
                              EProj              eprojection,
-                             const PartRng&     part_start_ids = vector<VId>(),
+                             const PartRng&     partition_start_ids = vector<VId>(),
                              const Alloc&       alloc          = Alloc());
 
   // compressed\_graph(erng, vrng, eprojection, vprojection, alloc)
@@ -68,7 +68,7 @@ public: // Construction/Destruction/Assignment
                              const VRng&    vrng,
                              EProj          eprojection    = {},
                              VProj          vprojection    = {},
-                             const PartRng& part_start_ids = vector<VId>(),
+                             const PartRng& partition_start_ids = vector<VId>(),
                              const Alloc&   alloc          = Alloc());
 
   template <ranges::forward_range ERng,
@@ -84,7 +84,7 @@ public: // Construction/Destruction/Assignment
                              const VRng&             vrng,
                              EProj                   eprojection    = {},
                              VProj                   vprojection    = {},
-                             const PartRng&          part_start_ids = vector<VId>(),
+                             const PartRng&          partition_start_ids = vector<VId>(),
                              const Alloc&            alloc          = Alloc());
 
   template <ranges::forward_range ERng,
@@ -100,7 +100,7 @@ public: // Construction/Destruction/Assignment
                              const VRng&        vrng,
                              EProj              eprojection    = {},
                              VProj              vprojection    = {},
-                             const PartRng&     part_start_ids = vector<VId>(),
+                             const PartRng&     partition_start_ids = vector<VId>(),
                              const Alloc&       alloc          = Alloc());
 
   constexpr compressed_graph(const initializer_list<copyable_edge_t<VId, EV>>& ilist, 

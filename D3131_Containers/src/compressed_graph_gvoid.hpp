@@ -31,7 +31,7 @@ public: // Construction/Destruction
                              const VRng&    vrng,
                              EProj          eprojection    = {},
                              VProj          vprojection    = {},
-                             const PartRng& part_start_ids = vector<VId>(),
+                             const PartRng& partition_start_ids = vector<VId>(),
                              const Alloc&   alloc          = Alloc());
 
   // initializer list using edge\_descriptor<VId,true,void,EV>

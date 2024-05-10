@@ -10,20 +10,22 @@ but values on vertices and edges can be modified.
 
 There are a number of features added beyond the typical CSR implmentation:
 \begin{itemize}
-    \item   \textbf{User-defined values} Values can be associated with edge, vertices and and the graph itself by defining the 
-            \tcode{EV}, \tcode{VV}, and \tcode{GV} template arguments respectively. If the type is void, no memory overhead is 
-            incurred.
-    \item   \textbf{Index type sizes} The size of the integral indexes into the internal row and column structures can be controlled
-            by the \tcode{VId} and \tcode{EIndex} template arguments respectively to give a balance between storage and performance.
+    \item   \textbf{User-defined values} The typical CSR implementation stores values on edges (columns) by defining the \tcode{EV}
+            template paraemter. \tcode{compressed_graph} extends that to also allow values on vertices (rows) and the graph itself 
+            by defining the \tcode{VV} and \tcode{GV} template arguments respectively. If a type is void, no memory overhead is incurred.
+    \item   \textbf{Index type sizes} The size of the integral indexes into the internal vertex (row) and edge (column) structures can be 
+            controlled by the \tcode{VId} and \tcode{EIndex} template arguments respectively to give a balance between capacity, memory 
+            usage and performance.
     \item   \textbf{Multi-partite graphs} The vertices can optionally be partitioned into multiple partitions by passing the 
-            starting vertex id of each partition in the \tcode{part_start_ids} parameter in the constructors.
+            starting vertex id of each partition in the \tcode{partition_start_ids} argument in the constructors. If no partitions are
+            specified, the graph is single-partite.
 \end{itemize}
 
-The following listings shows the prototype for the \tcode{compressed_graph} when the graph value type \tcode{GV} is non-\tcode{void} and a 
-class template specialization when it is \tcode{void}.
+The listings in the following sections show the prototypes for the \tcode{compressed_graph} when the graph value type \tcode{GV} is 
+non-\tcode{void} (section \ref{compressed_full}) and a class template specialization when it is \tcode{void} (section \ref{compressed_specialization}).
 
-Only the constuctors shown for \tcode{compressed_graph} are public. All other types or functions are only accessible through the types 
-and functions in the Graph Container Interface.
+Only the constuctors and destructor shown for \tcode{compressed_graph} are public. All other types and functions related to the graph
+are only accessible through the types and functions in the Graph Container Interface.
 
 \begin{table}[h]
     \setcellgapes{3pt}
@@ -40,23 +42,34 @@ and functions in the Graph Container Interface.
     %\caption{Jaccard Coefficient Summary}
     \label{tab:compressed_graph_summary}
 \end{table}
-Note: $P$ is the number of partitions. It has a minimum of 1 for a unipartite graph, and is exepected to be small for all
-reasonable cases.
+$P$ is the number of partitions and is exepected to be small, e.g. $P = 2$ for bipartite and $P \leq 10$ for typical 
+multi-partite graphs.
 
-\phil{tilde in destructor is giving problems in latex}
-
-\phil{What is allowed/required for EV, VV, GV? Default constructible, ...? Create concept, or describe in mandates or preconditions. Use tuple value as starting point.}
-
-\subsection{compressed\_graph when \tcode{GV} is not \tcode{void}}
+\subsection{compressed\_graph when \tcode{GV} is not \tcode{void}} \label{compressed_full}
 {\small
       \lstinputlisting{D3131_Containers/src/compressed_graph.hpp}
 }
 
+\subsection{compressed\_graph specialization when \tcode{GV} is \tcode{void}} \label{compressed_specialization}
+When \tcode{GV} is void the number of constructors decreases significantly as shown in the following listing.
+
+{\small
+      \lstinputlisting{D3131_Containers/src/compressed_graph_gvoid.hpp}
+}
+
+\subsection{compressed\_graph description}
+
+\phil{Is it possible to support movable EV and VV types?}
+
 \begin{itemdescr}
     \pnum\mandates
         \begin{itemize}
+            \item The \tcode{EV} template argument for an edge value must be a copyable type or \tcode{void.}
+            \item The \tcode{VV} template argument for a vertex value must be a copyable type or \tcode{void.}
+            \item When the \tcode{GV} template argument for a graph value is not \tcode{void} it can be movable or copyable. It must have a 
+                  default constructor if it is not passed in a \tcode{compressed_graph} constructor.
             \item The \tcode{EProj} template argument must be a projection that returns a value of \tcode{copyable_edge<VId, true, EV>} type
-                  given a value of \tcode{erng}. If the value type of \tcode{Erng} is already a \tcode{copyable_edge<VId, true, EV>} type, 
+                  given a value of \tcode{erng}. If the value type of \tcode{ERng} is already a \tcode{copyable_edge<VId, true, EV>} type, 
                   then \tcode{EProj} can be \tcode{identity}.
             \item The \tcode{VProj} template argument must be a projection that returns a value of \tcode{copyable_vertex<VId, VV>} type,
                   given a value of \tcode{vrng}. If the value type of \tcode{Vrng} is already a \tcode{copyable_vertex<VId, VV>} type, 
@@ -69,17 +82,23 @@ reasonable cases.
             \item The \tcode{EIndex} template argument must be able to store a value of |E|+1, where |E| is the
                   number of edges in the graph. The size of this type impact the size of the \textit{vertices}.
             \item The \tcode{EProj} and \tcode{VProj} template arguments must be valid projections.
-            \item The \tcode{part_start_ids} range includes the starting vertex id for each partition. If it is empty, then the graph is single-partite
+            \item The \tcode{partition_start_ids} range includes the starting vertex id for each partition. If it is empty, then the graph is single-partite
                     and the number of partitions is 1. If it is not empty, then the number of partitions is the size of the range, where the first element
-                    must be 0 and all remaining elements must be in ascending order, and not exceed the number of vertices in the graph. Any
-                    violation of these conditions results in undefined behavior.
+                    must be 0 and all remaining elements must be unique and in ascending order. A vertex id in the range must not exceed the number of 
+                    vertices in the graph. Any violation of these conditions results in undefined behavior.
         \end{itemize}
     \pnum\effects
         \begin{itemize}
-            \item When \tcode{EV}, \tcode{VV}, or \tcode{GV} are \tcode{void}, no extra memory overhead is incurred for it.
-            \item The \tcode{VId} and \tcode{EIndex} template arguments impact the internal storage requirements and performance.
-                  The default of \tcode{uint32_t} is sufficient for most graphs and provides a good balance between storage and performance.
-        \end{itemize}
+            \item When \tcode{EV}, \tcode{VV}, or \tcode{GV} are \tcode{void}, no extra memory overhead is incurred for that type.
+            \item  The \tcode{VId} and \tcode{EIndex} template arguments impact the capacity, internal storage requirements and performance.
+                   The default of \tcode{uint32_t} is sufficient for most graphs and provides a good balance between storage and performance.
+
+                   The memory requirements are roughly, 
+                        \[|V| \times (sizeof(EIndex)+sizeof(VV)) + |E| \times (sizeof(VId) + sizeof(EV)) + sizeof(GV)\]
+                   where $|V|$ is the number of vertices and $|E|$ is the number of edges in the graph. $sizeof$ \tcode{void} is 0
+                   when considering $sizeof$ for \tcode{VV}, \tcode{EV}, and \tcode{GV}. Alignment and overhead for internal vectors are 
+                   not included in this calculation.
+         \end{itemize}
     %\pnum\result
     %\pnum\returns \lstinline{void} \\
     %\pnum\throws \tcode{out_of_range} is thrown when \tcode{source} is not in the range \tcode{0 <= source < num_vertices(graph)}.  \\
@@ -87,18 +106,9 @@ reasonable cases.
     \pnum\remarks 
         \begin{itemize}
             \item The default allocator type of \tcode{allocator<VId>} is rebound for different internal containers.
-            \item The complexity for \tcode{num_edges(g)} and \tcode{has_edge(g)} is $O(1)$.
         \end{itemize}
 %\pnum\errors
 \end{itemdescr}
-
-\subsection{compressed\_graph specialization when \tcode{GV} is \tcode{void}}
-When \tcode{GV} is void the number of constructors decreases significantly as shown in the following listing.
-It is a strict subset so there is no need to repeat the mandates, preconditions, effects, and remarks.
-
-{\small
-      \lstinputlisting{D3131_Containers/src/compressed_graph_gvoid.hpp}
-}
 
 \section{Using Existing Graph Data Structures}
 Reasonable defaults have been defined for the GCI functions to minimize the amount of work
