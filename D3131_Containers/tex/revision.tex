@@ -14,10 +14,9 @@
 
 \subsection*{\paperno r1}
 \begin{itemize}
-      \item Added complexity for \tcode{num_edges(g)} and \tcode{has_edge(g)} functions in \tcode{compressed_graph}.
-      \item Removed the Load Graph Data section with it's load functions from \href{https://www.wg21.link/P3130}{P3130 Graph Container Interface}
-            because it unnecessarily complicates the interface with constructors for graph data structures. To complement this, constructors have 
-            been added for \tcode{compressed_graph} in \href{https://www.wg21.link/P3131}{P3131 Graph Containers}. An optional \tcode{partition_start_ids} 
-            parameter has also been added to constructors to identify the first vertex id of each partition for multi-partite graphs.
       \item Added feature summary of \tcode{compressed_graph} beyond the typical CSR implementation.
+      \item Added complexity for \tcode{num_edges(g)} and \tcode{has_edge(g)} functions in \tcode{compressed_graph}.
+      \item Add constructors to \tcode{compressed_graph} to complement the removal of the load functions from 
+            \href{https://www.wg21.link/P3130r1}{P3130r1 Graph Container Interface}. An optional \tcode{partition_start_ids} 
+            parameter is also included.
 \end{itemize}
