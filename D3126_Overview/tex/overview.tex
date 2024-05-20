@@ -70,7 +70,6 @@ these to assure the existing design will support them.
             including parallel algorithms.
       \item Support for sparse vertex ids, implying the use of bi-directional containers such as \tcode{map} and \tcode{unordered_map} for vertices.
       \item Bi-directional graphs, where vertices have incoming and outgoing edges.
-      \item Non-integral vertex ids.
       \item Constexpr graphs, where vertices and edges are stored in \tcode{std::array} or other constexpr-friendly container.
 \end{itemize}
 
@@ -151,14 +150,14 @@ over a graph data structure---``pointer chasing'' to put it perhaps somewhat pej
 An alternative formulation of graph algorithms leverages the close inherent relationship between
 graphs and sparse matrices to formulate graph algorithms as sequences of higher-level operations:
 sparse matrix multiplication (and other similar operations) over a semiring~\cite{kepner-gilbert}.
-%
+
 The GraphBLAS is an ad-hoc
 standardization effort to develop a set of kernel operations for supporting classical
 graph algorithms.  As an API specification, the GraphBLAS is not a a graph library per se, 
 but rather is intended to be
 used to implement graph algorithms (much as the linear algebra BLAS are used  to implement
 linear algebra libraries such as LAPACK).
-%
+
 A C language binding that specifically implements the API is available as part of SuiteSparse.
 However, the resulting library relies on its own (opaque) data structures for representing graphs
 and would not be inter-operable with modern C++ approaches to library and application design.
@@ -264,13 +263,6 @@ by the paper they are associated with.
 
 \subsection{Open Reported Issues}
 \begin{itemize}
-      \item \href{https://www.wg21.link/P3126}{P3126 Overview}
-            \begin{enumerate}
-                  \item GraphBLAS is not included as part of the prior art.
-                        \begin{itemize}
-                              \item We will add a reference to GraphBLAS.
-                        \end{itemize}
-            \end{enumerate}
       \item \href{https://www.wg21.link/P3127}{P3127 Background and Terminology}
             \begin{enumerate}
                   \item P1709 has lots of details which I think to be irrelevant. (P1709 is the original proposal that was split into multiple papers)
@@ -324,9 +316,9 @@ by the paper they are associated with.
                         \begin{itemize}
                               \item We agree having a more general and flexible BFS and DFS would be valuable. We are investigating the merits 
                                     of implementations based on coroutines and boost::graph-like visitors.
-                              \item The purpose of the standard library is to adopt standard practice. If we propose the use of coroutines, it is different 
-                                    from the use of visitors by boost::graph (written around 2000) which is the closest to a defacto standard available. 
-                                    It will be helpful to justify using something different ahead of time to smooth the process.
+                              \item If we propose the use of coroutines we should explain our choice when compared to boost::graph's visitors, 
+                                    which are the closest to a defacto standard available. The purpose of the standard library is to adopt standard 
+                                    practice, and it would help smooth the process to justify our decision.
                         \end{itemize}
             \end{enumerate}
       \item \textbf{Pyyyy: Comparison to boost::graph} (paper not yet submitted)
@@ -342,14 +334,20 @@ by the paper they are associated with.
 
 \subsection{Resolved Issues}
 \begin{itemize}
+      \item \href{https://www.wg21.link/P3126}{P3126 Overview}
+            \begin{enumerate}
+                  \item GraphBLAS is not included as part of the prior art.
+                        \begin{itemize}
+                              \item Added in P3126r1.
+                        \end{itemize}
+            \end{enumerate}
       \item \href{https://www.wg21.link/P3130}{P3130 Graph Container Interface}
             \begin{enumerate}
                   \item I'm not convinced by the load API.
                         \begin{itemize}
                               \item We agree because the use of both load functions and constructors creates ambiguity and complexity when both are defined.
-                                    Even though constructors weren't in the paper it wasn't clear wheter they should be included or not.
+                                    Even though constructors weren't in the paper it wasn't clear whether they should be included or not.
                                     We have removed the load functions and added constructors for \tcode{compressed_graph} to simplify the interface.
-                                    An optional \tcode{partition_start_id} range has also been added to the constructors to support partitions.
                         \end{itemize}
             \end{enumerate}
 \end{itemize}
