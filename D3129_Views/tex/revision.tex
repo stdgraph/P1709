@@ -6,3 +6,11 @@
       \item Split from P1709r5. Added \textit{Getting Started} section.
       \item Removed allocator parameters on views, for consistency with existing views in the standard. 
 \end{itemize}
+
+\subsection*{\paperno r1}
+\begin{itemize}
+      \item Add the edgelist as an abstract data structure as a peer to the adjacency list. 
+            The range returned by \tcode{edgelist_view} adheres to the \tcode{basic_sourced_index_edgelist} concept,
+            and to the \tcode{has_edge_value} concept if a \tcode{evf(uv)} function is passed. The same applies to
+            all \textit{sourced} versions of the BFS, DFS and Topological Sort views.
+\end{itemize}

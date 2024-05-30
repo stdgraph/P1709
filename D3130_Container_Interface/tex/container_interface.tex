@@ -3,17 +3,34 @@
 %% \chapter{Graph Container Interface}
 \section{Graph Container Interface}
 
-The Graph Container Interface defines the primitive concepts, traits, types and functions used to define and access an adacency graph, no matter its internal design and organization. Thus, it is designed to reflect all forms of adjacency graphs including a vector of lists, CSR-based graph and adjacency matrix, whether they are in the standard or external to the standard.
+The Graph Container Interface (GCI) defines the primitive concepts, traits, types and functions used to define and access an adacency lists (aka graph)
+and edgelists, no matter their internal design and organization. For instance, an adjacency list can be a vector of lists from standard containers, 
+CSR-based graph and adjacency matrix. Likewise, an edgelist can be a range of edges from a standard container or externally defined edge types, 
+provided they have a source\_id, target\_id and optional edge\_value. 
 
-All algorithms in this proposal require that vertices are stored in random access containers and that \tcode{vertex_id_t<G>} is integral, and it is assumed that all future algorithm proposals will also have the same requirements. 
+If there is a desire to use the algorithms against externally defined data structures, the GCI exposes is functions as customization points
+to be overridden as needed. Likewise, externally defined algorithms can be used to operate on other data structures that meet the GCI requirements.
+This achieves the same goals as the STL, where algorithms can be used on any container that meets the requirements of the algorithm.
 
-The Graph Container Interface is designed to support a wider scope of graph containers than required by the views and algorithms in this proposal. This enables for future growth of the graph data model (e.g. incoming edges on a vertex), or as a framework for graph implementations outside of the standard. For instance, existing implementations may have requirements that cause them to define features with looser constraints, such as sparse vertex\_ids, non-integral vertex\_ids, or storing vertices in associative bi-directional containers (e.g. std::map or std::unordered\_map). Such features require specialized implementations for views and algorithms. The performance for such algorithms will be sub-optimal, but is preferrable to run them on the existing container rather than loading the graph into a high-performance graph container and then running the algorithm on it, where the loading time can far outweigh the time to run the sub-optimal algorithm. To achieve this, care has been taken to make sure that the use of concepts chosen is appropriate for algorithm, view and container.
+The GCI is designed to support a wider scope of graph containers than required by the views and algorithms in this 
+proposal. This enables for future growth of the graph data model (e.g. incoming edges on a vertex), or as a framework for graph implementations 
+outside of the standard. For instance, existing implementations may have requirements that cause them to define features with looser constraints, 
+such as sparse vertex\_ids, non-integral vertex\_ids, or storing vertices in associative bi-directional containers (e.g. std::map or std::unordered\_map). 
 
+Such features require specialized implementations for views and algorithms. The performance for such algorithms will be sub-optimal, but may be
+preferrable to run them on the existing container rather than loading the graph into a high-performance graph container and then running the 
+algorithm on it, where the loading time can far outweigh the time to run the sub-optimal algorithm. To achieve this, care has been taken to 
+make sure that the use of concepts chosen is appropriate for algorithm, view and container.
 
-\section{Core Concepts}
+All algorithms in this and related proposals require that adjacency list vertices are stored in random access containers and that \tcode{vertex_id_t<G>} 
+is integral. Future designs may relax these requirements, but for now they are required.
 
-This section describes the core concepts to describe the adjacency lists used for graphs in the Graph Library. There are a 
-number of qualifiers concept names that are are used.
+\section{Adjacency List Interface}
+
+\subsection{Concepts}
+
+This section describes the concepts to describe the adjacency lists used for graphs in the Graph Library. There are a 
+number of qualifiers that are used in concept names.
 \begin{itemize}
     \item \textbf{basic} where there is only a vertex id but no vertex reference.
     \item \textbf{index} where the vertex range is random-access and the vertex id is integral.
@@ -23,7 +40,7 @@ number of qualifiers concept names that are are used.
 \emph{While we belive the use of concepts is appropriate for graphs as a range-of-ranges, we are marking them as "For exposition only" 
 until we have consensus of whether they belong in the standard or not.}
 
-\subsection{Edge Concepts}
+\subsubsection{Edge Concepts}
 The types of edges that can occur in a graph are described with the edges concepts. The \tcode{E} edge template parameter allows
 for different types of edges, such as incoming and outgoing edge types.
 {\small
@@ -39,14 +56,14 @@ There are two edge range concepts.
      \lstinputlisting{D3130_Container_Interface/src/concepts_target_edge_range.hpp}
 }
 
-\subsection{Vertex Concepts}
+\subsubsection{Vertex Concepts}
 The \tcode{vertex_range} concept is the general definition used for adjacency lists while \tcode{index_vertex_range} is used for
 high performance graphs where vertices typically stored in a \tcode{vector}.
 {\small
      \lstinputlisting{D3130_Container_Interface/src/concepts_vertex_range.hpp}
 }
 
-\subsection{Adjacency List Concepts}
+\subsubsection{Adjacency List Concepts}
 The basic adjacency lists add concepts where there is no vertex object, only a vertex id.
 {\small
      \lstinputlisting{D3130_Container_Interface/src/concepts_basic_adj_list.hpp}
@@ -58,7 +75,7 @@ All algorithms initially proposed for the Graph Library use the \tcode{index_adj
      \lstinputlisting{D3130_Container_Interface/src/concepts_adj_list.hpp}
 }
 
-\section{Traits}
+\subsection{Traits}
 Table \ref{tab:graph_traits} summarizes the type traits in the Graph Container Interface, allowing views and algorithms to query the graph's characteristics.
 
 \begin{table}[h!]
@@ -94,7 +111,7 @@ Table \ref{tab:graph_traits} summarizes the type traits in the Graph Container I
 \end{table}
 
 
-\section{Types}
+\subsection{Types}
 Table \ref{tab:graph_type} summarizes the type aliases in the Graph Container Interface. These are the types used to define the objects 
 in a graph container, no matter its internal design and organization. Thus, it is designed to be able to reflect all forms of adjacency 
 graphs including a vector of lists, compressed\_graph and adjacency matrix.
@@ -142,7 +159,7 @@ The type aliases are defined by either a function specialization for the underly
 There is no contiguous requirement for \tcode{vertex_id} from one partition to the next, though
 in practice they will often be assigned contiguously. Gaps in \tcode{vertex_id}s between partitions should be allowed.
 
-\section{Classes and Structs}
+\subsection{Classes and Structs}
 
 The \tcode{graph_error} exception class is available, inherited from \tcode{runtime_error}. While any function may use it, it 
 is only anticipated to be used by the \tcode{load} functions at this time.
@@ -151,7 +168,7 @@ No additional functionality is added beyond that provided by \tcode{runtime_erro
 \emph{While we belive the use of concepts is appropriate for graphs as a range-of-ranges, we are marking them as "For exposition only" 
 until we have consensus of whether they belong in the standard or not.}
 
-\section{Functions}
+\subsection{Functions}
 
 Tables \ref{tab:graph_func}, \ref{tab:vertex_func} and \ref{tab:edge_func} summarize the primitive functions in the Graph Container Interface.
 used to access an adacency graph, no matter its internal design and organization. Thus, it is designed 
@@ -259,7 +276,7 @@ embedded value in those objects.
 
 If the concept requirements for the default implementation aren't met by the graph container the function will need to be overridden.
 
-\subsection{Determining the Vertex Id Type}
+\subsection{Determining the vertex\_id type}
 To determine the type for \tcode{vertex_id_t<G>} the following steps are taken, in order, to determine its type.
 \begin{enumerate}
     \item Use the type returned by \tcode{vertex_id(g,ui)} when overridden for a graph.
@@ -273,7 +290,7 @@ This is sufficient for all situations. However, there are often space and perfor
 this function for optimal results, assuring that it is also large enough for the number of possible vertices and edges in the application. It will also need to be overridden if the implementation doesn't 
 expose the vertices as a range.
 
-\section{Unipartite, Bipartite and Multipartite Graph Representation}
+\subsection{Unipartite, Bipartite and Multipartite Graph Representation}
 
 \tcode{num_partitions(g)} returns the number of partitions, or partiteness, of the graph. It has a range of 1 to n, where 1 identifies 
 a unipartite graph, 2 is a bipartite graph, and a value of 2 or more can be considered a multipartite graph. 
@@ -299,16 +316,132 @@ determine how to get the appropriate value.
 \tcode{edges(g,uid,pid)} and \tcode{edges(g,ui,pid)} filter the edges where the target is in the partition \tcode{pid} passed.
 This isn't needed for bipartite graphs.
 
-\section{Edgelists}
-An edgelist is a range of \tcode{edge_descriptor} values, used by some algorithms. Examples include the \tcode{edgelist} adjacency 
-list view, or possibly a transform of an existing range that projects \tcode{edge_descriptor} values. There is no concrete data
-structure in this proposal like there is for an adjacency list.
+\section{Edgelist Interface}
+An edgelist is a range of values where we can get the source\_id and target\_id, and an optional edge\_value. It is similar to edges in an
+adjacency list or edges in the incidence view, but is a distinct range of values that are separate from the others.
 
-\section{Using Existing Graph Data Structures}
-Reasonable defaults have been defined for the GCI functions to minimize the amount of work
-needed to adapt an existing graph data structure to be used by the views and algorithms.
+Like the adjacency list, the edgelist has default implementations that use the standard library for simple implmentations out of the box.
+It's also able to easily adapt to externally defined edge types by overriding the \tcode{source_id(e)}, \tcode{target_id(e)} and 
+\tcode{edge_value(e)} functions.
 
-There are two cases supported. The first is for the use of standard containers to define the graph and the other
-is for a broader set of more complicated implementations.
+\subsection{Namespace}
+The concepts and types for the edgelist are defined in the \tcode{std::graph::edgelist} namespace to avoid conflicts with the adjacency list.
 
-This is described in more detail in the paper for Graph Library Container Implementations.
+\phil{It would be nice to include them in std::graph, but I'm having difficulting figuring out how to do that based on adjlist and edgelist concepts.}
+
+
+\subsection{Concepts}
+The concepts for edgelists follow the same naming conventions as the adjacency lists. Non-basic concepts are excluded because there's
+little reason to include an edge reference for such a simple case.
+
+{\small
+     \lstinputlisting{D3130_Container_Interface/src/edgelist_concepts.hpp}
+}
+\subsection{Traits}
+Table \ref{tab:edgelist_traits} summarizes the type traits in the Edgelist Interface, allowing views and algorithms to query the graph's characteristics.
+
+\begin{table}[h!]
+\begin{center}
+%\resizebox{\textwidth}{!}
+{\begin{tabular}{l l L{7.0cm}}
+\hline
+    \textbf{Trait} & \textbf{Type} & \textbf{Comment} \\
+\hline
+    \tcode{is_directed<EL> : false_type} & struct & When specialized for an edgelist to derive \\
+    \tcode{is_directed_v<EL>}          & & from \tcode{true_type}, it may be used during graph 
+                                                     construction to add a second edge with source\_id and target\_id reversed. \\
+\hline
+\end{tabular}}
+\caption{Graph Container Interface Type Traits}
+\label{tab:edgelist_traits}
+\end{center}
+\end{table}
+
+%{\small
+%     \lstinputlisting{D3130_Container_Interface/src/edgelist_typetraits.hpp}
+%}
+\subsection{Types}
+Table \ref{tab:edgelist_type} summarizes the type aliases in the Edgelist Interface.
+
+The type aliases are defined by either a function specialization for the edgelist implementation, or a refinement of one of 
+those types (e.g. an iterator of a range). Table \ref{tab:edgelist_func} describes the functions in more detail.
+
+\tcode{edge_value(g,uv)} can be optionally implemented, depending on whether or not the edgelist has values on the edge types.
+
+\begin{table}[h!]
+\begin{center}
+\resizebox{\textwidth}{!}
+{\begin{tabular}{l l L{1.5cm}}
+\hline
+    \textbf{Type Alias} & \textbf{Definition} & \textbf{Comment} \\
+\hline
+    \tcode{edge_range_t<EL>} & \tcode{EL} & \\    
+    \tcode{edge_iterator_t<EL>} & \tcode{iterator_t<edge_range_t<EL>>} & \\    
+    \tcode{edge_t<EL>} & \tcode{range_value_t<edge_range_t<EL>>} & \\       
+    \tcode{edge_reference_t<EL>} & \tcode{range_reference_t<edge_range_t<EL>>} & \\    
+    \tcode{edge_value_t<EL>} & \tcode{decltype(edge_value(e))} & optional \\
+    \tcode{edge_id_t<EL>} & \tcode{edge_descriptor<vertex_id_t<EL>,true,void,void>} & \\    
+\hline
+    \tcode{vertex_id_t<EL>} & \tcode{decltype(target_id(e))} & \\
+\hline
+\end{tabular}}
+\caption{Edgelist Interface Type Aliases}
+\label{tab:edgelist_type}
+\end{center}
+\end{table}
+
+%{\small
+%     \lstinputlisting{D3130_Container_Interface/src/edgelist_types.hpp}
+%}
+\subsection{Functions}
+Table \ref{tab:edgelist_func} shows the functions available in the Edgelist Interface. Unlike the adjacency list, \tcode{source_id(e)}
+and \tcode{edge_id(e)} are always available.
+
+
+\begin{table}[h!]
+    \begin{center}
+    \resizebox{\textwidth}{!}
+    {\begin{tabular}{l l p{1.5cm} L{7.0cm}}
+    \hline
+        \textbf{Function} & \textbf{Return Type} & \textbf{Complexity} & \textbf{Default Implementation} \\
+    \hline
+        \tcode{target_id(e)} & \tcode{vertex_id_t<EL>} & constant & (see below) \\
+        \tcode{source_id(e)} & \tcode{vertex_id_t<EL>} & constant & (see below) \\
+        \tcode{edge_id(e)} & \tcode{edge_id_t<EL>} & constant & \tcode{edge_descriptor<vertex_id_t<EL>,true,void,void>\{source_id(e),target_id(e)\}} \\
+        \tcode{edge_value(e)} & \tcode{edge_value_t<EL>} & constant & optional, see below \\
+        \tcode{contains_edge(el,uid,vid)} & \tcode{bool} & linear & \tcode{find_if(el, [](edge_reference_t<EL> e) \{return source_id(e)==uid && target_id(e)==vid\})} \\
+    \hline
+    \end{tabular}}
+    \caption{Edgelist Interface Functions}
+    \label{tab:edgelist_func}
+    \end{center}
+    \end{table}
+
+% \tcode{find_if(el, )}
+% [](edge_reference_t<EL>) \{return source_id(e)==uid && target_id(e)==vid\}
+
+\subsection{Determining the source\_id, target\_id and edge\_value types}
+Special patterns are recognized for edges based on the \tcode{tuple} and \tcode{edge_descriptor} types. When they are used the \tcode{source_id(e)}, 
+\tcode{target_id(e)} and \tcode{edge_value} functions will be defined automatically.
+
+The \tcode{tuple} patterns are
+\begin{itemize}
+    \item \tcode{tuple<integral,integral>} for \tcode{source_id(e)} and \tcode{target_id(e)} respectively.
+    \item \tcode{tuple<integral,integral,scalar>} for \tcode{source_id(e)}, \tcode{target_id(e)} and \tcode{edge_value(e)} respectively.
+\end{itemize}
+
+The \tcode{edge_descriptor} patterns are
+\begin{itemize}
+    \item \tcode{edge_descriptor<integral,true,void,void>} with \tcode{source_id(e)} and \tcode{target_id(e)}.
+    \item \tcode{edge_descriptor<integral,true,void,scaler>} with \tcode{source_id(e)}, \tcode{target_id(e)} and \tcode{edge_value(e)}.
+\end{itemize}
+
+In all other cases the functions will need to be overridden for the edge type.
+
+\section{Using Existing Data Structures}
+Reasonable defaults have been defined for the adjacency list and edgelist functions to minimize the amount of work
+needed to adapt existing data structures to be used by the views and algorithms.
+
+Useful defaults have been created using types and containers in the standard library, with the ability
+to override them for external data structures. This is described in more detail in the paper for Graph Library 
+Containers.

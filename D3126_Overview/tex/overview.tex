@@ -45,10 +45,11 @@ goals and priorities that will provide an initial set of useful functionality, a
                               \item Support bipartite and multipartite graphs.
                         \end{itemize}
 
-                  \item Edge list, which is a range of edge descriptors.
+                  \item Edgelist, which is a range of edges that allow calling \tcode{source_id(e)} and \tcode{target_id(e)}, and
+                        optionally \tcode{edge_value(e)}. This is available for the following.
                         \begin{itemize}
                               \item From an \tcode{edgelist} view.
-                              \item From a user-defined range that uses \tcode{std::ranges::transform_view}.
+                              \item From a user-defined range of concrete values.
                         \end{itemize}
             \end{itemize}
       \item Provide one or more graph containers that can be used with the algorithms.
@@ -92,7 +93,7 @@ be overridden to allow a developer to adapt their own graph data structures to t
 \section{What this proposal is  \textbf{not}}
 
 The Graph Library proposal limits itself to adjacency graphs and edgelists only. An adjacency graph is an outer range of vertices with an inner range of outgoing
-edges on each vertex. An edgelist is a view of edges, which is either all the edges in the adjacency graph or a projection of a user-defined range.
+edges on each vertex. An edgelist is a view of edges on an adjacency list, or a range of edge types.
 
 Parallel versions of the algorithms are not included for several reasons. The executors proposal in P2300r5 \cite{REF_P2300r5} is expected to introduce new 
 and better ways to do parallel algorithms beyond that used in the parallel STL algorithms and we would like to wait for finalization of that proposal before 
@@ -240,10 +241,6 @@ by the paper they are associated with.
 
 \subsection{Open Design Issues}
 \begin{itemize}
-      \item \href{https://www.wg21.link/P3130}{P3130 Graph Container Interface}
-            \begin{enumerate}
-                  \item Complete the definition of the edgelist concepts, types and CPO functions. This is distinct from the existing edgelist view.
-            \end{enumerate}
       \item \textbf{Pxxxx: Graph Operators} (paper not yet submitted)
             \begin{enumerate}
                   \item Complete the paper for additional utility functions including degree, sort, relabel, transpose and join.
@@ -349,5 +346,6 @@ by the paper they are associated with.
                                     Even though constructors weren't in the paper it wasn't clear whether they should be included or not.
                                     We have removed the load functions and added constructors for \tcode{compressed_graph} to simplify the interface.
                         \end{itemize}
-            \end{enumerate}
+                        \item Complete the definition of the edgelist concepts, types and CPO functions. This is distinct from the existing edgelist view.
+                  \end{enumerate}
 \end{itemize}
