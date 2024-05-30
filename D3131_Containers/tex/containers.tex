@@ -36,6 +36,7 @@ are only accessible through the types and functions in the Graph Container Inter
     \textbf{vertex\_id assignment:} Contiguous & \textbf{\tcode{has_edge(g)}} $O(1)$ & \textbf{Append vertices?} No \\
     \textbf{Vertices range:} Contiguous & \textbf{\tcode{num_edges(g)}} $O(1)$ & \textbf{Append edges?} No \\
     \textbf{Edge range:} Contiguous & \textbf{\tcode{partition_id(g,uid)}} $O(log(P+1))$ & \textbf{Partions?} Yes\\
+    & & \textbf{is\_directed?} No \\
     %O(log(P+1)) is the complexity of std::upper_bound; +1 is for the number of vertices added at the end of partition_start_ids
     \hline
     \end{tabular}
@@ -44,6 +45,9 @@ are only accessible through the types and functions in the Graph Container Inter
 \end{table}
 $P$ is the number of partitions and is exepected to be small, e.g. $P = 2$ for bipartite and $P \leq 10$ for typical 
 multi-partite graphs.
+
+The \tcode{is_directed} trait is not supported. If \tcode{compressed_graph} is intended to be used for an undirected
+graph, then the edge pairs must be included for both directions, (uid,vid) and (vid,uid), when constructing the graph.
 
 \phil{Add \tcode{operator[](vertex_id_t<G>)}?}
 
@@ -114,14 +118,15 @@ When \tcode{GV} is void the number of constructors decreases significantly as sh
 %\pnum\errors
 \end{itemdescr}
 
-\section{Using Existing Graph Data Structures}
-Reasonable defaults have been defined for the GCI functions to minimize the amount of work
-needed to adapt an existing graph data structure to be used by the views and algorithms.
+\section{Using Existing Data Structures}
+Reasonable defaults have been defined for the adjacency list and edgelist using data structures and types
+in the standard library, with some adaptation for externally defined containers, out of the box that require
+no function overrides.
 
-There are two cases supported. The first is for the use of standard containers to define the graph and the other
-is for a broader set of more complicated implementations.
+\subsection{Adjacency List Data Structures}
 
-\subsection{Using Standard Containers for the Graph Data Structure}
+\subsubsection{Using Standard Containers for an Adjacency List}
+When the graph is defined using standard containers, the GCI functions can be used without any function overrides.
 
 For example this we'll use \tcode{G = vector<forward_list<tuple<int,double>>>} to define the graph, where \tcode{g} 
 is an instance of \tcode{G}. \tcode{tuple<int,double>} defines the target\_id and weight property respectively. We
@@ -143,11 +148,18 @@ for(auto&& [uid, u] : vertices(g)) {
 }
 \end{lstlisting}
 
-Note that no function override was required and is a special case when the outer range is a \tcode{random_access_range} and
-and inner inner range is a \tcode{forward_range}, and the value type of the inner range is either \tcode{integral}
- or \tcode{tuple<integral, ...>}. This extends to any range type. For instance, boost::containers can be used
- just as easily as std containers. 
+\tcode{edge_t<G>} is defined as \tcode{tuple<int,double>} in the example; the only requirement is that the first element
+in the \tcode{tuple} is integral and is used as the target\_id. The \tcode{edge_value} function is not defined, as it is
+assumed that algorithms will take a lambda to extract the value from the edge, if needed.
 
+If all you need is the target\_id without any values, you can use \tcode{G = vector<forward_list<int>>}. The \tcode{int}
+is used as the target\_id. Again, the only requirement is that it be \tcode{integral}.
+
+Note that no function override was required. More formally, the two patterns recognized are \tcode{random_access_range<forward_range<integral>>}
+and \tcode{random_access_range<forward_range<tuple<integral,...>>>}. This extends to any range type. For instance, boost::containers can be used
+just as easily as std containers.
+
+Table \ref{tab:simple_graph} shows how the types are defined for the example above.
 \begin{table}[h!]
     \begin{center}
     \resizebox{\textwidth}{!}
@@ -169,9 +181,10 @@ and inner inner range is a \tcode{forward_range}, and the value type of the inne
 \end{table}
 
 
-\subsection{Using Other Graph Data Structures}
-For other graph data structures more function overrides are required. Table \ref{tab:cmn_cpo_overrides} shows the 
-common function overrides anticipated for most cases, keeping in mind that all functions can be overridden.
+\subsubsection{Using Other Graph Data Structures}
+For other graph data structures function overrides are required. Table \ref{tab:cmn_cpo_overrides} shows the 
+common function overrides anticipated for most cases, keeping in mind that all functions can be overridden
+if the default implementation is not suitable. 
 When they are defined they must be in the same namespace as the data structures.
 
 \begin{table}[h!]
@@ -203,3 +216,43 @@ When they are defined they must be in the same namespace as the data structures.
     \label{tab:cmn_cpo_overrides}
     \end{center}
 \end{table}
+
+\subsection{Edgelist Data Structures}
+\subsubsection{Using Standard Containers for an Edgelist}
+Like the adjacency list, an edgelist can be defined using standard containers and types without 
+requiring any function overrides.
+
+\begin{lstlisting}
+    using EL = vector<tuple<int, int, double>>;
+    using E  = std::ranges::range_value_t<EL>;
+    EL el{{1, 2, 11.1}, {1, 4, 22.2}, {2, 3, 3.33}, {2, 4, 4.44}};
+    for (auto&& e : el) {
+      int    sid = source_id(e);
+      int    tid = target_id(e);
+      double val = edge_value(e);
+    }
+\end{lstlisting}
+
+An alternative is to use the \tcode{edge_descriptor} used in this proposal. Notice that the only difference
+is the definition of the edgelist type. All other code is identical to the previous example.
+\begin{lstlisting}
+    using EL = vector<edge_descriptor<int, true, void, double>>;
+    using E  = std::ranges::range_value_t<EL>;
+    EL el{{1, 2, 11.1}, {1, 4, 22.2}, {2, 3, 3.33}, {2, 4, 4.44}};
+    for (auto&& e : el) {
+      int    sid = source_id(e);
+      int    tid = target_id(e);
+      double val = edge_value(e);
+    }
+\end{lstlisting}
+
+While these examples show the optional edge\_value that is a \tcode{double}, it can be omitted if the edges 
+do not have values.
+
+Type alias are in the namespace \tcode{std::graph::edgelist} to avoid conflicts with adjacency\_list
+types.
+
+\subsubsection{Using Other Graph Data Structures}
+If you have different edge type not covered by the standard types, you can override the
+\tcode{source_id(e)}, \tcode{target_id(e)} and \tcode{edge_value(E)} functions for that type.
+The functions must be in the same namespace as the edge data structure you want to use.

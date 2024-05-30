@@ -329,6 +329,9 @@ Table \ref{tab:edgelist} shows the \tcode{edgelist} function overloads and their
 
 \tcode{edgelist} views require a \tcode{evf(uv)} function, and  \tcode{basic_edgelist} views require a \tcode{evf(eid)} function.
 
+The range returned by \tcode{edgelist} adheres to the  \tcode{basic_sourced_index_edgelist} concept (future proposals may only
+adhere to \tcode{basic_sourced_edgelist}). If a \tcode{evf(uv)} function is passed, it adheres to the \tcode{has_edge_value} concept.
+
 \begin{table}[h!]
 \begin{center}
 %\resizebox{\textwidth}{!}
@@ -397,8 +400,10 @@ for(auto&& [vid,v] : dfs) {
   
   // do useful things
 }
-
 \end{lstlisting}
+
+The range returned by \textit{sourced} views (includes source\_id) adheres to the  \tcode{basic_sourced_index_edgelist} concept. If a 
+\tcode{evf(uv)} function is passed, it also adheres to the \tcode{has_edge_value} concept.
 
 \subsection{Depth First Search Views}
 Depth First Search views iterate over the vertices and edges from a given seed vertex, returning a \tcode{vertex_descriptor} or \tcode{edge_descriptor} on each iteration when it is first encountered, depending on the function used. 
