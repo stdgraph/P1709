@@ -193,14 +193,14 @@ Additionally, there are some domain-specific terms that may clash with existing 
 \tcode{degree} and \tcode{partition_id}.
 For these reasons, we recommend their own namespaces. The following assumption is used in this proposal.
 \begin{itemize}
-\item[]\tcode{std::graph} and \tcode{std::graph::views}
+\item[]\tcode{std::graph}, \tcode{std::graph::views} and \tcode{std::graph::edgelist}
 \end{itemize}
 
 \noindent
 Alternative locations include the following:
 \begin{itemize}
-\item[]\tcode{std::ranges} and \tcode{std::ranges::views}
-\item[]\tcode{std::ranges/graph} and \tcode{std::ranges::graph::views}
+\item[]\tcode{std::ranges}, \tcode{std::ranges::views}, and \tcode{std::ranges::edgelist}
+\item[]\tcode{std::ranges/graph}, \tcode{std::ranges::graph::views} and \tcode{std::ranges::graph::edgelist}
 \end{itemize}
 The advantage of these two options are that there would be no requirement to use the ranges:: prefix for things
 in the std::ranges namespace, a common occurance.
