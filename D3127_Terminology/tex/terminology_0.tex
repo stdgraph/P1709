@@ -99,6 +99,19 @@ For clarity, we briefly review some of the basic terminology of graphs.
 We use commonly accepted terminology for graph data structures and algorithms and
 adopt the particular terminology used in the textbook by
 Cormen, Leiserson, Rivest, and Stein (``CLRS'')~\cite{CLRS2022}.
+%
+In defining terminology that is rich enough, yet precise enough, to be used as the basis of a C++ graph library, we emphasize the difference between a graph (an abstraction of entities in a domain, along with their relationships) and the \emph{representation} of a graph (a structure suitable for use by algorithms and/or for code)\footnote{An example of the kind of ambiguity about graphs arising in typical usage is shown in Appendix~\ref{sec:ambiguity}}.
+% We note that because of the precision with which we define representations, there will be some unexpected results.
+
+\section{Summary of Key Takeaways}
+A very brief summary of our terminology is the following:
+\begin{itemize}
+  \item A graph comprises a set of vertices $\{V\}$ and a set of edges $\{E\}$, written $G=\{V, E\}$.
+  \item Expressing algorithms (mathematically as well as in code) requires a \emph{representation} of a graph, the most basic of which is an \emph{adjacency matrix}.  An adjacency matrix is constructed using an \emph{enumeration} of the vertices, not the vertices themselves.
+    \item In addition to the (dense) adjacency matrix representation, we consider three sparse representations: coordinate, compressed, and packed coordinate.  The sparse forms store \emph{indices} used in the enumeration.
+    \item The coordinate and compressed forms of the adjacency matrix, as taken from linear algebra, respectively correspond to the graph theoretical representations of \emph{edge list} and \emph{adjacency list}.
+\end{itemize}
+
 
 \subsection{Basic Terminology}
 
@@ -106,10 +119,10 @@ To model the relationships between entities, a \emph{graph} $G$ comprises two se
 a \emph{vertex set} $V$, whose elements correspond to the entities, and an \emph{edge set} $E$, whose
 elements are pairs corresponding to elements in $V$ that have some relationship with each other.  That is,
 if $u$ and $v$ are members of $V$ that have some relationship that we wish to capture, then there is
-a pair $\{u, v\}$ in $E$.  We can express that together $V$ and $E$ define a graph as $G=\{V, E\}$.
+a pair $\{u, v\}$ in $E$.  We write $G=\{V, E\}$ to express that the two sets $V$ and $E$ define a graph $G$.
 
-Figures~\ref{subfig:airport} and~\ref{subfig:circuit} show two examples of graph models,
-a network of airline routes between cities and an electronic circuit.  
+Figures~\ref{subfig:airport} and~\ref{subfig:instagram} show two examples of graph models,
+a network of airline routes between cities and a social network of names and followers.
 The figures indicate the domain-specific data to be modeled and the sets $V$ and $E$ for each graph.
 Each figure also includes a node and link diagram, a commonly-used graphical\footnote{An unfortunate collision of terminology.}
 notation.
@@ -119,16 +132,16 @@ notation.
     \subcaptionbox{An undirected graph representing airline routes between cities.  Shown are the list of airports (the vertices) and the list of routes between them (the  edges).  Also shown are a node and link diagram and the set-based description.\label{subfig:airport}}
     {\includegraphics[width=0.75\textwidth]{figs/airport-summary.pdf}}
     \\
-    \subcaptionbox{A directed graph representing an electronic circuit.  Shown in the circuit diagram are the labeled circuit nodes (the vertices) and the circuit elements connecting the nodes (the edges). Since circuit elements are oriented, we use a directed graph to model the circuit.  Also shown are a node and link diagram and the set-based description.\label{subfig:circuit}}
-    {\includegraphics[width=0.825\textwidth]{figs/circuit-summary.pdf}}
-    \caption{Graph models of an airline route system and of an electronic circuit.\label{fig:node_link_graphs}}
+    \subcaptionbox{A directed graph representing followers in a social network.  Shown in the diagram are the names of members (the vertices) and the members they follow (the edges). Since following is a one-way relationship, we use a directed graph to model it.  Also shown are a node and link diagram and the set-based description.\label{subfig:instagram}}
+    {\includegraphics[width=0.825\textwidth]{figs/instagram-summary.pdf}}
+    \caption{Graph models of an airline route system and of a social media follower network.\label{fig:node_link_graphs}}
   \end{center}
 \end{figure}
 
 
 \subsection{Graph Representation: Enumerating the Vertices}
 
-To reason about graphs, and to write algorithms for them, we require a \emph{representation} of the graph.
+To reason about graphs, and to write algorithms for them, we require a concrete \emph{representation} of the graph.
 We note that \emph{a graph and its representation are not the same thing}.  It is therefore essential
 that we be precise about this distinction as we develop a software library of graph
 algorithms and data structures\footnote{In fact, if we are to be completely precise, the library we are
@@ -137,7 +150,7 @@ to commonly accepted terminology, while precisely defining that terminology.}.
 
 The representations that we will be using are familiar ones: adjacency matrix, edge list, and adjacency list.
 We begin with a process that is so standard that we typically don't even notice it, but it forms
-the foundation of graph representations: we \emph{enumerate the vertices.}  That is, we assign an
+the foundation of all graph representations: we \emph{enumerate the vertices.}  That is, we assign an
 index to each element of $V$ and write $V = \{v_0, v_1, \ldots v_{n-1}\}$.  Based on that enumeration,
 elements of $E$ are expressed in the form $\{v_i, v_j\}$.  Similarly, we can enumerate the edges, and write  
 $E = \{ e_0, e_1, \ldots e_{m-1}\}$, though the enumeration of $E$ does not play a role in standard
@@ -162,8 +175,8 @@ If the edge set $E$ of a directed graph contains an edge $e_k = (v_i,v_j)$, then
   Moreover, vertex $v_j$ is adjacent to vertex $v_i$
   \emph{and} vertex $v_i$ is adjacent to vertex $v_j$.
   The edge $e_k$ is an out-edge of both $v_i$ and $v_j$ and it is an in-edge of both $v_i$ and $v_j$.
-\item The \emph{neighbors} of a vertex $v_i$ are all the vertices $v_j$ that are adjacent to $v_i$.  The set of all of the neighbors is the \emph{neighborhood} of $v_i$.
-\item A \emph{path} as a sequence of vertices $v_0, v_1, \ldots, v_{k-1}$ such that
+\item The \emph{neighbors} of a vertex $v_i$ are all the vertices $v_j$ that are adjacent to $v_i$.  The set of all the neighbors of $v_i$ is the \emph{neighborhood} of $v_i$.
+\item A \emph{path} is a sequence of vertices $v_0, v_1, \ldots, v_{k-1}$ such that
 there is an edge from $v_0$ to $v_1$, an edge from $v_1$ to $v_2$, and so on.
 That is, a path is a set of edges $(v_i, v_{i+1}) \in E$ for  $i = 0, 1, \ldots, k-2$.
 \end{itemize}
@@ -194,28 +207,27 @@ respectively for a directed or undirected graph
  \end{array}
  \right.
 \]
-That is, $a_{ij} = 1$ if and only if $v_j$ is adjacent to $v_i$ in the original graph $G$ (hence the name ``adjacency matrix``).
-%
-Here we can see why we said that the initial enumeration of $V$ is foundational to representations:  \emph{The adjacency matrix is based solely on the indices used in that enumeration}.  It does not contain the vertices or edges themselves.
+That is, $a_{ij} = 1$ if and only if $v_j$ is adjacent to $v_i$ in the original graph $G$ (hence the name ``adjacency matrix``).  We note that the difference between the adjacency matrices for a directed vs an undirected graph is that and the adjacency matrix for an undirected graph has $a_{ji} = 1$ whenever $a_ij$ is equal to one.  That is, it is symmetric.
 
-As a data structure to use for algorithms, the adjacency matrix is not very efficient, neither in terms of storage (which, at $|V|\times |V|$ is prohibitive), nor for computation. Instead of storing the entire
+Here we can see also why we said that the initial enumeration of $V$ is foundational to representations:  \emph{The adjacency matrix is based solely on the indices used in that enumeration}.  It does not contain the vertices or edges themselves.  The enumeration corresponding to vertices is implicit: the neighbor information for vertex $v_i$ is stored on row $i$ of the matrix.  Similarly, we don't store an edge $(v_i, v_j)$ explicitly, but rather an indicator as to whether $(v_i, v_j)$ exists in $E$ or not.
+
+As a data structure to use for algorithms, the adjacency matrix is not very efficient, neither in terms of storage (which, at $|V|\times |V|$ is prohibitive), nor for computation, because for many graphs, the adjacency matrix contains almost all zero elements. Instead of storing the entire
 adjacency matrix, we can simply store the index values of its non-zero elements.  A \emph{sparse coordinate adjacency
 matrix} is a container $C$ of pairs $(i, j)$ for every $a_{ij}$ in $A$.
-%
-At first glance, it may seem that we have simply created a data structure $C$ that has a pair $(i,j)$ if $E$ in the
-original graph has an edge from $v_i$ to $v_j$.  This is true in the directed case.  However, in the undirected case, if there is an edge between $v_i$ and $v_j$, then $v_i$ is adjacent to $v_j$ and $v_j$ is adjacent to $v_i$.  In other words, if there is an edge between $v_i$ and  $v_j$ in an undirected graph, then both the entries $a_{ij}$ and $a_{ji}$ are equal to $1$\footnote{That is, the adjacency matrix is symmetric.} --- and therefore for a single edge between $v_i$ and $v_j$,  $C$ contains two index pairs: $(i, j)$  and $(j, i)$.   The sparse coordinate representation is commonly known as \emph{edge list}.  However, we caution the reader that $C$ does not store edges, but rather indices and that, in the case that it represents an undirected graph, there is not a 1-1 correspondence between the edges in $E$ and the contents of $C$.
+
+\textbf{NB:} At first glance, it may seem that we have simply created a data structure $C$ that has a pair $(i,j)$ if $E$ in the
+original graph has an edge from $v_i$ to $v_j$.  This is true in the directed case.  However, in the undirected case, if there is an edge between $v_i$ and $v_j$, then $v_i$ is adjacent to $v_j$, and $v_j$ is adjacent to $v_i$.  In other words, if there is an edge between $v_i$ and  $v_j$ in an undirected graph, then both the entries $a_{ij}$ and $a_{ji}$ are equal to $1$\footnote{That is, the adjacency matrix is symmetric.} --- and therefore for a single edge between $v_i$ and $v_j$,  $C$ contains two index pairs: $(i, j)$  and $(j, i)$.   The sparse coordinate representation is commonly known as \emph{edge list}.  However, we caution the reader that $C$ does not store edges, but rather indices that represent adjacencies between vertices.  In the case that $C$ represents an undirected graph, there is not a 1-1 correspondence between the edges in $E$ and the contents of $C$.
 
 Although the sparse coordinate adjacency matrix is much more efficient in terms of storage than the original adjacency matrix, it isn't as efficient as it could be.  
 Much more importantly, it is not useful for the types of operations used by most graph algorithms, which need to be able to get the set of neighbors of a given vertex in constant time.  
-To support this type of operation, we use a \emph{compressed sparse adjacency matrix}, which is an array $J$ with $|V|$ entries, where each $J[i]$ is a linear container of indices $\{ j \}$ such that $v_j$ is a neighbor of $v_i$ in $G$.  
+To support this type of operation, we use a \emph{compressed sparse adjacency matrix}, which is an array $J$ with $|V|$ entries, where each $J[i]$ is a linear container of indices $\{ j \}$ such that $v_j$ is a neighbor of (is adjacent to) $v_i$ in $G$.  
 That is $j$ is contained in $J[i]$ if and only if there is an edge $(v_i, v_j)$ in $E$ (or, equivalently, if there is a pair $(i, j)$ in $C$ or, equivalently, if $a_{ij} = 1$)\footnote{The compressed sparse adjacency matrix is identical to the compressed sparse row format from linear algebra}.  
 We note that if $(v_i, v_j)$ is an edge in an undirected graph, $J[i]$ will contain $j$ and $J[j]$ will contain $i$. 
 The common name for this data structure is \emph{adjacency list}.  
 Although this name is problematic (for instance, it is not actually a list),  it is so widely used that we also use it here---but \emph{we mean specifically that an  ``adjacency list'' is the compressed sparse adjacency matrix representation of a graph}\footnote{We concede that ``adjacency list'' rolls off the tongue much more easily than ``compressed sparse adjacency matrix representation of a graph.''}.  
-Again we emphasize the distinction between a graph and its representation:  An adjacency list $J$ is not the same as the graph $G$---it is a representation of $G$.
+Again we emphasize the distinction between a graph and its representation:  An adjacency list $J$ is not the same as the graph $G$---it is a representation of $G$, based on an enumeration of the vertices in $\{V\}$.
 
-
-Illustrations of the adjacency-matrix representations of the airline route graph and the electronic circuit graph are shown in Figures~\ref{fig:airport-representation} and~\ref{fig:circuit-model}, respectively.
+Illustrations of the adjacency-matrix representations of the airline route graph and the electronic instagram graph are shown in Figures~\ref{fig:airport-representation} and~\ref{fig:instagram}, respectively.
 
 \begin{figure}[tbh]
   \begin{subfigure}[t]{0.175\textwidth}
@@ -256,35 +268,35 @@ Illustrations of the adjacency-matrix representations of the airline route graph
 \begin{figure}[tbh]
   \begin{subfigure}[t]{0.175\textwidth}
     \centering
-    \includegraphics[width=0.4\linewidth]{circuit-vertex-enumeration}
-    \caption{\label{fig:circuit-vertex-enumeration}
-    An enumeration of the circuit graph given in \protect\ref{subfig:circuit}.}
+    \includegraphics[width=0.4\linewidth]{instagram-vertex-enumeration}
+    \caption{\label{fig:instagram-vertex-enumeration}
+    An enumeration of the instagram graph given in \protect\ref{subfig:instagram}.}
   \end{subfigure}
   \hspace{1em}
   \begin{subfigure}[t]{0.25\textwidth}
     \centering
-    \includegraphics[width=\linewidth]{circuit-graph-adjacency-matrix}
-    \caption{\label{fig:circuit-graph-adjacency-matrix}
-    The adjacency matrix representation of the graph given in Figure~\protect\ref{subfig:circuit},
-    using the enumeration given in Figure~\protect\ref{fig:circuit-vertex-enumeration}.}
+    \includegraphics[width=\linewidth]{instagram-graph-adjacency-matrix}
+    \caption{\label{fig:instagram-graph-adjacency-matrix}
+    The adjacency matrix representation of the graph given in Figure~\protect\ref{subfig:instagram},
+    using the enumeration given in Figure~\protect\ref{fig:instagram-vertex-enumeration}.}
   \end{subfigure}
   \hspace{1em}
   \begin{subfigure}[t]{0.175\textwidth}
     \small
     \centering
-    \includegraphics[width=0.4\linewidth]{circuit-coordinate-sparse-adjacency}
-    \caption{\label{fig:circuit-coordinate-sparse-adjacency}
+    \includegraphics[width=0.4\linewidth]{instagram-coordinate-sparse-adjacency}
+    \caption{\label{fig:instagram-coordinate-sparse-adjacency}
     The coordinate sparse adjacency matrix representation.}
   \end{subfigure}
   \hspace{1em}
   \begin{subfigure}[t]{0.3\textwidth}
     \small
     \centering
-    \includegraphics[width=0.75\linewidth]{circuit-compressed-sparse-adjacency}
-    \caption{\label{fig:circuit-compressed-sparse-adjacency}
+    \includegraphics[width=0.75\linewidth]{instagram-compressed-sparse-adjacency}
+    \caption{\label{fig:instagram-compressed-sparse-adjacency}
     The compressed sparse adjacency matrix representation.}
   \end{subfigure}
-  \caption{Adjacency matrix representations of the circuit graph model.\label{fig:circuit-model}}
+  \caption{Adjacency matrix representations of the instagram graph model.\label{fig:instagram}}
 \end{figure}
 
 
@@ -491,3 +503,41 @@ The following example illustrates the use of a packed coordinate format to const
 % \subsection{Edge List and Adjacency List: Compressed Edge List}
 % \andrew{Using a sort and group-by (or a sort, a run-length encoding, and a scan), we can compactify the edge-list reprentation and at the same time obtain an adjacency-list representation -- one that is memory and compute efficient.  Best of both worlds.  Has same basic structural principles as CSR / CSC matrices in linear algebra -- but much more general.}
 
+\appendix
+
+\subsection*{Problematic Terminology}
+\label{sec:ambiguity}
+
+Here we show how graph terminology in practical use is often ambiguous (and why we were so painstaking in our definitions).
+The definitions of graph and adjacency list from \emph{The Handbook of Graph Theory, Second Edition} is a typical
+example:\footnote{
+Although we take this example of ambiguity
+from the \emph{Handbook}, in general the \emph{Handbook} is a rigorous and extensive collection of
+important theoretical results in graph theory.  We borrow from its formatting conventions here.
+}
+\begin{quote}
+  \textbf{D1:} A directed graph or digraph $G = (V,E)$ consists of a finite, nonempty set of vertices $V$ and a set of edges $E$.
+Each edge is an ordered pair $(v,w)$ of vertices.
+\\[\medskipamount]
+\textbf{E1:} A line drawing of a graph G = (V, E) is shown in Figure 1.1.1 [omitted, ed.]. It has vertex-set V = {u,v,w,x} and
+edge-set E = {a,b,c,d,e,f}.
+\\[\medskipamount]
+\textbf{D9:} An adjacency list representation for a graph or digraph $G = (V, E)$ is an array $L$ of $|V|$ lists, one for each
+vertex in $V$. For each vertex $i$, there is a pointer $L_i$ to a linked list containing all vertices $j$ adjacent to $i$.
+\end{quote}
+The ambiguity occurs between \textbf{D1}/\textbf{E1} and \textbf{D9}.
+
+In \textbf{D1}, a vertex $v \in V$ is an element of unspecified type and in \textbf{E1} a particular case is given in $E1$ where
+each vertex is a letter.  Indeed, in the literature, it is common to identify vertices in $V$ with domain entities that the graph
+is modeling (``a vertex is a person'').  These are (literally) textbook definitions, and no one would bat an eye in reading them.
+
+But if we look critically at \textbf{D9}, what is meant by ``vertex'' is completely ambiguous.  The adjacency list
+in \textbf{D9} is representing graph $G=\{ V, E\}$, that is, by \textbf{D1}, a vertex is a member of $V$ and its type is
+unspecified.  However, \textbf{D9} also uses the term ``vertex'' to refer to indices -- ``vertex'' $i$ indexes $L_i$, the linked list   
+$L_i$ stores ``vertices'' -- yet, it is index values, not vertices that are being stored.  Beyond ``vertex,'' many other terms are
+ ambiguously used when referring to graphs.  Perhaps the most egregious ambiguity is the term ``graph'' itself -- which is used to 
+refer to the graph $G=\{ V, E \}$, to the representation of a graph, or even to the entities being modeled by the graph.
+
+A more careful distinction needs to be made between a graph and its representation -- and between the abstractions associated with
+a graph and the abstractions associated with the representation of a graph.  We can't use the same term (e.g., ``vertex'') to mean
+two different things.
