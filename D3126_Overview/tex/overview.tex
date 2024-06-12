@@ -147,7 +147,7 @@ embraces performance, ease-of-use, and the ability to use the algorithms and vie
 %is a standard for graph algorithms that is used in many graph libraries. It is a set of linear algebra operations that can be used to
 %implement graph algorithms. It is not a graph library itself, but it is used in many graph libraries to implement graph algorithms.
 Graph algorithms are traditionally developed, and then implemented, using explicit loops
-over a graph data structure---``pointer chasing'' to put it perhaps somewhat pejoratively.
+over a graph data structure---sometimes referred to as ``pointer chasing.''
 An alternative formulation of graph algorithms leverages the close inherent relationship between
 graphs and sparse matrices to formulate graph algorithms as sequences of higher-level operations:
 sparse matrix multiplication (and other similar operations) over a semiring~\cite{kepner-gilbert}.
@@ -232,7 +232,7 @@ There are other observations we've also discovered along the way that may not be
 The addition of concepts to the standard library is a serious consideration because, once added, they cannot 
 be removed. We believe that graphs as a range-of-ranges merits the addition new concepts but we recognize that it
 may be a controversial decision. Toward that end, we will continue to include them to help clarify the examples given
-and are assumed to be "For exposition only" as suggested implementation until clear decisions to include them, or not, 
+and are assumed to be "For exposition only" as suggested implementation until a clear decision to include them, or not, 
 is made.
 
 \section{Issues Status}
