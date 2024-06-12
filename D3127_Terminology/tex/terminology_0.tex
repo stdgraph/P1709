@@ -211,7 +211,9 @@ That is, $a_{ij} = 1$ if and only if $v_j$ is adjacent to $v_i$ in the original 
 
 Here we can see also why we said that the initial enumeration of $V$ is foundational to representations:  \emph{The adjacency matrix is based solely on the indices used in that enumeration}.  It does not contain the vertices or edges themselves.  The enumeration corresponding to vertices is implicit: the neighbor information for vertex $v_i$ is stored on row $i$ of the matrix.  Similarly, we don't store an edge $(v_i, v_j)$ explicitly, but rather an indicator as to whether $(v_i, v_j)$ exists in $E$ or not.
 
-As a data structure to use for algorithms, the adjacency matrix is not very efficient, neither in terms of storage (which, at $|V|\times |V|$ is prohibitive), nor for computation, because for many graphs, the adjacency matrix contains almost all zero elements. Instead of storing the entire
+
+As a data structure to use for algorithms, the adjacency matrix is not very efficient, neither in terms of storage (which, at 
+$|V|\times |V|$ is prohibitive), nor for computation, because for many graphs, the adjacency matrix contains almost all zero elements. Instead of storing the entire
 adjacency matrix, we can simply store the index values of its non-zero elements.  A \emph{sparse coordinate adjacency
 matrix} is a container $C$ of pairs $(i, j)$ for every $a_{ij}$ in $A$.
 
@@ -339,6 +341,7 @@ Illustrations of the adjacency-matrix representations of the airline route graph
 
 \end{figure}
 
+
 So far, we have been considering graphs where 
 edges in $E$ are pairs of vertices, which are taken from a single set $V$.
 %
@@ -410,6 +413,147 @@ The edge set $E$ still consists of edges $(v_i, v_j)$ (or $\{v_i, v_j\}$ where, 
 We note that partitioned graphs are not restricted to two partitions---a partitioned graph can represent an arbitrary number of partitions, i.e., a \emph{multipartite} graph (a graph with multiple subsets of vertices such that edges only go between subsets).
 While partitioned graphs can be used to model multipartite graphs, partitioned graphs are not necessarily multipartite; edges can comprise vertices within a partition as well as well as across partitions.
 
+\section{Direct Representations}
+
+Another approach to representing a graph is to model an adjacency list (e.g., Figure~\ref{fig:airport-compressed-sparse-adjacency} or~\ref{fig:instagram-compressed-sparse-adjacency} ) directly.  That is, we can represent a vertex as a class and an edge as a class, and use pointers to represent adjacency.
+
+For example, the following structures could be used to directly represent a graph (these are simplified, and slightly modernized, versions of the structs used in Donald Knuth's original Stanford Graph Base\footnote{Stanford Graph Base was written in pre-ANSI C}):
+\begin{lstlisting}
+class Vertex {
+  Arc* arcs;
+  int u, v, w;
+};
+
+class Arc {
+  Vertex* tip;
+  Arc* next;
+  int a, b;
+};
+
+class Graph {
+  Vertex* vertices;
+  int uu, vv, ww;
+};
+\end{lstlisting}  
+In this example, a `lstinline{Graph}` is an array of \lstinline{Vertex}.  Each \lstinline{Vertex} has a pointer to a list of \lstinline{Arc} (an edge) and each \lstinline{Arc} has a pointer to its target \lstinline{Vertex}.  Each of the classes contains not only the adjacency information, but properties as well (represented here by \lstinline{int} fields in each of the classes);
+
+Using modern C++ practice, we might instead express this as
+\begin{lstlisting}
+template <class... Props>
+class Vertex {
+  std::forward_list<Arc> arcs;
+  std::tuple<Props...> props;
+};
+
+template <class... Props>
+class Arc {
+  Vertex* tip;  
+  std::tuple<Props...> props;
+};
+
+template <class... Props>
+class Graph {
+  std::vector<Vertex> vertices;
+  std::tuple<Props...> props;
+};
+\end{lstlisting}  
+
+Much of terminology for graphs still applies in a direct representation, except, of course, we have structures representing the different components of a graph, rather than their indices.  There are a number of variations one could consider to this representation, such as using \lstinline{std::vector} rather than \lstinline{std::forward_list} to store outgoing \lstinline{Arc} in a \lstinline{Vertex}.
+
+One advantage of a direct representation is that it can be embedded.  That is, the \lstinline{Vertex} / \lstinline{Arc} representation may be implicit (or easily incorporated into) existing structures within an application.  For example,
+one might have data structures to represent an electronic circuit:
+\begin{lstlisting}
+  struct two_terminal {
+    node* from;
+    node* to;
+    double current;
+  };
+
+  struct resistor : public two_terminal {
+    double conductance;
+  };
+
+  struct capacitor : public two_terminal {
+    double capacitance;
+  };
+
+  struct node {
+    std::forward_list<two_terminal> elements;
+    double voltage;
+  };
+
+  struct circuit {
+    std::vector<node> nodes;
+  };
+\end{lstlisting}
+Note that, although structures and fields are differently named, a circuit is inherently a direct representation of a graph.
+
+% \andrew{We should have note that anything wrapped in a graph adapter has a `num\_vertices`
+% method (and other members).
+% We should also provide a constructor for the adapted adjacency list that takes and
+% edge list as argument.}
+
+
+% The examples above basically cover what I intened here.  Though perhaps we should
+% explain in some more detail about what the concepts do, what kinds of things meet
+% concept requirements, what the graph adapter does, etc.
+% \section{Implementations}
+% But maybe we can just cover those things further down and forward reference to
+% them from here.
+
+% \subsection{Edge List: Array of Structs / Struct of Arrays}
+% \andrew{Edges can be stored as tuples (or tuple like) basically in parallel arrays (like a ranges::zip).}
+% \subsection{Vertices and Edges: Node Objects and Link Objects}
+% \andrew{ala Stanford Graph Base (et al).}
+% \subsection{Adjacency List: Container of Containers}
+% \andrew{An adjacency list can be represented as a container of containers (e.g., std::vector<std::list>).  Talk about range of ranges when we talk about library interfaces, requirements, concepts.  Note here that the structure of an adjacency list does not capture directedness -- directedness is a run-time property.}
+
+
+% These are definitely already covered in the examples above.
+% \subsection{From Edge List to Adjacency List}
+% \andrew{Scan edge list and insert edgest into adjacency list.  Adjacency list must support insertion.}
+% \subsection{Edge List and Adjacency List: Compressed Edge List}
+% \andrew{Using a sort and group-by (or a sort, a run-length encoding, and a scan), we can compactify the edge-list reprentation and at the same time obtain an adjacency-list representation -- one that is memory and compute efficient.  Best of both worlds.  Has same basic structural principles as CSR / CSC matrices in linear algebra -- but much more general.}
+
+\appendix
+
+\section{On Ambiguous Terminology}
+\label{sec:ambiguity}
+
+Here we show how graph terminology in practical use is often ambiguous (and why we were so painstaking in our definitions).
+The definitions of graph and adjacency list from \emph{The Handbook of Graph Theory, Second Edition} is a typical
+example:\footnote{
+Although we take this example of ambiguity
+from the \emph{Handbook}, in general the \emph{Handbook} is a rigorous and extensive collection of
+important theoretical results in graph theory.  We borrow from its formatting conventions here.
+}
+\begin{quote}
+  \textbf{D1:} A directed graph or digraph $G = (V,E)$ consists of a finite, nonempty set of vertices $V$ and a set of edges $E$.
+Each edge is an ordered pair $(v,w)$ of vertices.
+\\[\medskipamount]
+\textbf{E1:} A line drawing of a graph G = (V, E) is shown in Figure 1.1.1 [omitted, ed.]. It has vertex-set V = {u,v,w,x} and
+edge-set E = {a,b,c,d,e,f}.
+\\[\medskipamount]
+\textbf{D9:} An adjacency list representation for a graph or digraph $G = (V, E)$ is an array $L$ of $|V|$ lists, one for each
+vertex in $V$. For each vertex $i$, there is a pointer $L_i$ to a linked list containing all vertices $j$ adjacent to $i$.
+\end{quote}
+The ambiguity occurs between \textbf{D1}/\textbf{E1} and \textbf{D9}.
+
+In \textbf{D1}, a vertex $v \in V$ is an element of unspecified type and in \textbf{E1} a particular case is given in $E1$ where
+each vertex is a letter.  Indeed, in the literature, it is common to identify vertices in $V$ with domain entities that the graph
+is modeling (``a vertex is a person'').  These are (literally) textbook definitions, and no one would bat an eye in reading them.
+
+But if we look critically at \textbf{D9}, what is meant by ``vertex'' is completely ambiguous.  The adjacency list
+in \textbf{D9} is representing graph $G=\{ V, E\}$, that is, by \textbf{D1}, a vertex is a member of $V$ and its type is
+unspecified.  However, \textbf{D9} also uses the term ``vertex'' to refer to indices -- ``vertex'' $i$ indexes $L_i$, the linked list   
+$L_i$ stores ``vertices'' -- yet, it is index values, not vertices that are being stored.  Beyond ``vertex,'' many other terms are
+ ambiguously used when referring to graphs.  Perhaps the most egregious ambiguity is the term ``graph'' itself -- which is used to 
+refer to the graph $G=\{ V, E \}$, to the representation of a graph, or even to the entities being modeled by the graph.
+
+A more careful distinction needs to be made between a graph and its representation -- and between the abstractions associated with
+a graph and the abstractions associated with the representation of a graph.  We can't use the same term (e.g., ``vertex'') to mean
+two different things.
+
 
 \section{From Data to Graph}
 
@@ -475,69 +619,3 @@ The following example illustrates the use of a packed coordinate format to const
       adj_list[dst].push_back (src, val);
     }
  \end{lstlisting}
-
-% \andrew{We should have note that anything wrapped in a graph adapter has a `num\_vertices`
-% method (and other members).
-% We should also provide a constructor for the adapted adjacency list that takes and
-% edge list as argument.}
-
-
-% The examples above basically cover what I intened here.  Though perhaps we should
-% explain in some more detail about what the concepts do, what kinds of things meet
-% concept requirements, what the graph adapter does, etc.
-% \section{Implementations}
-% But maybe we can just cover those things further down and forward reference to
-% them from here.
-
-% \subsection{Edge List: Array of Structs / Struct of Arrays}
-% \andrew{Edges can be stored as tuples (or tuple like) basically in parallel arrays (like a ranges::zip).}
-% \subsection{Vertices and Edges: Node Objects and Link Objects}
-% \andrew{ala Stanford Graph Base (et al).}
-% \subsection{Adjacency List: Container of Containers}
-% \andrew{An adjacency list can be represented as a container of containers (e.g., std::vector<std::list>).  Talk about range of ranges when we talk about library interfaces, requirements, concepts.  Note here that the structure of an adjacency list does not capture directedness -- directedness is a run-time property.}
-
-
-% These are definitely already covered in the examples above.
-% \subsection{From Edge List to Adjacency List}
-% \andrew{Scan edge list and insert edgest into adjacency list.  Adjacency list must support insertion.}
-% \subsection{Edge List and Adjacency List: Compressed Edge List}
-% \andrew{Using a sort and group-by (or a sort, a run-length encoding, and a scan), we can compactify the edge-list reprentation and at the same time obtain an adjacency-list representation -- one that is memory and compute efficient.  Best of both worlds.  Has same basic structural principles as CSR / CSC matrices in linear algebra -- but much more general.}
-
-\appendix
-
-\subsection*{Problematic Terminology}
-\label{sec:ambiguity}
-
-Here we show how graph terminology in practical use is often ambiguous (and why we were so painstaking in our definitions).
-The definitions of graph and adjacency list from \emph{The Handbook of Graph Theory, Second Edition} is a typical
-example:\footnote{
-Although we take this example of ambiguity
-from the \emph{Handbook}, in general the \emph{Handbook} is a rigorous and extensive collection of
-important theoretical results in graph theory.  We borrow from its formatting conventions here.
-}
-\begin{quote}
-  \textbf{D1:} A directed graph or digraph $G = (V,E)$ consists of a finite, nonempty set of vertices $V$ and a set of edges $E$.
-Each edge is an ordered pair $(v,w)$ of vertices.
-\\[\medskipamount]
-\textbf{E1:} A line drawing of a graph G = (V, E) is shown in Figure 1.1.1 [omitted, ed.]. It has vertex-set V = {u,v,w,x} and
-edge-set E = {a,b,c,d,e,f}.
-\\[\medskipamount]
-\textbf{D9:} An adjacency list representation for a graph or digraph $G = (V, E)$ is an array $L$ of $|V|$ lists, one for each
-vertex in $V$. For each vertex $i$, there is a pointer $L_i$ to a linked list containing all vertices $j$ adjacent to $i$.
-\end{quote}
-The ambiguity occurs between \textbf{D1}/\textbf{E1} and \textbf{D9}.
-
-In \textbf{D1}, a vertex $v \in V$ is an element of unspecified type and in \textbf{E1} a particular case is given in $E1$ where
-each vertex is a letter.  Indeed, in the literature, it is common to identify vertices in $V$ with domain entities that the graph
-is modeling (``a vertex is a person'').  These are (literally) textbook definitions, and no one would bat an eye in reading them.
-
-But if we look critically at \textbf{D9}, what is meant by ``vertex'' is completely ambiguous.  The adjacency list
-in \textbf{D9} is representing graph $G=\{ V, E\}$, that is, by \textbf{D1}, a vertex is a member of $V$ and its type is
-unspecified.  However, \textbf{D9} also uses the term ``vertex'' to refer to indices -- ``vertex'' $i$ indexes $L_i$, the linked list   
-$L_i$ stores ``vertices'' -- yet, it is index values, not vertices that are being stored.  Beyond ``vertex,'' many other terms are
- ambiguously used when referring to graphs.  Perhaps the most egregious ambiguity is the term ``graph'' itself -- which is used to 
-refer to the graph $G=\{ V, E \}$, to the representation of a graph, or even to the entities being modeled by the graph.
-
-A more careful distinction needs to be made between a graph and its representation -- and between the abstractions associated with
-a graph and the abstractions associated with the representation of a graph.  We can't use the same term (e.g., ``vertex'') to mean
-two different things.
