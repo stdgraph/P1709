@@ -534,13 +534,17 @@ Some label propagation implementations use vertex ids as an initial labeling. Th
                   \item
                   \lstinline{max_iters} is the maximum number of iterations of the label propagation, or equivalently the maximum distance a label will propagate from its starting vertex.
             \end{itemize}
-      \pnum\effects \lstinline{label[uid]} is the label assignments of vertex id \lstinline{uid} discovered by label propagation.
+      \pnum\effects 
+            \begin{itemize}
+                  \item
+                  \lstinline{label[uid]} is the label assignments of vertex id \lstinline{uid} discovered by label propagation.
+            \end{itemize}
       %\pnum\result
       %\pnum\returns
       %\pnum\throws
       %\pnum\complexity
       \pnum\remarks
-      User is responsible for initial vertex labels.
+      The user is responsible for the initial vertex labels.
       %\pnum\errors
 \end{itemdescr}
 
