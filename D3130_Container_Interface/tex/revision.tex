@@ -36,4 +36,7 @@
 \begin{itemize}
       \item Add the edgelist as an abstract data structure as a peer to the adjacency list. 
             This causes a reorganization of this paper and the addition of a new section for the edgelist.
+      \item Remove unnecessary \tcode{E} edge template parameter in concepts. 
+      \item Remove type traits \tcode{is_unordered_edge} and \tcode{is_ordered_edge} because 
+            their matching concepts, \tcode{unordered_edge} and \tcode{ordered_edge}, don't need them.
 \end{itemize}

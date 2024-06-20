@@ -90,14 +90,10 @@ Table \ref{tab:graph_traits} summarizes the type traits in the Graph Container I
     \tcode{has_find_vertex_edge<G>} & concept & Are the \tcode{find_vertex_edge(g,_)} functions available?\\
     \tcode{has_contains_edge<G>} & concept & Is the \tcode{contains_edge(g,uid,vid)} function available?\\
 \hline
-    \tcode{define_unordered_edge<G,E> : false_type} & struct & Specialize for edge implementation to derive from \tcode{true_type} for unordered edges \\
-    \tcode{is_unordered_edge<G,E>} & struct & \tcode{conjunction<define_unordered_edge<E>, is_sourced_edge<G, E>>} \\
-    \tcode{is_unordered_edge_v<G,E>} & type alias & \\
-    \tcode{unordered_edge<G,E>} & concept & \\
+    \tcode{define_unordered_edge<G> : false_type} & struct & Specialize to derive from \tcode{true_type} for a graph with unordered edges \\
+    \tcode{unordered_edge<G>} & concept & \\
 \hline
-    \tcode{is_ordered_edge<G,E>} & struct & \tcode{negation<is_unordered_edge<G,E>>} \\
-    \tcode{is_ordered_edge_v<G,E>} & type alias & \\
-    \tcode{ordered_edge<G,E>} & concept & \\
+    \tcode{ordered_edge<G>} & concept & \\
 \hline
     \tcode{define_adjacency_matrix<G> : false_type} & struct & Specialize for graph implementation to derive from \tcode{true_type} for edges stored as a square 2-dimensional array \\
     \tcode{is_adjacency_matrix<G>} & struct & \\
