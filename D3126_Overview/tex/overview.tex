@@ -95,7 +95,7 @@ be overridden to allow a developer to adapt their own graph data structures to t
 The Graph Library proposal limits itself to adjacency graphs and edgelists only. An adjacency graph is an outer range of vertices with an inner range of outgoing
 edges on each vertex. An edgelist is a view of edges on an adjacency list, or a range of edge types.
 
-Parallel versions of the algorithms are not included for several reasons. The executors proposal in P2300r5 \cite{REF_P2300r5} is expected to introduce new 
+Parallel versions of the algorithms are not included for several reasons. The \tcode{std::execution} proposal in P2300 \cite{REF_P2300} is expected to introduce new 
 and better ways to do parallel algorithms beyond that used in the parallel STL algorithms and we would like to wait for finalization of that proposal before 
 committing to parallel implementations. Secondly, many graph algorithms don't benefit from parallel implementations so there is less need to offer an implementation. 
 Lastly, it will help limit the size of this proposal which is already looking to be large without it. It is expected that future proposals will be submitted for parallel graph algorithms. 
@@ -318,7 +318,7 @@ by the paper they are associated with.
                                     practice, and it would help smooth the process to justify our decision.
                         \end{itemize}
             \end{enumerate}
-      \item \textbf{Pyyyy: Comparison to boost::graph} (paper not yet submitted)
+      \item \textbf{P3337: Comparison to boost::graph} (paper not yet submitted)
             \begin{enumerate}
                   \item My comment about the structure of the paper changing was a reference to previous comparisons with boost::graph. 
                         I'm sure these were in an earlier version, or am I misremembering?
