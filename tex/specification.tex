@@ -110,10 +110,7 @@ concept adjacency_list = vertex_range<G> && targeted_edge<G, edge_t<G>> &&
 };
 
 template <class G>
-concept sourced_adjacency_list = adjacency_list<G> && sourced_edge<G, edge_t<G>> &&
-      requires(G&& g, edge_reference_t<G> uv) {
-  edge_id(g, uv);
-};
+concept sourced_adjacency_list = adjacency_list<G> && sourced_edge<G, edge_t<G>>;
 } // namespace std::graph
 \end{lstlisting}
 

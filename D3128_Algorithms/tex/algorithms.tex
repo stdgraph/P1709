@@ -985,7 +985,7 @@ Calculate the Jaccard coefficient of a graph
 
 \phil{Consider using \tcode{out(uid,vid,uv,val)} as the function descriptor in Preconditions to make it more readable.}
 
-\phil{Would an output iterator be appropriate? \tcode{pair<edge_id_t<G>>,T>} might work for the output type. This starts to get into the same realm of the views
+\phil{Would an output iterator be appropriate? \tcode{pair<pair<vertex_id_t<G>,vertex_id_t<G>>,T>} might work for the output type. This starts to get into the same realm of the views
 as to whether the edge reference is useful by the consumer or not (e.g. basic\_ vs. regular versions).}
 
 \begin{itemdescr}
