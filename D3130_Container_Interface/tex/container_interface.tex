@@ -138,10 +138,6 @@ The type aliases are defined by either a function specialization for the underly
     \tcode{edge_t<G>} & \tcode{range_value_t<vertex_edge_range_t<G>>} & \\    
     \tcode{edge_reference_t<G>} & \tcode{range_reference_t<vertex_edge_range_t<G>>} & \\    
     \tcode{edge_value_t<G>} & \tcode{decltype(edge_value(g,uv))} & optional \\
-\hdashline
-    \multicolumn{3}{c}{The following is only available when the optional \tcode{source_id(g,uv)} is defined for the edge} \\
-\hdashline
-    \tcode{edge_id_t<G>} & \tcode{edge_descriptor<vertex_id_t<G>,true,void,void>} & \\    
 \hline
     \tcode{partition_id_t<G>} & \tcode{decltype(partition_id(g,uid))} & optional \\
     \tcode{partition_vertex_range_t<G>} & \tcode{vertices(g,pid)} & optional \\    
@@ -248,7 +244,6 @@ also be non-linear. This is expected to be an uncommon case.
 \hdashline
     \tcode{source_id(g,uv)} & \tcode{vertex_id_t<G>} & constant & n/a, optional \\
     \tcode{source(g,uv)} & \tcode{vertex_t<G>} & constant & \tcode{*(begin(vertices(g)) + source_id(g,uv))} if \tcode{random_access_range<vertex_range_t<G>> \&\& integral<target_id(g,uv)>} \\
-    \tcode{edge_id(g,uv)} & \tcode{edge_id_t<G>} & constant & \tcode{edge_descriptor<vertex_id_t<G>,true,void,void>\{source_id(g,uv),target_id(g,uv)\}} \\
 \hline
 \end{tabular}}
 \caption{Edge Functions}
@@ -376,7 +371,6 @@ those types (e.g. an iterator of a range). Table \ref{tab:edgelist_func} describ
     \tcode{edge_t<EL>} & \tcode{range_value_t<edge_range_t<EL>>} & \\       
     \tcode{edge_reference_t<EL>} & \tcode{range_reference_t<edge_range_t<EL>>} & \\    
     \tcode{edge_value_t<EL>} & \tcode{decltype(edge_value(e))} & optional \\
-    \tcode{edge_id_t<EL>} & \tcode{edge_descriptor<vertex_id_t<EL>,true,void,void>} & \\    
 \hline
     \tcode{vertex_id_t<EL>} & \tcode{decltype(target_id(e))} & \\
 \hline
@@ -391,7 +385,7 @@ those types (e.g. an iterator of a range). Table \ref{tab:edgelist_func} describ
 %}
 \subsection{Functions}
 Table \ref{tab:edgelist_func} shows the functions available in the Edgelist Interface. Unlike the adjacency list, \tcode{source_id(e)}
-and \tcode{edge_id(e)} are always available.
+is always available.
 
 
 \begin{table}[h!]
@@ -403,7 +397,6 @@ and \tcode{edge_id(e)} are always available.
     \hline
         \tcode{target_id(e)} & \tcode{vertex_id_t<EL>} & constant & (see below) \\
         \tcode{source_id(e)} & \tcode{vertex_id_t<EL>} & constant & (see below) \\
-        \tcode{edge_id(e)} & \tcode{edge_id_t<EL>} & constant & \tcode{edge_descriptor<vertex_id_t<EL>,true,void,void>\{source_id(e),target_id(e)\}} \\
         \tcode{edge_value(e)} & \tcode{edge_value_t<EL>} & constant & optional, see below \\
     \hdashline
         \tcode{contains_edge(el,uid,vid)} & \tcode{bool} & linear & \tcode{find_if(el, [](edge_reference_t<EL> e) \{return source_id(e)==uid && target_id(e)==vid\})} \\

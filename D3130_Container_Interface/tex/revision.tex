@@ -39,4 +39,6 @@
       \item Remove unnecessary \tcode{E} edge template parameter in concepts. 
       \item Remove type traits \tcode{is_unordered_edge} and \tcode{is_ordered_edge} because 
             their matching concepts, \tcode{unordered_edge} and \tcode{ordered_edge}, don't need them.
+      \item Remove \tcode{edge_id(g,uv)} and \tcode{edge_id_t<G>} because they don't add value to the interface
+            and can easily be implemented if needed.
 \end{itemize}
