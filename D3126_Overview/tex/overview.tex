@@ -95,12 +95,12 @@ be overridden to allow a developer to adapt their own graph data structures to t
 The Graph Library proposal limits itself to adjacency graphs and edgelists only. An adjacency graph is an outer range of vertices with an inner range of outgoing
 edges on each vertex. An edgelist is a view of edges on an adjacency list, or a range of edge types.
 
-Parallel graph algorithms are not included in this proposal for a number of reasons.
+Parallel graph algorithms are not included in this proposal for several reasons.
 \begin{itemize}
-      \item Parallelism is not beneficial for a particular algorithm, such as for depth-first search.
-      \item There is no clear industry standard for a parallel version of an algorithm.
+      \item Parallelism is not beneficial for some algorithms, such as for depth-first search.
+      \item There is no clear industry standard for a parallel version of some algorithms.
       \item The parallel algorithm is a different algorithm altogether, such as \textit{Delta-Stepping} for shortest paths. 
-            Omitting it helps to limit the size of this proposal that is already large.
+            Omitting them helps to limit the size of this proposal that is already large.
 \end{itemize}
 We feel that providing a broader set of algorithms to address different interests is the better choice. 
 We anticipate that proposals will be submitted for parallel graph algorithms in the future. 
