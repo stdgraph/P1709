@@ -72,6 +72,7 @@ these to assure the existing design will support them.
       \item Support for sparse vertex ids, implying the use of bi-directional containers such as \tcode{map} and \tcode{unordered_map} for vertices.
       \item Bi-directional graphs, where vertices have incoming and outgoing edges.
       \item Constexpr graphs, where vertices and edges are stored in \tcode{std::array} or other constexpr-friendly container.
+      \item Parallel graph algorithms.
 \end{itemize}
 
 
@@ -101,6 +102,8 @@ Parallel graph algorithms are not included in this proposal for several reasons.
       \item There is no clear industry standard for a parallel version of some algorithms.
       \item The parallel algorithm is a different algorithm altogether, such as \textit{Delta-Stepping} for shortest paths. 
             Omitting them helps to limit the size of this proposal that is already large.
+      \item A richer set of parallelization mechanisms is required because of the irregular and hierarchical nature of graph 
+            data structures. Deferring this to a future proposal constrains the complexity and size of this initial proposal.
 \end{itemize}
 We feel that providing a broader set of algorithms to address different interests is the better choice. 
 We anticipate that proposals will be submitted for parallel graph algorithms in the future. 
