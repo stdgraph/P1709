@@ -418,26 +418,26 @@ Table \ref{tab:edgelist_func} shows the functions available in the Edgelist Inte
 is always available.
 
 
-\begin{table}[h!]
-    \begin{center}
-    \resizebox{\textwidth}{!}
-    {\begin{tabular}{l l p{1.5cm} L{7.0cm}}
-    \hline
-        \textbf{Function} & \textbf{Return Type} & \textbf{Complexity} & \textbf{Default Implementation} \\
-    \hline
-        \tcode{target_id(e)} & \tcode{vertex_id_t<EL>} & constant & (see below) \\
-        \tcode{source_id(e)} & \tcode{vertex_id_t<EL>} & constant & (see below) \\
-        \tcode{edge_value(e)} & \tcode{edge_value_t<EL>} & constant & optional, see below \\
-    \hdashline
-        \tcode{contains_edge(el,uid,vid)} & \tcode{bool} & linear & \tcode{find_if(el, [](edge_reference_t<EL> e) \{return source_id(e)==uid && target_id(e)==vid\})} \\
-        \tcode{num_edges(el)} & \tcode{integral} & constant & \tcode{size(el)} \\
-        \tcode{has_edge(el)} & \tcode{bool} & constant & \tcode{num_edges(el)>0} \\
-    \hline
-    \end{tabular}}
-    \caption{Edgelist Interface Functions}
-    \label{tab:edgelist_func}
-    \end{center}
-    \end{table}
+% \begin{table}[h!]
+%     \begin{center}
+%     \resizebox{\textwidth}{!}
+%     {\begin{tabular}{l l p{1.5cm} L{7.0cm}}
+%     \hline
+%         \textbf{Function} & \textbf{Return Type} & \textbf{Complexity} & \textbf{Default Implementation} \\
+%     \hline
+%         \tcode{target_id(e)} & \tcode{vertex_id_t<EL>} & constant & (see below) \\
+%         \tcode{source_id(e)} & \tcode{vertex_id_t<EL>} & constant & (see below) \\
+%         \tcode{edge_value(e)} & \tcode{edge_value_t<EL>} & constant & optional, see below \\
+%     \hdashline
+%         \tcode{contains_edge(el,uid,vid)} & \tcode{bool} & linear & \tcode{find_if(el, [](edge_reference_t<EL> e) \{return source_id(e)==uid && target_id(e)==vid\})} \\
+%         \tcode{num_edges(el)} & \tcode{integral} & constant & \tcode{size(el)} \\
+%         \tcode{has_edge(el)} & \tcode{bool} & constant & \tcode{num_edges(el)>0} \\
+%     \hline
+%     \end{tabular}}
+%     \caption{Edgelist Interface Functions}
+%     \label{tab:edgelist_func}
+%     \end{center}
+% \end{table}
 
 % \tcode{find_if(el, )}
 % [](edge_reference_t<EL>) \{return source_id(e)==uid && target_id(e)==vid\}
