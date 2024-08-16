@@ -18,10 +18,14 @@ in this proposal. The algorithms selected are a result of balancing a few things
 
 \subsection{Tier 1 Algorithms}
 \begin{multicols}{3}
+      \emph{Traversal}
+      \begin{itemize}
+            \item Breadth-First search
+            %\item Depth-First search
+      \end{itemize}
       \emph{Shortest Paths}
       \begin{itemize}
             %\item Shortest paths (driver interface)
-            \item Breadth-First search
             \item Dijkstra's algorithm
             \item Bellman-Ford
       \end{itemize}
@@ -72,8 +76,6 @@ Tier X algorithms are variations of shortest paths algorithms that complement th
 in this proposal.
 It is assumed that future proposals will include them, thought the exact mix for each proposal will depend on feedback received
 and our experience with the current proposal.
-
-Parallel versions of algorithms will also be considered, keeping in mind that not all algorithms benefit from parallelism.
 
 \phil{We may want to revisit the Driver idea in the future after we have more algorithms.}
 %The Shortest Paths Driver is an idea of having a unified interface that chooses the best Shortest Path algorithm
@@ -179,34 +181,11 @@ concept edge_weight_function = // e.g. weight(uv)
 
 
 
-\section{Shortest Paths}
+\section{Traversal}
 
+\subsection{Breadth-First Search}
 
-\begin{comment}
-      \subsection{Driver Interface}
-
-      \andrew{I am not sure we should have the unified interface.  We need to be more parsimonious in our interfaces.  Users can read the documentation for which algorithms to use.  And, if they are using graph algorithms, we should assume a certain level of knowledge about graph algorithms.  OTOH, it is only a handful of algorithms.}
-
-      \andrew{I am also not sure we should have ``shortest distance'' variants.  That doubles the number of functions in the interface.
-            For each function we have shortest paths, s-t paths, multi-source paths, parallel = 6X variants for each base function.  If we add shortest distances, that will make 12X.  OTOH, we could consider not having s-t paths or not having multi-source paths -- which would leave 4X for each base function.  However, I think people will want s-t and multi-source.
-      }
-      \phil{\tcode{dijkstra_shortest_distances} includes predecessor and distances, so excluding \tcode{dijkstra_shortest_distances} won't impact 
-      the user much.}
-
-
-      {\small
-            \lstinputlisting{D3128_Algorithms/src/shortest_paths.hpp}
-      }
-
-      \andrew{The variety of algorithms was inspired by networkx....  Which also had ``distance'' variants.}
-
-      \phil{I assume \tcode{adjacency_list_graph} is the same as our \tcode{adjacency_list}. \tcode{bidirectional_adjacency_list_graph} is new; what to do with it?}
-\end{comment}
-
-
-\subsection{Unweighted Shortest Paths}
-
-\subsubsection{Breadth-First Search, Single Source, Initialization}
+\subsubsection{Initialization}
 
 {\small
       \lstinputlisting{D3128_Algorithms/src/breadth_first_search_helpers.hpp}
@@ -223,6 +202,8 @@ concept edge_weight_function = // e.g. weight(uv)
 
 \subsubsection{Breadth-First Search, Single Source}
 Compute the breadth-first path and associated distance from vertex \tcode{source} to all reachable vertices in \tcode{graph}.
+
+\phil{Is distance always needed? Should we remove it, since it is easily evaluated using Dijkstra?}
 
 \begin{table}[h]
 \setcellgapes{3pt}
@@ -241,7 +222,6 @@ Compute the breadth-first path and associated distance from vertex \tcode{source
 %\caption{Algorithm Example}
 \label{tab:algo_example}
 \end{table}
-Note that complexity may be $\mathcal{O}(|E| + |V|\log{|V|)}$ for certain implementations.
 
 {\small
       \lstinputlisting{D3128_Algorithms/src/breadth_first_search.hpp}
@@ -274,20 +254,49 @@ Note that complexity may be $\mathcal{O}(|E| + |V|\log{|V|)}$ for certain implem
             \end{itemize}
       %\pnum\result
       %\pnum\returns \lstinline{void} \\
-      %\pnum\throws \tcode{out_of_range} is thrown when \tcode{source} is not in the range \tcode{0 <= source < num_vertices(graph)}.  \\
-      %\pnum\complexity \\
+      \pnum\throws
+            \begin{itemize}
+                  \item \tcode{out_of_range} is thrown when \tcode{source} is not in the range \tcode{0 <= source < num_vertices(g)}.
+            \end{itemize}
+      \pnum\complexity
+            \begin{itemize}
+                  \item $\mathcal{O}((|E| + |V|)\log{|V|})$
+                  \item Note that complexity may be $\mathcal{O}(|E| + |V|\log{|V|)}$ for certain implementations. 
+            \end{itemize}
       %\pnum\remarks 
       %\pnum\errors
 \end{itemdescr}
 
+\section{Shortest Paths}
 
-\subsection{Weighted Shortest Paths}
+\begin{comment}
+      \subsection{Driver Interface}
 
-\subsubsection{Shortest Paths Initialization}
+      \andrew{I am not sure we should have the unified interface.  We need to be more parsimonious in our interfaces.  Users can read the documentation for which algorithms to use.  And, if they are using graph algorithms, we should assume a certain level of knowledge about graph algorithms.  OTOH, it is only a handful of algorithms.}
+
+      \andrew{I am also not sure we should have ``shortest distance'' variants.  That doubles the number of functions in the interface.
+            For each function we have shortest paths, s-t paths, multi-source paths, parallel = 6X variants for each base function.  If we add shortest distances, that will make 12X.  OTOH, we could consider not having s-t paths or not having multi-source paths -- which would leave 4X for each base function.  However, I think people will want s-t and multi-source.
+      }
+      \phil{\tcode{dijkstra_shortest_distances} includes predecessor and distances, so excluding \tcode{dijkstra_shortest_distances} won't impact 
+      the user much.}
+
+
+      {\small
+            \lstinputlisting{D3128_Algorithms/src/shortest_paths.hpp}
+      }
+
+      \andrew{The variety of algorithms was inspired by networkx....  Which also had ``distance'' variants.}
+
+      \phil{I assume \tcode{adjacency_list_graph} is the same as our \tcode{adjacency_list}. \tcode{bidirectional_adjacency_list_graph} is new; what to do with it?}
+\end{comment}
+
+
+\subsection{Initialization}
 
 {\small
       \lstinputlisting{D3128_Algorithms/src/shortest_paths_helpers.hpp}
 }
+\phil{BGL uses the term "infinite" instead of "invalid". Which is better?}
 
 \begin{itemdescr}
       \pnum
@@ -309,10 +318,14 @@ Note that complexity may be $\mathcal{O}(|E| + |V|\log{|V|)}$ for certain implem
 \end{itemdescr}
 
 
-\subsubsection{Dijkstra Single Source Shortest Paths and Shortest Distances}
+\subsection{Dijkstra Single Source Shortest Paths and Shortest Distances}
 
 Compute the shortest path and associated distance from vertex \tcode{source} to all reachable vertices in \tcode{graph}
 using non-negative weights.
+
+If multiple sources are desired, the caller can call into \tcode{dijkstra_shortes_paths} or
+\tcode{dijkstra_shortes_distances} without initializing the predecessor and distances ranges
+between calls. Shorter paths to previously found vertices will be identified.
 
 \begin{table}[h]
 \setcellgapes{3pt}
@@ -334,13 +347,9 @@ using non-negative weights.
 
 Note that complexity may be $\mathcal{O}(|E| + |V|\log{|V|)}$ for certain implementations.
 
-The following functions are split into the common and general cases, where the general cases allow the caller
-to specify \tcode{Compare} and \tcode{Combine} functions (e.g. less and add). Concepts and types from 
-\tcode{std::ranges} don't include the namespace prefix for brevity and clarity of purpose.
-
+\subsubsection{Shortest Paths}
 {\small
-      \lstinputlisting{D3128_Algorithms/src/dijkstra_common.hpp}
-      \lstinputlisting{D3128_Algorithms/src/dijkstra_general.hpp}
+      \lstinputlisting{D3128_Algorithms/src/dijkstra_shortest_paths.hpp}
 }
 
 \begin{itemdescr}
@@ -373,15 +382,88 @@ to specify \tcode{Compare} and \tcode{Combine} functions (e.g. less and add). Co
             \end{itemize}
       %\pnum\result
       %\pnum\returns \lstinline{void} \\
-      %\pnum\throws \tcode{out_of_range} is thrown when \tcode{source} is not in the range \tcode{0 <= source < num_vertices(graph)}.  \\
-      %\pnum\complexity \\
+      \pnum\throws 
+            \begin{itemize}
+                  \item \tcode{out_of_range} is thrown when \tcode{source} is not in the range \tcode{0 <= source < num_vertices(graph)}.
+                  \item \tcode{graph_error} is thrown when the weight function returns a negative value.
+            \end{itemize}
+      \pnum\complexity
+                        $\mathcal{O}((|E| + |V|)\log{|V|})$. 
+                        Complexity may also be affected by the caller's visitor functionality. \\
       \pnum\remarks 
                         Bellman-Ford Shortest Paths allows negative weights with the consequence of greater complexity. \\
       %\pnum\errors
 \end{itemdescr}
 
+\subsubsection{Shortest Distances}
+This is the same as \textit{Shortest Paths} except that it doesn't evaluate the predecessors,
+giving a small performance improvement.
 
-\subsubsection{Bellman-Ford Single Source Shortest Paths and Shortest Distances}
+{\small
+      \lstinputlisting{D3128_Algorithms/src/dijkstra_shortest_dists.hpp}
+}
+
+\begin{itemdescr}
+      \pnum\mandates
+            \begin{itemize}
+                  \item
+                        The weight function \lstinline{w} must return a non-negative value.
+            \end{itemize}
+      \pnum\preconditions
+            \begin{itemize}
+                  \item
+                        \lstinline{0 <= source < num_vertices(graph)}. 
+                  \item
+                        \lstinline{distances} will be initialized with \lstinline{init_shortest_paths}.
+            \end{itemize}
+      \pnum\effects
+            \begin{itemize}
+                  \item
+                        If vertex with index \lstinline{i} is reachable from vertex \lstinline{source}, then
+                        \lstinline{distances[i]} will contain the distance from \lstinline{source} to vertex
+                        \lstinline{i}.  Otherwise \lstinline{distances[i]} will contain
+                        \lstinline{shortest_path_invalid_distance()}.
+            \end{itemize}
+      %\pnum\result
+      %\pnum\returns \lstinline{void} \\
+      \pnum\throws 
+            \begin{itemize}
+                  \item \tcode{out_of_range} is thrown when \tcode{source} is not in the range \tcode{0 <= source < num_vertices(graph)}.
+                  \item \tcode{graph_error} is thrown when the weight function returns a negative value.
+            \end{itemize}
+      \pnum\complexity
+                        $\mathcal{O}((|E| + |V|)\log{|V|})$. 
+                        Complexity may also be affected by the caller's visitor functionality. \\
+      \pnum\remarks 
+                        Bellman-Ford Shortest Paths allows negative weights with the consequence of greater complexity. \\
+      %\pnum\errors
+\end{itemdescr}
+
+\subsubsection{Dijkstra Visitor}
+\tcode{dijkstra_visitor_base} defines callacks for events in the \tcode{dijkstra_shortest_paths}
+and \tcode{dijkstra_shortest_distances} algorithms. To use it, a new class is derived from 
+\tcode{dijkstra_visitor_base} and the event function(s) are overridden. The instance of the
+new visitor is passed to the Dijkstra function. No \tcode{overload} keywork should be used.
+
+Empty event functions have no overhead because they are removed by the optimizer. 
+
+The events included are the same as the Dijkstra shortest path algorithms in the boost::graph 
+library.
+
+{\small
+      \lstinputlisting{D3128_Algorithms/src/dijkstra_visitor_base.hpp}
+}
+
+\subsubsection{Dijkstra Visitor Concept}
+The \tcode{dijkstra_visitor} concept is used to validate the visitor passed to the algorithms.
+
+\phil{This is currently not enabled in the algorithms because of a compiler error using gcc}
+{\small
+      \lstinputlisting{D3128_Algorithms/src/dijkstra_visitor_concept.hpp}
+}
+
+
+\subsection{Bellman-Ford Single Source Shortest Paths and Shortest Distances}
 Compute the shortest path and associated distance from vertex \tcode{source} to all reachable vertices in \tcode{graph}.
 
 \begin{table}[h]
