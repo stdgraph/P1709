@@ -11,8 +11,7 @@ void dijkstra_shortest_distances(
       G&                   g,
       const vertex_id_t<G> source,
       Distances&           distances,
-      WF&&                 weight =
-            [](edge_reference_t<G> uv) { return ranges::range_value_t<Distances>(1); },
+      WF&&      weight  = [](edge_reference_t<G> uv) { return ranges::range_value_t<Distances>(1); },
       Visitor&& visitor = dijkstra_visitor_base<G>(),
       Compare&& compare = less<ranges::range_value_t<Distances>>(),
       Combine&& combine = plus<ranges::range_value_t<Distances>>());

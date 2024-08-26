@@ -27,7 +27,7 @@ in this proposal. The algorithms selected are a result of balancing a few things
       \begin{itemize}
             %\item Shortest paths (driver interface)
             \item Dijkstra's algorithm
-            \item Bellman-Ford
+            \item Bellman-Ford algorithm
       \end{itemize}
       \emph{Clustering}
       \begin{itemize}
@@ -68,7 +68,7 @@ in this proposal. The algorithms selected are a result of balancing a few things
 \vfill\null
 \end{multicols}
 
-Shortest Paths and Topological Sort are all single source with multiple targets.
+Breadth-First Search, Shortest Paths and Topological Sort include single-source and multi-source versions with multiple targets.
 
 \subsection{Other Algorithms}
 Additional algorithms that were considered but not included in this proposal are shown in Table \ref{tab:other_algorithms}. 
@@ -118,10 +118,9 @@ and our experience with the current proposal.
 \andrew{Note that NetworkX also specifies single source single target and multiple source versions of the shortest paths algorithms.  
 BGL does not have these (nor NWGraph).  We should discuss whether or not to consider those and whether or not to make them Tier 1, 2, 3, or infinity.}
 \phil{I think we're beyond considering these for the initial proposal. They can be added in the future, unless we're told otherwise.}
+\phil{I added the multiple source versions because the cost skyrockets for Bellman-Ford if it needs to be run N times for N sources.}
 
 \phil{The same variations for Shortest Paths algorithms can also be useful for topological sort.}
-
-\phil{Many algorithms allocate memory. Should we include a [PMR] allocator argument?}
 
 % Floyd-Warshall $\mathcal{O}(N^2)$}
 % Johnson $\mathcal{O}(N^2)$}
@@ -318,7 +317,7 @@ Compute the breadth-first path and associated distance from vertex \tcode{source
 \end{itemdescr}
 
 
-\subsection{Dijkstra Single Source Shortest Paths and Shortest Distances}
+\subsection{Dijkstra Shortest Paths and Shortest Distances}
 
 Compute the shortest path and associated distance from vertex \tcode{source} to all reachable vertices in \tcode{graph}
 using non-negative weights.
@@ -347,18 +346,26 @@ between calls. Shorter paths to previously found vertices will be identified.
 
 Note that complexity may be $\mathcal{O}(|E| + |V|\log{|V|)}$ for certain implementations.
 
-\phil{Need to add visitor event behavior}
-
 \subsubsection{Dijkstra Shortest Paths}
+
+\paragraph{Single-Source Shortest Paths}
 {\small
       \lstinputlisting{D3128_Algorithms/src/dijkstra_shortest_paths.hpp}
+}
+
+\paragraph{Multi-Source Shortest Paths}
+{\small
+      \lstinputlisting{D3128_Algorithms/src/dijkstra_shortest_paths_multi.hpp}
 }
 
 \begin{itemdescr}
       \pnum\mandates
             \begin{itemize}
                   \item
-                        \lstinline{0 <= source < num_vertices(graph)}. 
+                        \lstinline{0 <= source < num_vertices(graph)} for the single-source version.
+                  \item
+                        \lstinline{0 <= source < num_vertices(graph)}, for each \lstinline{source} in \lstinline{sources}, 
+                                   for the multi-source version.
                   \item
                         The weight function \lstinline{w} must return a non-negative value.
             \end{itemize}
@@ -387,7 +394,7 @@ Note that complexity may be $\mathcal{O}(|E| + |V|\log{|V|)}$ for certain implem
       \pnum\throws 
             \begin{itemize}
                   \item \tcode{out_of_range} is thrown when \tcode{source} is not in the range \tcode{0 <= source < num_vertices(graph)}.
-                  \item \tcode{graph_error} is thrown when the weight function returns a negative value.
+                  \item \tcode{out_of_range} is thrown when the weight function returns a negative value.
             \end{itemize}
       \pnum\complexity
                         $\mathcal{O}((|E| + |V|)\log{|V|})$. 
@@ -401,15 +408,24 @@ Note that complexity may be $\mathcal{O}(|E| + |V|\log{|V|)}$ for certain implem
 This is the same as \textit{Shortest Paths} except that it excludes the predecessors,
 giving a small performance improvement with lower memory overhead.
 
+\paragraph{Single-Source Shortest Distances}
 {\small
       \lstinputlisting{D3128_Algorithms/src/dijkstra_shortest_dists.hpp}
+}
+
+\paragraph{Multi-Source Shortest Distances}
+{\small
+      \lstinputlisting{D3128_Algorithms/src/dijkstra_shortest_dists_multi.hpp}
 }
 
 \begin{itemdescr}
       \pnum\mandates
             \begin{itemize}
                   \item
-                        \lstinline{0 <= source < num_vertices(graph)}. 
+                        \lstinline{0 <= source < num_vertices(graph)} for the single-source version. 
+                  \item
+                        \lstinline{0 <= source < num_vertices(graph)}, for each \lstinline{source} in \lstinline{sources}, 
+                                   for the multi-source version.
                   \item
                         The weight function \lstinline{w} must return a non-negative value.
             \end{itemize}
@@ -431,7 +447,7 @@ giving a small performance improvement with lower memory overhead.
       \pnum\throws 
             \begin{itemize}
                   \item \tcode{out_of_range} is thrown when \tcode{source} is not in the range \tcode{0 <= source < num_vertices(graph)}.
-                  \item \tcode{graph_error} is thrown when the weight function returns a negative value.
+                  \item \tcode{out_of_range} is thrown when the weight function returns a negative value.
             \end{itemize}
       \pnum\complexity
                         $\mathcal{O}((|E| + |V|)\log{|V|})$. 
@@ -452,9 +468,52 @@ Empty event functions have no overhead because they are removed by the optimizer
 The events included are the same as the Dijkstra Shortest Path algorithms in the boost::graph 
 library.
 
+The \tcode{vdesc} parameter is a vertex descriptor, which is a struct with vertex \tcode{id} and \tcode{vertex}
+reference members. The \tcode{edesc} parameter is an edge descriptor, which is a struct with \tcode{source_id},
+\tcode{target_id}, and \tcode{edge} reference members.
+
 {\small
       \lstinputlisting{D3128_Algorithms/src/dijkstra_visitor_base.hpp}
 }
+\begin{itemdescr}
+      %\pnum\mandates
+      %\pnum\preconditions
+      \pnum\effects
+            \begin{itemize}
+                  \item
+                        \lstinline{on_initialize_vertex(vdesc)} is called once for each vertex before
+                        the algorithm is run.
+                  \item
+                        \lstinline{on_discover_vertex(vdesc)} is called once for each source vertex passed
+                        to the algorithm.
+                  \item
+                        \lstinline{on_examine_vertex(vdesc)} is called for a vertex before any of 
+                        its outgoing edges are examined. It is possible that it will be called multiple times 
+                        for the same vertex if paths are found to it from other vertices with a shorter distance.
+                  \item
+                        \lstinline{on_finish_vertex(vdesc)} is called for vertex that is being examined,
+                        after all its outgoing edges have been examined.
+                  \item
+                        \lstinline{on_examine_edge(edesc)} is called for edge of the source vertex that is
+                        being examined.
+                  \item
+                        \lstinline{on_edge_relaxed(edesc)} is called when the distance to the target vertex of the edge
+                        is relaxed, or decreased.
+                  \item
+                        \lstinline{on_edge_not_relaxed(edesc)} is called when the distance to the target vertex of the edge
+                        is not relaxed, or not decreased.
+            \end{itemize}
+      %\pnum\result
+      %\pnum\returns 
+      \pnum\throws 
+            \begin{itemize}
+                  \item If an event function throws an exception, the algorithm will terminate, the exception will 
+                  be propagated to the caller, and the state of the distances and predecessors ranges is undefined.
+            \end{itemize}
+      %\pnum\complexity
+      %\pnum\remarks 
+      %\pnum\errors
+\end{itemdescr}
 
 \subsubsection{Dijkstra Visitor Concept}
 The \tcode{dijkstra_visitor} concept is used to validate the visitor passed to the algorithms.
@@ -465,7 +524,7 @@ The \tcode{dijkstra_visitor} concept is used to validate the visitor passed to t
 }
 
 
-\subsection{Bellman-Ford Single Source Shortest Paths and Shortest Distances}
+\subsection{Bellman-Ford Shortest Paths and Shortest Distances}
 Compute the shortest path and associated distance from vertex \tcode{source} to all reachable vertices in \tcode{graph}.
 
 \begin{table}[h]
@@ -513,21 +572,25 @@ a case, the Bellman–Ford algorithm can detect and report the negative cycle."
       id of the vertex in a negative weight cycle that can be fed into a function that 
       returns the cycle.}
 
-\phil{Need to describe visitor event behavior}
-
-\phil{Bellmain-Ford would benefit from a Sources range overload. Calling it multiple
-      times would be very expensive, in comparison to Dijkstra.}
-
 \subsubsection{Bellman-Ford Shortest Paths}
+\paragraph{Single-Source Shortest Paths}
 {\small
       \lstinputlisting{D3128_Algorithms/src/bellman_shortest_paths.hpp}
+}
+
+\paragraph{Multi-Source Shortest Paths}
+{\small
+      \lstinputlisting{D3128_Algorithms/src/bellman_shortest_paths_multi.hpp}
 }
 
 \begin{itemdescr}
       \pnum\mandates
             \begin{itemize}
                   \item
-                        \lstinline{0 <= source < num_vertices(graph)}. 
+                        \lstinline{0 <= source < num_vertices(graph)} for the single-source version. 
+                  \item
+                        \lstinline{0 <= source < num_vertices(graph)}, for each \lstinline{source} in \lstinline{sources}, 
+                                   for the multi-source version.
             \end{itemize}
       \pnum\preconditions
             \begin{itemize}
@@ -575,15 +638,24 @@ a case, the Bellman–Ford algorithm can detect and report the negative cycle."
 This is the same as \textit{Shortest Paths} except that it excludes the predecessors,
 giving a small performance improvement with lower memory overhead.
 
+\paragraph{Single-Source Shortest Distances}
 {\small
       \lstinputlisting{D3128_Algorithms/src/bellman_shortest_dists.hpp}
+}
+
+\paragraph{Multi-Source Shortest Distances}
+{\small
+      \lstinputlisting{D3128_Algorithms/src/bellman_shortest_dists_multi.hpp}
 }
 
 \begin{itemdescr}
       \pnum\mandates
             \begin{itemize}
                   \item
-                        \lstinline{0 <= source < num_vertices(graph)}. 
+                        \lstinline{0 <= source < num_vertices(graph)} for the single-source version. 
+                  \item
+                        \lstinline{0 <= source < num_vertices(graph)}, for each \lstinline{source} in \lstinline{sources}, 
+                                   for the multi-source version.
             \end{itemize}
       \pnum\preconditions
             \begin{itemize}
@@ -635,6 +707,40 @@ library.
 {\small
       \lstinputlisting{D3128_Algorithms/src/bellman_visitor.hpp}
 }
+
+\begin{itemdescr}
+      %\pnum\mandates
+      %\pnum\preconditions
+      \pnum\effects
+            \begin{itemize}
+                  \item
+                        \lstinline{on_examine_edge(edesc)} is called for edge that is being examined. This will be called 
+                        multiple times for the same edge.
+                  \item
+                        \lstinline{on_edge_relaxed(edesc)} is called when the distance to the target vertex of the edge
+                        is relaxed, or decreased. This may be called multiple times for the same edge.
+                  \item
+                        \lstinline{on_edge_not_relaxed(edesc)} is called when the distance to the target vertex of the edge
+                        is not relaxed, or not decreased.
+                  \item
+                        \lstinline{on_edge_minimized(edesc)} is called when an edge has not been detected in a negative 
+                        weight cycle. This will be called at most once for each edge.
+                  \item
+                        \lstinline{on_edge_not_minimized(edesc)} is called when a cycle of negative weights is discovered.
+                        After returning, the algorithm will terminate and return \lstinline{false}. This will only be called
+                        once at most.
+            \end{itemize}
+      %\pnum\result
+      %\pnum\returns 
+      \pnum\throws 
+            \begin{itemize}
+                  \item If an event function throws an exception, the algorithm will terminate, the exception will 
+                  be propagated to the caller, and the state of the distances and predecessors ranges is undefined.
+            \end{itemize}
+      %\pnum\complexity
+      %\pnum\remarks 
+      %\pnum\errors
+\end{itemdescr}
 
 \subsubsection{Bellman-Ford Visitor Concept}
 

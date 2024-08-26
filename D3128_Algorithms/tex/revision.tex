@@ -17,7 +17,12 @@
 \subsection*{\paperno r1}
 \begin{itemize}
       \item Move Breadth-First Search out of the Shortest Paths section to avoid confusion.
-      \item Revise Dijkstra and Bellman-Ford algorithms to include a visitor parameter to 
-            match boost::graph. Also removed extra overloads to keep the proposal small, 
-            until we get more input.
+      \item Revise the Dijkstra and Bellman-Ford shortest-path and shortest-distance algorithms
+            \begin{itemize}
+                  \item Add a visitor parameter to match boost::graph. Each algorithm uses a different visitor class.
+                  \item Remove overloads that excluded Compare and Combine functions because they don't add much value,
+                        and to keep the proposal small.
+                  \item Add overloads for multiple sources. This is particularly important for Bellman-Ford to avoid
+                        repeated calls to the algorithm that would make an already slow algorithm even slower.
+            \end{itemize}
 \end{itemize}
