@@ -347,7 +347,9 @@ between calls. Shorter paths to previously found vertices will be identified.
 
 Note that complexity may be $\mathcal{O}(|E| + |V|\log{|V|)}$ for certain implementations.
 
-\subsubsection{Shortest Paths}
+\phil{Need to add visitor event behavior}
+
+\subsubsection{Dijkstra Shortest Paths}
 {\small
       \lstinputlisting{D3128_Algorithms/src/dijkstra_shortest_paths.hpp}
 }
@@ -356,12 +358,12 @@ Note that complexity may be $\mathcal{O}(|E| + |V|\log{|V|)}$ for certain implem
       \pnum\mandates
             \begin{itemize}
                   \item
+                        \lstinline{0 <= source < num_vertices(graph)}. 
+                  \item
                         The weight function \lstinline{w} must return a non-negative value.
             \end{itemize}
       \pnum\preconditions
             \begin{itemize}
-                  \item
-                        \lstinline{0 <= source < num_vertices(graph)}. 
                   \item
                         \lstinline{distances} will be initialized with \lstinline{init_shortest_paths}.
                   \item
@@ -395,9 +397,9 @@ Note that complexity may be $\mathcal{O}(|E| + |V|\log{|V|)}$ for certain implem
       %\pnum\errors
 \end{itemdescr}
 
-\subsubsection{Shortest Distances}
-This is the same as \textit{Shortest Paths} except that it doesn't evaluate the predecessors,
-giving a small performance improvement.
+\subsubsection{Dijkstra Shortest Distances}
+This is the same as \textit{Shortest Paths} except that it excludes the predecessors,
+giving a small performance improvement with lower memory overhead.
 
 {\small
       \lstinputlisting{D3128_Algorithms/src/dijkstra_shortest_dists.hpp}
@@ -407,12 +409,12 @@ giving a small performance improvement.
       \pnum\mandates
             \begin{itemize}
                   \item
+                        \lstinline{0 <= source < num_vertices(graph)}. 
+                  \item
                         The weight function \lstinline{w} must return a non-negative value.
             \end{itemize}
       \pnum\preconditions
             \begin{itemize}
-                  \item
-                        \lstinline{0 <= source < num_vertices(graph)}. 
                   \item
                         \lstinline{distances} will be initialized with \lstinline{init_shortest_paths}.
             \end{itemize}
@@ -442,12 +444,12 @@ giving a small performance improvement.
 \subsubsection{Dijkstra Visitor}
 \tcode{dijkstra_visitor_base} defines callacks for events in the \tcode{dijkstra_shortest_paths}
 and \tcode{dijkstra_shortest_distances} algorithms. To use it, a new class is derived from 
-\tcode{dijkstra_visitor_base} and the event function(s) are overridden. The instance of the
-new visitor is passed to the Dijkstra function. No \tcode{overload} keywork should be used.
+\tcode{dijkstra_visitor_base} and the desired event function(s) are overridden. The instance of the
+new visitor is passed to the Dijkstra algorithm. No \tcode{overload} keyword should be used.
 
 Empty event functions have no overhead because they are removed by the optimizer. 
 
-The events included are the same as the Dijkstra shortest path algorithms in the boost::graph 
+The events included are the same as the Dijkstra Shortest Path algorithms in the boost::graph 
 library.
 
 {\small
@@ -486,28 +488,51 @@ Compute the shortest path and associated distance from vertex \tcode{source} to 
 
 %\andrew{Complexity is really is atrocious.  Suitable only for really small graphs.}
 
+The Bellman-Ford algorithm supports the use of negative edge weights, at cost in performance. 
+Because of its complexity, it can only be used for small graphs.
+If a user can guarantee that a graph has positive edge weights then Dijkstra's algorithm 
+provides far better performance.
 
-The following functions are split into the common and general cases, where the general cases allow the caller
-to specify \tcode{Compare} and \tcode{Combine} functions (e.g. less and add). Concepts and types from 
-\tcode{std::ranges} don't include the namespace prefix for brevity and clarity of purpose.
+There is also the special case where edges form a negative cycle. 
+"If a graph contains a 'negative cycle' (i.e. a cycle whose edges sum to a negative value) 
+that is reachable from the source, then there is no cheapest path: any path that has a point 
+on the negative cycle can be made cheaper by one more walk around the negative cycle. In such 
+a case, the Bellman–Ford algorithm can detect and report the negative cycle." 
+\textbf{Wikipedia} (\cite{REF_bellman})
 
+\phil{I've duplicated BGL's handling of negative weight cycles by making an additional pass
+      though the edges to detect a negative cycle and return a false if found. However, more
+      is needed so the caller can determine what vertices make up the cycle. I've added
+      debug code for this, but I suspect we will want to expose this in some way.}
+
+\phil{NetworkX has \tcode{negative_edge_cycle} and \tcode{find_negative_cycle}. 
+      These are needed if negative weight cycles are a pre-condition, or once a cycle is
+      detected?}
+
+\phil{Consider returning \tcode{optional<vertex_id_t<G>>}. If it has an id, then it's the 
+      id of the vertex in a negative weight cycle that can be fed into a function that 
+      returns the cycle.}
+
+\phil{Need to describe visitor event behavior}
+
+\phil{Bellmain-Ford would benefit from a Sources range overload. Calling it multiple
+      times would be very expensive, in comparison to Dijkstra.}
+
+\subsubsection{Bellman-Ford Shortest Paths}
 {\small
-      \lstinputlisting{D3128_Algorithms/src/bellman_ford_common.hpp}
-      \lstinputlisting{D3128_Algorithms/src/bellman_ford_general.hpp}
+      \lstinputlisting{D3128_Algorithms/src/bellman_shortest_paths.hpp}
 }
 
-\phil{Should negative weight cycles be a pre-condition, or should it be detected with an exception thrown when it exists?}
-
-\phil{NetworkX has \tcode{negative_edge_cycle} and \tcode{find_negative_cycle}. These are needed if negative weight cycles are a pre-condition?}
-
 \begin{itemdescr}
-      %\pnum\mandates
-      \pnum\preconditions
+      \pnum\mandates
             \begin{itemize}
                   \item
                         \lstinline{0 <= source < num_vertices(graph)}. 
+            \end{itemize}
+      \pnum\preconditions
+            \begin{itemize}
                   \item
-                        \lstinline{distance} will be initialized with \lstinline{init_shortest_paths}.
+                        \lstinline{distances} will be initialized with \lstinline{init_shortest_paths}.
                   \item
                         \lstinline{predecessors} will be initialized with \lstinline{init_shortest_paths}.
             \end{itemize}
@@ -525,17 +550,100 @@ to specify \tcode{Compare} and \tcode{Combine} functions (e.g. less and add). Co
                         \lstinline{i}.
             \end{itemize}
       %\pnum\result
-      %\pnum\returns \lstinline{void} \\
-      %\pnum\throws \tcode{out_of_range} is thrown when \tcode{source} is not in the range \tcode{0 <= source < num_vertices(graph)}.  \\
-      %\pnum\complexity \\
+      \pnum\returns 
+            \begin{itemize}
+                  \item \lstinline{true} if shortest paths completed successfully.
+                  \item \lstinline{false} when a negative weight cycle has been detected. 
+                        The \tcode{on_edge_not_minimized()} event is also called on 
+                        the visitor before returning.
+            \end{itemize}
+      \pnum\throws 
+            \begin{itemize}
+                  \item \tcode{out_of_range} is thrown when \tcode{source} is not in the range \tcode{0 <= source < num_vertices(graph)}.  \\
+            \end{itemize}
+      \pnum\complexity $\mathcal{O}(|E| \cdot |V|)$. Complexity may also be affected by the callers visitor functionality. \\
       \pnum\remarks 
             \begin{itemize}
-                  \item
-                        Unlike Dijkstra's algorithm, Bellman-Ford allows negative edge weights. Performance constraints limit this to smaller graphs.
+                  \item Unlike Dijkstra's algorithm, Bellman-Ford allows negative edge weights. 
+                        Performance constraints limit this to smaller graphs.
             \end{itemize}
       %\pnum\errors
 \end{itemdescr}
 
+\subsubsection{Bellman-Ford Shortest Distances}
+
+This is the same as \textit{Shortest Paths} except that it excludes the predecessors,
+giving a small performance improvement with lower memory overhead.
+
+{\small
+      \lstinputlisting{D3128_Algorithms/src/bellman_shortest_dists.hpp}
+}
+
+\begin{itemdescr}
+      \pnum\mandates
+            \begin{itemize}
+                  \item
+                        \lstinline{0 <= source < num_vertices(graph)}. 
+            \end{itemize}
+      \pnum\preconditions
+            \begin{itemize}
+                  \item
+                        \lstinline{distances} will be initialized with \lstinline{init_shortest_paths}.
+            \end{itemize}
+      \pnum\effects
+            \begin{itemize}
+                  \item
+                        If vertex with index \lstinline{i} is reachable from vertex \lstinline{source}, then
+                        \lstinline{distances[i]} will contain the distance from \lstinline{source} to vertex
+                        \lstinline{i}.  Otherwise \lstinline{distances[i]} will contain
+                        \lstinline{shortest_path_invalid_distance()}.
+            \end{itemize}
+      %\pnum\result
+      \pnum\returns 
+            \begin{itemize}
+                  \item \lstinline{true} if shortest paths completed successfully.
+                  \item \lstinline{false} when a negative weight cycle has been detected. 
+                        The \tcode{on_edge_not_minimized()} event is also called on 
+                        the visitor before returning.
+            \end{itemize}
+      \pnum\throws 
+            \begin{itemize}
+                  \item \tcode{out_of_range} is thrown when \tcode{source} is not in the range \tcode{0 <= source < num_vertices(graph)}.  \\
+            \end{itemize}
+      \pnum\complexity $\mathcal{O}(|E| \cdot |V|)$. Complexity may also be affected by the callers visitor functionality. \\
+      \pnum\remarks 
+            \begin{itemize}
+                  \item Unlike Dijkstra's algorithm, Bellman-Ford allows negative edge weights. 
+                        Performance constraints limit this to smaller graphs.
+            \end{itemize}
+      %\pnum\errors
+\end{itemdescr}
+
+
+\subsubsection{Bellman-Ford Visitor}
+
+\tcode{bellman_visitor_base} defines callacks for events in the \tcode{bellman_ford_shortest_paths}
+and \tcode{bellman_ford_shortest_distances} algorithms. To use it, a new class is derived from 
+\tcode{bellman_visitor_base} and the desired event function(s) are overridden. The instance of the
+new visitor is passed to the Bellman-Ford algorithm. No \tcode{overload} keyword should be used.
+
+Empty event functions have no overhead because they are removed by the optimizer. 
+
+The events included are the same as the Bellman-Ford Shortest Path algorithms in the boost::graph 
+library.
+
+{\small
+      \lstinputlisting{D3128_Algorithms/src/bellman_visitor.hpp}
+}
+
+\subsubsection{Bellman-Ford Visitor Concept}
+
+The \tcode{bellman_visitor} concept is used to validate the visitor passed to the algorithms.
+
+\phil{This is currently not enabled in the algorithms because of a compiler error using gcc}
+{\small
+      \lstinputlisting{D3128_Algorithms/src/bellman_visitor_concept.hpp}
+}
 
 \section{Clustering}
 \subsection{Triangle Counting}
