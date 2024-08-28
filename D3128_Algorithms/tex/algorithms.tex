@@ -21,7 +21,7 @@ in this proposal. The algorithms selected are a result of balancing a few things
       \emph{Traversal}
       \begin{itemize}
             \item Breadth-First search
-            %\item Depth-First search
+            \item Depth-First search
       \end{itemize}
       \emph{Shortest Paths}
       \begin{itemize}
@@ -398,16 +398,24 @@ Note that complexity may be $\mathcal{O}(|E| + |V|\log{|V|)}$ for certain implem
                               \item \lstinline{size(distances) < size(vertices(g))}
                               \item \lstinline{size(predecessor) < size(vertices(g))}
                               \item \lstinline{source} is not in the range \lstinline{0 <= source < num_vertices(graph)}.
-                              \item The weight function returns a negative value.
+                              \item The weight function returns a negative value. This check is not made if the weight
+                                    is an unsigned integral value.
                         \end{itemize}
             \end{itemize}
       \pnum\complexity
                         $\mathcal{O}((|E| + |V|)\log{|V|})$. 
                         Complexity may also be affected by the caller's visitor functionality. \\
       \pnum\remarks 
-                        Bellman-Ford Shortest Paths allows negative weights with the consequence of greater complexity. \\
+            \begin{itemize}
+                  \item Duplicate sources do not affect the algorithm's complexity or correctness.
+                  \item Bellman-Ford Shortest Paths allows negative weights with the consequence of greater complexity.
+            \end{itemize}
       %\pnum\errors
 \end{itemdescr}
+
+\andrew{Should we include the check for negative weights (performance)?}
+\phil{It's the cost of safety. BGL did it, so there is precedent. The check isn't done if weights are unsigned 
+integral values.}
 
 \subsubsection{Dijkstra Shortest Distances}
 This is the same as \textit{Shortest Paths} except that it excludes the predecessors,
@@ -455,14 +463,18 @@ giving a small performance improvement with lower memory overhead.
                         \begin{itemize}
                               \item \lstinline{size(distances) < size(vertices(g))}
                               \item \lstinline{source} is not in the range \lstinline{0 <= source < num_vertices(graph)}.
-                              \item The weight function returns a negative value.
+                              \item The weight function returns a negative value. This check is not made if the weight
+                                    is an unsigned integral value.
                         \end{itemize}
             \end{itemize}
       \pnum\complexity
                         $\mathcal{O}((|E| + |V|)\log{|V|})$. 
                         Complexity may also be affected by the caller's visitor functionality. \\
       \pnum\remarks 
-                        Bellman-Ford Shortest Paths allows negative weights with the consequence of greater complexity. \\
+            \begin{itemize}
+                  \item Duplicate sources do not affect the algorithm's complexity or correctness.
+                  \item Bellman-Ford Shortest Distances allows negative weights with the consequence of greater complexity.
+            \end{itemize}
       %\pnum\errors
 \end{itemdescr}
 
@@ -645,6 +657,7 @@ a case, the Bellman–Ford algorithm can detect and report the negative cycle."
       \pnum\complexity $\mathcal{O}(|E| \cdot |V|)$. Complexity may also be affected by the callers visitor functionality. \\
       \pnum\remarks 
             \begin{itemize}
+                  \item Duplicate sources do not affect the algorithm's complexity or correctness.
                   \item Unlike Dijkstra's algorithm, Bellman-Ford allows negative edge weights. 
                         Performance constraints limit this to smaller graphs.
             \end{itemize}
@@ -707,6 +720,7 @@ giving a small performance improvement with lower memory overhead.
       \pnum\complexity $\mathcal{O}(|E| \cdot |V|)$. Complexity may also be affected by the callers visitor functionality. \\
       \pnum\remarks 
             \begin{itemize}
+                  \item Duplicate sources do not affect the algorithm's complexity or correctness.
                   \item Unlike Dijkstra's algorithm, Bellman-Ford allows negative edge weights. 
                         Performance constraints limit this to smaller graphs.
             \end{itemize}
@@ -776,6 +790,9 @@ The \tcode{bellman_visitor} concept is used to validate the visitor passed to th
 \section{Clustering}
 \subsection{Triangle Counting}
 Compute the number of triangles in a graph.
+
+\andrew{The literature for triangle counting is typically for undirected graphs. Directed graphs
+      can also be evaluated by disabling the checks that limit it to the 2nd half of the graph.}
 
 \begin{table}[h]
 \setcellgapes{3pt}
