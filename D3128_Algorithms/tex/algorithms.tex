@@ -322,9 +322,9 @@ Compute the breadth-first path and associated distance from vertex \tcode{source
 Compute the shortest path and associated distance from vertex \tcode{source} to all reachable vertices in \tcode{graph}
 using non-negative weights.
 
-If multiple sources are desired, the caller can call into \tcode{dijkstra_shortes_paths} or
-\tcode{dijkstra_shortes_distances} without initializing the predecessor and distances ranges
-between calls. Shorter paths to previously found vertices will be identified.
+It is valid to make multiple calls to \tcode{dijkstra_shortes_paths} or \tcode{dijkstra_shortest_distances} 
+with different sources without reinitializing the predecessor and distances ranges between calls. Shorter 
+paths to previously found vertices will be identified.
 
 \begin{table}[h]
 \setcellgapes{3pt}
@@ -336,7 +336,7 @@ between calls. Shorter paths to previously found vertices will be identified.
             \textbf{Complexity} \\
             $\mathcal{O}((|E| + |V|)\log{|V|})$
             }
-      & \textbf{Directed?} Yes & \textbf{Cycles?} No & \textbf{Throws?} No \\
+      & \textbf{Directed?} Yes & \textbf{Cycles?} No & \textbf{Throws?} Yes \\
       & \textbf{Multi-edge?} No & \textbf{Self-loops} Yes & \\
 \hline
 \end{tabular}
@@ -393,8 +393,13 @@ Note that complexity may be $\mathcal{O}(|E| + |V|\log{|V|)}$ for certain implem
       %\pnum\returns \lstinline{void} \\
       \pnum\throws 
             \begin{itemize}
-                  \item \tcode{out_of_range} is thrown when \tcode{source} is not in the range \tcode{0 <= source < num_vertices(graph)}.
-                  \item \tcode{out_of_range} is thrown when the weight function returns a negative value.
+                  \item An \tcode{out_of_range} exception is thrown in the following cases:
+                        \begin{itemize}
+                              \item \lstinline{size(distances) < size(vertices(g))}
+                              \item \lstinline{size(predecessor) < size(vertices(g))}
+                              \item \lstinline{source} is not in the range \lstinline{0 <= source < num_vertices(graph)}.
+                              \item The weight function returns a negative value.
+                        \end{itemize}
             \end{itemize}
       \pnum\complexity
                         $\mathcal{O}((|E| + |V|)\log{|V|})$. 
@@ -446,8 +451,12 @@ giving a small performance improvement with lower memory overhead.
       %\pnum\returns \lstinline{void} \\
       \pnum\throws 
             \begin{itemize}
-                  \item \tcode{out_of_range} is thrown when \tcode{source} is not in the range \tcode{0 <= source < num_vertices(graph)}.
-                  \item \tcode{out_of_range} is thrown when the weight function returns a negative value.
+                  \item An \tcode{out_of_range} exception is thrown in the following cases:
+                        \begin{itemize}
+                              \item \lstinline{size(distances) < size(vertices(g))}
+                              \item \lstinline{source} is not in the range \lstinline{0 <= source < num_vertices(graph)}.
+                              \item The weight function returns a negative value.
+                        \end{itemize}
             \end{itemize}
       \pnum\complexity
                         $\mathcal{O}((|E| + |V|)\log{|V|})$. 
@@ -527,6 +536,11 @@ The \tcode{dijkstra_visitor} concept is used to validate the visitor passed to t
 \subsection{Bellman-Ford Shortest Paths and Shortest Distances}
 Compute the shortest path and associated distance from vertex \tcode{source} to all reachable vertices in \tcode{graph}.
 
+It is valid to make multiple calls to \tcode{bellman_ford_shortest_paths} or \tcode{bellman_ford_shortest_distances} 
+with different sources without reinitializing the predecessor and distances ranges between calls. Shorter 
+paths to previously found vertices will be identified. However, it is recommended that the multi-source version
+be when possible to avoid the performance penalty of repeated calls to the algorithm.
+
 \begin{table}[h]
 \setcellgapes{3pt}
 \makegapedcells
@@ -537,7 +551,7 @@ Compute the shortest path and associated distance from vertex \tcode{source} to 
             \textbf{Complexity} \\
                   $\mathcal{O}(|E| \cdot |V|)$ \\
             }
-      & \textbf{Directed?} Yes & \textbf{Cycles?} No & \textbf{Throws?} No \\
+      & \textbf{Directed?} Yes & \textbf{Cycles?} No & \textbf{Throws?} Yes \\
       & \textbf{Multi-edge?} No & \textbf{Self-loops} Yes & \\
 \hline
 \end{tabular}
@@ -622,7 +636,11 @@ a case, the Bellman–Ford algorithm can detect and report the negative cycle."
             \end{itemize}
       \pnum\throws 
             \begin{itemize}
-                  \item \tcode{out_of_range} is thrown when \tcode{source} is not in the range \tcode{0 <= source < num_vertices(graph)}.  \\
+                  \item An \tcode{out_of_range} exception is thrown in the following cases:
+                        \begin{itemize}
+                              \item \lstinline{size(distances) < size(vertices(g))}
+                              \item \lstinline{source} is not in the range \lstinline{0 <= source < num_vertices(graph)}.
+                        \end{itemize}
             \end{itemize}
       \pnum\complexity $\mathcal{O}(|E| \cdot |V|)$. Complexity may also be affected by the callers visitor functionality. \\
       \pnum\remarks 
@@ -680,7 +698,11 @@ giving a small performance improvement with lower memory overhead.
             \end{itemize}
       \pnum\throws 
             \begin{itemize}
-                  \item \tcode{out_of_range} is thrown when \tcode{source} is not in the range \tcode{0 <= source < num_vertices(graph)}.  \\
+                  \item An \tcode{out_of_range} exception is thrown in the following cases:
+                        \begin{itemize}
+                              \item \lstinline{size(distances) < size(vertices(g))}
+                              \item \lstinline{source} is not in the range \lstinline{0 <= source < num_vertices(graph)}.
+                        \end{itemize}
             \end{itemize}
       \pnum\complexity $\mathcal{O}(|E| \cdot |V|)$. Complexity may also be affected by the callers visitor functionality. \\
       \pnum\remarks 
