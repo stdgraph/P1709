@@ -11,12 +11,13 @@ requires is_arithmetic_v<ranges::range_value_t<Distances>> &&
          ranges::sized_range<Predecessors> &&                                   
          basic_edge_weight_function<G, WF, ranges::range_value_t<Distances>, Compare, Combine> &&
          bellman_visitor<G, Visitor>
-bool bellman_ford_shortest_paths(
+optional<vertex_id_t<G>> bellman_ford_shortest_paths(
       G&                   g,
       const vertex_id_t<G> source,
       Distances&           distances,
       Predecessors&        predecessor,
-      WF&&      weight = [](edge_reference_t<G> uv) { return ranges::range_value_t<Distances>(1); },
+      WF&&                 weight =
+            [](edge_reference_t<G> uv) { return ranges::range_value_t<Distances>(1); }, // default weight(uv) -> 1
       Visitor&& visitor = bellman_visitor_base<G>(),
       Compare&& compare = less<ranges::range_value_t<Distances>>(),
       Combine&& combine = plus<ranges::range_value_t<Distances>>());

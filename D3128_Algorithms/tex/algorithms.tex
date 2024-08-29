@@ -266,6 +266,9 @@ Compute the breadth-first path and associated distance from vertex \tcode{source
       %\pnum\errors
 \end{itemdescr}
 
+\subsection{Depth-First Search}
+\textit{Coming soon.}
+
 \section{Shortest Paths}
 
 \begin{comment}
@@ -578,27 +581,18 @@ Because of its complexity, it can only be used for small graphs.
 If a user can guarantee that a graph has positive edge weights then Dijkstra's algorithm 
 provides far better performance.
 
-There is also the special case where edges form a negative cycle. 
+There is a special case where edges form a negative cycle. 
 "If a graph contains a 'negative cycle' (i.e. a cycle whose edges sum to a negative value) 
 that is reachable from the source, then there is no cheapest path: any path that has a point 
 on the negative cycle can be made cheaper by one more walk around the negative cycle. In such 
 a case, the Bellman–Ford algorithm can detect and report the negative cycle." 
 \textbf{Wikipedia} (\cite{REF_bellman})
 
-\phil{I've duplicated BGL's handling of negative weight cycles by making an additional pass
-      though the edges to detect a negative cycle and return a false if found. However, more
-      is needed so the caller can determine what vertices make up the cycle. I've added
-      debug code for this, but I suspect we will want to expose this in some way.}
-
-\phil{NetworkX has \tcode{negative_edge_cycle} and \tcode{find_negative_cycle}. 
-      These are needed if negative weight cycles are a pre-condition, or once a cycle is
-      detected?}
-
-\phil{Consider returning \tcode{optional<vertex_id_t<G>>}. If it has an id, then it's the 
-      id of the vertex in a negative weight cycle that can be fed into a function that 
-      returns the cycle.}
+\tcode{find_negative_cycle} can be called after calling \tcode{bellman_ford_shortest_paths} to
+get the vertex ids of the negative weight cycle.
 
 \subsubsection{Bellman-Ford Shortest Paths}
+
 \paragraph{Single-Source Shortest Paths}
 {\small
       \lstinputlisting{D3128_Algorithms/src/bellman_shortest_paths.hpp}
@@ -641,10 +635,10 @@ a case, the Bellman–Ford algorithm can detect and report the negative cycle."
       %\pnum\result
       \pnum\returns 
             \begin{itemize}
-                  \item \lstinline{true} if shortest paths completed successfully.
-                  \item \lstinline{false} when a negative weight cycle has been detected. 
-                        The \tcode{on_edge_not_minimized()} event is also called on 
-                        the visitor before returning.
+                  \item \lstinline{optional<vertex_id_t<G>} If no negative weight cycle is found, 
+                        there is no associated vertex id. If a negative weight cycle is found, a
+                        vertex id in the cycle is returned. \lstinline{find_negative_cycle}
+                        can be called to get the vertex ids of the cycle.
             \end{itemize}
       \pnum\throws 
             \begin{itemize}
@@ -703,13 +697,14 @@ giving a small performance improvement with lower memory overhead.
             \end{itemize}
       %\pnum\result
       \pnum\returns 
-            \begin{itemize}
-                  \item \lstinline{true} if shortest paths completed successfully.
-                  \item \lstinline{false} when a negative weight cycle has been detected. 
-                        The \tcode{on_edge_not_minimized()} event is also called on 
-                        the visitor before returning.
-            \end{itemize}
-      \pnum\throws 
+      \begin{itemize}
+            \item \lstinline{optional<vertex_id_t<G>} If no negative weight cycle is found, 
+                  there is no associated vertex id. If a negative weight cycle is found, a
+                  vertex id in the cycle is returned. \lstinline{bellman_ford_shortest_paths} must be used
+                  to get the predecessors if it is importantant to get the vertex ids of the cycle
+                  using \lstinline{find_negative_cycle}.
+      \end{itemize}
+\pnum\throws 
             \begin{itemize}
                   \item An \tcode{out_of_range} exception is thrown in the following cases:
                         \begin{itemize}
@@ -786,6 +781,36 @@ The \tcode{bellman_visitor} concept is used to validate the visitor passed to th
 {\small
       \lstinputlisting{D3128_Algorithms/src/bellman_visitor_concept.hpp}
 }
+
+\subsubsection{Finding the Negative Cycle}
+If a cycle with negative weights is found, it's possible to get the vertex ids of the cycle
+using \tcode{find_negative_cycle} after calling \tcode{bellman_ford_shortest_paths}. It is
+not possible to get the cycle from \tcode{bellman_ford_shortest_distances} because it does
+not evaluate predecessors.
+
+{\small
+      \lstinputlisting{D3128_Algorithms/src/find_negative_cycle.hpp}
+}
+\begin{itemdescr}
+      %\pnum\mandates
+      \pnum\preconditions
+            \begin{itemize}
+                  \item \lstinline{predecessors} must be evaluated by \lstinline{bellman_ford_shortest_paths}.
+                  \item \lstinline{cycle_vertex_id} is the return value of \lstinline{bellman_ford_shortest_paths}.
+            \end{itemize}
+      \pnum\effects
+            \begin{itemize}
+                  \item
+                        All vertex ids in the negative weight cycle are written to the \lstinline{out_cycle} output
+                        iterator.
+            \end{itemize}
+      %\pnum\result
+      %\pnum\returns 
+      %\pnum\throws 
+      \pnum\complexity  $\mathcal{O}(N)$, where \textit{N} is the number of vertex ids in the cycle. \\
+      %\pnum\remarks 
+      %\pnum\errors
+\end{itemdescr}
 
 \section{Clustering}
 \subsection{Triangle Counting}
