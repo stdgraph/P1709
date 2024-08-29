@@ -22,6 +22,7 @@ in this proposal. The algorithms selected are a result of balancing a few things
       \begin{itemize}
             \item Breadth-First search
             \item Depth-First search
+            \item Topological sort
       \end{itemize}
       \emph{Shortest Paths}
       \begin{itemize}
@@ -33,11 +34,11 @@ in this proposal. The algorithms selected are a result of balancing a few things
       \begin{itemize}
             \item Triangle counting
       \end{itemize}
+\columnbreak
       \emph{Communities}
       \begin{itemize}
             \item Label propagation
       \end{itemize}
-\columnbreak
       \emph{Components}
       \begin{itemize}
             \item Articulation points
@@ -45,10 +46,6 @@ in this proposal. The algorithms selected are a result of balancing a few things
             \item Biconnected components
             \item Kosaraju's Strongly CC
             \item Tarjan's Strongly CC
-      \end{itemize}
-      \emph{Directed Acyclic Graphs}
-      \begin{itemize}
-            \item Topological sort
       \end{itemize}
 \columnbreak
       \emph{Maximal Independent Set}
@@ -114,11 +111,6 @@ and our experience with the current proposal.
 
 \andrew{All Pairs: Tier 2?  People bring this up alot -- but it is very expensive in terms of computation and memory.}
 \phil{If it's useful to enough people it should be included. Users can make their own determination of whether they want to use it, based on the cost.}
-
-\andrew{Note that NetworkX also specifies single source single target and multiple source versions of the shortest paths algorithms.  
-BGL does not have these (nor NWGraph).  We should discuss whether or not to consider those and whether or not to make them Tier 1, 2, 3, or infinity.}
-\phil{I think we're beyond considering these for the initial proposal. They can be added in the future, unless we're told otherwise.}
-\phil{I added the multiple source versions because the cost skyrockets for Bellman-Ford if it needs to be run N times for N sources.}
 
 \phil{The same variations for Shortest Paths algorithms can also be useful for topological sort.}
 
@@ -1235,6 +1227,8 @@ A linear ordering of vertices such that for every directed edge (u,v) from verte
 }
 
 \phil{Add overload with \tcode{distances}}
+
+\phil{Move to Traversal section}
 
 \begin{itemdescr}
       %\pnum\mandates
