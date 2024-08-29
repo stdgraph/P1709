@@ -261,6 +261,77 @@ Compute the breadth-first path and associated distance from vertex \tcode{source
 \subsection{Depth-First Search}
 \textit{Coming soon.}
 
+\subsection{Topological Sort}
+\subsection{Topological Sort, Single Source}
+A linear ordering of vertices such that for every directed edge (u,v) from vertex u to vertex v, u comes before v in the ordering.
+
+\subsubsection{Initialization}
+
+{\small
+      \lstinputlisting{D3128_Algorithms/src/topological_sort_helpers.hpp}
+}
+
+\begin{itemdescr}
+      \effects
+      \begin{itemize}
+            \item
+                  Each \lstinline{predecessors[i]} is initialized to \lstinline{i}.
+      \end{itemize}
+\end{itemdescr}
+
+\subsubsection{Topological Sort, Single Source}
+
+\begin{table}[h]
+\setcellgapes{3pt}
+\makegapedcells
+\centering
+\begin{tabular}{|P{0.30\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|}
+\hline
+      \multirowcell{2}{
+            \textbf{Complexity} \\
+                  $\mathcal{O}(|E|+|V|)$
+            }
+      & \textbf{Directed?} Yes & \textbf{Cycles?} No & \textbf{Throws?} No \\
+      & \textbf{Multi-edge?} No & \textbf{Self-loops} Yes & \\
+\hline
+\end{tabular}
+%\caption{Algorithm Example}
+\label{tab:algo_example}
+\end{table}
+
+{\small
+      \lstinputlisting{D3128_Algorithms/src/topological_sort.hpp}
+}
+
+\phil{Update to mimic Dijsktra overloads}
+
+\begin{itemdescr}
+      %\pnum\mandates
+      \pnum\preconditions
+            \begin{itemize}
+                  \item
+                        \lstinline{0 <= source < num_vertices(graph)}. 
+                  \item
+                        \lstinline{predecessors} will be initialized with \lstinline{init_topological_sort}.
+            \end{itemize}
+      \pnum\effects
+            \begin{itemize}
+                  \item
+                        If vertex with index \lstinline{i} is reachable
+                        from vertex \lstinline{source}, then \lstinline{predecessors[i]} will contain the
+                        predecessor vertex of vertex \lstinline{i}. Otherwise \lstinline{predecessors[i]} will contain
+                        \lstinline{i}.
+            \end{itemize}
+      %\pnum\result
+      %\pnum\returns \lstinline{void} \\
+      %\pnum\throws \tcode{out_of_range} is thrown when \tcode{source} is not in the range \tcode{0 <= source < num_vertices(graph)}.  \\
+      %\pnum\complexity \\
+      %\pnum\remarks 
+      %\pnum\errors
+\end{itemdescr}
+
+
+
 \section{Shortest Paths}
 
 \begin{comment}
@@ -290,7 +361,7 @@ Compute the breadth-first path and associated distance from vertex \tcode{source
 {\small
       \lstinputlisting{D3128_Algorithms/src/shortest_paths_helpers.hpp}
 }
-\phil{BGL uses the term "infinite" instead of "invalid". Which is better?}
+\phil{Replace the term "invalid" with "infinite", because it is more descriptive and is also used by BGL.}
 
 \begin{itemdescr}
       \pnum
@@ -1183,81 +1254,6 @@ Find strongly connected components of a graph using Tarjan's algorithm. Strongly
       %\pnum\remarks 
       %\pnum\errors
 \end{itemdescr}
-
-\section{Directed Acyclic Graphs}
-\subsection{Topological Sort, Single Source}
-A linear ordering of vertices such that for every directed edge (u,v) from vertex u to vertex v, u comes before v in the ordering.
-
-\subsubsection{Initialization}
-
-{\small
-      \lstinputlisting{D3128_Algorithms/src/topological_sort_helpers.hpp}
-}
-
-\begin{itemdescr}
-      \effects
-      \begin{itemize}
-            \item
-                  Each \lstinline{predecessors[i]} is initialized to \lstinline{i}.
-      \end{itemize}
-\end{itemdescr}
-
-\subsubsection{Topological Sort, Single Source}
-
-\begin{table}[h]
-\setcellgapes{3pt}
-\makegapedcells
-\centering
-\begin{tabular}{|P{0.30\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|}
-\hline
-      \multirowcell{2}{
-            \textbf{Complexity} \\
-                  $\mathcal{O}(|E|+|V|)$
-            }
-      & \textbf{Directed?} Yes & \textbf{Cycles?} No & \textbf{Throws?} No \\
-      & \textbf{Multi-edge?} No & \textbf{Self-loops} Yes & \\
-\hline
-\end{tabular}
-%\caption{Algorithm Example}
-\label{tab:algo_example}
-\end{table}
-
-{\small
-      \lstinputlisting{D3128_Algorithms/src/topological_sort.hpp}
-}
-
-\phil{Add overload with \tcode{distances}}
-
-\phil{Move to Traversal section}
-
-\begin{itemdescr}
-      %\pnum\mandates
-      \pnum\preconditions
-            \begin{itemize}
-                  \item
-                        \lstinline{0 <= source < num_vertices(graph)}. 
-                  \item
-                        \lstinline{predecessors} will be initialized with \lstinline{init_topological_sort}.
-            \end{itemize}
-      \pnum\effects
-            \begin{itemize}
-                  \item
-                        If vertex with index \lstinline{i} is reachable
-                        from vertex \lstinline{source}, then \lstinline{predecessors[i]} will contain the
-                        predecessor vertex of vertex \lstinline{i}. Otherwise \lstinline{predecessors[i]} will contain
-                        \lstinline{i}.
-            \end{itemize}
-      %\pnum\result
-      %\pnum\returns \lstinline{void} \\
-      %\pnum\throws \tcode{out_of_range} is thrown when \tcode{source} is not in the range \tcode{0 <= source < num_vertices(graph)}.  \\
-      %\pnum\complexity \\
-      %\pnum\remarks 
-      %\pnum\errors
-\end{itemdescr}
-
-
-
-
 
 \section{Maximal Independent Set}
 \subsection{Maximal Independent Set}
