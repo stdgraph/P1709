@@ -17,7 +17,5 @@ template <class Distances, class Predecessors>
 constexpr void init_shortest_paths(Distances& distances, Predecessors& predecessors) {
   // exposition only
   init_shortest_paths_distances(distances);
-  size_t i = 0;
-  for(auto& pred : predecessors)
-    pred = i++;      
+  ranges::iota(predecessors, 0);
 }

@@ -16,7 +16,8 @@
 
 \subsection*{\paperno r1}
 \begin{itemize}
-      \item Move Breadth-First Search out of the Shortest Paths section to avoid confusion.
+      \item Create new \textit{Traversal} section and move Breadth-First Search and Topological Sort algorithms to it.
+            Also added new Depth-First Search algorithm to it.
       \item Revise the Dijkstra and Bellman-Ford shortest-path and shortest-distance algorithms
             \begin{itemize}
                   \item Add a visitor parameter to match boost::graph. Each algorithm uses a different visitor class.
@@ -25,4 +26,5 @@
                   \item Add overloads for multiple sources. This is particularly important for Bellman-Ford to avoid
                         repeated calls to the algorithm that would make an already slow algorithm even slower.
             \end{itemize}
+      \item Add the ability to detect and find the negative weight cycle in the Bellman-Ford algorithm.
 \end{itemize}

@@ -21,7 +21,8 @@ in this proposal. The algorithms selected are a result of balancing a few things
       \emph{Traversal}
       \begin{itemize}
             \item Breadth-First search
-            %\item Depth-First search
+            \item Depth-First search
+            \item Topological sort
       \end{itemize}
       \emph{Shortest Paths}
       \begin{itemize}
@@ -33,11 +34,11 @@ in this proposal. The algorithms selected are a result of balancing a few things
       \begin{itemize}
             \item Triangle counting
       \end{itemize}
+\columnbreak
       \emph{Communities}
       \begin{itemize}
             \item Label propagation
       \end{itemize}
-\columnbreak
       \emph{Components}
       \begin{itemize}
             \item Articulation points
@@ -45,10 +46,6 @@ in this proposal. The algorithms selected are a result of balancing a few things
             \item Biconnected components
             \item Kosaraju's Strongly CC
             \item Tarjan's Strongly CC
-      \end{itemize}
-      \emph{Directed Acyclic Graphs}
-      \begin{itemize}
-            \item Topological sort
       \end{itemize}
 \columnbreak
       \emph{Maximal Independent Set}
@@ -114,11 +111,6 @@ and our experience with the current proposal.
 
 \andrew{All Pairs: Tier 2?  People bring this up alot -- but it is very expensive in terms of computation and memory.}
 \phil{If it's useful to enough people it should be included. Users can make their own determination of whether they want to use it, based on the cost.}
-
-\andrew{Note that NetworkX also specifies single source single target and multiple source versions of the shortest paths algorithms.  
-BGL does not have these (nor NWGraph).  We should discuss whether or not to consider those and whether or not to make them Tier 1, 2, 3, or infinity.}
-\phil{I think we're beyond considering these for the initial proposal. They can be added in the future, unless we're told otherwise.}
-\phil{I added the multiple source versions because the cost skyrockets for Bellman-Ford if it needs to be run N times for N sources.}
 
 \phil{The same variations for Shortest Paths algorithms can also be useful for topological sort.}
 
@@ -266,6 +258,80 @@ Compute the breadth-first path and associated distance from vertex \tcode{source
       %\pnum\errors
 \end{itemdescr}
 
+\subsection{Depth-First Search}
+\textit{Coming soon.}
+
+\subsection{Topological Sort}
+\subsection{Topological Sort, Single Source}
+A linear ordering of vertices such that for every directed edge (u,v) from vertex u to vertex v, u comes before v in the ordering.
+
+\subsubsection{Initialization}
+
+{\small
+      \lstinputlisting{D3128_Algorithms/src/topological_sort_helpers.hpp}
+}
+
+\begin{itemdescr}
+      \effects
+      \begin{itemize}
+            \item
+                  Each \lstinline{predecessors[i]} is initialized to \lstinline{i}.
+      \end{itemize}
+\end{itemdescr}
+
+\subsubsection{Topological Sort, Single Source}
+
+\begin{table}[h]
+\setcellgapes{3pt}
+\makegapedcells
+\centering
+\begin{tabular}{|P{0.30\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|}
+\hline
+      \multirowcell{2}{
+            \textbf{Complexity} \\
+                  $\mathcal{O}(|E|+|V|)$
+            }
+      & \textbf{Directed?} Yes & \textbf{Cycles?} No & \textbf{Throws?} No \\
+      & \textbf{Multi-edge?} No & \textbf{Self-loops} Yes & \\
+\hline
+\end{tabular}
+%\caption{Algorithm Example}
+\label{tab:algo_example}
+\end{table}
+
+{\small
+      \lstinputlisting{D3128_Algorithms/src/topological_sort.hpp}
+}
+
+\phil{Update to mimic Dijsktra overloads}
+
+\begin{itemdescr}
+      %\pnum\mandates
+      \pnum\preconditions
+            \begin{itemize}
+                  \item
+                        \lstinline{0 <= source < num_vertices(graph)}. 
+                  \item
+                        \lstinline{predecessors} will be initialized with \lstinline{init_topological_sort}.
+            \end{itemize}
+      \pnum\effects
+            \begin{itemize}
+                  \item
+                        If vertex with index \lstinline{i} is reachable
+                        from vertex \lstinline{source}, then \lstinline{predecessors[i]} will contain the
+                        predecessor vertex of vertex \lstinline{i}. Otherwise \lstinline{predecessors[i]} will contain
+                        \lstinline{i}.
+            \end{itemize}
+      %\pnum\result
+      %\pnum\returns \lstinline{void} \\
+      %\pnum\throws \tcode{out_of_range} is thrown when \tcode{source} is not in the range \tcode{0 <= source < num_vertices(graph)}.  \\
+      %\pnum\complexity \\
+      %\pnum\remarks 
+      %\pnum\errors
+\end{itemdescr}
+
+
+
 \section{Shortest Paths}
 
 \begin{comment}
@@ -295,7 +361,7 @@ Compute the breadth-first path and associated distance from vertex \tcode{source
 {\small
       \lstinputlisting{D3128_Algorithms/src/shortest_paths_helpers.hpp}
 }
-\phil{BGL uses the term "infinite" instead of "invalid". Which is better?}
+\phil{Replace the term "invalid" with "infinite", because it is more descriptive and is also used by BGL.}
 
 \begin{itemdescr}
       \pnum
@@ -322,9 +388,9 @@ Compute the breadth-first path and associated distance from vertex \tcode{source
 Compute the shortest path and associated distance from vertex \tcode{source} to all reachable vertices in \tcode{graph}
 using non-negative weights.
 
-If multiple sources are desired, the caller can call into \tcode{dijkstra_shortes_paths} or
-\tcode{dijkstra_shortes_distances} without initializing the predecessor and distances ranges
-between calls. Shorter paths to previously found vertices will be identified.
+It is valid to make multiple calls to \tcode{dijkstra_shortes_paths} or \tcode{dijkstra_shortest_distances} 
+with different sources without reinitializing the predecessor and distances ranges between calls. Shorter 
+paths to previously found vertices will be identified.
 
 \begin{table}[h]
 \setcellgapes{3pt}
@@ -336,7 +402,7 @@ between calls. Shorter paths to previously found vertices will be identified.
             \textbf{Complexity} \\
             $\mathcal{O}((|E| + |V|)\log{|V|})$
             }
-      & \textbf{Directed?} Yes & \textbf{Cycles?} No & \textbf{Throws?} No \\
+      & \textbf{Directed?} Yes & \textbf{Cycles?} No & \textbf{Throws?} Yes \\
       & \textbf{Multi-edge?} No & \textbf{Self-loops} Yes & \\
 \hline
 \end{tabular}
@@ -393,16 +459,29 @@ Note that complexity may be $\mathcal{O}(|E| + |V|\log{|V|)}$ for certain implem
       %\pnum\returns \lstinline{void} \\
       \pnum\throws 
             \begin{itemize}
-                  \item \tcode{out_of_range} is thrown when \tcode{source} is not in the range \tcode{0 <= source < num_vertices(graph)}.
-                  \item \tcode{out_of_range} is thrown when the weight function returns a negative value.
+                  \item An \tcode{out_of_range} exception is thrown in the following cases:
+                        \begin{itemize}
+                              \item \lstinline{size(distances) < size(vertices(g))}
+                              \item \lstinline{size(predecessor) < size(vertices(g))}
+                              \item \lstinline{source} is not in the range \lstinline{0 <= source < num_vertices(graph)}.
+                              \item The weight function returns a negative value. This check is not made if the weight
+                                    is an unsigned integral value.
+                        \end{itemize}
             \end{itemize}
       \pnum\complexity
                         $\mathcal{O}((|E| + |V|)\log{|V|})$. 
                         Complexity may also be affected by the caller's visitor functionality. \\
       \pnum\remarks 
-                        Bellman-Ford Shortest Paths allows negative weights with the consequence of greater complexity. \\
+            \begin{itemize}
+                  \item Duplicate sources do not affect the algorithm's complexity or correctness.
+                  \item Bellman-Ford Shortest Paths allows negative weights with the consequence of greater complexity.
+            \end{itemize}
       %\pnum\errors
 \end{itemdescr}
+
+\andrew{Should we include the check for negative weights (performance)?}
+\phil{It's the cost of safety. BGL did it, so there is precedent. The check isn't done if weights are unsigned 
+integral values.}
 
 \subsubsection{Dijkstra Shortest Distances}
 This is the same as \textit{Shortest Paths} except that it excludes the predecessors,
@@ -446,14 +525,22 @@ giving a small performance improvement with lower memory overhead.
       %\pnum\returns \lstinline{void} \\
       \pnum\throws 
             \begin{itemize}
-                  \item \tcode{out_of_range} is thrown when \tcode{source} is not in the range \tcode{0 <= source < num_vertices(graph)}.
-                  \item \tcode{out_of_range} is thrown when the weight function returns a negative value.
+                  \item An \tcode{out_of_range} exception is thrown in the following cases:
+                        \begin{itemize}
+                              \item \lstinline{size(distances) < size(vertices(g))}
+                              \item \lstinline{source} is not in the range \lstinline{0 <= source < num_vertices(graph)}.
+                              \item The weight function returns a negative value. This check is not made if the weight
+                                    is an unsigned integral value.
+                        \end{itemize}
             \end{itemize}
       \pnum\complexity
                         $\mathcal{O}((|E| + |V|)\log{|V|})$. 
                         Complexity may also be affected by the caller's visitor functionality. \\
       \pnum\remarks 
-                        Bellman-Ford Shortest Paths allows negative weights with the consequence of greater complexity. \\
+            \begin{itemize}
+                  \item Duplicate sources do not affect the algorithm's complexity or correctness.
+                  \item Bellman-Ford Shortest Distances allows negative weights with the consequence of greater complexity.
+            \end{itemize}
       %\pnum\errors
 \end{itemdescr}
 
@@ -527,6 +614,11 @@ The \tcode{dijkstra_visitor} concept is used to validate the visitor passed to t
 \subsection{Bellman-Ford Shortest Paths and Shortest Distances}
 Compute the shortest path and associated distance from vertex \tcode{source} to all reachable vertices in \tcode{graph}.
 
+It is valid to make multiple calls to \tcode{bellman_ford_shortest_paths} or \tcode{bellman_ford_shortest_distances} 
+with different sources without reinitializing the predecessor and distances ranges between calls. Shorter 
+paths to previously found vertices will be identified. However, it is recommended that the multi-source version
+be when possible to avoid the performance penalty of repeated calls to the algorithm.
+
 \begin{table}[h]
 \setcellgapes{3pt}
 \makegapedcells
@@ -537,7 +629,7 @@ Compute the shortest path and associated distance from vertex \tcode{source} to 
             \textbf{Complexity} \\
                   $\mathcal{O}(|E| \cdot |V|)$ \\
             }
-      & \textbf{Directed?} Yes & \textbf{Cycles?} No & \textbf{Throws?} No \\
+      & \textbf{Directed?} Yes & \textbf{Cycles?} No & \textbf{Throws?} Yes \\
       & \textbf{Multi-edge?} No & \textbf{Self-loops} Yes & \\
 \hline
 \end{tabular}
@@ -552,27 +644,18 @@ Because of its complexity, it can only be used for small graphs.
 If a user can guarantee that a graph has positive edge weights then Dijkstra's algorithm 
 provides far better performance.
 
-There is also the special case where edges form a negative cycle. 
+There is a special case where edges form a negative cycle. 
 "If a graph contains a 'negative cycle' (i.e. a cycle whose edges sum to a negative value) 
 that is reachable from the source, then there is no cheapest path: any path that has a point 
 on the negative cycle can be made cheaper by one more walk around the negative cycle. In such 
 a case, the Bellman–Ford algorithm can detect and report the negative cycle." 
 \textbf{Wikipedia} (\cite{REF_bellman})
 
-\phil{I've duplicated BGL's handling of negative weight cycles by making an additional pass
-      though the edges to detect a negative cycle and return a false if found. However, more
-      is needed so the caller can determine what vertices make up the cycle. I've added
-      debug code for this, but I suspect we will want to expose this in some way.}
-
-\phil{NetworkX has \tcode{negative_edge_cycle} and \tcode{find_negative_cycle}. 
-      These are needed if negative weight cycles are a pre-condition, or once a cycle is
-      detected?}
-
-\phil{Consider returning \tcode{optional<vertex_id_t<G>>}. If it has an id, then it's the 
-      id of the vertex in a negative weight cycle that can be fed into a function that 
-      returns the cycle.}
+\tcode{find_negative_cycle} can be called after calling \tcode{bellman_ford_shortest_paths} to
+get the vertex ids of the negative weight cycle.
 
 \subsubsection{Bellman-Ford Shortest Paths}
+
 \paragraph{Single-Source Shortest Paths}
 {\small
       \lstinputlisting{D3128_Algorithms/src/bellman_shortest_paths.hpp}
@@ -615,18 +698,23 @@ a case, the Bellman–Ford algorithm can detect and report the negative cycle."
       %\pnum\result
       \pnum\returns 
             \begin{itemize}
-                  \item \lstinline{true} if shortest paths completed successfully.
-                  \item \lstinline{false} when a negative weight cycle has been detected. 
-                        The \tcode{on_edge_not_minimized()} event is also called on 
-                        the visitor before returning.
+                  \item \lstinline{optional<vertex_id_t<G>} If no negative weight cycle is found, 
+                        there is no associated vertex id. If a negative weight cycle is found, a
+                        vertex id in the cycle is returned. \lstinline{find_negative_cycle}
+                        can be called to get the vertex ids of the cycle.
             \end{itemize}
       \pnum\throws 
             \begin{itemize}
-                  \item \tcode{out_of_range} is thrown when \tcode{source} is not in the range \tcode{0 <= source < num_vertices(graph)}.  \\
+                  \item An \tcode{out_of_range} exception is thrown in the following cases:
+                        \begin{itemize}
+                              \item \lstinline{size(distances) < size(vertices(g))}
+                              \item \lstinline{source} is not in the range \lstinline{0 <= source < num_vertices(graph)}.
+                        \end{itemize}
             \end{itemize}
       \pnum\complexity $\mathcal{O}(|E| \cdot |V|)$. Complexity may also be affected by the callers visitor functionality. \\
       \pnum\remarks 
             \begin{itemize}
+                  \item Duplicate sources do not affect the algorithm's complexity or correctness.
                   \item Unlike Dijkstra's algorithm, Bellman-Ford allows negative edge weights. 
                         Performance constraints limit this to smaller graphs.
             \end{itemize}
@@ -672,19 +760,25 @@ giving a small performance improvement with lower memory overhead.
             \end{itemize}
       %\pnum\result
       \pnum\returns 
+      \begin{itemize}
+            \item \lstinline{optional<vertex_id_t<G>} If no negative weight cycle is found, 
+                  there is no associated vertex id. If a negative weight cycle is found, a
+                  vertex id in the cycle is returned. \lstinline{bellman_ford_shortest_paths} must be used
+                  to get the predecessors if it is importantant to get the vertex ids of the cycle
+                  using \lstinline{find_negative_cycle}.
+      \end{itemize}
+\pnum\throws 
             \begin{itemize}
-                  \item \lstinline{true} if shortest paths completed successfully.
-                  \item \lstinline{false} when a negative weight cycle has been detected. 
-                        The \tcode{on_edge_not_minimized()} event is also called on 
-                        the visitor before returning.
-            \end{itemize}
-      \pnum\throws 
-            \begin{itemize}
-                  \item \tcode{out_of_range} is thrown when \tcode{source} is not in the range \tcode{0 <= source < num_vertices(graph)}.  \\
+                  \item An \tcode{out_of_range} exception is thrown in the following cases:
+                        \begin{itemize}
+                              \item \lstinline{size(distances) < size(vertices(g))}
+                              \item \lstinline{source} is not in the range \lstinline{0 <= source < num_vertices(graph)}.
+                        \end{itemize}
             \end{itemize}
       \pnum\complexity $\mathcal{O}(|E| \cdot |V|)$. Complexity may also be affected by the callers visitor functionality. \\
       \pnum\remarks 
             \begin{itemize}
+                  \item Duplicate sources do not affect the algorithm's complexity or correctness.
                   \item Unlike Dijkstra's algorithm, Bellman-Ford allows negative edge weights. 
                         Performance constraints limit this to smaller graphs.
             \end{itemize}
@@ -751,9 +845,42 @@ The \tcode{bellman_visitor} concept is used to validate the visitor passed to th
       \lstinputlisting{D3128_Algorithms/src/bellman_visitor_concept.hpp}
 }
 
+\subsubsection{Finding the Negative Cycle}
+If a cycle with negative weights is found, it's possible to get the vertex ids of the cycle
+using \tcode{find_negative_cycle} after calling \tcode{bellman_ford_shortest_paths}. It is
+not possible to get the cycle from \tcode{bellman_ford_shortest_distances} because it does
+not evaluate predecessors.
+
+{\small
+      \lstinputlisting{D3128_Algorithms/src/find_negative_cycle.hpp}
+}
+\begin{itemdescr}
+      %\pnum\mandates
+      \pnum\preconditions
+            \begin{itemize}
+                  \item \lstinline{predecessors} must be evaluated by \lstinline{bellman_ford_shortest_paths}.
+                  \item \lstinline{cycle_vertex_id} is the return value of \lstinline{bellman_ford_shortest_paths}.
+            \end{itemize}
+      \pnum\effects
+            \begin{itemize}
+                  \item
+                        All vertex ids in the negative weight cycle are written to the \lstinline{out_cycle} output
+                        iterator.
+            \end{itemize}
+      %\pnum\result
+      %\pnum\returns 
+      %\pnum\throws 
+      \pnum\complexity  $\mathcal{O}(N)$, where \textit{N} is the number of vertex ids in the cycle. \\
+      %\pnum\remarks 
+      %\pnum\errors
+\end{itemdescr}
+
 \section{Clustering}
 \subsection{Triangle Counting}
 Compute the number of triangles in a graph.
+
+\andrew{The literature for triangle counting is typically for undirected graphs. Directed graphs
+      can also be evaluated by disabling the checks that limit it to the 2nd half of the graph.}
 
 \begin{table}[h]
 \setcellgapes{3pt}
@@ -1127,79 +1254,6 @@ Find strongly connected components of a graph using Tarjan's algorithm. Strongly
       %\pnum\remarks 
       %\pnum\errors
 \end{itemdescr}
-
-\section{Directed Acyclic Graphs}
-\subsection{Topological Sort, Single Source}
-A linear ordering of vertices such that for every directed edge (u,v) from vertex u to vertex v, u comes before v in the ordering.
-
-\subsubsection{Initialization}
-
-{\small
-      \lstinputlisting{D3128_Algorithms/src/topological_sort_helpers.hpp}
-}
-
-\begin{itemdescr}
-      \effects
-      \begin{itemize}
-            \item
-                  Each \lstinline{predecessors[i]} is initialized to \lstinline{i}.
-      \end{itemize}
-\end{itemdescr}
-
-\subsubsection{Topological Sort, Single Source}
-
-\begin{table}[h]
-\setcellgapes{3pt}
-\makegapedcells
-\centering
-\begin{tabular}{|P{0.30\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|}
-\hline
-      \multirowcell{2}{
-            \textbf{Complexity} \\
-                  $\mathcal{O}(|E|+|V|)$
-            }
-      & \textbf{Directed?} Yes & \textbf{Cycles?} No & \textbf{Throws?} No \\
-      & \textbf{Multi-edge?} No & \textbf{Self-loops} Yes & \\
-\hline
-\end{tabular}
-%\caption{Algorithm Example}
-\label{tab:algo_example}
-\end{table}
-
-{\small
-      \lstinputlisting{D3128_Algorithms/src/topological_sort.hpp}
-}
-
-\phil{Add overload with \tcode{distances}}
-
-\begin{itemdescr}
-      %\pnum\mandates
-      \pnum\preconditions
-            \begin{itemize}
-                  \item
-                        \lstinline{0 <= source < num_vertices(graph)}. 
-                  \item
-                        \lstinline{predecessors} will be initialized with \lstinline{init_topological_sort}.
-            \end{itemize}
-      \pnum\effects
-            \begin{itemize}
-                  \item
-                        If vertex with index \lstinline{i} is reachable
-                        from vertex \lstinline{source}, then \lstinline{predecessors[i]} will contain the
-                        predecessor vertex of vertex \lstinline{i}. Otherwise \lstinline{predecessors[i]} will contain
-                        \lstinline{i}.
-            \end{itemize}
-      %\pnum\result
-      %\pnum\returns \lstinline{void} \\
-      %\pnum\throws \tcode{out_of_range} is thrown when \tcode{source} is not in the range \tcode{0 <= source < num_vertices(graph)}.  \\
-      %\pnum\complexity \\
-      %\pnum\remarks 
-      %\pnum\errors
-\end{itemdescr}
-
-
-
-
 
 \section{Maximal Independent Set}
 \subsection{Maximal Independent Set}
