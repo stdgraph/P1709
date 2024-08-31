@@ -236,7 +236,7 @@ Compute the breadth-first path and associated distance from vertex \tcode{source
                         If vertex with index \lstinline{i} is reachable from vertex \lstinline{source}, then
                         \lstinline{distances[i]} will contain the lowest number of edges from \lstinline{source} to vertex
                         \lstinline{i}.  Otherwise \lstinline{distances[i]} will contain
-                        \lstinline{breadth_first_search_invalid_distance()}.
+                        \lstinline{breadth_first_search_infinite_distance()}.
                   \item
                         If vertex with index \lstinline{i} is reachable
                         from vertex \lstinline{source}, then \lstinline{predecessors[i]} will contain the
@@ -361,21 +361,19 @@ A linear ordering of vertices such that for every directed edge (u,v) from verte
 {\small
       \lstinputlisting{D3128_Algorithms/src/shortest_paths_helpers.hpp}
 }
-\phil{Replace the term "invalid" with "infinite", because it is more descriptive and is also used by BGL.}
-
 \begin{itemdescr}
       \pnum
       \effects:
             \begin{itemize}
                   \item
-                        \lstinline{init_shortest_paths(distances)} sets all elements in \lstinline{distance} to \lstinline{shortest_path_invalid_distance()}
+                        \lstinline{init_shortest_paths(distances)} sets all elements in \lstinline{distance} to \lstinline{shortest_path_infinite_distance()}
                   \item
-                        \lstinline{init_shortest_paths(distances,predecessors)} does the same as \lstinline{shortest_path_invalid_distance(distances)}
+                        \lstinline{init_shortest_paths(distances,predecessors)} does the same as \lstinline{shortest_path_infinite_distance(distances)}
                         and sets \lstinline{predecessors[i] = i} for \lstinline{i < size(predecessors)}.
             \end{itemize}
       \pnum\returns 
             \begin{itemize}
-                  \item \lstinline{shortest_path_invalid_distance()} returns a sentinel value for an invalid distance,
+                  \item \lstinline{shortest_path_infinite_distance()} returns the largest distance value,
                         typically \lstinline{numeric_limits<DistanceValue>::max()} for numeric types.
                   \item \lstinline{shortest_path_zero()} returns a value for for a zero-length path,
                         typically \lstinline{0} for numeric types.
@@ -448,7 +446,7 @@ Note that complexity may be $\mathcal{O}(|E| + |V|\log{|V|)}$ for certain implem
                         If vertex with index \lstinline{i} is reachable from vertex \lstinline{source}, then
                         \lstinline{distances[i]} will contain the distance from \lstinline{source} to vertex
                         \lstinline{i}.  Otherwise \lstinline{distances[i]} will contain
-                        \lstinline{shortest_path_invalid_distance()}.
+                        \lstinline{shortest_path_infinite_distance()}.
                   \item
                         If vertex with index \lstinline{i} is reachable
                         from vertex \lstinline{source}, then \lstinline{predecessors[i]} will contain the
@@ -519,7 +517,7 @@ giving a small performance improvement with lower memory overhead.
                         If vertex with index \lstinline{i} is reachable from vertex \lstinline{source}, then
                         \lstinline{distances[i]} will contain the distance from \lstinline{source} to vertex
                         \lstinline{i}.  Otherwise \lstinline{distances[i]} will contain
-                        \lstinline{shortest_path_invalid_distance()}.
+                        \lstinline{shortest_path_infinite_distance()}.
             \end{itemize}
       %\pnum\result
       %\pnum\returns \lstinline{void} \\
@@ -688,7 +686,7 @@ get the vertex ids of the negative weight cycle.
                         If vertex with index \lstinline{i} is reachable from vertex \lstinline{source}, then
                         \lstinline{distances[i]} will contain the distance from \lstinline{source} to vertex
                         \lstinline{i}.  Otherwise \lstinline{distances[i]} will contain
-                        \lstinline{shortest_path_invalid_distance()}.
+                        \lstinline{shortest_path_infinite_distance()}.
                   \item
                         If vertex with index \lstinline{i} is reachable
                         from vertex \lstinline{source}, then \lstinline{predecessors[i]} will contain the
@@ -756,7 +754,7 @@ giving a small performance improvement with lower memory overhead.
                         If vertex with index \lstinline{i} is reachable from vertex \lstinline{source}, then
                         \lstinline{distances[i]} will contain the distance from \lstinline{source} to vertex
                         \lstinline{i}.  Otherwise \lstinline{distances[i]} will contain
-                        \lstinline{shortest_path_invalid_distance()}.
+                        \lstinline{shortest_path_infinite_distance()}.
             \end{itemize}
       %\pnum\result
       \pnum\returns 
@@ -1496,7 +1494,7 @@ Find the minimum weight spanning tree of a graph using Prim's algorithm.
 
       \begin{lstlisting}
       template <adjacency_list G, class DistanceValue>
-      auto dijkstra_invalid_distance() {
+      auto dijkstra_infinite_distance() {
       return numeric_limits<DistanceValue>::max();
       }
 
@@ -1538,18 +1536,18 @@ Find the minimum weight spanning tree of a graph using Prim's algorithm.
                         \textit{Constraints}    & Values returned by \tcode{weight_fn} must be non-negative.                                                                                                    \\
                         \hline
                         \textit{Preconditions}  & \tcode{seed >= 0                                                                                                               &  & seed < size(vertices(g))} \\
-                                                & \tcode{size(distance) >= size(vertices(g))}; caller must pre-extend with \tcode{dijkstra_invalid_distance()}                                                   \\
+                                                & \tcode{size(distance) >= size(vertices(g))}; caller must pre-extend with \tcode{dijkstra_infinite_distance()}                                                   \\
                                                 & \tcode{size(predecessor) >= size(vertices(g))}; caller must pre-extend                                                                                        \\
-                                                & \tcode{distance[i] = dijkstra_invalid_distance()} for \tcode{i < size(vertices(g))}                                                                           \\
+                                                & \tcode{distance[i] = dijkstra_infinite_distance()} for \tcode{i < size(vertices(g))}                                                                           \\
                         \hline
                         \textit{Postconditions} & \tcode{distance[seed] == 0}                                                                                                                                   \\
                                                 & \tcode{predecessor[seed] == seed}.                                                                                                                            \\
                         \hline
                         \textit{\effects}       & \tcode{distance[uid]} will be the shortest, weighted distance of vertex\_id \tcode{uid} from \tcode{seed}.                                                    \\
-                                                & If \tcode{uid} is not connected to \tcode{seed} by any edges then it will have a value of \tcode{dijkstra_invalid_distance()}.                                \\
+                                                & If \tcode{uid} is not connected to \tcode{seed} by any edges then it will have a value of \tcode{dijkstra_infinite_distance()}.                                \\
                                                 &                                                                                                                                                               \\
                                                 & \tcode{predecessor[uid]} will have the preceding vertex\_id of \tcode{uid} in the weighted shortest path to \tcode{seed}                                      \\
-                                                & when \tcode{distance[uid] != dijkstra_invalid_distance()}.                                                                                                    \\
+                                                & when \tcode{distance[uid] != dijkstra_infinite_distance()}.                                                                                                    \\
                         \hline
                   \end{tabular}}
             %\caption{\tcode{incidence} View Functions}
