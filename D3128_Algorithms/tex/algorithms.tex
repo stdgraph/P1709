@@ -194,7 +194,9 @@ concept edge_weight_function = // e.g. weight(uv)
 \subsubsection{Breadth-First Search, Single Source}
 Compute the breadth-first path and associated distance from vertex \tcode{source} to all reachable vertices in \tcode{graph}.
 
-\phil{Is distance always needed? Should we remove it, since it is easily evaluated using Dijkstra?}
+\phil{This needs to be a subset of Dijkstra, without the weight, compare and combine functions. It needs a visitor.}
+
+\phil{Is distance always needed? Should we remove it, since it is easily evaluated using Dijkstra?} \phil{Check BGL implementation.}
 
 \begin{table}[h]
 \setcellgapes{3pt}
@@ -303,7 +305,7 @@ A linear ordering of vertices such that for every directed edge (u,v) from verte
       \lstinputlisting{D3128_Algorithms/src/topological_sort.hpp}
 }
 
-\phil{Update to mimic Dijsktra overloads}
+\phil{Update to mimic Dijsktra overloads, and include a visitor}
 
 \begin{itemdescr}
       %\pnum\mandates
@@ -408,7 +410,8 @@ paths to previously found vertices will be identified.
 \label{tab:algo_example}
 \end{table}
 
-Note that complexity may be $\mathcal{O}(|E| + |V|\log{|V|)}$ for certain implementations.
+Note that complexity may be $\mathcal{O}(|E| + |V|\log{|V|)}$ for certain implementations that use a Fibonacci heap
+instead of a binary heap implemented with \tcode{std::priority_queue}.
 
 \subsubsection{Dijkstra Shortest Paths}
 
@@ -421,6 +424,10 @@ Note that complexity may be $\mathcal{O}(|E| + |V|\log{|V|)}$ for certain implem
 {\small
       \lstinputlisting{D3128_Algorithms/src/dijkstra_shortest_paths_multi.hpp}
 }
+
+\andrew{Should we include the check for negative weights (performance)?}
+\phil{It's the cost of safety. BGL did it, so there is precedent. The check isn't done if weights are unsigned 
+integral values.}
 
 \begin{itemdescr}
       \pnum\mandates
@@ -463,12 +470,15 @@ Note that complexity may be $\mathcal{O}(|E| + |V|\log{|V|)}$ for certain implem
                               \item \lstinline{size(predecessor) < size(vertices(g))}
                               \item \lstinline{source} is not in the range \lstinline{0 <= source < num_vertices(graph)}.
                               \item The weight function returns a negative value. This check is not made if the weight
-                                    is an unsigned integral value.
+                                    value type is an unsigned integral type.
                         \end{itemize}
             \end{itemize}
       \pnum\complexity
-                        $\mathcal{O}((|E| + |V|)\log{|V|})$. 
-                        Complexity may also be affected by the caller's visitor functionality. \\
+            \begin{itemize}
+                  \item $\mathcal{O}((|E| + |V|)\log{|V|})$ based on using the binary heap in \tcode{std::priority_queue}.
+                  \item An implementation may choose to use a Fibonacci heap for a complexity of $\mathcal{O}(|E| + |V|\log{|V|})$.
+                  \item Complexity may also be affected by the caller's visitor functionality.
+            \end{itemize}
       \pnum\remarks 
             \begin{itemize}
                   \item Duplicate sources do not affect the algorithm's complexity or correctness.
@@ -476,10 +486,6 @@ Note that complexity may be $\mathcal{O}(|E| + |V|\log{|V|)}$ for certain implem
             \end{itemize}
       %\pnum\errors
 \end{itemdescr}
-
-\andrew{Should we include the check for negative weights (performance)?}
-\phil{It's the cost of safety. BGL did it, so there is precedent. The check isn't done if weights are unsigned 
-integral values.}
 
 \subsubsection{Dijkstra Shortest Distances}
 This is the same as \textit{Shortest Paths} except that it excludes the predecessors,
@@ -528,12 +534,15 @@ giving a small performance improvement with lower memory overhead.
                               \item \lstinline{size(distances) < size(vertices(g))}
                               \item \lstinline{source} is not in the range \lstinline{0 <= source < num_vertices(graph)}.
                               \item The weight function returns a negative value. This check is not made if the weight
-                                    is an unsigned integral value.
+                                    value type is an unsigned integral type.
                         \end{itemize}
             \end{itemize}
       \pnum\complexity
-                        $\mathcal{O}((|E| + |V|)\log{|V|})$. 
-                        Complexity may also be affected by the caller's visitor functionality. \\
+            \begin{itemize}
+                  \item $\mathcal{O}((|E| + |V|)\log{|V|})$ based on using the binary heap in \tcode{std::priority_queue}.
+                  \item An implementation may choose to use a Fibonacci heap for a complexity of $\mathcal{O}(|E| + |V|\log{|V|})$.
+                  \item Complexity may also be affected by the caller's visitor functionality.
+            \end{itemize}
       \pnum\remarks 
             \begin{itemize}
                   \item Duplicate sources do not affect the algorithm's complexity or correctness.
@@ -799,6 +808,10 @@ library.
 {\small
       \lstinputlisting{D3128_Algorithms/src/bellman_visitor.hpp}
 }
+
+\phil{Are the \textit{minimized} events needed? BGL included them but only returned a \tcode{bool}, 
+so the only way to get a vertex id of the cycle was to implement the \tcode{on_edge_not_minimized} 
+event. Now, a vertex id is returned when a negative weight cycle is found.}
 
 \begin{itemdescr}
       %\pnum\mandates

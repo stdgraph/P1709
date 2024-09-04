@@ -319,11 +319,13 @@ by the paper they are associated with.
             \begin{enumerate}
                   \item A concern is that the DFS and BFS functionality isn't flexible enough, especially when compared to boost::graph's visitors.
                         \begin{itemize}
-                              \item We agree having a more general and flexible BFS and DFS would be valuable. We are investigating the merits 
-                                    of implementations based on coroutines and boost::graph-like visitors.
-                              \item If we propose the use of coroutines we should explain our choice when compared to boost::graph's visitors, 
-                                    which are the closest to a defacto standard available. The purpose of the standard library is to adopt standard 
-                                    practice, and it would help smooth the process to justify our decision.
+                              \item We agree having a more general and flexible BFS and DFS would be valuable. We have investigated the use
+                                    of coroutines and boost::graph-like visitors and found that the coroutine implementation has better
+                                    syntax but is 20\% slower than the visitor implementation. That kind of performance penalty is not 
+                                    acceptable, making the visitor implementation the clear choice.
+                              \item Visitors have been added to Dijkstra's and Belman-Ford shortest paths algorithms and will be added 
+                                    to BFS, DFS and Topological Sort algorithms in the next revision of P3128.
+                              \item We are also considering adding similar functionality to the views in P3129.
                         \end{itemize}
             \end{enumerate}
       \item \textbf{P3337: Comparison to boost::graph} (paper not yet submitted)
