@@ -10,7 +10,7 @@ requires convertible_to<range_value_t<Sources>, vertex_id_t<G>> &&
          is_arithmetic_v<range_value_t<Distances>> &&              
          basic_edge_weight_function<G, WF, range_value_t<Distances>, Compare, Combine> && 
          dijkstra_visitor<G, Visitor>
-void dijkstra_shortest_distances(
+constexpr void dijkstra_shortest_distances(
       G&             g,
       const Sources& sources,
       Distances&     distances,

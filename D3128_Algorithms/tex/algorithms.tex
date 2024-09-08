@@ -477,7 +477,6 @@ integral values.}
             \begin{itemize}
                   \item $\mathcal{O}((|E| + |V|)\log{|V|})$ based on using the binary heap in \tcode{std::priority_queue}.
                   \item An implementation may choose to use a Fibonacci heap for a complexity of $\mathcal{O}(|E| + |V|\log{|V|})$.
-                  \item Complexity may also be affected by the caller's visitor functionality.
             \end{itemize}
       \pnum\remarks 
             \begin{itemize}
@@ -541,7 +540,6 @@ giving a small performance improvement with lower memory overhead.
             \begin{itemize}
                   \item $\mathcal{O}((|E| + |V|)\log{|V|})$ based on using the binary heap in \tcode{std::priority_queue}.
                   \item An implementation may choose to use a Fibonacci heap for a complexity of $\mathcal{O}(|E| + |V|\log{|V|})$.
-                  \item Complexity may also be affected by the caller's visitor functionality.
             \end{itemize}
       \pnum\remarks 
             \begin{itemize}
@@ -612,7 +610,6 @@ reference members. The \tcode{edesc} parameter is an edge descriptor, which is a
 \subsubsection{Dijkstra Visitor Concept}
 The \tcode{dijkstra_visitor} concept is used to validate the visitor passed to the algorithms.
 
-\phil{This is currently not enabled in the algorithms because of a compiler error using gcc}
 {\small
       \lstinputlisting{D3128_Algorithms/src/dijkstra_visitor_concept.hpp}
 }
@@ -851,7 +848,6 @@ event. Now, a vertex id is returned when a negative weight cycle is found.}
 
 The \tcode{bellman_visitor} concept is used to validate the visitor passed to the algorithms.
 
-\phil{This is currently not enabled in the algorithms because of a compiler error using gcc}
 {\small
       \lstinputlisting{D3128_Algorithms/src/bellman_visitor_concept.hpp}
 }
