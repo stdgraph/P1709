@@ -65,7 +65,7 @@ in this proposal. The algorithms selected are a result of balancing a few things
 \vfill\null
 \end{multicols}
 
-Breadth-First Search, Shortest Paths and Topological Sort include single-source and multi-source versions with multiple targets.
+Traversal and Shortest Paths algorithms include single-source and multi-source versions with multiple targets.
 
 \subsection{Other Algorithms}
 Additional algorithms that were considered but not included in this proposal are shown in Table \ref{tab:other_algorithms}. 
@@ -118,18 +118,23 @@ and our experience with the current proposal.
 % Johnson $\mathcal{O}(N^2)$}
 
 \clearpage
-\section{Algorithm Concepts}
+\section{Common Algorithm Definitions}
 
 %\andrew{Need to develop this ala CppCon 2021 talk.}
 
-The abstraction that is used for describing and analyzing almost all graph algorithms is the adjacency list.  Naturally then implementations of graph algorithms in C++ will operate on a data structure representing an adjacency list.  And generic algorithms will be written in terms of concepts that capture the essential operations that a concrete data structure must provide in order to be used as an abstraction of an adjacency list.
+%The abstraction that is used for describing and analyzing almost all graph algorithms is the adjacency list.  Naturally then implementations of graph algorithms in C++ will operate on a data structure representing an adjacency list.  And generic algorithms will be written in terms of concepts that capture the essential operations that a concrete data structure must provide in order to be used as an abstraction of an adjacency list.
 
-Most fundamentally (as illustrated above), an adjacency list is a collection of vertices, each of which has a collection of outgoing edges.  In terms of existing C++ concepts, we can consider an adjacency list to be a range of ranges (or, more specifically, a random access range of forward ranges).  The outer range is the collection of vertices, and the inner ranges are the collections of outgoing edges.
+%Most fundamentally (as illustrated above), an adjacency list is a collection of vertices, each of which has a collection of outgoing edges.  In terms of existing C++ concepts, we can consider an adjacency list to be a range of ranges (or, more specifically, a random access range of forward ranges).  The outer range is the collection of vertices, and the inner ranges are the collections of outgoing edges.
 
 %\andrew{Is it better to list the concepts here or forward reference them?  Kind of a circularity.  But maybe the sequence of concepts - algorithms - concrete data types is the right one.  OTOH, std::ranges use ordering overview library-concepts-containers-algorithms.  Since a graph is a range of ranges, maybe we should follow that.}
 
 %\phil{I think this is a good place, just before they're used in the text for this section.}
 % Additional concepts used by algorithms.
+
+Common concepts used by algorithms are in this section, extending those in the Graph Container Interface.
+
+\subsection{Edge Weight Concepts}
+Edge weights are intrinsic numeric type for the current proposal, but could be any type in the future.
 
 \begin{lstlisting}
 // For exposition only
@@ -169,6 +174,54 @@ concept edge_weight_function = // e.g. weight(uv)
       };
       \end{lstlisting}
 \end{comment}
+
+\subsection{Visitor Concepts and Classes}
+Visitors are optional member functions on a user-defined class that are called during the execution of an algorithm. 
+Each algorithm has its own set of visitor events that it supports, and each event function must match the visitor concepts 
+shown in this section.
+
+The visitor events mimic those used in the Boost Graph Library.
+
+\subsubsection{Vertex Visitor Concepts}
+{\small
+      \lstinputlisting{D3128_Algorithms/src/visitor_vertex.hpp}
+}
+The vertex events are called under the following conditions.
+\begin{itemize}
+      \item \lstinline{on_initialize_vertex(vdesc)} is called once for each vertex before
+            the algorithm is run.
+      \item \lstinline{on_discover_vertex(vdesc)} is called once for each source vertex passed
+            to the algorithm.
+      \item \lstinline{on_examine_vertex(vdesc)} is called for a vertex before any of 
+            its outgoing edges are examined. It is possible that it will be called multiple times 
+            for the same vertex if paths are found to it from other vertices with a shorter distance.
+      \item \lstinline{on_finish_vertex(vdesc)} is called for vertex that is being examined,
+            after all its outgoing edges have been examined.
+\end{itemize}
+
+\subsubsection{Edge Visitor Concepts}
+{\small
+      \lstinputlisting{D3128_Algorithms/src/visitor_edge.hpp}
+}
+The edge events are called under the following conditions.
+\begin{itemize}
+      \item \lstinline{on_examine_edge(edesc)} is called for edge of the source vertex that is
+            being examined.
+      \item \lstinline{on_edge_relaxed(edesc)} is called when the distance to the target vertex of the edge
+            is relaxed, or decreased.
+      \item \lstinline{on_edge_not_relaxed(edesc)} is called when the distance to the target vertex of the edge
+            is not relaxed, or not decreased.
+      \item \lstinline{on_edge_minimized(edesc)} is called when the distance to the target vertex of the edge
+            is minimized, or decreased to the minimum value.
+      \item \lstinline{on_edge_not_minimized(edesc)} is called when the distance to the target vertex of the edge
+            is not minimized, or not decreased to the minimum value.
+\end{itemize}
+
+\subsubsection{Visitor Classes}
+\tcode{empty_visitor} is used when no visitor is needed. It is a no-op struct that does nothing.
+{\small
+      \lstinputlisting{D3128_Algorithms/src/visitor_other.hpp}
+}
 
 
 
@@ -264,7 +317,6 @@ Compute the breadth-first path and associated distance from vertex \tcode{source
 \textit{Coming soon.}
 
 \subsection{Topological Sort}
-\subsection{Topological Sort, Single Source}
 A linear ordering of vertices such that for every directed edge (u,v) from vertex u to vertex v, u comes before v in the ordering.
 
 \subsubsection{Initialization}
@@ -381,60 +433,10 @@ A linear ordering of vertices such that for every directed edge (u,v) from verte
             \end{itemize}
 \end{itemdescr}
 
-\subsection{Visitors}
-Visitors are optional member functions on a user-defined class that are called during the execution of an algorithm. 
-Each algorithm has its own set of visitor events that it supports, and each event function must match the visitor concepts 
-shown in this section.
-
-\subsubsection{Vertex Visitor Concepts}
-{\small
-      \lstinputlisting{D3128_Algorithms/src/shortest_paths_visitor_vertex.hpp}
-}
-The vertex events are called under the following conditions.
-\begin{itemize}
-      \item \lstinline{on_initialize_vertex(vdesc)} is called once for each vertex before
-            the algorithm is run.
-      \item \lstinline{on_discover_vertex(vdesc)} is called once for each source vertex passed
-            to the algorithm.
-      \item \lstinline{on_examine_vertex(vdesc)} is called for a vertex before any of 
-            its outgoing edges are examined. It is possible that it will be called multiple times 
-            for the same vertex if paths are found to it from other vertices with a shorter distance.
-      \item \lstinline{on_finish_vertex(vdesc)} is called for vertex that is being examined,
-            after all its outgoing edges have been examined.
-\end{itemize}
-
-\subsubsection{Edge Visitor Concepts}
-{\small
-      \lstinputlisting{D3128_Algorithms/src/shortest_paths_visitor_edge.hpp}
-}
-The edge events are called under the following conditions.
-\begin{itemize}
-      \item \lstinline{on_examine_edge(edesc)} is called for edge of the source vertex that is
-            being examined.
-      \item \lstinline{on_edge_relaxed(edesc)} is called when the distance to the target vertex of the edge
-            is relaxed, or decreased.
-      \item \lstinline{on_edge_not_relaxed(edesc)} is called when the distance to the target vertex of the edge
-            is not relaxed, or not decreased.
-      \item \lstinline{on_edge_minimized(edesc)} is called when the distance to the target vertex of the edge
-            is minimized, or decreased to the minimum value.
-      \item \lstinline{on_edge_not_minimized(edesc)} is called when the distance to the target vertex of the edge
-            is not minimized, or not decreased to the minimum value.
-\end{itemize}
-
-\subsubsection{Visitor Classes}
-\tcode{empty_visitor} is used when no visitor is needed. It is a no-op struct that does nothing.
-{\small
-      \lstinputlisting{D3128_Algorithms/src/shortest_paths_visitor_other.hpp}
-}
-
 \subsection{Dijkstra Shortest Paths and Shortest Distances}
 
 Compute the shortest path and associated distance from vertex \tcode{source} to all reachable vertices in \tcode{graph}
 using non-negative weights.
-
-It is valid to make multiple calls to \tcode{dijkstra_shortes_paths} or \tcode{dijkstra_shortest_distances} 
-with different sources without reinitializing the predecessor and distances ranges between calls. Shorter 
-paths to previously found vertices will be identified.
 
 \begin{table}[h]
 \setcellgapes{3pt}
@@ -607,11 +609,6 @@ giving a small performance improvement with lower memory overhead.
 
 \subsection{Bellman-Ford Shortest Paths and Shortest Distances}
 Compute the shortest path and associated distance from vertex \tcode{source} to all reachable vertices in \tcode{graph}.
-
-It is valid to make multiple calls to \tcode{bellman_ford_shortest_paths} or \tcode{bellman_ford_shortest_distances} 
-with different sources without reinitializing the predecessor and distances ranges between calls. Shorter 
-paths to previously found vertices will be identified. However, it is recommended that the multi-source version
-be when possible to avoid the performance penalty of repeated calls to the algorithm.
 
 \begin{table}[h]
 \setcellgapes{3pt}
@@ -854,7 +851,7 @@ Compute the number of triangles in a graph.
       %\pnum\result
       \pnum\returns Number of triangles \\
       \pnum\throws  A \tcode{graph_error} is thrown when the target\_id for an outgoing edge is less than the target\_id of the previous edge. \\
-      %\pnum\complexity \\
+      \pnum\complexity $\mathcal{O}(N^3)$ \\
       \pnum\remarks To avoid duplicate counting, only directed triangles of a certain orientation will be detected. 
                     If \tcode{vertex_id(u) < vertex_id(v) < vertex_id(w)}, count triangle if graph contains edges \tcode{uv, vw, uw}.
       %\pnum\errors
@@ -901,13 +898,12 @@ Some label propagation implementations use vertex ids as an initial labeling. Th
                   \item
                   \lstinline{max_iters} is the maximum number of iterations of the label propagation, or equivalently the maximum distance a label will propagate from its starting vertex.
             \end{itemize}
-      \pnum\effects \lstinline{label[uid]} is the label assignments of vertex id \lstinline{uid} discovered by label propagation.
+      \pnum\effects \lstinline{label[uid]} is the label assignments of vertex id \lstinline{uid} discovered by label propagation. \\
       %\pnum\result
       %\pnum\returns
       %\pnum\throws
-      %\pnum\complexity
-      \pnum\remarks
-      User is responsible for initial vertex labels.
+      \pnum\complexity  $\mathcal{O}(M)$ \\
+      \pnum\remarks     User is responsible for initial vertex labels.
       %\pnum\errors
 \end{itemdescr}
 
@@ -945,13 +941,12 @@ Some label propagation implementations use vertex ids as an initial labeling. Th
                   \item
                   \lstinline{max_iters} is the maximum number of iterations of the label propagation, or equivalently the maximum distance a label will propagate from its starting vertex.
             \end{itemize}
-      \pnum\effects \lstinline{label[uid]} is the label assignments of vertex id \lstinline{uid} discovered by label propagation.
+      \pnum\effects \lstinline{label[uid]} is the label assignments of vertex id \lstinline{uid} discovered by label propagation. \\
       %\pnum\result
       %\pnum\returns
       %\pnum\throws
-      %\pnum\complexity
-      \pnum\remarks
-      User is responsible for initial vertex labels.
+      \pnum\complexity  $\mathcal{O}(M)$ \\
+      \pnum\remarks     User is responsible for initial vertex labels.
       %\pnum\errors
 \end{itemdescr}
 
@@ -998,7 +993,7 @@ Find articulation points, or cut vertices, which when removed disconnect the gra
       %\pnum\result
       %\pnum\returns
       %\pnum\throws
-      %\pnum\complexity \\
+      \pnum\complexity $\mathcal{O}(|E|+|V|)$ \\
       %\pnum\remarks 
       %\pnum\errors
 \end{itemdescr}
@@ -1049,7 +1044,7 @@ Find the biconnected components, or maximal biconnected subgraphs of a graph, wh
       %\pnum\result
       %\pnum\returns
       %\pnum\throws
-      %\pnum\complexity \\
+      \pnum\complexity $\mathcal{O}(|E|+|V|)$ \\
       %\pnum\remarks 
       %\pnum\errors
 \end{itemdescr}
@@ -1098,7 +1093,7 @@ Find weakly connected components of a graph. Weakly connected components are sub
       %\pnum\result
       %\pnum\returns
       %\pnum\throws
-      %\pnum\complexity \\
+      \pnum\complexity $\mathcal{O}(|E|+|V|)$ \\
       %\pnum\remarks 
       %\pnum\errors
 \end{itemdescr}
@@ -1147,7 +1142,7 @@ Find strongly connected components of a graph using Kosaraju's algorithm. Strong
       %\pnum\result
       %\pnum\returns
       %\pnum\throws
-      %\pnum\complexity \\
+      \pnum\complexity $\mathcal{O}(|E|+|V|)$ \\
       %\pnum\remarks 
       %\pnum\errors
 \end{itemdescr}
@@ -1194,7 +1189,7 @@ Find strongly connected components of a graph using Tarjan's algorithm. Strongly
       %\pnum\result
       %\pnum\returns
       %\pnum\throws
-      %\pnum\complexity \\
+      \pnum\complexity $\mathcal{O}(|E|+|V|)$ \\
       %\pnum\remarks 
       %\pnum\errors
 \end{itemdescr}
@@ -1242,7 +1237,7 @@ Find a maximally independent set of vertices in a graph starting from a seed ver
       %\pnum\result
       %\pnum\returns
       %\pnum\throws
-      %\pnum\complexity \\
+      \pnum\complexity $\mathcal{O}(|E|)$ \\
       %\pnum\remarks 
       %\pnum\errors
 \end{itemdescr}
@@ -1298,7 +1293,7 @@ as to whether the edge reference is useful by the consumer or not (e.g. basic\_ 
       %\pnum\result
       %\pnum\returns
       %\pnum\throws
-      %\pnum\complexity \\
+      \pnum\complexity $\mathcal{O}(|N|^3)$ \\
       %\pnum\remarks 
       %\pnum\errors
 \end{itemdescr}
@@ -1349,7 +1344,7 @@ Find the minimum weight spanning tree of a graph using Kruskal's algorithm.
       %\pnum\result
       %\pnum\returns
       %\pnum\throws
-      %\pnum\complexity \\
+      \pnum\complexity $\mathcal{O}(|E|)$ \\
       %\pnum\remarks 
       %\pnum\errors
 \end{itemdescr}
@@ -1380,17 +1375,6 @@ Find the minimum weight spanning tree of a graph using Prim's algorithm.
 {\small
       \lstinputlisting[firstline=13,lastline=29]{D3128_Algorithms/src/mst.hpp}
 }
-\begin{itemdescr}
-      %\pnum\mandates
-      %\pnum\preconditions
-      %\pnum\effects
-      %\pnum\result
-      %\pnum\returns
-      %\pnum\throws
-      %\pnum\complexity \\
-      %\pnum\remarks 
-      %\pnum\errors
-\end{itemdescr}
 
 \begin{itemdescr}
       %\pnum\mandates
@@ -1413,7 +1397,7 @@ Find the minimum weight spanning tree of a graph using Prim's algorithm.
       %\pnum\result
       %\pnum\returns
       %\pnum\throws
-      %\pnum\complexity \\
+      \pnum\complexity $\mathcal{O}(|E|log|V|)$ \\
       %\pnum\remarks 
       %\pnum\errors
 \end{itemdescr}
