@@ -1,5 +1,5 @@
 template <class DistanceValue>
-constexpr auto breadth_first_search_invalid_distance() {
+constexpr auto breadth_first_search_infinite_distance() {
   return numeric_limits<DistanceValue>::max(); // exposition only
 }
 
@@ -9,8 +9,7 @@ constexpr auto breadth_first_search_zero() { return DistanceValue(); } // exposi
 template <class Distances>
 constexpr void init_breadth_first_search(Distances& distances) {
   // exposition only
-  ranges::fill(distances, 
-               breadth_first_search_invalid_distance<ranges::range_value_t<Distances>>());
+  fill(distances, breadth_first_search_infinite_distance<range_value_t<Distances>>());
 }
 
 template <class Predecessors>

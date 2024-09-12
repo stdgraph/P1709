@@ -20,11 +20,16 @@
             Also added new Depth-First Search algorithm to it.
       \item Revise the Dijkstra and Bellman-Ford shortest-path and shortest-distance algorithms
             \begin{itemize}
-                  \item Add a visitor parameter to match boost::graph. Each algorithm uses a different visitor class.
+                  \item Add a visitor parameter to allow the caller to
+                        customize the behavior of the algorithm without having to modify the algorithm itself.
+                        The visitor functions are member functions on a user-defined class that must match the concept for the event.
+                        The visitor events mimic those used in the Boost Graph Library for each algorithm.
                   \item Remove overloads that excluded Compare and Combine functions because they don't add much value,
                         and to keep the proposal small.
                   \item Add overloads for multiple sources. This is particularly important for Bellman-Ford to avoid
                         repeated calls to the algorithm that would make an already slow algorithm even slower.
+                  \item Change "invalid distance" to "infinite distance" to reflect how the value is used 
+                        in the algorithm.
             \end{itemize}
       \item Add the ability to detect and find the negative weight cycle in the Bellman-Ford algorithm.
 \end{itemize}

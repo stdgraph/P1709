@@ -194,7 +194,9 @@ concept edge_weight_function = // e.g. weight(uv)
 \subsubsection{Breadth-First Search, Single Source}
 Compute the breadth-first path and associated distance from vertex \tcode{source} to all reachable vertices in \tcode{graph}.
 
-\phil{Is distance always needed? Should we remove it, since it is easily evaluated using Dijkstra?}
+\phil{This needs to be a subset of Dijkstra, without the weight, compare and combine functions. It needs a visitor.}
+
+\phil{Is distance always needed? Should we remove it, since it is easily evaluated using Dijkstra?} \phil{Check BGL implementation.}
 
 \begin{table}[h]
 \setcellgapes{3pt}
@@ -226,9 +228,9 @@ Compute the breadth-first path and associated distance from vertex \tcode{source
                   \item
                         \lstinline{0 <= source < num_vertices(graph)}. 
                   \item
-                        \lstinline{distances} will be initialized with \lstinline{init_breadth_first_search}.
+                        \lstinline{distances[i] = breadth_first_search_infinite_distance()} for \lstinline{0 <= i < num_vertices(g)}.
                   \item
-                        \lstinline{predecessors} will be initialized with \lstinline{init_breadth_first_search}.
+                        \lstinline{predecessors[i] = i} for \lstinline{0 <= i < num_vertices(g)}.
             \end{itemize}
       \pnum\effects
             \begin{itemize}
@@ -236,7 +238,7 @@ Compute the breadth-first path and associated distance from vertex \tcode{source
                         If vertex with index \lstinline{i} is reachable from vertex \lstinline{source}, then
                         \lstinline{distances[i]} will contain the lowest number of edges from \lstinline{source} to vertex
                         \lstinline{i}.  Otherwise \lstinline{distances[i]} will contain
-                        \lstinline{breadth_first_search_invalid_distance()}.
+                        \lstinline{breadth_first_search_infinite_distance()}.
                   \item
                         If vertex with index \lstinline{i} is reachable
                         from vertex \lstinline{source}, then \lstinline{predecessors[i]} will contain the
@@ -303,7 +305,7 @@ A linear ordering of vertices such that for every directed edge (u,v) from verte
       \lstinputlisting{D3128_Algorithms/src/topological_sort.hpp}
 }
 
-\phil{Update to mimic Dijsktra overloads}
+\phil{Update to mimic Dijsktra overloads, and include a visitor}
 
 \begin{itemdescr}
       %\pnum\mandates
@@ -361,27 +363,69 @@ A linear ordering of vertices such that for every directed edge (u,v) from verte
 {\small
       \lstinputlisting{D3128_Algorithms/src/shortest_paths_helpers.hpp}
 }
-\phil{Replace the term "invalid" with "infinite", because it is more descriptive and is also used by BGL.}
-
 \begin{itemdescr}
-      \pnum
-      \effects:
+      \pnum\effects
             \begin{itemize}
                   \item
-                        \lstinline{init_shortest_paths(distances)} sets all elements in \lstinline{distance} to \lstinline{shortest_path_invalid_distance()}
+                        \lstinline{init_shortest_paths(distances)} sets all elements in \lstinline{distance} to \lstinline{shortest_path_infinite_distance()}
                   \item
-                        \lstinline{init_shortest_paths(distances,predecessors)} does the same as \lstinline{shortest_path_invalid_distance(distances)}
+                        \lstinline{init_shortest_paths(distances,predecessors)} does the same as \lstinline{shortest_path_infinite_distance(distances)}
                         and sets \lstinline{predecessors[i] = i} for \lstinline{i < size(predecessors)}.
             \end{itemize}
       \pnum\returns 
             \begin{itemize}
-                  \item \lstinline{shortest_path_invalid_distance()} returns a sentinel value for an invalid distance,
+                  \item \lstinline{shortest_path_infinite_distance()} returns the largest distance value,
                         typically \lstinline{numeric_limits<DistanceValue>::max()} for numeric types.
                   \item \lstinline{shortest_path_zero()} returns a value for for a zero-length path,
                         typically \lstinline{0} for numeric types.
             \end{itemize}
 \end{itemdescr}
 
+\subsection{Visitors}
+Visitors are optional member functions on a user-defined class that are called during the execution of an algorithm. 
+Each algorithm has its own set of visitor events that it supports, and each event function must match the visitor concepts 
+shown in this section.
+
+\subsubsection{Vertex Visitor Concepts}
+{\small
+      \lstinputlisting{D3128_Algorithms/src/shortest_paths_visitor_vertex.hpp}
+}
+The vertex events are called under the following conditions.
+\begin{itemize}
+      \item \lstinline{on_initialize_vertex(vdesc)} is called once for each vertex before
+            the algorithm is run.
+      \item \lstinline{on_discover_vertex(vdesc)} is called once for each source vertex passed
+            to the algorithm.
+      \item \lstinline{on_examine_vertex(vdesc)} is called for a vertex before any of 
+            its outgoing edges are examined. It is possible that it will be called multiple times 
+            for the same vertex if paths are found to it from other vertices with a shorter distance.
+      \item \lstinline{on_finish_vertex(vdesc)} is called for vertex that is being examined,
+            after all its outgoing edges have been examined.
+\end{itemize}
+
+\subsubsection{Edge Visitor Concepts}
+{\small
+      \lstinputlisting{D3128_Algorithms/src/shortest_paths_visitor_edge.hpp}
+}
+The edge events are called under the following conditions.
+\begin{itemize}
+      \item \lstinline{on_examine_edge(edesc)} is called for edge of the source vertex that is
+            being examined.
+      \item \lstinline{on_edge_relaxed(edesc)} is called when the distance to the target vertex of the edge
+            is relaxed, or decreased.
+      \item \lstinline{on_edge_not_relaxed(edesc)} is called when the distance to the target vertex of the edge
+            is not relaxed, or not decreased.
+      \item \lstinline{on_edge_minimized(edesc)} is called when the distance to the target vertex of the edge
+            is minimized, or decreased to the minimum value.
+      \item \lstinline{on_edge_not_minimized(edesc)} is called when the distance to the target vertex of the edge
+            is not minimized, or not decreased to the minimum value.
+\end{itemize}
+
+\subsubsection{Visitor Classes}
+\tcode{empty_visitor} is used when no visitor is needed. It is a no-op struct that does nothing.
+{\small
+      \lstinputlisting{D3128_Algorithms/src/shortest_paths_visitor_other.hpp}
+}
 
 \subsection{Dijkstra Shortest Paths and Shortest Distances}
 
@@ -410,7 +454,8 @@ paths to previously found vertices will be identified.
 \label{tab:algo_example}
 \end{table}
 
-Note that complexity may be $\mathcal{O}(|E| + |V|\log{|V|)}$ for certain implementations.
+Note that complexity may be $\mathcal{O}(|E| + |V|\log{|V|)}$ for certain implementations that use a Fibonacci heap
+instead of a binary heap implemented with \tcode{std::priority_queue}.
 
 \subsubsection{Dijkstra Shortest Paths}
 
@@ -423,6 +468,10 @@ Note that complexity may be $\mathcal{O}(|E| + |V|\log{|V|)}$ for certain implem
 {\small
       \lstinputlisting{D3128_Algorithms/src/dijkstra_shortest_paths_multi.hpp}
 }
+
+\andrew{Should we include the check for negative weights (performance)?}
+\phil{It's the cost of safety. BGL did it, so there is precedent. The check isn't done if weights are unsigned 
+integral values.}
 
 \begin{itemdescr}
       \pnum\mandates
@@ -438,9 +487,9 @@ Note that complexity may be $\mathcal{O}(|E| + |V|\log{|V|)}$ for certain implem
       \pnum\preconditions
             \begin{itemize}
                   \item
-                        \lstinline{distances} will be initialized with \lstinline{init_shortest_paths}.
+                        \lstinline{distances[i] = shortest_path_infinite_distance()} for \lstinline{0 <= i < num_vertices(g)}.
                   \item
-                        \lstinline{predecessors} will be initialized with \lstinline{init_shortest_paths}.
+                        \lstinline{predecessors[i] = i} for \lstinline{0 <= i < num_vertices(g)}.
             \end{itemize}
       \pnum\effects
             \begin{itemize}
@@ -448,12 +497,18 @@ Note that complexity may be $\mathcal{O}(|E| + |V|\log{|V|)}$ for certain implem
                         If vertex with index \lstinline{i} is reachable from vertex \lstinline{source}, then
                         \lstinline{distances[i]} will contain the distance from \lstinline{source} to vertex
                         \lstinline{i}.  Otherwise \lstinline{distances[i]} will contain
-                        \lstinline{shortest_path_invalid_distance()}.
+                        \lstinline{shortest_path_infinite_distance()}.
                   \item
                         If vertex with index \lstinline{i} is reachable
                         from vertex \lstinline{source}, then \lstinline{predecessors[i]} will contain the
                         predecessor vertex of vertex \lstinline{i}. Otherwise \lstinline{predecessors[i]} will contain
                         \lstinline{i}.
+                  \item Member functions on the \lstinline{visitor} parameter are called during the algorithm's execution.
+                        The functions are optional and, when included, must follow the visitor concepts for the events.
+                        No overhead is incurred if the functions are not included.
+                        The events supported are \lstinline{on_initialize_vertex}, \lstinline{on_discover_vertex},
+                        \lstinline{on_examine_vertex}, \lstinline{on_finish_vertex}, \lstinline{on_examine_edge},
+                        \lstinline{on_edge_relaxed}, and \lstinline{on_edge_not_relaxed}.
             \end{itemize}
       %\pnum\result
       %\pnum\returns \lstinline{void} \\
@@ -465,12 +520,14 @@ Note that complexity may be $\mathcal{O}(|E| + |V|\log{|V|)}$ for certain implem
                               \item \lstinline{size(predecessor) < size(vertices(g))}
                               \item \lstinline{source} is not in the range \lstinline{0 <= source < num_vertices(graph)}.
                               \item The weight function returns a negative value. This check is not made if the weight
-                                    is an unsigned integral value.
+                                    value type is an unsigned integral type.
                         \end{itemize}
             \end{itemize}
       \pnum\complexity
-                        $\mathcal{O}((|E| + |V|)\log{|V|})$. 
-                        Complexity may also be affected by the caller's visitor functionality. \\
+            \begin{itemize}
+                  \item $\mathcal{O}((|E| + |V|)\log{|V|})$ based on using the binary heap in \tcode{std::priority_queue}.
+                  \item An implementation may choose to use a Fibonacci heap for a complexity of $\mathcal{O}(|E| + |V|\log{|V|})$.
+            \end{itemize}
       \pnum\remarks 
             \begin{itemize}
                   \item Duplicate sources do not affect the algorithm's complexity or correctness.
@@ -478,10 +535,6 @@ Note that complexity may be $\mathcal{O}(|E| + |V|\log{|V|)}$ for certain implem
             \end{itemize}
       %\pnum\errors
 \end{itemdescr}
-
-\andrew{Should we include the check for negative weights (performance)?}
-\phil{It's the cost of safety. BGL did it, so there is precedent. The check isn't done if weights are unsigned 
-integral values.}
 
 \subsubsection{Dijkstra Shortest Distances}
 This is the same as \textit{Shortest Paths} except that it excludes the predecessors,
@@ -511,7 +564,7 @@ giving a small performance improvement with lower memory overhead.
       \pnum\preconditions
             \begin{itemize}
                   \item
-                        \lstinline{distances} will be initialized with \lstinline{init_shortest_paths}.
+                        \lstinline{distances[i] = shortest_path_infinite_distance()} for \lstinline{0 <= i < num_vertices(g)}.
             \end{itemize}
       \pnum\effects
             \begin{itemize}
@@ -519,7 +572,13 @@ giving a small performance improvement with lower memory overhead.
                         If vertex with index \lstinline{i} is reachable from vertex \lstinline{source}, then
                         \lstinline{distances[i]} will contain the distance from \lstinline{source} to vertex
                         \lstinline{i}.  Otherwise \lstinline{distances[i]} will contain
-                        \lstinline{shortest_path_invalid_distance()}.
+                        \lstinline{shortest_path_infinite_distance()}.
+                  \item Member functions on the \lstinline{visitor} parameter are called during the algorithm's execution.
+                        The functions are optional and, when included, must follow the visitor concepts for the events.
+                        No overhead is incurred if the functions are not included.
+                        The events supported are \lstinline{on_initialize_vertex}, \lstinline{on_discover_vertex},
+                        \lstinline{on_examine_vertex}, \lstinline{on_finish_vertex}, \lstinline{on_examine_edge},
+                        \lstinline{on_edge_relaxed}, and \lstinline{on_edge_not_relaxed}.
             \end{itemize}
       %\pnum\result
       %\pnum\returns \lstinline{void} \\
@@ -530,12 +589,14 @@ giving a small performance improvement with lower memory overhead.
                               \item \lstinline{size(distances) < size(vertices(g))}
                               \item \lstinline{source} is not in the range \lstinline{0 <= source < num_vertices(graph)}.
                               \item The weight function returns a negative value. This check is not made if the weight
-                                    is an unsigned integral value.
+                                    value type is an unsigned integral type.
                         \end{itemize}
             \end{itemize}
       \pnum\complexity
-                        $\mathcal{O}((|E| + |V|)\log{|V|})$. 
-                        Complexity may also be affected by the caller's visitor functionality. \\
+            \begin{itemize}
+                  \item $\mathcal{O}((|E| + |V|)\log{|V|})$ based on using the binary heap in \tcode{std::priority_queue}.
+                  \item An implementation may choose to use a Fibonacci heap for a complexity of $\mathcal{O}(|E| + |V|\log{|V|})$.
+            \end{itemize}
       \pnum\remarks 
             \begin{itemize}
                   \item Duplicate sources do not affect the algorithm's complexity or correctness.
@@ -543,73 +604,6 @@ giving a small performance improvement with lower memory overhead.
             \end{itemize}
       %\pnum\errors
 \end{itemdescr}
-
-\subsubsection{Dijkstra Visitor}
-\tcode{dijkstra_visitor_base} defines callacks for events in the \tcode{dijkstra_shortest_paths}
-and \tcode{dijkstra_shortest_distances} algorithms. To use it, a new class is derived from 
-\tcode{dijkstra_visitor_base} and the desired event function(s) are overridden. The instance of the
-new visitor is passed to the Dijkstra algorithm. No \tcode{overload} keyword should be used.
-
-Empty event functions have no overhead because they are removed by the optimizer. 
-
-The events included are the same as the Dijkstra Shortest Path algorithms in the boost::graph 
-library.
-
-The \tcode{vdesc} parameter is a vertex descriptor, which is a struct with vertex \tcode{id} and \tcode{vertex}
-reference members. The \tcode{edesc} parameter is an edge descriptor, which is a struct with \tcode{source_id},
-\tcode{target_id}, and \tcode{edge} reference members.
-
-{\small
-      \lstinputlisting{D3128_Algorithms/src/dijkstra_visitor_base.hpp}
-}
-\begin{itemdescr}
-      %\pnum\mandates
-      %\pnum\preconditions
-      \pnum\effects
-            \begin{itemize}
-                  \item
-                        \lstinline{on_initialize_vertex(vdesc)} is called once for each vertex before
-                        the algorithm is run.
-                  \item
-                        \lstinline{on_discover_vertex(vdesc)} is called once for each source vertex passed
-                        to the algorithm.
-                  \item
-                        \lstinline{on_examine_vertex(vdesc)} is called for a vertex before any of 
-                        its outgoing edges are examined. It is possible that it will be called multiple times 
-                        for the same vertex if paths are found to it from other vertices with a shorter distance.
-                  \item
-                        \lstinline{on_finish_vertex(vdesc)} is called for vertex that is being examined,
-                        after all its outgoing edges have been examined.
-                  \item
-                        \lstinline{on_examine_edge(edesc)} is called for edge of the source vertex that is
-                        being examined.
-                  \item
-                        \lstinline{on_edge_relaxed(edesc)} is called when the distance to the target vertex of the edge
-                        is relaxed, or decreased.
-                  \item
-                        \lstinline{on_edge_not_relaxed(edesc)} is called when the distance to the target vertex of the edge
-                        is not relaxed, or not decreased.
-            \end{itemize}
-      %\pnum\result
-      %\pnum\returns 
-      \pnum\throws 
-            \begin{itemize}
-                  \item If an event function throws an exception, the algorithm will terminate, the exception will 
-                  be propagated to the caller, and the state of the distances and predecessors ranges is undefined.
-            \end{itemize}
-      %\pnum\complexity
-      %\pnum\remarks 
-      %\pnum\errors
-\end{itemdescr}
-
-\subsubsection{Dijkstra Visitor Concept}
-The \tcode{dijkstra_visitor} concept is used to validate the visitor passed to the algorithms.
-
-\phil{This is currently not enabled in the algorithms because of a compiler error using gcc}
-{\small
-      \lstinputlisting{D3128_Algorithms/src/dijkstra_visitor_concept.hpp}
-}
-
 
 \subsection{Bellman-Ford Shortest Paths and Shortest Distances}
 Compute the shortest path and associated distance from vertex \tcode{source} to all reachable vertices in \tcode{graph}.
@@ -678,9 +672,9 @@ get the vertex ids of the negative weight cycle.
       \pnum\preconditions
             \begin{itemize}
                   \item
-                        \lstinline{distances} will be initialized with \lstinline{init_shortest_paths}.
+                        \lstinline{distances[i] = shortest_path_infinite_distance()} for \lstinline{0 <= i < num_vertices(g)}.
                   \item
-                        \lstinline{predecessors} will be initialized with \lstinline{init_shortest_paths}.
+                        \lstinline{predecessors[i] = i} for \lstinline{0 <= i < num_vertices(g)}.
             \end{itemize}
       \pnum\effects
             \begin{itemize}
@@ -688,12 +682,17 @@ get the vertex ids of the negative weight cycle.
                         If vertex with index \lstinline{i} is reachable from vertex \lstinline{source}, then
                         \lstinline{distances[i]} will contain the distance from \lstinline{source} to vertex
                         \lstinline{i}.  Otherwise \lstinline{distances[i]} will contain
-                        \lstinline{shortest_path_invalid_distance()}.
+                        \lstinline{shortest_path_infinite_distance()}.
                   \item
                         If vertex with index \lstinline{i} is reachable
                         from vertex \lstinline{source}, then \lstinline{predecessors[i]} will contain the
                         predecessor vertex of vertex \lstinline{i}. Otherwise \lstinline{predecessors[i]} will contain
                         \lstinline{i}.
+                  \item Member functions on the \lstinline{visitor} parameter are called during the algorithm's execution.
+                        The functions are optional and, when included, must follow the visitor concepts for the events.
+                        No overhead is incurred if the functions are not included.
+                        The events supported are \lstinline{on_examine_edge}, \lstinline{on_edge_relaxed}, \lstinline{on_edge_not_relaxed},
+                        \lstinline{on_edge_minimized}, and \lstinline{on_edge_not_minimized}.
             \end{itemize}
       %\pnum\result
       \pnum\returns 
@@ -711,7 +710,7 @@ get the vertex ids of the negative weight cycle.
                               \item \lstinline{source} is not in the range \lstinline{0 <= source < num_vertices(graph)}.
                         \end{itemize}
             \end{itemize}
-      \pnum\complexity $\mathcal{O}(|E| \cdot |V|)$. Complexity may also be affected by the callers visitor functionality. \\
+      \pnum\complexity $\mathcal{O}(|E| \cdot |V|)$. Complexity may also be affected when visitor events are called. \\
       \pnum\remarks 
             \begin{itemize}
                   \item Duplicate sources do not affect the algorithm's complexity or correctness.
@@ -748,7 +747,7 @@ giving a small performance improvement with lower memory overhead.
       \pnum\preconditions
             \begin{itemize}
                   \item
-                        \lstinline{distances} will be initialized with \lstinline{init_shortest_paths}.
+                        \lstinline{distances[i] = shortest_path_infinite_distance()} for \lstinline{0 <= i < num_vertices(g)}.
             \end{itemize}
       \pnum\effects
             \begin{itemize}
@@ -756,7 +755,12 @@ giving a small performance improvement with lower memory overhead.
                         If vertex with index \lstinline{i} is reachable from vertex \lstinline{source}, then
                         \lstinline{distances[i]} will contain the distance from \lstinline{source} to vertex
                         \lstinline{i}.  Otherwise \lstinline{distances[i]} will contain
-                        \lstinline{shortest_path_invalid_distance()}.
+                        \lstinline{shortest_path_infinite_distance()}.
+                  \item Member functions on the \lstinline{visitor} parameter are called during the algorithm's execution.
+                        The functions are optional and, when included, must follow the visitor concepts for the events.
+                        No overhead is incurred if the functions are not included.
+                        The events supported are \lstinline{on_examine_edge}, \lstinline{on_edge_relaxed}, \lstinline{on_edge_not_relaxed},
+                        \lstinline{on_edge_minimized}, and \lstinline{on_edge_not_minimized}.
             \end{itemize}
       %\pnum\result
       \pnum\returns 
@@ -775,7 +779,7 @@ giving a small performance improvement with lower memory overhead.
                               \item \lstinline{source} is not in the range \lstinline{0 <= source < num_vertices(graph)}.
                         \end{itemize}
             \end{itemize}
-      \pnum\complexity $\mathcal{O}(|E| \cdot |V|)$. Complexity may also be affected by the callers visitor functionality. \\
+      \pnum\complexity $\mathcal{O}(|E| \cdot |V|)$. Complexity may also be affected when visitor events are called. \\
       \pnum\remarks 
             \begin{itemize}
                   \item Duplicate sources do not affect the algorithm's complexity or correctness.
@@ -784,66 +788,6 @@ giving a small performance improvement with lower memory overhead.
             \end{itemize}
       %\pnum\errors
 \end{itemdescr}
-
-
-\subsubsection{Bellman-Ford Visitor}
-
-\tcode{bellman_visitor_base} defines callacks for events in the \tcode{bellman_ford_shortest_paths}
-and \tcode{bellman_ford_shortest_distances} algorithms. To use it, a new class is derived from 
-\tcode{bellman_visitor_base} and the desired event function(s) are overridden. The instance of the
-new visitor is passed to the Bellman-Ford algorithm. No \tcode{overload} keyword should be used.
-
-Empty event functions have no overhead because they are removed by the optimizer. 
-
-The events included are the same as the Bellman-Ford Shortest Path algorithms in the boost::graph 
-library.
-
-{\small
-      \lstinputlisting{D3128_Algorithms/src/bellman_visitor.hpp}
-}
-
-\begin{itemdescr}
-      %\pnum\mandates
-      %\pnum\preconditions
-      \pnum\effects
-            \begin{itemize}
-                  \item
-                        \lstinline{on_examine_edge(edesc)} is called for edge that is being examined. This will be called 
-                        multiple times for the same edge.
-                  \item
-                        \lstinline{on_edge_relaxed(edesc)} is called when the distance to the target vertex of the edge
-                        is relaxed, or decreased. This may be called multiple times for the same edge.
-                  \item
-                        \lstinline{on_edge_not_relaxed(edesc)} is called when the distance to the target vertex of the edge
-                        is not relaxed, or not decreased.
-                  \item
-                        \lstinline{on_edge_minimized(edesc)} is called when an edge has not been detected in a negative 
-                        weight cycle. This will be called at most once for each edge.
-                  \item
-                        \lstinline{on_edge_not_minimized(edesc)} is called when a cycle of negative weights is discovered.
-                        After returning, the algorithm will terminate and return \lstinline{false}. This will only be called
-                        once at most.
-            \end{itemize}
-      %\pnum\result
-      %\pnum\returns 
-      \pnum\throws 
-            \begin{itemize}
-                  \item If an event function throws an exception, the algorithm will terminate, the exception will 
-                  be propagated to the caller, and the state of the distances and predecessors ranges is undefined.
-            \end{itemize}
-      %\pnum\complexity
-      %\pnum\remarks 
-      %\pnum\errors
-\end{itemdescr}
-
-\subsubsection{Bellman-Ford Visitor Concept}
-
-The \tcode{bellman_visitor} concept is used to validate the visitor passed to the algorithms.
-
-\phil{This is currently not enabled in the algorithms because of a compiler error using gcc}
-{\small
-      \lstinputlisting{D3128_Algorithms/src/bellman_visitor_concept.hpp}
-}
 
 \subsubsection{Finding the Negative Cycle}
 If a cycle with negative weights is found, it's possible to get the vertex ids of the cycle
@@ -870,7 +814,7 @@ not evaluate predecessors.
       %\pnum\result
       %\pnum\returns 
       %\pnum\throws 
-      \pnum\complexity  $\mathcal{O}(N)$, where \textit{N} is the number of vertex ids in the cycle. \\
+      \pnum\complexity  $\mathcal{O}(|E|+|V|)$ \\
       %\pnum\remarks 
       %\pnum\errors
 \end{itemdescr}
@@ -905,14 +849,14 @@ Compute the number of triangles in a graph.
 }
 \begin{itemdescr}
       %\pnum\mandates
-      %\pnum\preconditions
+      \pnum\preconditions  The outgoing edges of a vertex are ordered by target\_id. \\
       %\pnum\effects
       %\pnum\result
       \pnum\returns Number of triangles \\
-      %\pnum\throws
+      \pnum\throws  A \tcode{graph_error} is thrown when the target\_id for an outgoing edge is less than the target\_id of the previous edge. \\
       %\pnum\complexity \\
-      \pnum\remarks
-      To avoid duplicate counting, only directed triangles of a certain orientation will be detected. If \tcode{vertex_id(u) < vertex_id(v) < vertex_id(w)}, count triangle if graph contains edges \tcode{uv, vw, uw}.
+      \pnum\remarks To avoid duplicate counting, only directed triangles of a certain orientation will be detected. 
+                    If \tcode{vertex_id(u) < vertex_id(v) < vertex_id(w)}, count triangle if graph contains edges \tcode{uv, vw, uw}.
       %\pnum\errors
 \end{itemdescr}
 
@@ -1496,7 +1440,7 @@ Find the minimum weight spanning tree of a graph using Prim's algorithm.
 
       \begin{lstlisting}
       template <adjacency_list G, class DistanceValue>
-      auto dijkstra_invalid_distance() {
+      auto dijkstra_infinite_distance() {
       return numeric_limits<DistanceValue>::max();
       }
 
@@ -1538,18 +1482,18 @@ Find the minimum weight spanning tree of a graph using Prim's algorithm.
                         \textit{Constraints}    & Values returned by \tcode{weight_fn} must be non-negative.                                                                                                    \\
                         \hline
                         \textit{Preconditions}  & \tcode{seed >= 0                                                                                                               &  & seed < size(vertices(g))} \\
-                                                & \tcode{size(distance) >= size(vertices(g))}; caller must pre-extend with \tcode{dijkstra_invalid_distance()}                                                   \\
+                                                & \tcode{size(distance) >= size(vertices(g))}; caller must pre-extend with \tcode{dijkstra_infinite_distance()}                                                   \\
                                                 & \tcode{size(predecessor) >= size(vertices(g))}; caller must pre-extend                                                                                        \\
-                                                & \tcode{distance[i] = dijkstra_invalid_distance()} for \tcode{i < size(vertices(g))}                                                                           \\
+                                                & \tcode{distance[i] = dijkstra_infinite_distance()} for \tcode{i < size(vertices(g))}                                                                           \\
                         \hline
                         \textit{Postconditions} & \tcode{distance[seed] == 0}                                                                                                                                   \\
                                                 & \tcode{predecessor[seed] == seed}.                                                                                                                            \\
                         \hline
                         \textit{\effects}       & \tcode{distance[uid]} will be the shortest, weighted distance of vertex\_id \tcode{uid} from \tcode{seed}.                                                    \\
-                                                & If \tcode{uid} is not connected to \tcode{seed} by any edges then it will have a value of \tcode{dijkstra_invalid_distance()}.                                \\
+                                                & If \tcode{uid} is not connected to \tcode{seed} by any edges then it will have a value of \tcode{dijkstra_infinite_distance()}.                                \\
                                                 &                                                                                                                                                               \\
                                                 & \tcode{predecessor[uid]} will have the preceding vertex\_id of \tcode{uid} in the weighted shortest path to \tcode{seed}                                      \\
-                                                & when \tcode{distance[uid] != dijkstra_invalid_distance()}.                                                                                                    \\
+                                                & when \tcode{distance[uid] != dijkstra_infinite_distance()}.                                                                                                    \\
                         \hline
                   \end{tabular}}
             %\caption{\tcode{incidence} View Functions}
