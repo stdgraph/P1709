@@ -1,0 +1,1 @@
+struct empty_visitor {};
