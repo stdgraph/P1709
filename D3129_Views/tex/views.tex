@@ -407,13 +407,11 @@ The range returned by \textit{sourced} views (includes source\_id) adheres to th
 
 \subsection{Depth First Search Views}
 
-\phil{Add optional bitset enum event parameter, that match the visitor events.}
-
 Depth First Search views iterate over the vertices and edges from a given seed vertex, returning a \tcode{vertex_descriptor} or \tcode{edge_descriptor} on each iteration when it is first encountered, depending on the function used. 
 Table \ref{tab:dfs} shows the functions and their return values.
 
-%While not shown in the examples, all functions have a final, optional allocator parameter that defaults to \tcode{std::allocator<bool>}. 
-%It is used for containers that are internal to the view. The \tcode{<bool>} argument has no particular meaning.
+The \tcode{alloc} parameter shown in the following examples is optional and defaults to \tcode{std::allocator<bool>}. It is used for containers 
+that are internal to the view. The \tcode{bool} argument has no particular meaning.
 
 \tcode{vertices_dfs} views require a \tcode{vvf(u)} function, and the \tcode{basic_vertices_dfs} views require a \tcode{vvf(uid)} function.
 \tcode{edges_dfs} views require a \tcode{evf(uv)} function. \tcode{basic_sourced_edges_dfs} views require a \tcode{evf(eid)} function. 
@@ -422,9 +420,8 @@ A \tcode{basic_edges_dfs} view with a evf is not available because \tcode{evf(ei
 % basic_edges_dfs(g,seed,evf) implies the use of Sourced type internally to have source_id in the call call to evf(eid)
 
 \phil{Consider adding an enum bitset of events matching the visitor events, and creating Overloads
-      that accept the bitset. Returned type would include the bitset event triggered, after the
-      value from the user-defined function. The returned value would be a class derived from
-      \tcode{vertex_descriptor} or \tcode{edge_descriptor}. This could offer a similar benefit as
+      that accept the bitset. The returned type would be a subclass of \tcode{vertex_descriptor} or \tcode{edge_descriptor}
+      and would add the event bitset as a final member value, with the bit set for the event . This could offer a similar benefit as
       coroutines.}
 
 \begin{table}[h!]
@@ -434,23 +431,23 @@ A \tcode{basic_edges_dfs} view with a evf is not available because \tcode{evf(ei
 \hline
     \textbf{Example} & \textbf{Return} \\
 \hline
-    \tcode{for(auto\&\& [vid,v] : vertices_dfs(g,seed))} & \tcode{vertex_descriptor<VId,V,void>} \\
-    \tcode{for(auto\&\& [vid,v,val] : vertices_dfs(g,seed,vvf))} & \tcode{vertex_descriptor<VId,V,VV>} \\
+    \tcode{for(auto\&\& [vid,v] : vertices_dfs(g,seed,alloc))} & \tcode{vertex_descriptor<VId,V,void>} \\
+    \tcode{for(auto\&\& [vid,v,val] : vertices_dfs(g,seed,vvf,alloc))} & \tcode{vertex_descriptor<VId,V,VV>} \\
 \hdashline
-    \tcode{for(auto\&\& [vid,uv] : edges_dfs(g,seed))} & \tcode{edge_descriptor<VId,false,E,void>} \\
-    \tcode{for(auto\&\& [vid,uv,val] : edges_dfs(g,seed,evf))} & \tcode{edge_descriptor<VId,false,E,EV>} \\
+    \tcode{for(auto\&\& [vid,uv] : edges_dfs(g,seed,alloc))} & \tcode{edge_descriptor<VId,false,E,void>} \\
+    \tcode{for(auto\&\& [vid,uv,val] : edges_dfs(g,seed,evf,alloc))} & \tcode{edge_descriptor<VId,false,E,EV>} \\
 \hdashline
-    \tcode{for(auto\&\& [uid,vid,uv] : sourced_edges_dfs(g,seed))} & \tcode{edge_descriptor<VId,true,E,void>} \\
-    \tcode{for(auto\&\& [uid,vid,uv,val] : sourced_edges_dfs(g,seed,evf))} & \tcode{edge_descriptor<VId,true,E,EV>} \\
+    \tcode{for(auto\&\& [uid,vid,uv] : sourced_edges_dfs(g,seed,alloc))} & \tcode{edge_descriptor<VId,true,E,void>} \\
+    \tcode{for(auto\&\& [uid,vid,uv,val] : sourced_edges_dfs(g,seed,evf,alloc))} & \tcode{edge_descriptor<VId,true,E,EV>} \\
 \hline
-    \tcode{for(auto\&\& [vid] : basic_vertices_dfs(g,seed))} & \tcode{vertex_descriptor<VId,void,void>} \\
-    \tcode{for(auto\&\& [vid,val] : basic_vertices_dfs(g,seed,vvf))} & \tcode{vertex_descriptor<VId,void,VV>} \\
+    \tcode{for(auto\&\& [vid] : basic_vertices_dfs(g,seed,alloc))} & \tcode{vertex_descriptor<VId,void,void>} \\
+    \tcode{for(auto\&\& [vid,val] : basic_vertices_dfs(g,seed,vvf,alloc))} & \tcode{vertex_descriptor<VId,void,VV>} \\
 \hdashline
-    \tcode{for(auto\&\& [vid] : basic_edges_dfs(g,seed))} & \tcode{edge_descriptor<VId,false,void,void>} \\
-    \tcode{for(auto\&\& [vid,val] : basic_edges_dfs(g,seed,evf))} & \tcode{edge_descriptor<VId,false,void,EV>} \\ % requires source_ for evf(eid)
+    \tcode{for(auto\&\& [vid] : basic_edges_dfs(g,seed,alloc))} & \tcode{edge_descriptor<VId,false,void,void>} \\
+    \tcode{for(auto\&\& [vid,val] : basic_edges_dfs(g,seed,evf,alloc))} & \tcode{edge_descriptor<VId,false,void,EV>} \\ % requires source_ for evf(eid)
 \hdashline
-    \tcode{for(auto\&\& [uid,vid] : basic_sourced_edges_dfs(g,seed))} & \tcode{edge_descriptor<VId,true,void,void>} \\
-    \tcode{for(auto\&\& [uid,vid,val] : basic_sourced_edges_dfs(g,seed,evf))} & \tcode{edge_descriptor<VId,true,void,EV>} \\
+    \tcode{for(auto\&\& [uid,vid] : basic_sourced_edges_dfs(g,seed,alloc))} & \tcode{edge_descriptor<VId,true,void,void>} \\
+    \tcode{for(auto\&\& [uid,vid,val] : basic_sourced_edges_dfs(g,seed,evf,alloc))} & \tcode{edge_descriptor<VId,true,void,EV>} \\
 \hline
 \end{tabular}}
 \caption{depth\_first\_search View Functions}
@@ -461,13 +458,12 @@ A \tcode{basic_edges_dfs} view with a evf is not available because \tcode{evf(ei
 \subsection{Breadth First Search Views}
 \phil{NetworkX provides an optional depth\_limit parameter for bfs. Add? }
 
-\phil{Add optional bitset enum event parameter, that match the visitor events.}
-
 Breadth First Search views iterate over the vertices and edges from a given seed vertex, returning a \tcode{vertex_descriptor} 
 or \tcode{edge_descriptor} on each iteration when it is first encountered, depending on the function used. 
 Table \ref{tab:bfs} shows the functions and their return values.
 
-%While not shown in the examples, all functions have a final, optional allocator parameter that defaults to \tcode{std::allocator<bool>}. It is used for containers that are internal to the view. The \tcode{<bool>} argument has no particular meaning.
+The \tcode{alloc} parameter shown in the following examples is optional and defaults to \tcode{std::allocator<bool>}. It is used for containers 
+that are internal to the view. The \tcode{bool} argument has no particular meaning.
 
 \tcode{vertices_bfs} views require a \tcode{vvf(u)} function, and the \tcode{basic_vertices_bfs} views require a \tcode{vvf(uid)} function.
 \tcode{edges_bfs} views require a \tcode{evf(uv)} function.
@@ -478,9 +474,8 @@ A \tcode{basic_edges_bfs} view with a evf is not available because \tcode{evf(ei
 % basic_edges_bfs(g,seed,evf) implies the use of Sourced type internally to have source_id in the call call to evf(eid)
 
 \phil{Consider adding an enum bitset of events matching the visitor events, and creating Overloads
-      that accept the bitset. Returned type would include the bitset event triggered, after the
-      value from the user-defined function. The returned value would be a class derived from
-      \tcode{vertex_descriptor} or \tcode{edge_descriptor}. This could offer a similar benefit as
+      that accept the bitset. The returned type would be a subclass of \tcode{vertex_descriptor} or \tcode{edge_descriptor}
+      and would add the event bitset as a final member value, with the bit set for the event . This could offer a similar benefit as
       coroutines.}
 
 \begin{table}[h!]
@@ -491,23 +486,23 @@ A \tcode{basic_edges_bfs} view with a evf is not available because \tcode{evf(ei
     \textbf{Example} & \textbf{Return} \\
 \hline
 \hdashline
-    \tcode{for(auto\&\& [vid,v] : vertices_bfs(g,seed))} & \tcode{vertex_descriptor<VId,V,void>} \\
-    \tcode{for(auto\&\& [vid,v,val] : vertices_bfs(g,seed,vvf))} & \tcode{vertex_descriptor<VId,V,VV>} \\
+    \tcode{for(auto\&\& [vid,v] : vertices_bfs(g,seed,alloc))} & \tcode{vertex_descriptor<VId,V,void>} \\
+    \tcode{for(auto\&\& [vid,v,val] : vertices_bfs(g,seed,vvf,alloc))} & \tcode{vertex_descriptor<VId,V,VV>} \\
 \hdashline
-    \tcode{for(auto\&\& [vid,uv] : edges_bfs(g,seed))} & \tcode{edge_descriptor<VId,false,E,void>} \\
-    \tcode{for(auto\&\& [vid,uv,val] : edges_bfs(g,seed,evf))} & \tcode{edge_descriptor<VId,false,E,EV>} \\
+    \tcode{for(auto\&\& [vid,uv] : edges_bfs(g,seed,alloc))} & \tcode{edge_descriptor<VId,false,E,void>} \\
+    \tcode{for(auto\&\& [vid,uv,val] : edges_bfs(g,seed,evf,alloc))} & \tcode{edge_descriptor<VId,false,E,EV>} \\
 \hdashline
-    \tcode{for(auto\&\& [uid,vid,uv] : sourced_edges_bfs(g,seed))} & \tcode{edge_descriptor<VId,true,E,void>} \\
-    \tcode{for(auto\&\& [uid,vid,uv,val] : sourced_edges_bfs(g,seed,evf))} & \tcode{edge_descriptor<VId,true,E,EV>} \\
+    \tcode{for(auto\&\& [uid,vid,uv] : sourced_edges_bfs(g,seed,alloc))} & \tcode{edge_descriptor<VId,true,E,void>} \\
+    \tcode{for(auto\&\& [uid,vid,uv,val] : sourced_edges_bfs(g,seed,evf,alloc))} & \tcode{edge_descriptor<VId,true,E,EV>} \\
 \hline
-    \tcode{for(auto\&\& [vid] : basic_vertices_bfs(g,seed))} & \tcode{vertex_descriptor<VId,void,void>} \\
-    \tcode{for(auto\&\& [vid,val] : basic_vertices_bfs(g,seed,vvf))} & \tcode{vertex_descriptor<VId,void,VV>} \\
+    \tcode{for(auto\&\& [vid] : basic_vertices_bfs(g,seed,alloc))} & \tcode{vertex_descriptor<VId,void,void>} \\
+    \tcode{for(auto\&\& [vid,val] : basic_vertices_bfs(g,seed,vvf,alloc))} & \tcode{vertex_descriptor<VId,void,VV>} \\
 \hdashline
-    \tcode{for(auto\&\& [vid] : basic_edges_bfs(g,seed))} & \tcode{edge_descriptor<VId,false,void,void>} \\
-    \tcode{for(auto\&\& [vid,val] : basic_edges_bfs(g,seed,evf))} & \tcode{edge_descriptor<VId,false,void,EV>} \\ % requires source_ for evf(eid)
+    \tcode{for(auto\&\& [vid] : basic_edges_bfs(g,seed,alloc))} & \tcode{edge_descriptor<VId,false,void,void>} \\
+    \tcode{for(auto\&\& [vid,val] : basic_edges_bfs(g,seed,evf,alloc))} & \tcode{edge_descriptor<VId,false,void,EV>} \\ % requires source_ for evf(eid)
 \hdashline
-    \tcode{for(auto\&\& [uid,vid] : basic_sourced_edges_bfs(g,seed))} & \tcode{edge_descriptor<VId,true,void,void>} \\
-    \tcode{for(auto\&\& [uid,vid,val] : basic_sourced_edges_bfs(g,seed,evf))} & \tcode{edge_descriptor<VId,true,void,EV>} \\
+    \tcode{for(auto\&\& [uid,vid] : basic_sourced_edges_bfs(g,seed,alloc))} & \tcode{edge_descriptor<VId,true,void,void>} \\
+    \tcode{for(auto\&\& [uid,vid,val] : basic_sourced_edges_bfs(g,seed,evf,alloc))} & \tcode{edge_descriptor<VId,true,void,EV>} \\
 \hline
 \end{tabular}}
 \caption{breadth\_first\_search View Functions}
@@ -520,14 +515,18 @@ Topological Sort views iterate over the vertices and edges from a given seed ver
 \tcode{edge_descriptor} on each iteration when it is first encountered, depending on the function used. 
 Table \ref{tab:topo_sort} shows the functions and their return values.
 
-%While not shown in the examples, all functions have a final, optional allocator parameter that defaults to \tcode{std::allocator<bool>}. It is used for containers that are internal to the view. The \tcode{<bool>} argument has no particular meaning.
+The \tcode{alloc} parameter shown in the following examples is optional and defaults to \tcode{std::allocator<bool>}. It is used for containers 
+that are internal to the view. The \tcode{bool} argument has no particular meaning.
 
 \tcode{vertices_topological_sort} views require a \tcode{vvf(u)} function, and the \tcode{basic_vertices_topological_sort} views require a \tcode{vvf(uid)} function.
 \tcode{edges_topological_sort} views require a \tcode{evf(uv)} function. 
 
 % basic_edges_topological_sort(g,seed,evf) implies the use of Sourced type internally to have source_id in the call call to evf(eid)
 
-\phil{Consider adding a enum bitset similar to those for dfs and bfs.}
+\phil{Consider adding an enum bitset of events matching the visitor events, and creating Overloads
+      that accept the bitset. The returned type would be a subclass of \tcode{vertex_descriptor} or \tcode{edge_descriptor}
+      and would add the event bitset as a final member value, with the bit set for the event . This could offer a similar benefit as
+      coroutines.}
 
 \begin{table}[h!]
 \begin{center}
@@ -536,23 +535,23 @@ Table \ref{tab:topo_sort} shows the functions and their return values.
 \hline
     \textbf{Example} & \textbf{Return} \\
 \hline
-    \tcode{for(auto\&\& [vid,v] : vertices_topological_sort(g,seed))} & \tcode{vertex_descriptor<VId,V,void>} \\
-    \tcode{for(auto\&\& [vid,v,val] : vertices_topological_sort(g,seed,vvf))} & \tcode{vertex_descriptor<VId,V,VV>} \\
+    \tcode{for(auto\&\& [vid,v] : vertices_topological_sort(g,seed,alloc))} & \tcode{vertex_descriptor<VId,V,void>} \\
+    \tcode{for(auto\&\& [vid,v,val] : vertices_topological_sort(g,seed,vvf,alloc))} & \tcode{vertex_descriptor<VId,V,VV>} \\
 \hdashline
-    \tcode{for(auto\&\& [vid,uv] : edges_topological_sort(g,seed))} & \tcode{edge_descriptor<VId,false,E,void>} \\
-    \tcode{for(auto\&\& [vid,uv,val] : edges_topological_sort(g,seed,evf))} & \tcode{edge_descriptor<VId,false,E,EV>} \\
+    \tcode{for(auto\&\& [vid,uv] : edges_topological_sort(g,seed,alloc))} & \tcode{edge_descriptor<VId,false,E,void>} \\
+    \tcode{for(auto\&\& [vid,uv,val] : edges_topological_sort(g,seed,evf,alloc))} & \tcode{edge_descriptor<VId,false,E,EV>} \\
 \hdashline
-    \tcode{for(auto\&\& [uid,vid,uv] : sourced_edges_topological_sort(g,seed))} & \tcode{edge_descriptor<VId,true,E,void>} \\
-    \tcode{for(auto\&\& [uid,vid,uv,val] : sourced_edges_topological_sort(g,seed,evf))} & \tcode{edge_descriptor<VId,true,E,EV>} \\
+    \tcode{for(auto\&\& [uid,vid,uv] : sourced_edges_topological_sort(g,seed,alloc))} & \tcode{edge_descriptor<VId,true,E,void>} \\
+    \tcode{for(auto\&\& [uid,vid,uv,val] : sourced_edges_topological_sort(g,seed,evf,alloc))} & \tcode{edge_descriptor<VId,true,E,EV>} \\
 \hline
-    \tcode{for(auto\&\& [vid] : basic_vertices_topological_sort(g,seed))} & \tcode{vertex_descriptor<VId,void,void>} \\
-    \tcode{for(auto\&\& [vid,val] : basic_vertices_topological_sort(g,seed,vvf))} & \tcode{vertex_descriptor<VId,void,VV>} \\
+    \tcode{for(auto\&\& [vid] : basic_vertices_topological_sort(g,seed,alloc))} & \tcode{vertex_descriptor<VId,void,void>} \\
+    \tcode{for(auto\&\& [vid,val] : basic_vertices_topological_sort(g,seed,vvf,alloc))} & \tcode{vertex_descriptor<VId,void,VV>} \\
 \hdashline
-    \tcode{for(auto\&\& [vid] : basic_edges_topological_sort(g,seed))} & \tcode{edge_descriptor<VId,false,void,void>} \\
-    \tcode{for(auto\&\& [vid,val] : basic_edges_topological_sort(g,seed,evf))} & \tcode{edge_descriptor<VId,false,void,EV>} \\ % requires source_ for evf(eid)
+    \tcode{for(auto\&\& [vid] : basic_edges_topological_sort(g,seed,alloc))} & \tcode{edge_descriptor<VId,false,void,void>} \\
+    \tcode{for(auto\&\& [vid,val] : basic_edges_topological_sort(g,seed,evf,alloc))} & \tcode{edge_descriptor<VId,false,void,EV>} \\ % requires source_ for evf(eid)
 \hdashline
-    \tcode{for(auto\&\& [uid,vid] : basic_sourced_edges_topological_sort(g,seed))} & \tcode{edge_descriptor<VId,true,void,void>} \\
-    \tcode{for(auto\&\& [uid,vid,val] : basic_sourced_edges_topological_sort(g,seed,evf))} & \tcode{edge_descriptor<VId,true,void,EV>} \\
+    \tcode{for(auto\&\& [uid,vid] : basic_sourced_edges_topological_sort(g,seed,alloc))} & \tcode{edge_descriptor<VId,true,void,void>} \\
+    \tcode{for(auto\&\& [uid,vid,val] : basic_sourced_edges_topological_sort(g,seed,evf,alloc))} & \tcode{edge_descriptor<VId,true,void,EV>} \\
 \hline
 \end{tabular}}
 \caption{topological\_sort View Functions}
