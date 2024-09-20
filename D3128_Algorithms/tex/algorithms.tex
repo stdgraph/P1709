@@ -409,7 +409,6 @@ A linear ordering of vertices such that for every directed edge (u,v) from verte
       \phil{I assume \tcode{adjacency_list_graph} is the same as our \tcode{adjacency_list}. \tcode{bidirectional_adjacency_list_graph} is new; what to do with it?}
 \end{comment}
 
-
 \subsection{Initialization}
 
 {\small
@@ -460,6 +459,9 @@ Note that complexity may be $\mathcal{O}(|E| + |V|\log{|V|)}$ for certain implem
 instead of a binary heap implemented with \tcode{std::priority_queue}.
 
 \subsubsection{Dijkstra Shortest Paths}
+
+\phil{Feedback: use std::invocable instead of std::function to avoid performance penalty. 
+      (Is this really an issue, when the function parameter has a default lambda?)}
 
 \paragraph{Single-Source Shortest Paths}
 {\small
