@@ -5,127 +5,51 @@
 
 %% \chapter{Introduction}
 %% \label{ch:introduction}
-
-\section{Motivation}
-
-The original STL revolutionized the way that C++ programmers could apply algorithms to different kinds of containers, by defining \emph{generic} algorithms, realized via function templates.  
-A hierarchy of \emph{iterators} were the mechanism by which algorithms could be made generic with respect to different kinds of containers,
-Named requirements specified the valid expressions and associated types that algorithms required of their arguments.  As of C++20, we now have both ranges and concepts, which
-provide language-based mechanisms for specifying requirements for generic algorithms.
-
-As powerful as the algorithms in the standard library are, the underlying basis for them is a range (or iterator pair), which inherently can only specify a one-dimensional container.  
-Iterator pairs (equiv.\ ranges) specify a \lstinline{begin()} and an \lstinline{end()} and can move between those two limits in various ways, depending on the type of iterator.
-As a result, important classes of problems that programmers are regularly faced with use structures that are not one-dimensional containers, and so the standard library algorithms can't be directly used.
-Multi-dimensional arrays are an example of one such kind of data structure. Matrices do have the nice property that they (typically) have the ability to be ``raveled'', i.e., the data underlying the matrix can still be treated as a one-dimensional container.  Multi-dimensional arrays also have the property that, even though they can be thought of as hierarchical containers, the hierarchy is uniform---an N-dimensional array is a container of N-1 dimensional arrays.
-
-Another important problem domain that does not fit into the category of one-dimensional ranges is that of \emph{graph algorithms and data structures}.
-Graphs are a powerful abstraction for modeling relationships between entities in a given problem domain,
-irrespective of what the actual entities are, and irrespective of what the actual relationships are.
-In that sense, graphs are, by their very nature, generic.
-Graphs are a fundamental abstraction in computer science, and are ubiquitous in real-world applications.
-
-Any problem concerned with connectivity can be modeled as a graph.  
-Just a small set of examples include
-Internet routing, circuit partitioning and layout, and finding the best route to take to a destination on map.
-There are also relationships between entities that are inferred from large sets of data, for example the graph of consumers who have purchased the same product, or who have viewed the same movie.
-Yet more interesting structures (hypergraphs or k-partite graphs) can arise when we want to model relationships between diverse types of data, such as the graph of consumers, the products they have purchased, and the vendors of the products.
-And, of course, graphs play a critical role in multiple aspects of machine learning.
-
-Along with these graph abstractions are the graph algorithms that are widely used for sovling problems from these domains.
-Well-known graph algorithms include breadth-first search, Dijkstra's algorithm, connected components, and so on.
-%
-Because graphs can come from so many different problem domains, they will also be represented with many different kinds of data structures.
-To make graph algorithms as usable as possible across arbitrary representations requires application of the same principles that were used in the original STL: 
-a collection of related algorithms from a problem domain (in our case, graphs),
-minimizing the requirements imposed by the algorithms on their arguments,
-systematically organizing the requirements, and
-realizing this framework of requirements in the form of concepts.
-
-There are also many uses of graphs that would not be met by a standard set of algorithms.  A standardized interface for graphs is eminently useful in such situations as well.  
-In the most basic case, it would provide a well-defined framework for development.  But in keeping with the foundational goal of generic programming to enable reuse, it would also empower users to develop and deploy their own reusable graph components.  In the best case, such algorithms would be available to the broader C++ programmer community.
-
-Because graphs are so ubiquitous and so important to modern software systems, a standardized library of graph algorithms and data structures would have enormous benefit to the C++ development community.
-This proposal contains the specification of such a library, developed using the principles above.
-
-
-
-\section{Example: Six Degrees of Kevin Bacon}
-\label{sec:bacon}
-
-A classic example of the use of a graph algorithm is the game ``The Six Degrees of Kevin Bacon.''
-The game is played by connecting actors to each other through movies they have appeared in together.
-The goal is to find the smallest number of movies that connect a given actor to Kevin Bacon.
-That number is called the ``Bacon number'' of the actor. Kevin Bacon himself has a Bacon number of 0.
-Since Kevin Bacon appeared with Tom Cruise in ``A Few Good Men'', Tom Cruise has a Bacon number of 1.
-
-The following program computes the Bacon number for a small selection of actors.
-
-% \phil{Duplicated in Overview's Examples. OK?}
-{\small
-  \lstinputlisting[firstline=26,lastline=48]{D3126_Overview/src/bacon.cpp}
-}
-
-
-\noindent
-Output:
-\begin{lstlisting}
-Tom Cruise has Bacon number 1
-Kevin Bacon has Bacon number 0
-Hugo Weaving has Bacon number 3
-Carrie-Anne Moss has Bacon number 4
-Natalie Portman has Bacon number 2
-Jack Nicholson has Bacon number 1
-Kelly McGillis has Bacon number 2
-Harrison Ford has Bacon number 1
-Sebastian Stan has Bacon number 3
-Mila Kunis has Bacon number 3
-Michelle Pfeiffer has Bacon number 1
-Keanu Reeves has Bacon number 4
-Julia Roberts has Bacon number 1    
-\end{lstlisting}  
-
-
-In graph parlance, we are creating a graph where the vertices are actors and the edges are movies.
-The number of movies that connect an actor to Kevin Bacon is the shortest path in the graph
-from Kevin Bacon to that actor. In the example above, we compute shortest paths from Kevin
-Bacon to all other actors and print the results.
-Note, however, that actor-actor relationships are not how data about actors
-is available in the wild (from IMDB, for example).  Rather, two available types of data are actor-movie and movie-actor relationships.  See Section~\ref{sec:bipartite} below.
+% \section{Motivation}
 
 
 \section{Graph Background} %  and Terminology}
 
-For clarity, we briefly review some of the basic terminology of graphs.
-We use commonly accepted terminology for graph data structures and algorithms and
-adopt the particular terminology used in the textbook by
-Cormen, Leiserson, Rivest, and Stein (``CLRS'')~\cite{CLRS2022}.
+\andrew{We should use a standard latex macro for C++ -- it doesn't really look right in plain text.}
+
+For clarity in the material contained in other documents, here we briefly review some
+of the basic terminology of graphs.  We use commonly accepted terminology for graph
+data structures and algorithms and specifically adopt the terminology used in the
+textbook by Cormen, Leiserson, Rivest, and Stein (``CLRS'')~\cite{CLRS2022}.
 %
 In defining terminology that is rich enough, yet precise enough, to be used as the basis of a C++ graph library, we emphasize the difference between a graph (an abstraction of entities in a domain, along with their relationships) and the \emph{representation} of a graph (a structure suitable for use by algorithms and/or for code)\footnote{An example of the kind of ambiguity about graphs arising in typical usage is shown in Appendix~\ref{sec:ambiguity}}.
-% We note that because of the precision with which we define representations, there will be some unexpected results.
+%
+We note that because of the precision with which we define representations, there are results that may be unexpected for some.
 
 \section{Summary of Key Takeaways}
 A very brief summary of our terminology is the following:
 \begin{itemize}
-  \item A graph comprises a set of vertices $\{V\}$ and a set of edges $\{E\}$, written $G=\{V, E\}$.
+  \item A graph comprises a set of \emph{vertices} $\{V\}$ and a set of \emph{edges} $\{E\}$, and is written $G=\{V, E\}$.
   \item Expressing algorithms (mathematically as well as in code) requires a \emph{representation} of a graph, the most basic of which is an \emph{adjacency matrix}.  An adjacency matrix is constructed using an \emph{enumeration} of the vertices, not the vertices themselves.
-    \item In addition to the (dense) adjacency matrix representation, we consider three sparse representations: coordinate, compressed, and packed coordinate.  The sparse forms store \emph{indices} used in the enumeration.
-    \item The coordinate and compressed forms of the adjacency matrix, as taken from linear algebra, respectively correspond to the graph theoretical representations of \emph{edge list} and \emph{adjacency list}.
+    \item In addition to the (dense) adjacency matrix representation, we consider three sparse representations: coordinate, compressed, and packed coordinate.  The sparse forms store \emph{indices} defined by the enumeration.
+    \item The \emph{coordinate} and \emph{compressed} forms of the adjacency matrix\footnote{the terems coordinate and compressed are taken from linear algebra.} respectively correspond to representations of the graph theoretical 
+\emph{edge list} and \emph{adjacency list}.
 \end{itemize}
 
 
-\subsection{Basic Terminology}
+\section{Basic Terminology}
 
-To model the relationships between entities, a \emph{graph} $G$ comprises two sets:
-a \emph{vertex set} $V$, whose elements correspond to the entities, and an \emph{edge set} $E$, whose
-elements are pairs corresponding to elements in $V$ that have some relationship with each other.  That is,
-if $u$ and $v$ are members of $V$ that have some relationship that we wish to capture, then there is
-a pair $\{u, v\}$ in $E$.  We write $G=\{V, E\}$ to express that the two sets $V$ and $E$ define a graph $G$.
-
-Figures~\ref{subfig:airport} and~\ref{subfig:instagram} show two examples of graph models,
-a network of airline routes between cities and a social network of names and followers.
-The figures indicate the domain-specific data to be modeled and the sets $V$ and $E$ for each graph.
-Each figure also includes a node and link diagram, a commonly-used graphical\footnote{An unfortunate collision of terminology.}
+To model the relationships between entities in some domain, a \emph{graph} $G$
+comprises two sets: a \emph{vertex set} $V$, whose elements correspond to the domain
+entities, and an \emph{edge set} $E$, whose elements are pairs corresponding to
+elements in $V$ that have some relationship with each other.  That is, if $u$ and $v$
+are members of $V$ that have some relationship that we wish to capture, then we can
+express that by the existence of a pair $\{u, v\}$ in $E$.  We write $G=\{V, E\}$ to
+express that the two sets $V$ and $E$ define a graph $G$.  We can also describe set
+membership of a vertex in $V$ or and edge in $E$ with set notation as $v\in V$ or
+$e\in E$, but we will generally try to avoid using too much purely mathematical
 notation.
+
+Figures~\ref{subfig:airport} and~\ref{subfig:instagram} show two examples of graph
+models, a network of airline routes between cities and a social network of names and
+followers.  The figures indicate the domain-specific data to be modeled and the sets
+$V$ and $E$ for each graph.  Each figure also includes a node and link diagram, a
+commonly-used graphical\footnote{An unfortunate collision of terminology.} notation.
 
 \begin{figure}[ht]
   \begin{center}
@@ -180,6 +104,41 @@ If the edge set $E$ of a directed graph contains an edge $e_k = (v_i,v_j)$, then
 there is an edge from $v_0$ to $v_1$, an edge from $v_1$ to $v_2$, and so on.
 That is, a path is a set of edges $(v_i, v_{i+1}) \in E$ for  $i = 0, 1, \ldots, k-2$.
 \end{itemize}
+
+
+
+There are some special cases that deserve mention, as their presence or absence may determine algorithmic properties.
+\begin{itemize}
+%
+\item A \emph{self-loop} is an edge from a vertex $v_i$ to itself, that is, there is an edge ${v_i, v_i}$ in $E$.
+%
+\item An \emph{isolated vertex} $v_i$ is one that has no edge incident on it, that is, a vertex $v_i$ for which there is no edge $\{v_i, v_j\}$ nor $\{v_j, v_i\}$.
+%
+\item A \emph{multigraph} is a graph $G$ for which there exist multiple edges between the same vertices, i.e., there are
+  multiple edges $\{v_i, v_j\}$ for the same $i$ and $j$ in $E$. 
+%
+\item A \emph{hypergraph} is a graph $G=\{V,E\}$ for which the elements of $E$ are arbitrary subsets of $V$.  That is,
+  elements of $E$ may be $\{v_i, v_j, v_k, \ldots\}$.  Consideration of hypergraphs is outside the scope of this
+  proposal.
+\item A \emph{hypersparse} graph is a graph for which the enumeration is not contiguous.  That is for $V = \{v_i, v_j, v_k, \ldots\}$, with $i < j < k < \ldots$ the set $\{i, j, k, \ldots\}$ may not be contiguous and may not start at $0$.
+\item A \emph{path} is sequence of edges $\{v_i, v_j\}, \{v_j, v_k\}, \{v_k, v_l\}, \ldots $ such that every $v_i$ is distinct.
+  That is,
+any $v_i$ appears once and only once in an edge $\{v_j, v_i\}$ and once and only once in an
+edge $\{v_i, v_k\}$.
+\item A \emph{cycle} is a path such that every vertex appears twice, that is, for every $v_i$ there is an edge
+  $\{v_j, v_i\}$ and an 
+edge $\{v_i, v_k\}$.  In terms of the sequence above, a path is a cycle if the second vertex of the last edge is the first vertex of the first edge.
+\item  A \emph{directed acyclic graph (DAG)} is a directed graph with no cycles.
+\item A \emph{tree} is a connected graph with no cycles.  Trees are a special case of graphs but are important enough that they have their own
+  rich theory (and corresponding software).  As such, we omit trees from this proposal and look forward to
+  separate library proposals for trees.
+  \item A \emph{subgraph} of $G=\{V,E\}$ is a graph $H=\{V, F\}$ such that $F$ is a subset of $E$.
+\item A \emph{spanning tree} is a subgraph of $G$ that is also a tree.
+\end{itemize}
+If any of these properties is important to the correct functioning of an algorithm, either positively or negatively, it will be part of the corresponding requirements of the algorithm.  In general we assume that graphs are not multigraphs, not hyperspase, and that they do not have self-loops.
+
+\andrew{We should probably have pictures for all of these -- and others -- saves 1k (or 10k) words.}
+
 
 
 \subsection{Adjacency-Based Representations}
@@ -302,6 +261,81 @@ Illustrations of the adjacency-matrix representations of the airline route graph
 \end{figure}
 
 
+\subsection{Incident Matrices}
+
+An \emph{Incidence matrix} of a directed graph $G$ is a
+$|V|\times |E|$ matrix $B = (b_{ij})$ such that
+\[
+ b_{i j} = 
+ \left\{
+ \begin{array}{rl}
+  -1 & \textrm{if } (v_i, v_j) \in E \\
+  1 & \textrm{if } (v_j, v_i) \in E \\
+  0 & \textrm { otherwise }
+ \end{array}
+ \right.
+ \]
+ We note that the product $BB^\top$ of an incident matrix $B$ is the adjacency matrix
+ of the graph $G$, i.e., $G=BB^\top$.
+
+
+\section{Direct Representations}
+
+Another approach to representing a graph is to model an adjacency list (e.g., Figure~\ref{fig:airport-compressed-sparse-adjacency} or~\ref{fig:instagram-compressed-sparse-adjacency} ) directly.  That is, we can represent a vertex as a class and an edge as a class, and use pointers to represent adjacency.
+
+For example, the following structures could be used to directly represent a graph 
+\begin{lstlisting}
+struct Edge;
+struct Vertex;
+
+struct Vertex {
+  std::forward_list<Edge> edges;
+  std::string name;
+};
+
+struct Arc {
+  Vertex* tip;
+  double distance;
+};
+
+struct Graph {
+  std::vector<Vertex> vertices;
+};
+\end{lstlisting}  
+
+Much of terminology for graphs still applies in a direct representation, except, of course, we have structures representing the different components of a graph, rather than their indices.  There are a number of variations one could consider to this representation, such as using \lstinline{std::vector} rather than \lstinline{std::forward_list} to store outgoing \lstinline{Arc} in a \lstinline{Vertex}.
+
+Direct representations of graphs will often be implicitly part of other structures (``embedded'') in a given application.
+For example,
+one might have data structures to represent an electronic circuit:
+\begin{lstlisting}
+  struct two_terminal {
+    node* from;
+    node* to;
+    double current;
+  };
+
+  struct resistor : public two_terminal {
+    double conductance;
+  };
+
+  struct capacitor : public two_terminal {
+    double capacitance;
+  };
+
+  struct node {
+    std::forward_list<two_terminal> elements;
+    double voltage;
+  };
+
+  struct circuit {
+    std::vector<node> nodes;
+  };
+\end{lstlisting}
+Note that, although structures and fields are differently named, a circuit is inherently a direct representation of a graph, with nodes as vertices and two\_terminal elements as edges.
+
+
+
 \section{Bipartite Graphs}
 \label{sec:bipartite}
 
@@ -413,80 +447,6 @@ The edge set $E$ still consists of edges $(v_i, v_j)$ (or $\{v_i, v_j\}$ where, 
 We note that partitioned graphs are not restricted to two partitions---a partitioned graph can represent an arbitrary number of partitions, i.e., a \emph{multipartite} graph (a graph with multiple subsets of vertices such that edges only go between subsets).
 While partitioned graphs can be used to model multipartite graphs, partitioned graphs are not necessarily multipartite; edges can comprise vertices within a partition as well as well as across partitions.
 
-\section{Direct Representations}
-
-Another approach to representing a graph is to model an adjacency list (e.g., Figure~\ref{fig:airport-compressed-sparse-adjacency} or~\ref{fig:instagram-compressed-sparse-adjacency} ) directly.  That is, we can represent a vertex as a class and an edge as a class, and use pointers to represent adjacency.
-
-For example, the following structures could be used to directly represent a graph (these are simplified, and slightly modernized, versions of the structs used in Donald Knuth's original Stanford Graph Base\footnote{Stanford Graph Base was written in pre-ANSI C}):
-\begin{lstlisting}
-class Vertex {
-  Arc* arcs;
-  int u, v, w;
-};
-
-class Arc {
-  Vertex* tip;
-  Arc* next;
-  int a, b;
-};
-
-class Graph {
-  Vertex* vertices;
-  int uu, vv, ww;
-};
-\end{lstlisting}  
-In this example, a `lstinline{Graph}` is an array of \lstinline{Vertex}.  Each \lstinline{Vertex} has a pointer to a list of \lstinline{Arc} (an edge) and each \lstinline{Arc} has a pointer to its target \lstinline{Vertex}.  Each of the classes contains not only the adjacency information, but properties as well (represented here by \lstinline{int} fields in each of the classes);
-
-Using modern C++ practice, we might instead express this as
-\begin{lstlisting}
-template <class... Props>
-class Vertex {
-  std::forward_list<Arc> arcs;
-  std::tuple<Props...> props;
-};
-
-template <class... Props>
-class Arc {
-  Vertex* tip;  
-  std::tuple<Props...> props;
-};
-
-template <class... Props>
-class Graph {
-  std::vector<Vertex> vertices;
-  std::tuple<Props...> props;
-};
-\end{lstlisting}  
-
-Much of terminology for graphs still applies in a direct representation, except, of course, we have structures representing the different components of a graph, rather than their indices.  There are a number of variations one could consider to this representation, such as using \lstinline{std::vector} rather than \lstinline{std::forward_list} to store outgoing \lstinline{Arc} in a \lstinline{Vertex}.
-
-One advantage of a direct representation is that it can be embedded.  That is, the \lstinline{Vertex} / \lstinline{Arc} representation may be implicit (or easily incorporated into) existing structures within an application.  For example,
-one might have data structures to represent an electronic circuit:
-\begin{lstlisting}
-  struct two_terminal {
-    node* from;
-    node* to;
-    double current;
-  };
-
-  struct resistor : public two_terminal {
-    double conductance;
-  };
-
-  struct capacitor : public two_terminal {
-    double capacitance;
-  };
-
-  struct node {
-    std::forward_list<two_terminal> elements;
-    double voltage;
-  };
-
-  struct circuit {
-    std::vector<node> nodes;
-  };
-\end{lstlisting}
-Note that, although structures and fields are differently named, a circuit is inherently a direct representation of a graph.
 
 % \andrew{We should have note that anything wrapped in a graph adapter has a `num\_vertices`
 % method (and other members).
@@ -514,6 +474,10 @@ Note that, although structures and fields are differently named, a circuit is in
 % \andrew{Scan edge list and insert edgest into adjacency list.  Adjacency list must support insertion.}
 % \subsection{Edge List and Adjacency List: Compressed Edge List}
 % \andrew{Using a sort and group-by (or a sort, a run-length encoding, and a scan), we can compactify the edge-list reprentation and at the same time obtain an adjacency-list representation -- one that is memory and compute efficient.  Best of both worlds.  Has same basic structural principles as CSR / CSC matrices in linear algebra -- but much more general.}
+
+\section{Regarding Algorithms}
+
+\andrew{Intention here is to list the abstract operations one needs from a graph to implement an algorithm.  Maybe show Dijkstra?}
 
 \appendix
 

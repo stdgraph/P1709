@@ -2,13 +2,52 @@
 %% \chapter{Overview}
 \section{Overview}
 
-Graphs, used in ML and other \textbf{scientific} domains, as well as \textbf{industrial} and \textbf{general} programming, 
-do \textbf{not} presently exist in the C++ standard. In ML, a graph forms the underlying structure of an \textbf{artificial neural network} (ANN). 
-In a \textbf{game}, a graph can be used to represent the \textbf{map} of a game world. In \textbf{business} environments, graphs arise as 
-\textbf{entity relationship diagrams} (ERD) or \textbf{data flow diagrams} (DFD). In the realm of \textbf{social media}, a graph represents a 
-\textbf{social network}.
+%% Graphs, used in ML and other \textbf{scientific} domains, as well as \textbf{industrial} and \textbf{general} programming, 
+%% do \textbf{not} presently exist in the C++ standard. In ML, a graph forms the underlying structure of an \textbf{artificial neural network} (ANN). 
+%% In a \textbf{game}, a graph can be used to represent the \textbf{map} of a game world. In \textbf{business} environments, graphs arise as 
+%% \textbf{entity relationship diagrams} (ERD) or \textbf{data flow diagrams} (DFD). In the realm of \textbf{social media}, a graph represents a 
+%% \textbf{social network}.
 
-All documents, taken as a whole for a Graph Library, proposes the addition of \textbf{graph algorithms, operators, views, adaptors}, the 
+The original STL revolutionized the way that C++ programmers could apply algorithms to different kinds of containers, by defining \emph{generic} algorithms, realized via function templates.  
+A hierarchy of \emph{iterators} were the mechanism by which algorithms could be made generic with respect to different kinds of containers,
+Named requirements specified the valid expressions and associated types that algorithms required of their arguments.  As of C++20, we now have both ranges and concepts, which
+provide language-based mechanisms for specifying requirements for generic algorithms.
+
+As powerful as the algorithms in the standard library are, the underlying basis for them is a range (or iterator pair), which inherently can only specify a one-dimensional container.  
+Iterator pairs (equiv.\ ranges) specify a \lstinline{begin()} and an \lstinline{end()} and can move between those two limits in various ways, depending on the type of iterator.
+As a result, important classes of problems that programmers are regularly faced with use structures that are not one-dimensional containers, and so the standard library algorithms can't be directly used.
+Multi-dimensional arrays are an example of one such kind of data structure. Matrices do have the nice property that they (typically) have the ability to be ``raveled'', i.e., the data underlying the matrix can still be treated as a one-dimensional container.  Multi-dimensional arrays also have the property that, even though they can be thought of as hierarchical containers, the hierarchy is uniform---an N-dimensional array is a container of N-1 dimensional arrays.
+
+Another important problem domain that does not fit into the category of one-dimensional ranges is that of \emph{graph algorithms and data structures}.
+Graphs are a powerful abstraction for modeling relationships between entities in a given problem domain,
+irrespective of what the actual entities are, and irrespective of what the actual relationships are.
+In that sense, graphs are, by their very nature, generic.
+Graphs are a fundamental abstraction in computer science, and are ubiquitous in real-world applications.
+
+Any problem concerned with connectivity can be modeled as a graph.  
+Just a small set of examples include
+Internet routing, circuit partitioning and layout, and finding the best route to take to a destination on map.
+There are also relationships between entities that are inferred from large sets of data, for example the graph of consumers who have purchased the same product, or who have viewed the same movie.
+Yet more interesting structures (hypergraphs or k-partite graphs) can arise when we want to model relationships between diverse types of data, such as the graph of consumers, the products they have purchased, and the vendors of the products.
+And, of course, graphs play a critical role in multiple aspects of machine learning.
+
+Along with these graph abstractions are the graph algorithms that are widely used for sovling problems from these domains.
+Well-known graph algorithms include breadth-first search, Dijkstra's algorithm, connected components, and so on.
+%
+Because graphs can come from so many different problem domains, they will also be represented with many different kinds of data structures.
+To make graph algorithms as usable as possible across arbitrary representations requires application of the same principles that were used in the original STL: 
+a collection of related algorithms from a problem domain (in our case, graphs),
+minimizing the requirements imposed by the algorithms on their arguments,
+systematically organizing the requirements, and
+realizing this framework of requirements in the form of concepts.
+
+There are also many uses of graphs that would not be met by a standard set of algorithms.  A standardized interface for graphs is eminently useful in such situations as well.  
+In the most basic case, it would provide a well-defined framework for development.  But in keeping with the foundational goal of generic programming to enable reuse, it would also empower users to develop and deploy their own reusable graph components.  In the best case, such algorithms would be available to the broader C++ programmer community.
+
+Because graphs are so ubiquitous and so important to modern software systems, a standardized library of graph algorithms and data structures would have enormous benefit to the C++ development community.
+This proposal contains the specification of such a library, developed using the principles above.
+
+In total, all documents, taken as a whole for a Graph Library, propose the addition of \textbf{graph algorithms, operators, views, adaptors}, the 
 \textbf{graph container interface}, and a \textbf{graph container implementation} to the C++ library to support \textbf{machine learning} (ML), 
 as well as other applications. ML is a large and growing field, both in the \textbf{research community} and \textbf{industry}, that has 
 received a great deal of attention in recent years. This documents presents an \textbf{interface} of the proposed algorithms, operators, adaptors,
@@ -76,20 +115,58 @@ these to assure the existing design will support them.
 \end{itemize}
 
 
-\section{Examples}
+% \section{Examples}
+%% %\andrew{Where do examples really belong?  In P2300 they are up front here, but I think there is too much forward referencing for that.}
+%% The following code demonstrates how a simple graph can be created as a range of ranges, using the standard containers. 
+%% % \phil{Duplicated in Introduction. OK?}
+%% {\small
+%%   \lstinputlisting[firstline=26,lastline=48]{D3126_Overview/src/bacon.cpp}
+%% }
+%% \tcode{target_id(g,uv)} defines the required function to get a target\_id for an edge in the graph \tcode{G}. Other functions can also
+%% be overridden to allow a developer to adapt their own graph data structures to the library.
 
-%\andrew{Where do examples really belong?  In P2300 they are up front here, but I think there is too much forward referencing for that.}
+\section{Example: Six Degrees of Kevin Bacon}
+\label{sec:bacon}
 
-The following code demonstrates how a simple graph can be created as a range of ranges, using the standard containers. 
+A classic example of the use of a graph algorithm is the game ``The Six Degrees of Kevin Bacon.''
+The game is played by connecting actors to each other through movies they have appeared in together.
+The goal is to find the smallest number of movies that connect a given actor to Kevin Bacon.
+That number is called the ``Bacon number'' of the actor. Kevin Bacon himself has a Bacon number of 0.
+Since Kevin Bacon appeared with Tom Cruise in ``A Few Good Men'', Tom Cruise has a Bacon number of 1.
 
-\phil{Duplicated in Introduction. OK?}
+The following program computes the Bacon number for a small selection of actors.
 
+% \phil{Duplicated in Overview's Examples. OK?}
 {\small
   \lstinputlisting[firstline=26,lastline=48]{D3126_Overview/src/bacon.cpp}
 }
 
-\tcode{target_id(g,uv)} defines the required function to get a target\_id for an edge in the graph \tcode{G}. Other functions can also
-be overridden to allow a developer to adapt their own graph data structures to the library.
+
+\noindent
+Output:
+\begin{lstlisting}
+Tom Cruise has Bacon number 1
+Kevin Bacon has Bacon number 0
+Hugo Weaving has Bacon number 3
+Carrie-Anne Moss has Bacon number 4
+Natalie Portman has Bacon number 2
+Jack Nicholson has Bacon number 1
+Kelly McGillis has Bacon number 2
+Harrison Ford has Bacon number 1
+Sebastian Stan has Bacon number 3
+Mila Kunis has Bacon number 3
+Michelle Pfeiffer has Bacon number 1
+Keanu Reeves has Bacon number 4
+Julia Roberts has Bacon number 1    
+\end{lstlisting}  
+
+
+In graph parlance, we are creating a graph where the vertices are actors and the edges are movies.
+The number of movies that connect an actor to Kevin Bacon is the shortest path in the graph
+from Kevin Bacon to that actor. In the example above, we compute shortest paths from Kevin
+Bacon to all other actors and print the results.
+Note, however, that actor-actor relationships are not how data about actors
+is available in the wild (from IMDB, for example).  Rather, two available types of data are actor-movie and movie-actor relationships.  See Section~\ref{sec:bipartite} below.
 
 \section{What this proposal is  \textbf{not}}
 
@@ -130,6 +207,7 @@ The algorithms are being ported from NWGraph to the \href{https://github.com/std
 Performance analysis from those algorithms can be found in the peer-reviewed papers for NWGraph~\cite{REF_nwgraph_paper,gapbs_2023}.
 
 \section{Prior Art}
+
 \textbf{boost::graph} has been an important C++ graph implementation since 2001. It was developed with the goal of providing
 a modern (at the time) generic library that addressed all the needs of a graph library user. It is still a viable library used today, attesting to the value it brings.
 
