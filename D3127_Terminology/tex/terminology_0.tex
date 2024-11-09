@@ -433,6 +433,9 @@ This is not a natural way to model separate categories of entities, such as movi
 A structurally bipartite graph explicitly captures distinct vertex categories.
 %
 
+We note that a structurally bipartite graph may have an edge $(u_i, v_i)$, that is, an edge between two vertices with the same index.  Even though $u_i$ and $v_i$ are not the same vertex, we opt to consider such an edge to still be called a self-loop.
+
+
 \section{Partitioned Graphs}
 
 In contrast to structurally bipartite graphs, there are certainly cases
@@ -477,7 +480,8 @@ While partitioned graphs can be used to model multipartite graphs, partitioned g
 
 \section{Regarding Algorithms}
 
-\andrew{Intention here is to list the abstract operations one needs from a graph to implement an algorithm.  Maybe show Dijkstra?}
+\andrew{We need to note that we can see some abstract properties of graph representations that are universal and can used for defining concepts.  I suggest that that be done where we define our concepts.}
+
 
 \appendix
 
@@ -583,3 +587,32 @@ The following example illustrates the use of a packed coordinate format to const
       adj_list[dst].push_back (src, val);
     }
  \end{lstlisting}
+
+
+\section{Graphs and Sparse Matrices}
+
+The relationship between graphs and sparse matrices is natural and important enough that a few words are in order.
+
+In numerical linear algebra, a sparse matrix is one that only stores elements of interest~\footnote{These are typically called ``non-zeroes'', though the stored value could be zero.}.  Elements that are not stored are assumed to be zero.  The information necessary to use a matrix includes the row index, the column index, and the entry value itself---abstractly a triple $(i, j, v)$
+The elements can be stored in coordinate form, where each triple is stored (either as separate arrays or as tuples in a single array), or in compressed sparse form, which compresses one of the index dimensions and stores the other index and the value.
+
+A sparse matrix can be considered as a structurally bipartite graph representation.  Suppose that we have a sparse matrix $A$ represented as $\{(i, j, a_{ij})\}$.  We can create a structurally bipartite  $J = \{U, V, E\}$ such that $(i,j)$ is in $E$ if and only if $\{(i, j, a_{ij})\}$ is in $A$.  The coordinate and compressed representations for a sparse matrix are the same as for the graph (and, in fact, the terminology ``coordinate'' and ``compressed sparse'' originate in sparse numerical linear algebra).  For a matrix, the sets $U$ and $V$ have a particular meaning.  Either the indices of $U$ consist of row numbers and $V$ of column numbers, or vice versa.  In the former case, a compressed representation is known as ``compressed sparse row.''  In the latter case, it is known as ``compressed sparse column.''
+
+\andrew{This code is from nwgraph, need to bring it up to std::graph}
+The following code snippet illustrates a sparse matrix vector product when a compressed adjacency representation  is interpreted as a compressed sparse row matrix.
+\begin{lstlisting}[language=C++]
+  for (auto&& [row, u_neighbors] : make_neighbor_range(graph)) {
+    for (auto&& [col, val] : u_neighbors) {
+      y[row] += x[col] * val;
+    }
+  }
+\end{lstlisting}
+
+The following code snippet illustrates a sparse matrix vector product but for a compressed sparse row matrix.
+\begin{lstlisting}[language=C++]
+  for (auto&& [col, u_neighbors] : make_neighbor_range(graph)) {
+    for (auto&& [row, v] : u_neighbors) {
+      y[row] += x[col] * v;
+    }
+  }
+\end{lstlisting}
