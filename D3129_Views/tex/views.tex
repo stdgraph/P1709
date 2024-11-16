@@ -28,6 +28,11 @@ through the set of vertices, or more complex ways such as depth-first search and
 provide a consistent and reliable way to access related elements using the View Return Types, and guaranteeing expected 
 values, such as that the target is really the target on unordered edges.
 
+We are unable to support freestanding implementations in this proposal. Many of the
+views require a \tcode{stack} or \tcode{queue}, which are not available in a freestanding environment. 
+Additionally, \tcode{stack} and \tcode{queue} require memory allocation which could throw a \tcode{bad_alloc} 
+exception. 
+
 \section{Descriptors (Return Types)}
 Views return one of the types in this section, providing a consistent set of value types for all graph data structures. 
 They are templated so that the view can adjust the actual values returned to be appropriate for its use. The three types, 

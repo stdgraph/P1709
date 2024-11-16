@@ -7,7 +7,7 @@
       \item Added A*, Best-first search and Adamic-Adar Index to Tier 2 algorithms based on input.
       \item Removed allocator parameters for consistency with existing algorithms. It was observed that \tcode{stable_sort} 
             allocates memory, but does not take an allocator parameter.
-      \item Removed exception throwing from algorithms to support free-standing C++. The caller will need to
+      \item Removed exception throwing from algorithms to support freestanding C++. The caller will need to
             follow the preconditions to avoid undefined behavior. The other option considered was to return
             an error code.
       \item Identify all \tcode{concept} definitions as "For exposition only" until we have consensus of whether they 
@@ -41,5 +41,8 @@
 
 \subsection*{\paperno r3}
 \begin{itemize}
-      \item ()
+      \item Add a note that we will be unable to support a freestanding graph library in this proposal because
+            of the need for \tcode{stack}, \tcode{queue} and potential \tcode{bad_alloc} exception in many of 
+            the algorithms. 
+      \item Restore use of exceptions in the algorithms since a freestanding implementation cannot supported.
 \end{itemize}

@@ -13,10 +13,9 @@
             The range returned by \tcode{edgelist_view} adheres to the \tcode{basic_sourced_index_edgelist} concept,
             and to the \tcode{has_edge_value} concept if a \tcode{evf(uv)} function is passed. The same applies to
             all \textit{sourced} versions of the BFS, DFS and Topological Sort views.
-\end{itemize}
-
-\subsection*{\paperno r2}
-\begin{itemize}
       \item Restore the allocator parameters on the DFS, BFS and Toplogical Sort views, based on feedback and 
             by SG14/SG19 joint meeting.
+      \item Add a note that we will be unable to support a freestanding graph library in this proposal because
+            of the need for \tcode{stack}, \tcode{queue} and potential \tcode{bad_alloc} exception in many of 
+            the views.
 \end{itemize}
