@@ -271,8 +271,8 @@ library that meets the same requirements and uses concepts and ranges from C++20
 The \tcode{__cpp_lib_graph} feature test macro is recommended to represent all features in this proposal including algorithms, views, concepts, traits, types, functions, and graph container(s).
 
 \section{Freestanding}
-We are unable to support freestanding implementations in this proposal because many of the
-algorithms and views require a \tcode{stack} or \tcode{queue}, which are not available in a freestanding environment. 
+We are unable to support freestanding implementations in this proposal because many of the algorithms and views 
+require a \tcode{stack} or \tcode{queue}, which are not available in a freestanding environment. 
 Additionally, \tcode{stack} and \tcode{queue} require memory allocation which could throw a \tcode{bad_alloc} 
 exception.
 
