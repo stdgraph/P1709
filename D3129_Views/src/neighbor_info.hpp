@@ -1,5 +1,5 @@
 template <class VId, bool Sourced, class V, class VV>
-struct neighbor_descriptor {
+struct neighbor_info {
   using source_id_type = VId; // e.g. vertex\_id\_t<G> when Sourced==true, or void
   using target_id_type = VId; // e.g. vertex\_id\_t<G>
   using vertex_type    = V;   // e.g. vertex\_reference\_t<G> or void
