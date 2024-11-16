@@ -32,3 +32,8 @@ The parts of the table have the following meaning:
 \end{itemize}
 
 \phil{The Directed? section needs work.}
+
+We are unable to support freestanding implementations in this proposal. Many of the
+algorithms require a \tcode{stack} or \tcode{queue}, which are not available in a freestanding environment. 
+Additionally, \tcode{stack} and \tcode{queue} require memory allocation which could throw a \tcode{bad_alloc} 
+exception. 
