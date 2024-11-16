@@ -37,7 +37,7 @@ public: // Construction/Destruction
                              const PartRng& partition_start_ids = vector<VId>(),
                              const Alloc&   alloc          = Alloc());
 
-  // initializer list using edge\_descriptor<VId,true,void,EV>
+  // initializer list using edge\_info<VId,true,void,EV>
   constexpr compressed_graph(const initializer_list<copyable_edge_t<VId, EV>>& ilist, 
                              const Alloc& alloc = Alloc());
 };

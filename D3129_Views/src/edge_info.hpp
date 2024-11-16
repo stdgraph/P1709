@@ -1,5 +1,5 @@
 template <class VId, bool Sourced, class E, class EV>
-struct edge_descriptor {
+struct edge_info {
   using source_id_type = VId; // e.g. vertex\_id\_t<G> when SourceId==true, or void
   using target_id_type = VId; // e.g. vertex\_id\_t<G>
   using edge_type      = E;   // e.g. edge\_reference\_t<G> or void

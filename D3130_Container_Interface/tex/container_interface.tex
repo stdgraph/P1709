@@ -443,7 +443,7 @@ is always available.
 % [](edge_reference_t<EL>) \{return source_id(e)==uid && target_id(e)==vid\}
 
 \subsection{Determining the source\_id, target\_id and edge\_value types}
-Special patterns are recognized for edges based on the \tcode{tuple} and \tcode{edge_descriptor} types. When they are used the \tcode{source_id(e)}, 
+Special patterns are recognized for edges based on the \tcode{tuple} and \tcode{edge_info} types. When they are used the \tcode{source_id(e)}, 
 \tcode{target_id(e)} and \tcode{edge_value} functions will be defined automatically.
 
 The \tcode{tuple} patterns are
@@ -452,10 +452,10 @@ The \tcode{tuple} patterns are
     \item \tcode{tuple<integral,integral,scalar>} for \tcode{source_id(e)}, \tcode{target_id(e)} and \tcode{edge_value(e)} respectively.
 \end{itemize}
 
-The \tcode{edge_descriptor} patterns are
+The \tcode{edge_info} patterns are
 \begin{itemize}
-    \item \tcode{edge_descriptor<integral,true,void,void>} with \tcode{source_id(e)} and \tcode{target_id(e)}.
-    \item \tcode{edge_descriptor<integral,true,void,scaler>} with \tcode{source_id(e)}, \tcode{target_id(e)} and \tcode{edge_value(e)}.
+    \item \tcode{edge_info<integral,true,void,void>} with \tcode{source_id(e)} and \tcode{target_id(e)}.
+    \item \tcode{edge_info<integral,true,void,scaler>} with \tcode{source_id(e)}, \tcode{target_id(e)} and \tcode{edge_value(e)}.
 \end{itemize}
 
 In all other cases the functions will need to be overridden for the edge type.

@@ -233,10 +233,10 @@ requiring any function overrides.
     }
 \end{lstlisting}
 
-An alternative is to use the \tcode{edge_descriptor} used in this proposal. Notice that the only difference
+An alternative is to use the \tcode{edge_info} used in this proposal. Notice that the only difference
 is the definition of the edgelist type. All other code is identical to the previous example.
 \begin{lstlisting}
-    using EL = vector<edge_descriptor<int, true, void, double>>;
+    using EL = vector<edge_info<int, true, void, double>>;
     using E  = std::ranges::range_value_t<EL>;
     EL el{{1, 2, 11.1}, {1, 4, 22.2}, {2, 3, 3.33}, {2, 4, 4.44}};
     for (auto&& e : el) {
