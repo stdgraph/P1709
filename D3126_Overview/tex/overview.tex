@@ -271,7 +271,10 @@ library that meets the same requirements and uses concepts and ranges from C++20
 The \tcode{__cpp_lib_graph} feature test macro is recommended to represent all features in this proposal including algorithms, views, concepts, traits, types, functions, and graph container(s).
 
 \section{Freestanding}
-We believe this library can be used in a freestanding C++ implementation.
+We are unable to support freestanding implementations in this proposal because many of the
+algorithms and views require a \tcode{stack} or \tcode{queue}, which are not available in a freestanding environment. 
+Additionally, \tcode{stack} and \tcode{queue} require memory allocation which could throw a \tcode{bad_alloc} 
+exception.
 
 \section{Namespaces}
 Graph containers and their views and algorithms are not interchangeable with existing containers and algorithms.
@@ -320,11 +323,6 @@ be removed. We believe that graphs as a range-of-ranges merits the addition new 
 may be a controversial decision. Toward that end, we will continue to include them to help clarify the examples given
 and are assumed to be "For exposition only" as suggested implementation until a clear decision to include them, or not, 
 is made.
-
-We are unable to support freestanding implementations in this proposal. Many of the
-algorithms require a \tcode{stack} or \tcode{queue}, which are not available in a freestanding environment. 
-Additionally, \tcode{stack} and \tcode{queue} require memory allocation which could throw a \tcode{bad_alloc} 
-exception. 
 
 \section{Issues Status}
 This sections lists the known and open issues for the Graph Library proposal across all papers. They are organized
