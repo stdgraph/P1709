@@ -4,38 +4,82 @@
 
 \section{Syntax Comparison} \label{syntax}
 \begin{figure}[ht]
-\noindent\begin{minipage}{.48\textwidth}
+\noindent\begin{minipage}{.499\textwidth}
 {\small
       \lstinputlisting{D3337_Comparison/src/bgl_bfs.hpp}
 }
 \end{minipage}\hfill
-\begin{minipage}{.48\textwidth}
+\begin{minipage}{.499\textwidth}
 {\small
       \lstinputlisting{D3337_Comparison/src/stdgraph_bfs.hpp}
 }
 \end{minipage}
-\caption{BFS Syntax Comparison}
+\caption{Breadth\-First Search Syntax Comparison}
 \end{figure}
+
+
+\begin{figure}[ht]
+\noindent\begin{minipage}{.499\textwidth}
+{\small
+      \lstinputlisting{D3337_Comparison/src/bgl_cc.hpp}
+}
+\end{minipage}\hfill
+\begin{minipage}{.499\textwidth}
+{\small
+      \lstinputlisting{D3337_Comparison/src/stdgraph_cc.hpp}
+}
+\end{minipage}
+\caption{Connected Components Syntax Comparison}
+\end{figure}
+
+\begin{figure}[ht]
+\noindent\begin{minipage}{.499\textwidth}
+{\small
+      \lstinputlisting{D3337_Comparison/src/bgl_sssp.hpp}
+}
+\end{minipage}\hfill
+\begin{minipage}{.499\textwidth}
+{\small
+      \lstinputlisting{D3337_Comparison/src/stdgraph_sssp.hpp}
+}
+\end{minipage}
+\caption{Single Source Shortest Paths (Dijkstra) Syntax Comparison}
+\end{figure}
+
+\begin{figure}[ht]
+\noindent\begin{minipage}{.499\textwidth}
+{\small
+      \lstinputlisting{D3337_Comparison/src/bgl_tc.hpp}
+}
+\end{minipage}\hfill
+\begin{minipage}{.499\textwidth}
+{\small
+      \lstinputlisting{D3337_Comparison/src/stdgraph_tc.hpp}
+}
+\end{minipage}
+\caption{TC Syntax Comparison}
+\end{figure}
+
 
 \section{Performance Comparison} \label{performance}
 \centering
 \begin{tabular}{ c c c c c c c }
 Algorithm & Library & road & twitter & kron & web & urand \\
 \hline
-\multirow{3}{*}{TC} & BGL & 1.34s & >24H & >24H & >24H & 4425.54s \\
-& NWGraph & 0.41s & 1327.63s & 6840.38s & 131.47s & 387.53s \\
-& stdgraph & & & & & \\
+\multirow{3}{*}{BFS} & BGL & 1.09s & 12.11s & 54.80s & 5.52s & 73.26s \\
+& NWGraph & 0.91s & 11.25s & 38.86s & 2.37s & 64.63s \\
+& stdgraph & 1.39s & 8.54s & 16.34s & 3.52s & 62.75s \\
 \hline
 \multirow{3}{*}{CC} & BGL & 1.36s & 21.96s & 81.18s & 6.64s & 134.23s \\
 & NWGraph & 1.02s & 3.65s & 13.37s & 3.0s & 43.74s \\
 & stdgraph & 2.93s & 19.34s & 433.88s & 6.93s & 74.85s \\
 \hline
-\multirow{3}{*}{BFS} & BGL & 1.09s & 12.11s & 54.80s & 5.52s & 73.26s \\
-& NWGraph & 0.91s & 11.25s & 38.86s & 2.37s & 64.63s \\
-& stdgraph & 1.39s & 8.54s & 16.34s & 3.52s & 62.75s \\
-\hline
 \multirow{3}{*}{SSSP} & BGL & 4.03s & 47.89s & 167.20s & 28.29s & OOM \\
 & NWGraph & 3.63s & 109.37s & 344.12s & 35.58s & 400.23s \\
 & stdgraph & 4.22s & 79.75s & 211.37s & 33.87s & 493.15s \\
+\hline
+\multirow{3}{*}{TC} & BGL & 1.34s & >24H & >24H & >24H & 4425.54s \\
+& NWGraph & 0.41s & 1327.63s & 6840.38s & 131.47s & 387.53s \\
+& stdgraph & 0.17s & 459.08s & 2357.95s & 50.04s & 191.36s \\
 \hline
 \end{tabular}

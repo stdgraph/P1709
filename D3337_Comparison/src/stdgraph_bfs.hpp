@@ -8,10 +8,10 @@ using VId = vertex_id_t<G>;
 G g;
 // populate g
 
-vector<VId> parents(max_id + 1);
-
+vector<VId> parents(size(vertices(g));
 
 auto bfs = edges_breadth_first_search_view<G,void,true>(g, 0);
+
 for (auto&& [uid, vid, uv] : bfs) {
   parents[vid] = uid;
 }
