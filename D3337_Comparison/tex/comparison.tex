@@ -62,6 +62,47 @@
 
 
 \section{Performance Comparison} \label{performance}
+To evaluate the performance of this proposed library, we compare its reference implementation
+(stdgraph) against BGL and NWGraph on a subset of the GAP Benchmark Suite\cite{gapbs_2023}.
+This comparison includes four of the five GAP algorithms that are in the tier 1 algorithm list of this proposal:
+triangle counting (TC), weak connected components (CC), breadth-first search (BFS),
+and single-source shortest paths (SSSP).
+Table~\ref{tab:gap_graphs} summarizes the graphs specified by the GAP benchmark.
+These graphs were chosen to be large but still fit on shared memory machines and have edge counts in the billions.
+We compare to BGL because it the commonly used sequential C++ graph library as described above.
+NWGraph was implemented with many of the ideas of this proposal in mind, and we expect very similar performance
+between NWGraph and this reference implementation.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{c c c c c c c}
+Name & Description & \#Vertices & \#Edges & Degree & (Un)directed & References \\
+     &             & (M)        & (M)     & Distribution & & \\\hline
+road & USA road network & 23.9 & 57.7 & bounded & undirected & \\\hline
+Twitter & Twitter follower links & 61.6 & 1,468.4 & power & directed & \\\hline
+web & Web crawl of .sk domain & 50.6 & 1,930.3 & power & directed &\\\hline
+kron & Synthetic graph & 134.2 & 2,111.6 & power & undirected & \\\hline
+urand & Uniform random graph & 134.2 & 2,147.5 & normal & undirected & \\\hline
+\end{tabular}
+\caption{Summary of GAP Benchmark Graphs}
+\label{tab:gap_graphs}
+\end{table}
+
+The NWGraph authors published a similar comparison to BGL\cite{REF_nwgraph_library} in which they
+demonstrated performance improvement of NWGraph over BGL.
+To simplify experimental setup, we rerun these new experiments using the same machine used in\cite{REF_nwgraph_library},
+(compute nodes consisting of two Intel® Xeon® Gold 6230 processors, each with 20 physical cores running at 2.1 GHz,
+and 188GB of memory per processor).
+NWGraph and stdgraph were compiled with gcc 13.2 using -Ofast -march=native compilation flags.
+
+Even though NWGraph contains an implmentation of Dijkstra, the SSSP results in \cite{REF_nwgraph_library}
+were based on delta-stepping. For this comparison, stdgraph and NWgraph both use Dijkstra.
+The NWGraph and stdgraph implementation of CC is based on the Afforest \cite{sutton2018optimizing} algorithm.
+While BFS and SSSP implementations are very similar for NWGraph and stdgraph, the latter contains
+support for event-based visitors, and it is immportant to make sure this does not incur a performance penalty.
+Table~\ref{tab:performance_numbers} summarizes our GAP benchmark results for stdgraph compared to BGL and NWGraph.
+
+\begin{table}[h!]
 \centering
 \begin{tabular}{ c c c c c c c }
 Algorithm & Library & road & twitter & kron & web & urand \\
@@ -71,8 +112,8 @@ Algorithm & Library & road & twitter & kron & web & urand \\
 & stdgraph & 1.39s & 8.54s & 16.34s & 3.52s & 62.75s \\
 \hline
 \multirow{3}{*}{CC} & BGL & 1.36s & 21.96s & 81.18s & 6.64s & 134.23s \\
-& NWGraph & 1.02s & 3.65s & 13.37s & 3.0s & 43.74s \\
-& stdgraph & 2.93s & 19.34s & 433.88s & 6.93s & 74.85s \\
+& NWGraph & 1.05s & 3.77s & 10.16s & 3.04s & 36.59s \\
+& stdgraph & 0.78s & 2.81s & 8.37s & 2.23s & 33.75s \\
 \hline
 \multirow{3}{*}{SSSP} & BGL & 4.03s & 47.89s & 167.20s & 28.29s & OOM \\
 & NWGraph & 3.63s & 109.37s & 344.12s & 35.58s & 400.23s \\
@@ -83,3 +124,6 @@ Algorithm & Library & road & twitter & kron & web & urand \\
 & stdgraph & 0.17s & 459.08s & 2357.95s & 50.04s & 191.36s \\
 \hline
 \end{tabular}
+\caption{GAP Benchmark Performance: Time for GAP benchmark algorithms is shown for Boost Graph Library, NWGraph, and this proposal's reference implementation (stdgraph)}
+\label{tab:performance_numbers}
+\end{table}
