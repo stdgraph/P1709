@@ -3,6 +3,35 @@
 \clearpage
 
 \section{Syntax Comparison} \label{syntax}
+We provide a usage syntax comparison of several graph algorithms
+in Tier 1 of P3128 against the \textbf{boost::graph} equivalent.
+We refer to the refrence implementation associated with this proposal
+as \textbf{stdgraph}.
+These algorithms are breadth-first search (BFS, Figure~\ref{fig:bfssyntax}),
+connected components (CC, Figure~\ref{fig:ccsyntax}),
+single sourced shortest paths (SSSP, Figure~\ref{fig:ssspsyntax}),
+and triangle counting (TC)(\ref{fig:tcsyntax}).
+We take these algorithms from the GAP Benchmark Suite~\cite{gapbs_2023}
+which we discuss more in Section~\ref{performance}.
+
+Unlike \textbf{boost::graph}, \textbf{stdgraph} does not specify edge directedness
+as a graph property.
+If a graph in \textbf{stdgraph} implemented by \textbf{container::compressed\_graph}
+is undirected, then it will contain edges in both directions.
+\textbf{boost::graph} has a \textbf{boost::graph::undirectedS} property
+which can be used in the \textbf{boost::graph::adjacency\_matrix} class
+to specify an unidrected graph, but
+not in the \textbf{boost::graph::compressed\_sparse\_row\_graph} class.
+Thus in Figures~\ref{fig:bfssyntax}-\ref{fig:tcsyntax}, the graph type always includes \textbf{boost::graph::directedS}.
+Similarly to \textbf{stdgraph}, undirected graphs must contain the edges in both directions.
+
+Intermediate data structures (i.e. edgelists) will be needed
+to construct the compressed graph structures.
+In order to focus on the differenes in algorithm syntax, we omit
+code which populates the graph data structures.
+In the following sections we address the syntax changes for each of
+these algorithms.
+
 \begin{figure}[ht]
 \noindent\begin{minipage}{.499\textwidth}
 {\small
@@ -15,9 +44,8 @@
 }
 \end{minipage}
 \caption{Breadth\-First Search Syntax Comparison}
+\label{fig:bfssyntax}
 \end{figure}
-
-
 \begin{figure}[ht]
 \noindent\begin{minipage}{.499\textwidth}
 {\small
@@ -30,6 +58,7 @@
 }
 \end{minipage}
 \caption{Connected Components Syntax Comparison}
+\label{fig:ccsyntax}
 \end{figure}
 
 \begin{figure}[ht]
@@ -44,6 +73,7 @@
 }
 \end{minipage}
 \caption{Single Source Shortest Paths (Dijkstra) Syntax Comparison}
+\label{fig:ssspsyntax}
 \end{figure}
 
 \begin{figure}[ht]
@@ -58,7 +88,56 @@
 }
 \end{minipage}
 \caption{TC Syntax Comparison}
+\label{fig:tcsyntax}
 \end{figure}
+
+\subsection{BFS}
+BFS is often described as a graph algorithm, though a BFS traversal
+by itself does not actually perform any task.
+In reality, it is a data access pattern which specifies an order
+vertices and edges should be processed by some higher level algorithm.
+\textbf{boost::graph} provided a very customizable interface to this
+data access pattern through the use of visitors which allows users
+to customize function calls during BFS events.
+For example discover\_vertex is called when a vertex is encountered for the
+first time; examine\_vertex is called when a vertex is popped from the queue;
+examine\_edge is called on each edge of a vertex when it is discovered, etc.
+
+This capability is very powerful but often cumbersome if the BFS traversal
+simply requires vertex and edge access upon visiting.
+For this reason stdgraph provides a simple, range-based-for loop BFS traversal
+called a view.
+Figure~\ref{fig:bfssyntax} compares the most simple \textbf{boost::graph}
+BFS visitor against the range-based-for loop implementation.
+The authors of this proposal acknowledge that some power users still want
+the full customization provided by visitors,
+and we plan to add them to this proposal.
+
+\subsection{CC}
+There is very little difference in the connected component interfaces.
+
+\subsection{SSSP}
+Of the four algorithms discussed here, only SSSP makes use of some edge property, in this case distance.
+Along with the input edge property, the algorithm also associates with
+every vertex a distance from the start vertex, and a predecessor
+vertex to store the shortest path.
+In Figure~\ref{fig:ssspsyntax} we see that \textbf{boost::graph} requires
+property maps to lookup edge and vertex properties.
+These property maps are tightly coupled with the graph data strucutres.
+We propose properties be stored external to the graph.
+For edge properties we provide a weight lambda function to the algorithm
+to lookup distance from the \textbf{edge\_reference\_t}.
+
+\subsection{TC}
+\textbf{boost::graph} does not contain a global triangle counting
+similar to the one proposed by stdgraph.
+Instead we must iterate through the vertices counting the number of triangles
+on every vertex, and adjust for overcounting at the end.
+
+
+
+
+
 
 
 \section{Performance Comparison} \label{performance}
