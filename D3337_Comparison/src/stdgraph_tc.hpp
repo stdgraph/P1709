@@ -12,7 +12,6 @@ size_t count;
 
 
 
-
 count = triangle_count(g);
 
 
