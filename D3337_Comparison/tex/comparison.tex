@@ -5,29 +5,31 @@
 \section{Syntax Comparison} \label{syntax}
 We provide a usage syntax comparison of several graph algorithms
 in Tier 1 of P3128 against the \textbf{boost::graph} equivalent.
-We refer to the refrence implementation associated with this proposal
-as \textbf{stdgraph}.
+We refer to the reference implementation associated with this proposal
+as \textbf{std::graph}.
 These algorithms are breadth-first search (BFS, Figure~\ref{fig:bfssyntax}),
 connected components (CC, Figure~\ref{fig:ccsyntax}),
 single sourced shortest paths (SSSP, Figure~\ref{fig:ssspsyntax}),
 and triangle counting (TC)(\ref{fig:tcsyntax}).
 We take these algorithms from the GAP Benchmark Suite~\cite{gapbs_2023}
 which we discuss more in Section~\ref{performance}.
+We also defer to Section~\ref{performance} any discussion of
+underlying implementation details.
 
-Unlike \textbf{boost::graph}, \textbf{stdgraph} does not specify edge directedness
-as a graph property.
-If a graph in \textbf{stdgraph} implemented by \textbf{container::compressed\_graph}
+Unlike \textbf{boost::graph}, \textbf{std::graph} does not
+specify edge direction as a graph property.
+If a graph in \textbf{std::graph} implemented by \textbf{container::compressed\_graph}
 is undirected, then it will contain edges in both directions.
 \textbf{boost::graph} has a \textbf{boost::graph::undirectedS} property
 which can be used in the \textbf{boost::graph::adjacency\_matrix} class
-to specify an unidrected graph, but
+to specify an undirected graph, but
 not in the \textbf{boost::graph::compressed\_sparse\_row\_graph} class.
 Thus in Figures~\ref{fig:bfssyntax}-\ref{fig:tcsyntax}, the graph type always includes \textbf{boost::graph::directedS}.
-Similarly to \textbf{stdgraph}, undirected graphs must contain the edges in both directions.
+Similarly to \textbf{std::graph}, undirected graphs must contain the edges in both directions.
 
 Intermediate data structures (i.e. edgelists) will be needed
 to construct the compressed graph structures.
-In order to focus on the differenes in algorithm syntax, we omit
+In order to focus on the differences in algorithm syntax, we omit
 code which populates the graph data structures.
 In the following sections we address the syntax changes for each of
 these algorithms.
@@ -43,7 +45,7 @@ these algorithms.
       \lstinputlisting{D3337_Comparison/src/stdgraph_bfs.hpp}
 }
 \end{minipage}
-\caption{Breadth\-First Search Syntax Comparison}
+\caption{Breadth-First Search Syntax Comparison}
 \label{fig:bfssyntax}
 \end{figure}
 \begin{figure}[ht]
@@ -72,7 +74,7 @@ these algorithms.
       \lstinputlisting{D3337_Comparison/src/stdgraph_sssp.hpp}
 }
 \end{minipage}
-\caption{Single Source Shortest Paths (Dijkstra) Syntax Comparison}
+\caption{Single Source Shortest Paths Syntax Comparison}
 \label{fig:ssspsyntax}
 \end{figure}
 
@@ -87,11 +89,11 @@ these algorithms.
       \lstinputlisting{D3337_Comparison/src/stdgraph_tc.hpp}
 }
 \end{minipage}
-\caption{TC Syntax Comparison}
+\caption{Triangle Counting Syntax Comparison}
 \label{fig:tcsyntax}
 \end{figure}
 
-\subsection{BFS}
+\subsection{Breadth-First Search}
 BFS is often described as a graph algorithm, though a BFS traversal
 by itself does not actually perform any task.
 In reality, it is a data access pattern which specifies an order
@@ -105,7 +107,7 @@ examine\_edge is called on each edge of a vertex when it is discovered, etc.
 
 This capability is very powerful but often cumbersome if the BFS traversal
 simply requires vertex and edge access upon visiting.
-For this reason stdgraph provides a simple, range-based-for loop BFS traversal
+For this reason \textbf{std::graph} provides a simple, range-based-for loop BFS traversal
 called a view.
 Figure~\ref{fig:bfssyntax} compares the most simple \textbf{boost::graph}
 BFS visitor against the range-based-for loop implementation.
@@ -113,36 +115,34 @@ The authors of this proposal acknowledge that some power users still want
 the full customization provided by visitors,
 and we plan to add them to this proposal.
 
-\subsection{CC}
+\subsection{Connected Components}
 There is very little difference in the connected component interfaces.
 
-\subsection{SSSP}
-Of the four algorithms discussed here, only SSSP makes use of some edge property, in this case distance.
+\subsection{Single Source Shortest Paths}
+Of the four algorithms discussed here, only SSSP makes use of some
+edge property, in this case distance.
 Along with the input edge property, the algorithm also associates with
 every vertex a distance from the start vertex, and a predecessor
 vertex to store the shortest path.
 In Figure~\ref{fig:ssspsyntax} we see that \textbf{boost::graph} requires
 property maps to lookup edge and vertex properties.
-These property maps are tightly coupled with the graph data strucutres.
+These property maps are tightly coupled with the graph data structures.
 We propose properties be stored external to the graph.
 For edge properties we provide a weight lambda function to the algorithm
 to lookup distance from the \textbf{edge\_reference\_t}.
 
-\subsection{TC}
+\subsection{Triangle Counting}
 \textbf{boost::graph} does not contain a global triangle counting
-similar to the one proposed by stdgraph.
+similar to the one proposed by \textbf{std::graph}.
 Instead we must iterate through the vertices counting the number of triangles
 on every vertex, and adjust for overcounting at the end.
 
-
-
-
-
-
+\clearpage
 
 \section{Performance Comparison} \label{performance}
+\subsection{Experimental Setup}
 To evaluate the performance of this proposed library, we compare its reference implementation
-(stdgraph) against BGL and NWGraph on a subset of the GAP Benchmark Suite\cite{gapbs_2023}.
+(\textbf{std::graph}) against \textbf{boost::graph} and NWGraph on a subset of the GAP Benchmark Suite\cite{gapbs_2023}.
 This comparison includes four of the five GAP algorithms that are in the tier 1 algorithm list of this proposal:
 triangle counting (TC), weak connected components (CC), breadth-first search (BFS),
 and single-source shortest paths (SSSP).
@@ -157,11 +157,11 @@ between NWGraph and this reference implementation.
 \begin{tabular}{c c c c c c c}
 Name & Description & \#Vertices & \#Edges & Degree & (Un)directed & References \\
      &             & (M)        & (M)     & Distribution & & \\\hline
-road & USA road network & 23.9 & 57.7 & bounded & undirected & \\\hline
-Twitter & Twitter follower links & 61.6 & 1,468.4 & power & directed & \\\hline
-web & Web crawl of .sk domain & 50.6 & 1,930.3 & power & directed &\\\hline
-kron & Synthetic graph & 134.2 & 2,111.6 & power & undirected & \\\hline
-urand & Uniform random graph & 134.2 & 2,147.5 & normal & undirected & \\\hline
+road & USA road network & 23.9 & 57.7 & bounded & undirected & \cite{dimacs9th}\\\hline
+Twitter & Twitter follower links & 61.6 & 1,468.4 & power & directed & \cite{Twitter}\\\hline
+web & Web crawl of .sk domain & 50.6 & 1,930.3 & power & directed & \cite{LAW1}\\\hline
+kron & Synthetic graph & 134.2 & 2,111.6 & power & undirected & \cite{Graph500} \\\hline
+urand & Uniform random graph & 134.2 & 2,147.5 & normal & undirected & \cite{Erdos}\\\hline
 \end{tabular}
 \caption{Summary of GAP Benchmark Graphs}
 \label{tab:gap_graphs}
@@ -172,37 +172,108 @@ demonstrated performance improvement of NWGraph over BGL.
 To simplify experimental setup, we rerun these new experiments using the same machine used in\cite{REF_nwgraph_library},
 (compute nodes consisting of two Intel® Xeon® Gold 6230 processors, each with 20 physical cores running at 2.1 GHz,
 and 188GB of memory per processor).
-NWGraph and stdgraph were compiled with gcc 13.2 using -Ofast -march=native compilation flags.
+NWGraph and \textbf{std::graph} were compiled with gcc 13.2 using -Ofast -march=native compilation flags.
 
-Even though NWGraph contains an implmentation of Dijkstra, the SSSP results in \cite{REF_nwgraph_library}
-were based on delta-stepping. For this comparison, stdgraph and NWgraph both use Dijkstra.
-The NWGraph and stdgraph implementation of CC is based on the Afforest \cite{sutton2018optimizing} algorithm.
-While BFS and SSSP implementations are very similar for NWGraph and stdgraph, the latter contains
-support for event-based visitors, and it is immportant to make sure this does not incur a performance penalty.
-Table~\ref{tab:performance_numbers} summarizes our GAP benchmark results for stdgraph compared to BGL and NWGraph.
+Even though NWGraph contains an implementation of Dijkstra, the SSSP results in \cite{REF_nwgraph_library}
+were based on delta-stepping. For this comparison, \textbf{std::graph} and NWgraph both use Dijkstra.
+The NWGraph and \textbf{std::graph} implementation of CC is based on the Afforest \cite{sutton2018optimizing} algorithm.
+While BFS and SSSP implementations are very similar for NWGraph and \textbf{std::graph}, the latter contains
+support for event-based visitors.
+If this functionality is not required it should be optimized out and not
+incur a performance penalty,
+but we seek to verify this experimentally.
+NWGraph and \textbf{std::graph} contain similar implementations of triangle
+counting which perform a set intersection of the neighbor list of vertices
+$u$ and $v$, only if $v$ is a neighbor of $u$.
+By first performing a lexicographic sort of the vertex ids of the adjacency
+structure, the set intersection is limited to neighbors with vertex ids greater
+than $u$ and $v$, or equivalently the upper triangular portion of the adjacency
+matrix.
+Table~\ref{tab:performance_numbers} summarizes our GAP benchmark results for \textbf{std::graph} compared to \textbf{boost::graph} and NWGraph.
 
 \begin{table}[h!]
 \centering
 \begin{tabular}{ c c c c c c c }
 Algorithm & Library & road & twitter & kron & web & urand \\
 \hline
-\multirow{3}{*}{BFS} & BGL & 1.09s & 12.11s & 54.80s & 5.52s & 73.26s \\
+\multirow{3}{*}{BFS} & \textbf{boost::graph} & 1.09s & 12.11s & 54.80s & 5.52s & 73.26s \\
 & NWGraph & 0.91s & 11.25s & 38.86s & 2.37s & 64.63s \\
-& stdgraph & 1.39s & 8.54s & 16.34s & 3.52s & 62.75s \\
+& \textbf{std::graph} & 1.39s & 8.54s & 16.34s & 3.52s & 62.75s \\
 \hline
 \multirow{3}{*}{CC} & BGL & 1.36s & 21.96s & 81.18s & 6.64s & 134.23s \\
 & NWGraph & 1.05s & 3.77s & 10.16s & 3.04s & 36.59s \\
-& stdgraph & 0.78s & 2.81s & 8.37s & 2.23s & 33.75s \\
+& \textbf{std::graph} & 0.78s & 2.81s & 8.37s & 2.23s & 33.75s \\
 \hline
 \multirow{3}{*}{SSSP} & BGL & 4.03s & 47.89s & 167.20s & 28.29s & OOM \\
 & NWGraph & 3.63s & 109.37s & 344.12s & 35.58s & 400.23s \\
-& stdgraph & 4.22s & 79.75s & 211.37s & 33.87s & 493.15s \\
+& \textbf{std::graph} & 4.22s & 79.75s & 211.37s & 33.87s & 493.15s \\
 \hline
 \multirow{3}{*}{TC} & BGL & 1.34s & >24H & >24H & >24H & 4425.54s \\
 & NWGraph & 0.41s & 1327.63s & 6840.38s & 131.47s & 387.53s \\
-& stdgraph & 0.17s & 459.08s & 2357.95s & 50.04s & 191.36s \\
+& \textbf{std::graph} & 0.17s & 459.08s & 2357.95s & 50.04s & 191.36s \\
 \hline
 \end{tabular}
-\caption{GAP Benchmark Performance: Time for GAP benchmark algorithms is shown for Boost Graph Library, NWGraph, and this proposal's reference implementation (stdgraph)}
+\caption{GAP Benchmark Performance: Time for GAP benchmark algorithms is shown for \textbf{boost::graph}, NWGraph, \textbf{std::graph}}
 \label{tab:performance_numbers}
+\end{table}
+
+\subsection{Experimental Analysis}
+BFS results are consistent between the three implementations,
+except for the kron graph where \textbf{std::graph} is 2.4x faster
+than NWGraph and 3.4x faster than \textbf{boost::graph}.
+
+CC results are consistent between NWGraph and \textbf{std::graph}, which
+are both much faster than \textbf{boost::graph} on twitter, kron, and urand.
+This is reasonable as \textbf{boost::graph} is using a simple breadth-first
+search based CC algorithm while the other two implementations use the
+Afforest algorithm.
+Of the four algorithms, CC shows the closest agreement between NWGraph
+and \textbf{std::graph}.
+
+SSSP results are more mixed, with differing performance on twitter and kron.
+Interestingly of the algorithms we profile, this is the only one where
+\textbf{boost::graph} is often faster than the other implementations,
+faster than \textbf{std::graph} by 1.7x on twitter and 1.3x on kron, though
+failing by running out of memory on urand.
+
+TC performance from the na\"ive \textbf{boost::graph} implementation
+is far slower than the adjacency matrix set intersection used by NWGraph
+and \textbf{std::graph}.
+Since the same triangle is counted 6 times in \textbf{boost::graph},
+we expect at least that much of a slowdown, but in fact the slowdown
+is often much worse.
+However the TC results are concerning because the \textbf{std::graph}
+performance is around 2x that of NWGraph.
+We plan to review the implementation details to discover the cause of
+this discrepancy.
+
+\section{Memory Allocation}
+Unlike existing STL algorithms, the graph algorithms we propose here
+will often require their own memory allocations.
+Table~\ref{tab:internalmem} records the internal memory allocations
+required for our implementations of the GAP Benchmark algorithms
+where relevant.
+It is important to note that the memory usage is not prescribed
+by the algorithm interface in P3128, and is ultimately up to the
+library implementer.
+Some memory use, such as the queues in BFS and SSSP, will
+probably be common to most implementations.
+However, the color map in BFS and the reindex map in CC
+(used to ensure the resulting component indices are contiguous)
+could potentially be avoided.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{| c | c | c |}
+\hline
+Algorithm & Required Member Data & Max Size \\\hline
+BFS  & queue          & $O(|V|)$ \\
+     & color map      & V \\\hline
+CC   & reindex map    & $O(|components|)$ \\\hline
+SSSP & priority queue & $O(|E|)$\\\hline
+TC   & None          & N\/A\\
+\hline
+\end{tabular}
+\caption{Memory Allocations of GAP Benchmark Algorithm Implementations}
+\label{tab:internalmem}
 \end{table}
