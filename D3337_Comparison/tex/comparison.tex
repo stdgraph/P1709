@@ -144,7 +144,7 @@ on every vertex, and adjust for overcounting at the end.
 To evaluate the performance of this proposed library, we compare its reference implementation
 (\textbf{std::graph}) against \textbf{boost::graph} and NWGraph on a subset of the GAP Benchmark Suite\cite{gapbs_2023}.
 This comparison includes four of the five GAP algorithms that are in the tier 1 algorithm list of this proposal:
-triangle counting (TC), weak connected components (CC), breadth-first search (BFS),
+triangle counting (TC), connected components (CC), breadth-first search (BFS),
 and single-source shortest paths (SSSP).
 Table~\ref{tab:gap_graphs} summarizes the graphs specified by the GAP benchmark.
 These graphs were chosen to be large but still fit on shared memory machines and have edge counts in the billions.
