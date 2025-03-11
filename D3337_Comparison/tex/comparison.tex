@@ -144,7 +144,7 @@ on every vertex, and adjust for overcounting at the end.
 To evaluate the performance of this proposed library, we compare its reference implementation
 (\textbf{std::graph}) against \textbf{boost::graph} and NWGraph on a subset of the GAP Benchmark Suite\cite{gapbs_2023}.
 This comparison includes four of the five GAP algorithms that are in the tier 1 algorithm list of this proposal:
-triangle counting (TC), weak connected components (CC), breadth-first search (BFS),
+triangle counting (TC), connected components (CC), breadth-first search (BFS),
 and single-source shortest paths (SSSP).
 Table~\ref{tab:gap_graphs} summarizes the graphs specified by the GAP benchmark.
 These graphs were chosen to be large but still fit on shared memory machines and have edge counts in the billions.
@@ -175,7 +175,14 @@ and 188GB of memory per processor).
 NWGraph and \textbf{std::graph} were compiled with gcc 13.2 using -Ofast -march=native compilation flags.
 
 Even though NWGraph contains an implementation of Dijkstra, the SSSP results in \cite{REF_nwgraph_library}
-were based on delta-stepping. For this comparison, \textbf{std::graph} and NWgraph both use Dijkstra.
+were based on delta-stepping. For this comparison, \textbf{std::graph} and NWGraph both use Dijkstra.
+The NWGraph implementations also used a version of SSSP which did not compute
+a predecessor map, only providing the final distances.
+\textbf{std::graph} provides SSSP without predecessors called $dijkstra\_shortest\_distances$ which is similar to the Dijkstra in
+Figure~\ref{fig:ssspsyntax} with the predecessor argument omitted.
+\textbf{boost::graph} can also compute shortest distances only by omitting the predecessor map.
+We use the shortest distance version for these experiments.
+
 The NWGraph and \textbf{std::graph} implementation of CC is based on the Afforest \cite{sutton2018optimizing} algorithm.
 While BFS and SSSP implementations are very similar for NWGraph and \textbf{std::graph}, the latter contains
 support for event-based visitors.

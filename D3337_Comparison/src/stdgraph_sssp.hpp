@@ -17,4 +17,5 @@ auto weight_fn = [&g](graph::edge_reference_t<graph_type> uv) -> int {
 
 
 
-dijkstra_shortest_distances(g, 0, d, p, weight_fn);
+
+dijkstra_shortest_paths(g, 0, d, p, weight_fn);
