@@ -12,4 +12,5 @@ vector<VId> parents(num_vertices(g));
 auto vis = make_bfs_visitor(
   make_pair(record_predecessors(parents.begin(), on_tree_edge())));
 
+
 breadth_first_search(g, vertex(0, g), visitor(vis));
