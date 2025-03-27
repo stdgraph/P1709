@@ -1,12 +1,10 @@
-template <class VId, bool Sourced, class V, class VV>
+template <class V, bool Sourced, class VV>
 struct neighbor_info {
-  using source_id_type = VId; // e.g. vertex\_id\_t<G> when Sourced==true, or void
-  using target_id_type = VId; // e.g. vertex\_id\_t<G>
-  using vertex_type    = V;   // e.g. vertex\_reference\_t<G> or void
-  using value_type     = VV;  // e.g. vertex\_value\_t<G> or void
+  using source_type = V;   // e.g. vertex\_t<G> or vertex\_id\_t<G> when Sourced==true, or void
+  using target_type = V;   // e.g. vertex\_t<G> or vertex\_id\_t<G>
+  using value_type  = VV;  // e.g. vertex\_value\_t<G> or void
 
-  source_id_type source_id;
-  target_id_type target_id;
-  vertex_type    target;
-  value_type     value;
+  source_type source;
+  target_type target;
+  value_type  value;
 };
