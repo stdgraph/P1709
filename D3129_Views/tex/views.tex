@@ -35,56 +35,52 @@ exception.
 
 \section{Info Structs (Return Types)}
 Views return one of the types in this section, providing a consistent set of value types for all graph data structures. 
-They are templated so that the view can adjust the actual values returned to be appropriate for its use. The three types, 
+They are templated so that the view can adjust the types of the members to be appropriate for its use. The three types, 
 \tcode{vertex_info, edge_info} and \tcode{neighbor_info}, define the common data model used by algorithms.
 
-The following examples show the general design and how it's used. While it focuses 
-on vertexlist to iterate over all vertices, it applies to all info structs and view functions.
+The following examples show the general design and how it's used. The example focuses 
+on vertexlist when iterating over vertices, and the same pattern applies with using the other
+view functions.
 
 \begin{lstlisting}
-// the type of uu is vertex\_info<vertex\_id\_t<G>, vertex\_reference\_t<G>, void>
+// the type of uu is vertex\_info<vertex\_t<G>, void>
 for(auto&& uu : vertexlist(g)) {
-  vertex_id<G>          id = uu.id;
   vertex_reference_t<G> u  = uu.vertex;
   // ... do something interesting
 }
 \end{lstlisting}
 
+A function object can also be passed to return a value from the vertex. In this case, \tcode{vertexlist(g, vvf)} returns \tcode{vertex_t<G>, decltype(vvf(u))>}.
+\begin{lstlisting}
+auto vvf = [&g](vertex_reference_t<G> u) { return vertex_value(g,u); };
+// the type of uu is vertex\_info<vertex\_t<G>, decltype(vvf(u))>
+for(auto&& uu : vertexlist(g, vvf)) {
+    vertex_reference_t<G> u  = uu.vertex;
+    vertex_value_t<G>& value  = uu.value;
+    // ... do something interesting
+}
+\end{lstlisting}
+    
 Structured bindings make it simpler.
 \begin{lstlisting}
-for(auto&& [id, u] : vertexlist(g)) {
+for(auto&& [u] : vertexlist(g)) {
   // ... do something interesting
 }
 \end{lstlisting}
 
-A function object can also be passed to return a value from the vertex. In this case, \tcode{vertexlist(g)} returns \tcode{vertex_info<vertex_id_t<G>, vertex_reference_t<G>, decltype(vvf(u))>}.
+Finally, using structured binding with the vertex value function.
 \begin{lstlisting}
-// the type returned by vertexlist is 
-// vertex\_info<vertex\_id\_t<G>, 
-//                    vertex\_reference\_t<G>, 
-//                    decltype(vvf(vertex\_reference\_t<G>))>
+// the type returned by vertexlist is vertex\_info<vertex\_t<G>, decltype(vvf(vertex\_t<G>))>
 auto vvf = [&g](vertex_reference_t<G> u) { return vertex_value(g,u); };
-for(auto&& [id, u, value] : vertexlist(g, vvf)) {
-  // ... do something interesting
-}
-\end{lstlisting}
-
-A simpler version also exists if all you need is a vertex id. The vertex value function takes a vertex id
-instead of a vertex reference.
-\begin{lstlisting}
-for(auto&& [uid] : basic_vertexlist(g)) {
-  // ... do something interesting
-}
-
-auto vvf = [&g](vertex_id_t<G> uid) { return vertex_value(g,uid); };
-for(auto&& [uid, value] : basic_vertexlist(g,vvf)) {
+for(auto&& [u, value] : vertexlist(g, vvf)) {
   // ... do something interesting
 }
 \end{lstlisting}
 
 \subsection{\tcode{struct vertex_info<VId, V, VV>}}\label{vertex-view}\mbox{} \\
 \tcode{vertex_info} is used to return vertex information. It is used by \tcode{vertexlist(g)}, \tcode{vertices_breadth_first_search(g,u)}, 
-\tcode{vertices_dfs(g,u)} and others. The only combination that is invalid is where all parameter types are void.
+\tcode{vertices_dfs(g,u)} and others. The \tcode{vertex} member is typically a vertex descriptor, but can also be a vertex id, and always
+exists.
 
 {\small
      \lstinputlisting{D3129_Views/src/vertex_info.hpp}
@@ -103,16 +99,9 @@ has two members \tcode{\{id_type id; vertex_type vertex;\}} and \tcode{value_typ
     \multicolumn{3}{c}{\textbf{Members}} \\
     %\textbf{Template Arguments} & id & vertex & value \\
 \hline
-    \tcode{vertex_info<VId, V, VV>} & \tcode{id} & \tcode{vertex} & \tcode{value} \\
-    \tcode{vertex_info<VId, V, void>} & \tcode{id} & \tcode{vertex} & \\
-    \tcode{vertex_info<VId, void, VV>} & \tcode{id} & & \tcode{value} \\
-    \tcode{vertex_info<VId, void, void>} & \tcode{id} & & \\
-
-    \tcode{vertex_info<void, V, VV>} & & \tcode{vertex} & \tcode{value} \\
-    \tcode{vertex_info<void, V, void>} &  & \tcode{vertex} & \\
-    \tcode{vertex_info<void, void, VV>} & & & \tcode{value} \\
-
-    %\tcode{vertex_info<void, void, void>} & & & \\ % invalid
+    \tcode{vertex_info<V, VV>} & \tcode{id} & \tcode{vertex} & \tcode{value} \\
+    \tcode{vertex_info<V, void>} & \tcode{id} & \tcode{vertex} & \\
+    %\tcode{vertex_info<void, void>} & & & \\ % invalid
 \hline
 \end{tabular}}
 \caption{\tcode{vertex_info} Members}
@@ -128,7 +117,7 @@ has two members \tcode{\{id_type id; vertex_type vertex;\}} and \tcode{value_typ
 typically vertex descriptors, but can also be vertex ids. If no specific mention of vertex ids are used, assume they are vertex descriptors.
 In this section, \tcode{source} and \tcode{target} can be either vertex descriptors or vertex ids.
 
-When \tcode{Sourced=true}, the \tcode{source} member is included with type \tcode{V|VId}. The \tcode{target} member always exists.
+When \tcode{Sourced=true}, the \tcode{source} member is included with type \tcode{V} or \tcode{VId}. The \tcode{target} member always exists.
 
 {\small
      \lstinputlisting{D3129_Views/src/edge_info.hpp}
