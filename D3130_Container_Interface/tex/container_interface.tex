@@ -27,6 +27,31 @@ is integral. Future designs may relax these requirements, but for now they are r
 
 \section{Adjacency List Interface}
 
+\subsection{Descriptors}
+Descriptors are opaque, abstract objects that represent vertices and edges in an adjacency list. They act as handles 
+to access and manipulate these elements without directly interacting with the underlying data structures. They are 
+particularly useful because they abstract away the implementation details of the graph, allowing you to work with 
+different graph types in a consistent manner. 
+
+A benefit of using descriptors is that it reduces the number of functions and concepts needed for the GCI. Without 
+them, an iterface would require both indexes and references would require additional sets of functions and concepts, 
+and algorithms would need to be specialized for each of those types.
+
+Practically, a descriptor is either an integral index or an iterator, depending on the underlying container for edges
+or vertices. For example, in a \tcode{vector} of \tcode{list} graph, the descriptor for a vertex is an index into the
+\tcode{vector}, while the descriptor for an edge is an iterator into the \tcode{list}. A \tcode{map} or 
+\tcode{unordered\_map} graph would use an iterator for both the vertex and edge descriptors; while not supported by 
+the GCI, it opens the door for future expansion with minimal impact to the GCI.
+
+The following are characteristics of descriptors:
+\begin{itemize}
+    \item Equality comparison: Descriptors can be compared for equality using the \tcode{==} and \tcode{!=} operators.
+    \item Ordering: Descriptors can be ordered using the \tcode{<}, \tcode{<=}, \tcode{>}, and \tcode{>=} operators, if supported by the 
+          underlying container being used.
+    \item Copy and assignment: Descriptors can be copied and assigned, ensuring they can be used in standard algorithms and containers.
+    \item Default construction: Descriptors can be default-constructed, though the resulting value may not represent a valid vertex or edge.
+\end{itemize}
+
 \subsection{Concepts}
 
 This section describes the concepts to describe the adjacency lists used for graphs in the Graph Library. There are a 

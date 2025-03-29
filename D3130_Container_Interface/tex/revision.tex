@@ -49,4 +49,9 @@
 
 \begin{itemize}
       \item Rename \tcode{descriptor} structs to \tcode{info} structs in preparation for new BGL-like descriptors.
+      \item Introduction of the new descriptors as an asbstraction for vertices and edges. It simplifies the GCI 
+            by replacing a vertex or edge reference with a descriptor, and in some cases merging an id and 
+            reference into a single value when they both exist. Descriptors reduce the number of functions and 
+            concepts, and allows for a more uniform interface for all graph types. This is a major revision to 
+            the interface, though is not a big conceptual change to the user.
 \end{itemize}
