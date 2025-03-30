@@ -30,7 +30,7 @@ is integral. Future designs may relax these requirements, but for now they are r
 \subsection{Descriptors}
 Descriptors are opaque, abstract objects that represent vertices and edges in an adjacency list. They act as handles 
 to access and manipulate these elements without directly interacting with the underlying data structures. They are 
-particularly useful because they abstract away the implementation details of the graph, allowing you to work with 
+particularly useful because they abstract away the implementation details of the graph, allowing a user to work with 
 different graph types in a consistent manner. 
 
 A benefit of using descriptors is that it reduces the number of functions and concepts needed for the GCI. Without 
@@ -38,11 +38,12 @@ them, an iterface would require both indexes and references would require additi
 and algorithms would need to be specialized for each of those types.
 
 Practically, a descriptor is either an integral index or an iterator, depending on the underlying container for edges
-or vertices. For example, in a \tcode{vector} of \tcode{list} graph, the descriptor for a vertex is an index into the
+or vertices. For example, in a \tcode{vector} of \tcode{list} adjacency list, the descriptor for a vertex is an index into the
 \tcode{vector}, while the descriptor for an edge is an iterator into the \tcode{list}. A \tcode{map} or 
 \tcode{unordered\_map} graph would use an iterator for both the vertex and edge descriptors; while not supported by 
 the GCI, it opens the door for future expansion with minimal impact to the GCI.
 
+The vertex and edge descriptors are defined as the \tcode{vertex_t<G>} and \tcode{edge_t<G>} types, respectively. 
 The following are characteristics of descriptors:
 \begin{itemize}
     \item Equality comparison: Descriptors can be compared for equality using the \tcode{==} and \tcode{!=} operators.
@@ -95,7 +96,7 @@ obscure and takes time by the user to understand and resolve.
     target_id(g,uv);
 \end{lstlisting}
 The final option allows the compiler to report a regular error or warning if the returned value isn't what's expected in the 
-context because the types are included in the error message, making it easier to understand what the problem is.
+context it's used because the types are included in the error message, making it easier to understand what the problem is.
 Additionally, functions aren't distiguished by their return type, so there's little value in attempting to check it in this case.
 
 There is precedent for this design choice of not validating the return type, as can be seen in 
@@ -259,7 +260,7 @@ implementation. Specific graph implementations may have different characteristic
 \hline
     \tcode{find_vertex(g,uid)} & \tcode{vertex_iterator_t<G>} & constant & \tcode{begin(vertices(g)) + uid} \\
     & & & if \tcode{random_access_range<vertex_range_t<G>>}  \\
-    \tcode{vertex_id(g,ui)} & \tcode{vetex_id_t<G>} & constant & \tcode{(size_t)(ui - begin(vertices(g)))} \\
+    \tcode{vertex_id(g,u)} & \tcode{vetex_id_t<G>} & constant & \tcode{(size_t)u.vertex_index())} \\
     & & & Override to define a different \tcode{vertex_id_t<G>} type (e.g. int32\_t). \\
     \tcode{vertex_value(g,u)} & \tcode{vertex_value_t<G>} & constant & n/a, optional \\
     \tcode{vertex_value(g,uid)} & \tcode{vertex_value_t<G>} & constant & \tcode{vertex_value(g,*find_vertex(g,uid))}, optional \\

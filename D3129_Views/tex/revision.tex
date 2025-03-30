@@ -24,6 +24,18 @@
 \subsection*{\paperno r2}
 \begin{itemize}
       \item Replace the use of \textit{id} and \textit{reference} with \textit{descriptor}, leading to a simpler
-            interace with fewer functions. It also creates a more flexible interface that can support vertices in
-            map-like containers in the future.
+            interace. It also creates a more flexible interface that can support associative containers in the future. 
+            The following changes were made:
+            \begin{itemize}
+                  \item The number of View functions has been halved because we no longer need separate functions that 
+                        only have \tcode{id}, and another set that has has both \tcode{id} and \tcode{reference}. Only functions
+                        with \tcode{descriptor} are needed.
+                  \item The \tcode{vertex_id} member has been removed from the \tcode{vertex_info} struct, and the \tcode{vertex}
+                        member can hold either an id or a descriptor, depending on the context it's used. The same changes have 
+                        also been applied to the \tcode{edge_info} and \tcode{neighbor_info} structs.
+                  \item The copyable info type aliases and concepts have been removed. \tcode{vertex_info}, \tcode{edge_info} 
+                        and \tcode{neighbor_info} are always copyable because they no longer contain references.
+                  \item See \href{https://www.wg21.link/P3130}{P3130 Graph Container Interface} for more details about
+                        descriptors.
+            \end{itemize}
 \end{itemize}

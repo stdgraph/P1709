@@ -50,7 +50,8 @@ for(auto&& uu : vertexlist(g)) {
 }
 \end{lstlisting}
 
-A function object can also be passed to return a value from the vertex. In this case, \tcode{vertexlist(g, vvf)} returns \tcode{vertex_t<G>, decltype(vvf(u))>}.
+A function object can also be passed to return a value from the vertex. In this case, \tcode{vertexlist(g, vvf)} returns 
+a struct with two members, \tcode{vertex} and \tcode{value}.
 \begin{lstlisting}
 auto vvf = [&g](vertex_reference_t<G> u) { return vertex_value(g,u); };
 // the type of uu is vertex\_info<vertex\_t<G>, decltype(vvf(u))>
@@ -77,7 +78,7 @@ for(auto&& [u, value] : vertexlist(g, vvf)) {
 }
 \end{lstlisting}
 
-\subsection{\tcode{struct vertex_info<VId, V, VV>}}\label{vertex-view}\mbox{} \\
+\subsection{\tcode{struct vertex_info<VId, VV>}}\label{vertex-view}\mbox{} \\
 \tcode{vertex_info} is used to return vertex information. It is used by \tcode{vertexlist(g)}, \tcode{vertices_breadth_first_search(g,u)}, 
 \tcode{vertices_dfs(g,u)} and others. The \tcode{vertex} member is typically a vertex descriptor, but can also be a vertex id, and always
 exists.
@@ -87,8 +88,8 @@ exists.
 }
 
 Specializations are defined with \tcode{V=void} or \tcode{VV=void} to suppress the existance of their associated member variables, 
-giving the following valid combinations in Table \ref{tab:vertex-view} . For instance, the second entry, \tcode{vertex_info<VId, V>} 
-has two members \tcode{\{id_type id; vertex_type vertex;\}} and \tcode{value_type} is \tcode{void}.
+giving the following valid combinations in Table \ref{tab:vertex-view} . For instance, the second entry, \tcode{vertex_info<VId, void>} 
+has one member \tcode{\{vertex_type vertex;\}} and \tcode{value_type} is \tcode{void}.
 \begin{table}[h!]
 \begin{center}
 %\resizebox{\textwidth}{!}
@@ -99,8 +100,8 @@ has two members \tcode{\{id_type id; vertex_type vertex;\}} and \tcode{value_typ
     \multicolumn{3}{c}{\textbf{Members}} \\
     %\textbf{Template Arguments} & id & vertex & value \\
 \hline
-    \tcode{vertex_info<V, VV>} & \tcode{id} & \tcode{vertex} & \tcode{value} \\
-    \tcode{vertex_info<V, void>} & \tcode{id} & \tcode{vertex} & \\
+    \tcode{vertex_info<VorVId, VV>} & \tcode{vertex} & \tcode{value} \\
+    \tcode{vertex_info<VorVId, void>} & \tcode{vertex} & \\
     %\tcode{vertex_info<void, void>} & & & \\ % invalid
 \hline
 \end{tabular}}
@@ -110,7 +111,6 @@ has two members \tcode{\{id_type id; vertex_type vertex;\}} and \tcode{value_typ
 \end{table}
 
 \subsection{\tcode{struct edge_info<VId, Sourced, E, EV>}}\label{edge-view}\mbox{} \\
-\phil{How do the id and edge members map to descriptors?}
 
 \tcode{edge_info} is used to return edge information. It is used by 
 \tcode{incidence(g,u), edgelist(g), edges_breadth_first_search(g,u), edges_dfs(g,u)} and others. \tcode{source} and \tcode{target} are
@@ -137,14 +137,14 @@ and \tcode{value_type} is \tcode{void}.
     \multicolumn{4}{c}{\textbf{Members}} \\
     %\textbf{Template Arguments} & id & edge & value \\
 \hline
-    \tcode{edge_info<V, true, E, EV>} & \tcode{source} & \tcode{target} & \tcode{edge} & \tcode{value} \\
-    \tcode{edge_info<V, true, E, void>} & \tcode{source} & \tcode{target} & \tcode{edge} & \\
-    \tcode{edge_info<V, true, void, EV>} & \tcode{source} & \tcode{target} & & \tcode{value} \\
-    \tcode{edge_info<V, true, void, void>} & \tcode{source} & \tcode{target} & & \\
-    \tcode{edge_info<V, false, E, EV>} & & \tcode{target} & \tcode{edge} & \tcode{value} \\
-    \tcode{edge_info<V, false, E, void>} & & \tcode{target} & \tcode{edge} & \\
-    \tcode{edge_info<V, false, void, EV>} & & \tcode{target} & & \tcode{value} \\
-    \tcode{edge_info<V, false, void, void>} & & \tcode{target} & & \\
+    \tcode{edge_info<VorVId, true, E, EV>} & \tcode{source} & \tcode{target} & \tcode{edge} & \tcode{value} \\
+    \tcode{edge_info<VorVId, true, E, void>} & \tcode{source} & \tcode{target} & \tcode{edge} & \\
+    \tcode{edge_info<VorVId, true, void, EV>} & \tcode{source} & \tcode{target} & & \tcode{value} \\
+    \tcode{edge_info<VorVId, true, void, void>} & \tcode{source} & \tcode{target} & & \\
+    \tcode{edge_info<VorVId, false, E, EV>} & & \tcode{target} & \tcode{edge} & \tcode{value} \\
+    \tcode{edge_info<VorVId, false, E, void>} & & \tcode{target} & \tcode{edge} & \\
+    \tcode{edge_info<VorVId, false, void, EV>} & & \tcode{target} & & \tcode{value} \\
+    \tcode{edge_info<VorVId, false, void, void>} & & \tcode{target} & & \\
 \hline
 \end{tabular}}
 \caption{\tcode{edge_info} Members}
@@ -152,8 +152,7 @@ and \tcode{value_type} is \tcode{void}.
 \end{center}
 \end{table}
 
-\subsection{\tcode{struct neighbor_info<VId, Sourced, V, VV>}}\label{neighbor-view}\mbox{} \\
-\phil{How do the id and target members map to descriptors?}
+\subsection{\tcode{struct neighbor_info<VId, Sourced, V, VV>}}\label{neighbor-view}\mbox{}
 
 \tcode{neighbor_info} is used to return information for a neighbor vertex, through an edge. It is used by \tcode{neighbors(g,u)}. 
 When \tcode{Sourced=true}, the \tcode{source} member is included with type \tcode{source_type}. The \tcode{target} member always exists.
@@ -176,10 +175,10 @@ and \tcode{value_type} is \tcode{void}.
     &
     \multicolumn{4}{c}{\textbf{Members}} \\
 \hline
-    \tcode{neighbor_info<V, true, EV>} & \tcode{source} & \tcode{target} & \tcode{value} \\
-    \tcode{neighbor_info<V, true, void>} & \tcode{source} & \tcode{target} & \\
-    \tcode{neighbor_info<V, false, EV>} & & \tcode{target} & \tcode{value} \\
-    \tcode{neighbor_info<V, false, void>} & & \tcode{target} & \\
+    \tcode{neighbor_info<VorVId, true, EV>} & \tcode{source} & \tcode{target} & \tcode{value} \\
+    \tcode{neighbor_info<VorVId, true, void>} & \tcode{source} & \tcode{target} & \\
+    \tcode{neighbor_info<VorVId, false, EV>} & & \tcode{target} & \tcode{value} \\
+    \tcode{neighbor_info<VorVId, false, void>} & & \tcode{target} & \\
 \hline
 \end{tabular}}
 \caption{\tcode{neighbor_info} Members}
@@ -187,13 +186,15 @@ and \tcode{value_type} is \tcode{void}.
 \end{center}
 \end{table}
 
+
+\begin{comment}
+\phil{Do we really needs these, since VorVId can be either a descriptor or id.}
+
 \subsection{Copyable Info Structs}
 
 \subsubsection{Copyable Info Struct Types}
 Copyable info structs are specializations of the info structs that can be copied. More specifically, they don't include
 a vertex or edge reference. \tcode{copyable_vertex_t<G>} shows the simple definition.
-
-\phil{Needs review, especially in light that a V can be either a descriptor or id.}
 
 \begin{lstlisting}
 template <class VId, class VV=void>
@@ -237,6 +238,7 @@ Given the copyable types, it's useful to have concepts to determine if a type is
 \end{center}
 \end{table}
 
+\end{comment}
 
 
 \section{Graph Views}
