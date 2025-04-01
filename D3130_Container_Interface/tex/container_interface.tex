@@ -56,9 +56,8 @@ The following are characteristics of descriptors:
 \subsection{Concepts}
 
 This section describes the concepts to describe the adjacency lists used for graphs in the Graph Library. There are a 
-number of qualifiers that are used in concept names.
+a couple of qualifiers that are used in concept names.
 \begin{itemize}
-    \item \textbf{basic} where there is only a vertex id but no vertex reference.
     \item \textbf{index} where the vertex range is random-access and the vertex id is integral.
     \item \textbf{sourced} where an edge has a source id.
 \end{itemize}
@@ -71,6 +70,7 @@ The types of edges that can occur in a graph are described with the edges concep
 {\small
      \lstinputlisting{D3130_Container_Interface/src/concepts_edges.hpp}
 }
+
 Return types are not validated in order to provide flexibility, and because it offers little value. Let's look at the options using 
 \tcode{target_id(g,uv)} as an example.
 
@@ -99,13 +99,12 @@ The final option allows the compiler to report a regular error or warning if the
 context it's used because the types are included in the error message, making it easier to understand what the problem is.
 Additionally, functions aren't distiguished by their return type, so there's little value in attempting to check it in this case.
 
-There is precedent for this design choice of not validating the return type, as can be seen in 
-\href{https://en.cppreference.com/w/cpp/ranges/sized_range}{\tcode{sized_range.}}
+There is precedent for this design choice of not validating the return type, as can be seen in the
+\href{https://en.cppreference.com/w/cpp/ranges/sized_range}{\tcode{sized_range}}concept.
 
 \paragraph{Edge Range Concepts}
 
-There are two edge range concepts.
-
+There is a single edge range concept.
 {\small
      \lstinputlisting{D3130_Container_Interface/src/concepts_target_edge_range.hpp}
 }
@@ -118,18 +117,14 @@ high performance graphs where vertices typically stored in a \tcode{vector}.
 }
 
 \subsubsection{Adjacency List Concepts}
-The basic adjacency lists add concepts where there is no vertex object, only a vertex id.
-{\small
-     \lstinputlisting{D3130_Container_Interface/src/concepts_basic_adj_list.hpp}
-}
-
 The adjacency list concepts bring together the vertex and edge concepts used for core graph concepts. 
-All algorithms initially proposed for the Graph Library use the \tcode{index_adjacency_list}.
+All algorithms initially proposed for the Graph Library use the \tcode{index_adjacency_list}. Future
+proposals may use the \tcode{adjacency_list} concept which allows for vertices in associative containers.
 {\small
      \lstinputlisting{D3130_Container_Interface/src/concepts_adj_list.hpp}
 }
 
-\phil{Verify we're using \tcode{basic_adjacency_list} in the View and algorithm definitions.}
+\phil{Verify we're using \tcode{adjacency_list} in the View and algorithm definitions.}
 
 \subsection{Traits}
 Table \ref{tab:graph_traits} summarizes the type traits in the Graph Container Interface, allowing views and algorithms to query the graph's characteristics.
@@ -378,8 +373,8 @@ The concepts and types for the edgelist are defined in the \tcode{std::graph::ed
 
 
 \subsection{Concepts}
-The concepts for edgelists follow the same naming conventions as the adjacency lists. Non-basic concepts are excluded because there's
-little reason to include an edge reference for such a simple case.
+The concepts for edgelists follow the same naming conventions as the adjacency lists. 
+% The "basic" qualifier has been dropped WRT integral indexes. There's no reason to have a distinction between the two.
 
 {\small
      \lstinputlisting{D3130_Container_Interface/src/edgelist_concepts.hpp}
@@ -444,26 +439,26 @@ Table \ref{tab:edgelist_func} shows the functions available in the Edgelist Inte
 is always available.
 
 
-% \begin{table}[h!]
-%     \begin{center}
-%     \resizebox{\textwidth}{!}
-%     {\begin{tabular}{l l p{1.5cm} L{7.0cm}}
-%     \hline
-%         \textbf{Function} & \textbf{Return Type} & \textbf{Complexity} & \textbf{Default Implementation} \\
-%     \hline
-%         \tcode{target_id(e)} & \tcode{vertex_id_t<EL>} & constant & (see below) \\
-%         \tcode{source_id(e)} & \tcode{vertex_id_t<EL>} & constant & (see below) \\
-%         \tcode{edge_value(e)} & \tcode{edge_value_t<EL>} & constant & optional, see below \\
-%     \hdashline
-%         \tcode{contains_edge(el,uid,vid)} & \tcode{bool} & linear & \tcode{find_if(el, [](edge_reference_t<EL> e) \{return source_id(e)==uid && target_id(e)==vid\})} \\
-%         \tcode{num_edges(el)} & \tcode{integral} & constant & \tcode{size(el)} \\
-%         \tcode{has_edge(el)} & \tcode{bool} & constant & \tcode{num_edges(el)>0} \\
-%     \hline
-%     \end{tabular}}
-%     \caption{Edgelist Interface Functions}
-%     \label{tab:edgelist_func}
-%     \end{center}
-% \end{table}
+\begin{table}[h!]
+    \begin{center}
+    \resizebox{\textwidth}{!}
+    {\begin{tabular}{l l p{1.5cm} L{7.0cm}}
+    \hline
+        \textbf{Function} & \textbf{Return Type} & \textbf{Complexity} & \textbf{Default Implementation} \\
+    \hline
+        \tcode{target_id(e)} & \tcode{vertex_id_t<EL>} & constant & (see below) \\
+        \tcode{source_id(e)} & \tcode{vertex_id_t<EL>} & constant & (see below) \\
+        \tcode{edge_value(e)} & \tcode{edge_value_t<EL>} & constant & optional, see below \\
+    \hdashline
+        \tcode{contains_edge(el,uid,vid)} & \tcode{bool} & linear & \tcode{find_if(el, [](edge_reference_t<EL> e) \{return source_id(e)==uid && target_id(e)==vid\})} \\
+        \tcode{num_edges(el)} & \tcode{integral} & constant & \tcode{size(el)} \\
+        \tcode{has_edge(el)} & \tcode{bool} & constant & \tcode{num_edges(el)>0} \\
+    \hline
+    \end{tabular}}
+    \caption{Edgelist Interface Functions}
+    \label{tab:edgelist_func}
+    \end{center}
+\end{table}
 
 % \tcode{find_if(el, )}
 % [](edge_reference_t<EL>) \{return source_id(e)==uid && target_id(e)==vid\}
