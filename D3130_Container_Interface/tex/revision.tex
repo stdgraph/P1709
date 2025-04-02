@@ -49,9 +49,9 @@
 
 \begin{itemize}
       \item Rename \tcode{descriptor} structs to \tcode{info} structs in preparation for new BGL-like descriptors.
-      \item Introduction of the new descriptors as an asbstraction for vertices and edges that replaces references
-            to concrete types in the underlying graph containers. There are a number of benefits, including 
-            simplifying the concept definitions by removing the distinction of "basic" qualifiers in concepts,
+      \item Introduction of the new BGL-like descriptors as an asbstraction for vertices and edges that replaces 
+            references to concrete types in the underlying graph containers. There are a number of benefits, including 
+            removing the need for id-only (e.g. "basic") concepts,
             reducing the number of View functions in \href{https://www.wg21.link/P3129}{P3129} and, because they 
             encapsulate the abstractions that will be needed, it also opens the door for associative containers 
             in the future with little impact to the interface. 
