@@ -195,6 +195,7 @@ The vertex events are called under the following conditions.
       \item \lstinline{on_examine_vertex(vdesc)} is called for a vertex before any of 
             its outgoing edges are examined. It is possible that it will be called multiple times 
             for the same vertex if paths are found to it from other vertices with a shorter distance.
+      \item \lstinline{on_start_vertex(vdesc)} is called for a vertex that is being examined.
       \item \lstinline{on_finish_vertex(vdesc)} is called for vertex that is being examined,
             after all its outgoing edges have been examined.
 \end{itemize}
@@ -215,7 +216,12 @@ The edge events are called under the following conditions.
             is minimized, or decreased to the minimum value.
       \item \lstinline{on_edge_not_minimized(edesc)} is called when the distance to the target vertex of the edge
             is not minimized, or not decreased to the minimum value.
+      \item \lstinline{on_tree_edge(edesc)} is called when the edge is added to the tree.
+      \item \lstinline{on_back_edge(edesc)} is called when the edge is a back edge.
+      \item \lstinline{on_forward_or_cross_edge(edesc)} is called when the edge is a forward or cross edge.
+      \item \lstinline{on_finish_edge(edesc)} is called when the edge is finished being examined.
 \end{itemize}
+
 
 \subsubsection{Visitor Classes}
 \tcode{empty_visitor} is used when no visitor is needed. It is a no-op struct that does nothing.
@@ -228,28 +234,7 @@ The edge events are called under the following conditions.
 \section{Traversal}
 
 \subsection{Breadth-First Search}
-
-\subsubsection{Initialization}
-
-{\small
-      \lstinputlisting{D3128_Algorithms/src/breadth_first_search_helpers.hpp}
-}
-
-\begin{itemdescr}
-      \effects
-      \begin{itemize}
-            \item
-                  Each \lstinline{predecessors[i]} is initialized to \lstinline{i}.
-      \end{itemize}
-\end{itemdescr}
-
-
-\subsubsection{Breadth-First Search, Single Source}
-Compute the breadth-first path and associated distance from vertex \tcode{source} to all reachable vertices in \tcode{graph}.
-
-\phil{This needs to be a subset of Dijkstra, without the weight, compare and combine functions. It needs a visitor.}
-
-\phil{Is distance always needed? Should we remove it, since it is easily evaluated using Dijkstra?} \phil{Check BGL implementation.}
+Compute the breadth-first path from one or more \tcode{source} vertices to all reachable vertices in \tcode{graph}.
 
 \begin{table}[h]
 \setcellgapes{3pt}
@@ -261,7 +246,7 @@ Compute the breadth-first path and associated distance from vertex \tcode{source
             \textbf{Complexity} \\
             $\mathcal{O}((|E| + |V|)\log{|V|})$
             }
-      & \textbf{Directed?} Yes & \textbf{Cycles?} No & \textbf{Throws?} No \\
+      & \textbf{Directed?} Yes & \textbf{Cycles?} No & \textbf{Throws?} Yes \\
       & \textbf{Multi-edge?} No & \textbf{Self-loops} Yes & \\
 \hline
 \end{tabular}
@@ -269,8 +254,18 @@ Compute the breadth-first path and associated distance from vertex \tcode{source
 \label{tab:algo_example}
 \end{table}
 
+\phil{BGL doesn't include distances or predecessors.}
+
+\subsubsection{Single Source Breadth-First Search}
+
 {\small
       \lstinputlisting{D3128_Algorithms/src/breadth_first_search.hpp}
+}
+
+\subsubsection{Multi-Source Breadth-First Search}
+
+{\small
+      \lstinputlisting{D3128_Algorithms/src/breadth_first_search_multi.hpp}
 }
 
 \begin{itemdescr}
@@ -279,24 +274,19 @@ Compute the breadth-first path and associated distance from vertex \tcode{source
 \preconditions
             \begin{itemize}
                   \item
-                        \lstinline{0 <= source < num_vertices(graph)}. 
+                        \lstinline{0 <= source < num_vertices(graph)} for the single-source version.
                   \item
-                        \lstinline{distances[i] = breadth_first_search_infinite_distance()} for \lstinline{0 <= i < num_vertices(g)}.
-                  \item
-                        \lstinline{predecessors[i] = i} for \lstinline{0 <= i < num_vertices(g)}.
+                        \lstinline{0 <= source < num_vertices(graph)}, for each \lstinline{source} in \lstinline{sources}, 
+                                   for the multi-source version.
             \end{itemize}
       \pnum\effects
             \begin{itemize}
-                  \item
-                        If vertex with index \lstinline{i} is reachable from vertex \lstinline{source}, then
-                        \lstinline{distances[i]} will contain the lowest number of edges from \lstinline{source} to vertex
-                        \lstinline{i}.  Otherwise \lstinline{distances[i]} will contain
-                        \lstinline{breadth_first_search_infinite_distance()}.
-                  \item
-                        If vertex with index \lstinline{i} is reachable
-                        from vertex \lstinline{source}, then \lstinline{predecessors[i]} will contain the
-                        predecessor vertex of vertex \lstinline{i}. Otherwise \lstinline{predecessors[i]} will contain
-                        \lstinline{i}.
+                  \item Member functions on the \lstinline{visitor} parameter are called during the algorithm's execution.
+                        The functions are optional and, when included, must follow the visitor concepts for the events.
+                        No overhead is incurred if the functions are not included.
+                        The events supported are \lstinline{on_initialize_vertex}, \lstinline{on_discover_vertex},
+                        \lstinline{on_examine_vertex}, \lstinline{on_finish_vertex}, \lstinline{on_examine_edge},
+                        \lstinline{on_edge_relaxed}, and \lstinline{on_edge_not_relaxed}.
             \end{itemize}
       %\pnum\result
       %\pnum\returns \lstinline{void} \\
@@ -306,34 +296,93 @@ Compute the breadth-first path and associated distance from vertex \tcode{source
             \end{itemize}
       \pnum\complexity
             \begin{itemize}
-                  \item $\mathcal{O}((|E| + |V|)\log{|V|})$
-                  \item Note that complexity may be $\mathcal{O}(|E| + |V|\log{|V|)}$ for certain implementations. 
+                  \item $\mathcal{O}((|E| + |V|)\log{|V|})$ based on using the binary heap in \tcode{std::priority_queue}.
+                  \item An implementation may choose to use a Fibonacci heap for a complexity of $\mathcal{O}(|E| + |V|\log{|V|})$.
+            \end{itemize}
+      \pnum\remarks 
+            \begin{itemize}
+                  \item \tcode{dijkstra_shortest_paths} provides extended functionality if \tcode{breadth_first_search} doesn't have
+                         enough capability.
+            \end{itemize}
+      %\pnum\errors
+\end{itemdescr}
+
+
+
+
+
+\subsection{Depth-First Search}
+Traverse the depth-first path from one or more \tcode{source} vertices to all reachable vertices in \tcode{graph}.
+
+\begin{table}[h]
+\setcellgapes{3pt}
+\makegapedcells
+\centering
+\begin{tabular}{|P{0.30\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|}
+\hline
+      \multirowcell{2}{
+            \textbf{Complexity} \\
+            $\mathcal{O}(|V| + |E|)$
+            }
+      & \textbf{Directed?} Yes & \textbf{Cycles?} No & \textbf{Throws?} No \\
+      & \textbf{Multi-edge?} Yes & \textbf{Self-loops} Yes & \\
+\hline
+\end{tabular}
+%\caption{Algorithm Example}
+\label{tab:algo_example}
+\end{table}
+
+\subsubsection{Single Source Depth-First Search}
+
+{\small
+      \lstinputlisting{D3128_Algorithms/src/depth_first_search.hpp}
+}
+
+% \subsubsection{Multi-Source Depth-First Search}
+
+% {\small
+%       \lstinputlisting{D3128_Algorithms/src/depth_first_search_multi.hpp}
+% }
+
+\begin{itemdescr}
+      %\pnum\mandates
+      % \pnum
+\preconditions
+            \begin{itemize}
+                  \item
+                        \lstinline{0 <= source < num_vertices(graph)}.
+                  % \item
+                  %       \lstinline{0 <= source < num_vertices(graph)} for the single-source version.
+                  % \item
+                  %       \lstinline{0 <= source < num_vertices(graph)}, for each \lstinline{source} in \lstinline{sources}, 
+                  %                  for the multi-source version.
+            \end{itemize}
+      \pnum\effects
+            \begin{itemize}
+                  \item Member functions on the \lstinline{visitor} parameter are called during the algorithm's execution.
+                        The functions are optional and, when included, must follow the visitor concepts for the events.
+                        No overhead is incurred if the functions are not included.
+                        The events supported are \lstinline{on_initialize_vertex}, \lstinline{on_start_vertex},
+                        \lstinline{on_discover_vertex}, \lstinline{on_finish_vertex}, 
+                        \lstinline{on_examine_edge}, \lstinline{on_tree_edge}, \lstinline{on_back_edge},
+                        \lstinline{on_forward_or_cross_edge}, and \lstinline{on_finish_edge}.
+            \end{itemize}
+      %\pnum\result
+      %\pnum\returns \lstinline{void} \\
+      \pnum\throws
+            \begin{itemize}
+                  \item \tcode{out_of_range} is thrown when \tcode{source} is not in the range \tcode{0 <= source < num_vertices(g)}.
+            \end{itemize}
+      \pnum\complexity
+            \begin{itemize}
+                  \item $\mathcal{O}(|V| + |E|)$.
             \end{itemize}
       %\pnum\remarks 
       %\pnum\errors
 \end{itemdescr}
 
-\subsection{Depth-First Search}
-\textit{Coming soon.}
-
 \subsection{Topological Sort}
 A linear ordering of vertices such that for every directed edge (u,v) from vertex u to vertex v, u comes before v in the ordering.
-
-\subsubsection{Initialization}
-
-{\small
-      \lstinputlisting{D3128_Algorithms/src/topological_sort_helpers.hpp}
-}
-
-\begin{itemdescr}
-      \effects
-      \begin{itemize}
-            \item
-                  Each \lstinline{predecessors[i]} is initialized to \lstinline{i}.
-      \end{itemize}
-\end{itemdescr}
-
-\subsubsection{Topological Sort, Single Source}
 
 \begin{table}[h]
 \setcellgapes{3pt}
@@ -353,20 +402,43 @@ A linear ordering of vertices such that for every directed edge (u,v) from verte
 \label{tab:algo_example}
 \end{table}
 
+\subsubsection{Initialization}
+
+{\small
+      \lstinputlisting{D3128_Algorithms/src/topological_sort_helpers.hpp}
+}
+
+\begin{itemdescr}
+      \effects
+      \begin{itemize}
+            \item
+                  Each \lstinline{predecessors[i]} is initialized to \lstinline{i}.
+      \end{itemize}
+\end{itemdescr}
+
+\subsubsection{Single Source Topological Sort}
+
 {\small
       \lstinputlisting{D3128_Algorithms/src/topological_sort.hpp}
 }
 
-\phil{Update to mimic Dijsktra overloads, and include a visitor}
+\subsubsection{Multi-Source Topological Sort}
+
+{\small
+      \lstinputlisting{D3128_Algorithms/src/topological_sort_multi.hpp}
+}
 
 \begin{itemdescr}
       %\pnum\mandates
       \pnum\preconditions
             \begin{itemize}
                   \item
-                        \lstinline{0 <= source < num_vertices(graph)}. 
+                        \lstinline{0 <= source < num_vertices(graph)} for the single-source version.
                   \item
-                        \lstinline{predecessors} will be initialized with \lstinline{init_topological_sort}.
+                        \lstinline{0 <= source < num_vertices(graph)}, for each \lstinline{source} in \lstinline{sources}, 
+                                   for the multi-source version.
+                  \item
+                        \lstinline{predecessors[i] = i} for \lstinline{0 <= i < num_vertices(g)}.
             \end{itemize}
       \pnum\effects
             \begin{itemize}
@@ -378,9 +450,23 @@ A linear ordering of vertices such that for every directed edge (u,v) from verte
             \end{itemize}
       %\pnum\result
       %\pnum\returns \lstinline{void} \\
-      %\pnum\throws \tcode{out_of_range} is thrown when \tcode{source} is not in the range \tcode{0 <= source < num_vertices(graph)}.  \\
-      %\pnum\complexity \\
-      %\pnum\remarks 
+      \pnum\throws 
+            \begin{itemize}
+                  \item An \tcode{out_of_range} exception is thrown in the following cases:
+                        \begin{itemize}
+                              \item \lstinline{size(predecessor) < size(vertices(g))}
+                              \item \lstinline{source} is not in the range \lstinline{0 <= source < num_vertices(graph)}.
+                        \end{itemize}
+            \end{itemize}
+      \pnum\complexity
+            \begin{itemize}
+                  \item $\mathcal{O}((|E| + |V|)\log{|V|})$ based on using the binary heap in \tcode{std::priority_queue}.
+                  \item An implementation may choose to use a Fibonacci heap for a complexity of $\mathcal{O}(|E| + |V|\log{|V|})$.
+            \end{itemize}
+      \pnum\remarks 
+            \begin{itemize}
+                  \item Duplicate sources do not affect the algorithm's complexity or correctness.
+            \end{itemize}
       %\pnum\errors
 \end{itemdescr}
 
@@ -848,14 +934,26 @@ Compute the number of triangles in a graph.
 }
 \begin{itemdescr}
       %\pnum\mandates
-      \pnum\preconditions  The outgoing edges of a vertex are ordered by target\_id. \\
+      \pnum\preconditions
+            \begin{itemize}
+                  \item The outgoing edges of a vertex are ordered by target\_id.
+            \end{itemize}
       %\pnum\effects
       %\pnum\result
-      \pnum\returns Number of triangles \\
-      \pnum\throws  A \tcode{graph_error} is thrown when the target\_id for an outgoing edge is less than the target\_id of the previous edge. \\
+      \pnum\returns 
+            \begin{itemize}
+                  \item Number of triangles
+            \end{itemize}
+      \pnum\throws
+            \begin{itemize}
+                  \item A \tcode{graph_error} is thrown when the target\_id for an outgoing edge is less than the target\_id of the previous edge.
+            \end{itemize}
       \pnum\complexity $\mathcal{O}(N^3)$ \\
-      \pnum\remarks To avoid duplicate counting, only directed triangles of a certain orientation will be detected. 
-                    If \tcode{vertex_id(u) < vertex_id(v) < vertex_id(w)}, count triangle if graph contains edges \tcode{uv, vw, uw}.
+      \pnum\remarks 
+            \begin{itemize}
+                  \item To avoid duplicate counting, only directed triangles of a certain orientation will be detected. 
+                        If \tcode{vertex_id(u) < vertex_id(v) < vertex_id(w)}, count triangle if graph contains edges \tcode{uv, vw, uw}.
+            \end{itemize}
       %\pnum\errors
 \end{itemdescr}
 

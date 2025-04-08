@@ -9,6 +9,11 @@ concept has_on_discover_vertex = // For exposition only
         { v.on_discover_vertex(vdesc) };
       };
 template <class G, class Visitor>
+concept has_on_start_vertex = // For exposition only
+      requires(Visitor& v, vertex_info<vertex_id_t<G>, vertex_reference_t<G>, void> vdesc) {
+        { v.on_start_vertex(vdesc) };
+      };
+template <class G, class Visitor>
 concept has_on_examine_vertex = // For exposition only
       requires(Visitor& v, vertex_info<vertex_id_t<G>, vertex_reference_t<G>, void> vdesc) {
         { v.on_examine_vertex(vdesc) };
