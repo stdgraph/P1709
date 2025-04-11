@@ -340,23 +340,13 @@ by the paper they are associated with.
       \end{enumerate}
       \item \href{https://www.wg21.link/P3128}{P3128 Graph Algorithms}
             \begin{enumerate}
-                  \item A concern is that the DFS and BFS functionality isn't flexible enough, especially when compared to boost::graph's visitors.
-                        \begin{itemize}
-                              \item We agree having a more general and flexible BFS and DFS would be valuable. We have investigated the use
-                                    of coroutines and boost::graph-like visitors and found that the coroutine implementation has better
-                                    syntax but is 20\% slower than the visitor implementation. That kind of performance penalty is not 
-                                    acceptable, making the visitor implementation the clear choice.
-                              \item Visitors have been added to Dijkstra's and Belman-Ford shortest paths algorithms and will be added 
-                                    to BFS, DFS and Topological Sort algorithms in the next revision of P3128.
-                              \item We are also considering adding similar functionality to the views in P3129.
-                        \end{itemize}
                   \item The summary tables for the algorithms are necessary but not sufficient: 
                         \begin{itemize}
                               \item There needs to be a discussion of these aspects for graph implementations themselves. Various graph operations may 
                                     be more efficient if the graph structure is more constrained. However, not allowing e.g. multiple edges between pairs 
                                     of nodes prohibits representing many useful systems. There are trade-offs and these need to be discussed.
                                     \begin{itemize}
-                                          \item Some work has been done, but more is needed.
+                                          \item Improvements to the Dikstra and Bellman-Ford algorithms have been made. PLease review give feedback.
                                     \end{itemize}
                               \item A justification of the choices made for the algorithms may be helpful.
                   \end{itemize}
@@ -375,7 +365,7 @@ by the paper they are associated with.
 
 \subsection{Resolved Issues}
 \begin{itemize}
-      \item P3126 General Design
+      \item General Library Design
             \begin{enumerate}
                   \item Build on \tcode{mdspan} and try to standardize (or at least understand) what might reasonably be called an unstructured span
                               
@@ -401,6 +391,16 @@ by the paper they are associated with.
                   \item The electrical circuit example has issues in P3127, section 6.1.
                         \begin{itemize}
                               \item Removed in P3126r3.
+                        \end{itemize}
+            \end{enumerate}
+      \item \href{https://www.wg21.link/P3128}{P3128 Graph Algorithms}
+            \begin{enumerate}
+                  \item A concern is that the DFS and BFS functionality isn't flexible enough, especially when compared to boost::graph's visitors.
+                        \begin{itemize}
+                              \item Visitors have been added to the BFS and DFS algorithms, and to Dijkstra's and Belman-Ford shortest 
+                                    paths algorithms. The same visitor events are supported as boost::graph for each of the algorithms. 
+                                    If a visitor event is not used, there is no performance overhead. We also investigated the use of 
+                                    coroutines but found it resulted in an unacceptable overhead, whether a visitor event was used or not.
                         \end{itemize}
             \end{enumerate}
       \item \href{https://www.wg21.link/P3130}{P3130 Graph Container Interface}
