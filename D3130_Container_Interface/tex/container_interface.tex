@@ -47,11 +47,17 @@ The vertex and edge descriptors are defined as the \tcode{vertex_t<G>} and \tcod
 The following are characteristics of descriptors:
 \begin{itemize}
     \item Equality comparison: Descriptors can be compared for equality using the \tcode{==} and \tcode{!=} operators.
-    \item Ordering: Descriptors can be ordered using the \tcode{<}, \tcode{<=}, \tcode{>}, and \tcode{>=} operators, if supported by the 
-          underlying container being used.
+    \item Ordering: Descriptors can be ordered using the \tcode{<}, \tcode{<=}, \tcode{>}, and \tcode{>=} operators, if supported 
+          by the iterators in underlying container being used.
     \item Copy and assignment: Descriptors can be copied and assigned, ensuring they can be used in standard algorithms and containers.
-    \item Default construction: Descriptors can be default-constructed, though the resulting value may not represent a valid vertex or edge.
+    \item Default construction: Descriptors can be default-constructed, though the resulting value are not guaranteed to represent 
+          a valid vertex or edge.
 \end{itemize}
+ 
+The only vertex function that requires a vertex id \tcode{(uid)} is \tcode{find_vertex(g,uid)}. All other functions
+are convenience functions that imply a call to \tcode{find_vertex(g,uid)} to get the vertex descriptor before a call.
+
+\phil{I think we need to define a minimal set of functions on the descriptor so that external graph containers can be adapted.}
 
 \subsection{Concepts}
 
@@ -338,7 +344,7 @@ This is sufficient for all situations. However, there are often space and perfor
 this function for optimal results, assuring that it is also large enough for the number of possible vertices and edges in the application. It will also need to be overridden if the implementation doesn't 
 expose the vertices as a range.
 
-The \tcode{vertex_id(g,u)} value is evaluate in the context of a descriptor using the following rules:
+\tcode{vertex_id(g,u)} is evaluated in the context of a descriptor using the following rules:
 \begin{enumerate}
     \item Use the value returned by \tcode{vertex_id(g,u)} when overridden for a graph.
     \item Use the index value on the descriptor.
