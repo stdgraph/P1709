@@ -1,3 +1,4 @@
+// NOTE: This isn't quite right when considering descriptors
 template <class G>
 struct _partition_vertex_id {
   partition_id_t<G> partition_id; //
