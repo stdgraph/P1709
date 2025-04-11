@@ -52,19 +52,21 @@
             \begin{itemize}
                   \item Concrete vertex and edge types defined by a graph container are replaced with absract 
                         vertex and edge descriptors. This allows the graph container to be decoupled from the 
-                        underlying container type, and also allows the graph container to be used with associative 
-                        containers in the future with minimal impact to the interface.
+                        underlying container type. This enables future expansion by allowing a graph container 
+                        that uses associative containers with minimal impact to the interface.
 
                         While this is a major revision to the implementation, it isn't a big conceptual change to the 
-                        user. The visible changes include \tcode{vertex_id(g,ui)} is now \tcode{vertex_id(g,u)}, 
-                        \tcode{partition_id(g,ui)} has been added,
+                        user. The visible changes include replacing \tcode{vertex_id(g,ui)} with \tcode{vertex_id(g,u),}
+                        the addition of \tcode{partition_id(g,ui),}
                         and \tcode{vertices(g)} and \tcode{edges(g,u)} now return a \tcode{descriptor_view} instead 
                         of a range of the underlying container.
                   \item A descriptor replaces the combination of id and reference parameters from the previous version 
                         of the interface. This reduces the number of concepts by the removal of the "basic" name qualifiers 
-                        for concepts. It enables consolidation of the views in \href{https://www.wg21.link/P3129}{P3129},
-                        where the "basic" views are no longer needed, reducing the view functions in half.
+                        for vertex\_id-only concepts. It also enables consolidation of the views in \href{https://www.wg21.link/P3129}{P3129},
+                        where the "basic" views are no longer needed, reducing the number of view functions in half.
                   \item The previous \tcode{descriptor} structs in \href{https://www.wg21.link/P3129}{P3129 Views} 
-                        have been renamed to \tcode{info} structs to avoid name clashes.
+                        have been renamed to \tcode{info} structs to avoid name clashes. Additionally, the "copyable" 
+                        type aliases for the \tcode{info} structs are no longer needed because reference was replaced
+                        with \tcode{descriptor}, which is now copyable.
             \end{itemize}
 \end{itemize}
