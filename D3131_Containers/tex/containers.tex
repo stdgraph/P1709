@@ -140,7 +140,7 @@ G g;
 load_graph(g, ...); // load some data
 
 // Using GCI functions
-for(auto&& [uid, u] : vertices(g)) {
+for(auto&& [u] : vertices(g)) {
   for(auto&& [vid, uv]: edges(g,u)) {
     auto w = weight(uv);
     // do something...

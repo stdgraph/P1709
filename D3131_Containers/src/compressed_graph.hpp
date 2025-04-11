@@ -27,16 +27,14 @@ public: // Construction/Destruction/Assignment
   // compressed\_graph(gv\&\&, erng, eprojection, alloc)
 
   template <ranges::forward_range ERng, ranges::forward_range PartRng, class EProj = identity>
-  requires copyable_edge<invoke_result<EProj, ranges::range_value_t<ERng>>, VId, EV> &&
-           convertible_to<ranges::range_value_t<PartRng>, VId>
+  requires convertible_to<ranges::range_value_t<PartRng>, VId>
   constexpr compressed_graph(const ERng&    erng,
                              EProj          eprojection,
                              const PartRng& partition_start_ids = vector<VId>(),
                              const Alloc&   alloc          = Alloc());
 
   template <ranges::forward_range ERng, ranges::forward_range PartRng, class EProj = identity>
-  requires copyable_edge<invoke_result<EProj, ranges::range_value_t<ERng>>, VId, EV> &&
-                 convertible_to<ranges::range_value_t<PartRng>, VId>
+  requires convertible_to<ranges::range_value_t<PartRng>, VId>
   constexpr compressed_graph(const graph_value_type& value,
                              const ERng&             erng,
                              EProj                   eprojection,
@@ -44,8 +42,7 @@ public: // Construction/Destruction/Assignment
                              const Alloc&            alloc          = Alloc());
 
   template <ranges::forward_range ERng, ranges::forward_range PartRng, class EProj = identity>
-  requires copyable_edge<invoke_result<EProj, ranges::range_value_t<ERng>>, VId, EV> &&
-                 convertible_to<ranges::range_value_t<PartRng>, VId>
+  requires convertible_to<ranges::range_value_t<PartRng>, VId>
   constexpr compressed_graph(graph_value_type&& value,
                              const ERng&        erng,
                              EProj              eprojection,
@@ -61,9 +58,7 @@ public: // Construction/Destruction/Assignment
             ranges::forward_range PartRng,
             class EProj = identity,
             class VProj = identity>
-  requires copyable_edge<invoke_result<EProj, ranges::range_value_t<ERng>>, VId, EV> &&
-           copyable_vertex<invoke_result<VProj, ranges::range_value_t<VRng>>, VId, VV> &&
-           convertible_to<ranges::range_value_t<PartRng>, VId>
+  requires convertible_to<ranges::range_value_t<PartRng>, VId>
   constexpr compressed_graph(const ERng&    erng,
                              const VRng&    vrng,
                              EProj          eprojection    = {},
@@ -76,9 +71,7 @@ public: // Construction/Destruction/Assignment
             ranges::forward_range PartRng,
             class EProj = identity,
             class VProj = identity>
-  requires copyable_edge<invoke_result<EProj, ranges::range_value_t<ERng>>, VId, EV> &&
-                 copyable_vertex<invoke_result<VProj, ranges::range_value_t<VRng>>, VId, VV> &&
-                 convertible_to<ranges::range_value_t<PartRng>, VId>
+  requires convertible_to<ranges::range_value_t<PartRng>, VId>
   constexpr compressed_graph(const graph_value_type& value,
                              const ERng&             erng,
                              const VRng&             vrng,
@@ -92,9 +85,7 @@ public: // Construction/Destruction/Assignment
             ranges::forward_range PartRng,
             class EProj = identity,
             class VProj = identity>
-  requires copyable_edge<invoke_result<EProj, ranges::range_value_t<ERng>>, VId, EV> &&
-                 copyable_vertex<invoke_result<VProj, ranges::range_value_t<VRng>>, VId, VV> &&
-                 convertible_to<ranges::range_value_t<PartRng>, VId>
+  requires convertible_to<ranges::range_value_t<PartRng>, VId>
   constexpr compressed_graph(graph_value_type&& value,
                              const ERng&        erng,
                              const VRng&        vrng,

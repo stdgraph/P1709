@@ -181,7 +181,7 @@ The type aliases are defined by either a function specialization for the underly
     \tcode{vertex_iterator_t<G>} & \tcode{iterator_t<vertex_range_t<G>>} & \\    
     \tcode{vertex_t<G>} & \tcode{range_value_t<vertex_range_t<G>>} & \\    
     \tcode{vertex_reference_t<G>} & \tcode{range_reference_t<vertex_range_t<G>>} & \\    
-    \tcode{vertex_id_t<G>} & \tcode{decltype(vertex_id(g,ui))} & \\
+    \tcode{vertex_id_t<G>} & \tcode{decltype(vertex_id(g,u))} & \\
     \tcode{vertex_value_t<G>} & \tcode{decltype(vertex_value(g,u))} & optional \\
 \hline
     \tcode{vertex_edge_range_t<G>} & \tcode{decltype(edges(g,u))} & \\    
@@ -190,7 +190,7 @@ The type aliases are defined by either a function specialization for the underly
     \tcode{edge_reference_t<G>} & \tcode{range_reference_t<vertex_edge_range_t<G>>} & \\    
     \tcode{edge_value_t<G>} & \tcode{decltype(edge_value(g,uv))} & optional \\
 \hline
-    \tcode{partition_id_t<G>} & \tcode{decltype(partition_id(g,uid))} & optional \\
+    \tcode{partition_id_t<G>} & \tcode{decltype(partition_id(g,u))} & optional \\
     \tcode{partition_vertex_range_t<G>} & \tcode{vertices(g,pid)} & optional \\    
 \hline
 \end{tabular}}
@@ -243,6 +243,10 @@ to be able to reflect all forms of adjacency graphs including a vector of lists,
 The complexity shown above for \tcode{num_edges(g)} and \tcode{has_edge(g)} is for the default implementation. 
 Specific graph implementations may have better characteristics.
 
+The only vertex function that requires a vertex id \tcode{(uid)} is \tcode{find_vertex(g,uid)}. The other 
+functions that use it are convenience functions that imply a call to \tcode{find_vertex(g,uid)} to get the 
+vertex descriptor before a call to the overloaded function that takes a descriptor is made.
+
 The complexity shown above for \tcode{vertices(g,pid)} and \tcode{num_vertices(g,pid)} is for the default
 implementation. Specific graph implementations may have different characteristics.
 
@@ -255,7 +259,7 @@ implementation. Specific graph implementations may have different characteristic
 \hline
     \tcode{find_vertex(g,uid)} & \tcode{vertex_iterator_t<G>} & constant & \tcode{begin(vertices(g)) + uid} \\
     & & & if \tcode{random_access_range<vertex_range_t<G>>}  \\
-    \tcode{vertex_id(g,u)} & \tcode{vetex_id_t<G>} & constant & \tcode{(size_t)u.vertex_index())} \\
+    \tcode{vertex_id(g,u)} & \tcode{vetex_id_t<G>} & constant & (see Determining the vertex\_id type below) \\
     & & & Override to define a different \tcode{vertex_id_t<G>} type (e.g. int32\_t). \\
     \tcode{vertex_value(g,u)} & \tcode{vertex_value_t<G>} & constant & n/a, optional \\
     \tcode{vertex_value(g,uid)} & \tcode{vertex_value_t<G>} & constant & \tcode{vertex_value(g,*find_vertex(g,uid))}, optional \\
@@ -264,7 +268,9 @@ implementation. Specific graph implementations may have different characteristic
     \tcode{edges(g,u)} & \tcode{vertex_edge_range_t<G>} & constant & \tcode{u} if \tcode{forward range<vertex_t<G>>}, n/a otherwise \\
     \tcode{edges(g,uid)} & \tcode{vertex_edge_range_t<G>} & constant & \tcode{edges(g,*find_vertex(g,uid))} \\
 \hdashline
-    \tcode{partition_id(g,uid)} & \tcode{partition_id_t<G>} & constant & 0 \\
+    \tcode{partition_id(g,u)} & \tcode{partition_id_t<G>} & constant &  \\
+    \tcode{partition_id(g,uid)} & \tcode{partition_id_t<G>} & constant &  \\
+\hline
 \hline
 \end{tabular}}
 \caption{Vertex Functions}
@@ -304,7 +310,7 @@ also be non-linear. This is expected to be an uncommon case.
 
 When the graph matches the pattern \tcode{random_access_range<forward_range<integral>>} or \tcode{random_access_range<forward_range<tuple<integral,...>>>},
 the default implementation for \tcode{target_id(g,uv)} will return the \tcode{integral}. Additionally, if the caller does not override 
-\tcode{vertex_id(g,ui)}, the \tcode{integral} value will define the \tcode{vertex_id_t<G>} type.
+\tcode{vertex_id(g,u)}, the \tcode{integral} value will define the \tcode{vertex_id_t<G>} type.
 
 Functions that have n/a for their Default Implementation must be defined by the author of a Graph Container implementation. 
 
@@ -318,12 +324,12 @@ embedded value in those objects.
 
 If the concept requirements for the default implementation aren't met by the graph container the function will need to be overridden.
 
-\subsection{Determining the vertex\_id type}
+\subsection{Determining the vertex\_id and its type}
 To determine the type for \tcode{vertex_id_t<G>} the following steps are taken, in order, to determine its type.
 \begin{enumerate}
-    \item Use the type returned by \tcode{vertex_id(g,ui)} when overridden for a graph.
+    \item Use the type returned by \tcode{vertex_id(g,u)} when overridden for a graph.
     \item When the graph matches the pattern \tcode{random_access_range<forward_range<integral>>} or \tcode{random_access_range<forward_range<tuple<integral,...>>>},
-          use the \tcode{integral} type specified.
+          use the \tcode{integral} type specified, which is assumed to be the target\_id on an edge.
     \item Use \tcode{size_t} in all other cases.
 \end{enumerate}
 
@@ -331,6 +337,12 @@ To determine the type for \tcode{vertex_id_t<G>} the following steps are taken, 
 This is sufficient for all situations. However, there are often space and performance advantages if a smaller type is used, such as int32\_t or even int16\_t. It is recommended to consider overriding 
 this function for optimal results, assuring that it is also large enough for the number of possible vertices and edges in the application. It will also need to be overridden if the implementation doesn't 
 expose the vertices as a range.
+
+The \tcode{vertex_id(g,u)} value is evaluate in the context of a descriptor using the following rules:
+\begin{enumerate}
+    \item Use the value returned by \tcode{vertex_id(g,u)} when overridden for a graph.
+    \item Use the index value on the descriptor.
+\end{enumerate}
 
 \subsection{Unipartite, Bipartite and Multipartite Graph Representation}
 
@@ -355,7 +367,7 @@ determine how to get the appropriate value.
           then return the appropriate value.
 \end{itemize}
 
-\tcode{edges(g,uid,pid)} and \tcode{edges(g,ui,pid)} filter the edges where the target is in the partition \tcode{pid} passed.
+\tcode{edges(g,uid,pid)} and \tcode{edges(g,u,pid)} filter the edges where the target is in the partition \tcode{pid} passed.
 This isn't needed for bipartite graphs.
 
 \section{Edgelist Interface}

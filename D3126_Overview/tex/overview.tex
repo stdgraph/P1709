@@ -2,112 +2,90 @@
 %% \chapter{Overview}
 \section{Overview}
 
-%% Graphs, used in ML and other \textbf{scientific} domains, as well as \textbf{industrial} and \textbf{general} programming, 
-%% do \textbf{not} presently exist in the C++ standard. In ML, a graph forms the underlying structure of an \textbf{artificial neural network} (ANN). 
-%% In a \textbf{game}, a graph can be used to represent the \textbf{map} of a game world. In \textbf{business} environments, graphs arise as 
-%% \textbf{entity relationship diagrams} (ERD) or \textbf{data flow diagrams} (DFD). In the realm of \textbf{social media}, a graph represents a 
-%% \textbf{social network}.
+The C++ Standard Library (nee the Standard Template Library, or STL), is a well-structured collection of generic
+software components, systematically organized based on fundamental properties of their underlying problem
+domain.  In the case of the Standard Library, this domain comprises that of one-dimensional containers,
+specified by iterator pairs (equiv.\ ranges).  Of course, the contents of any one-dimensional container can
+be another container, to the Standard Library, those contents are opaque.
 
-The original STL revolutionized the way that C++ programmers could apply algorithms to different kinds of containers, by defining \emph{generic} algorithms, realized via function templates.  
-A hierarchy of \emph{iterators} were the mechanism by which algorithms could be made generic with respect to different kinds of containers,
-Named requirements specified the valid expressions and associated types that algorithms required of their arguments.  As of C++20, we now have both ranges and concepts, which
-provide language-based mechanisms for specifying requirements for generic algorithms.
+Since the introduction of the STL and the generic programming paradigm that is its
+intellectual foundation, there has been recognition of the need to extend the
+standard library to support hierarchical containers (containers of containers).
+(See, for example, Matt Austern's paper ``Segmented Iterators and Hierarchical Algorithms,
+or WG21/N3700
+``Hierarchical Data Structures and Related Concepts for the C++ Standard Library'').
+C++ does have some notion of multidimensional data structures (multi-dimensional ranges,
+\lstinline{std::mdspan}), but they are not
+containers in the sense of the standard library.  Moreover, multi-dimensional arrays
+are not ``interesting'' hierarchical containers, in that, even if viewed as a
+container of containers, the container one level down from a given container is
+still a multi-dimensional array.
 
-As powerful as the algorithms in the standard library are, the underlying basis for them is a range (or iterator pair), which inherently can only specify a one-dimensional container.  
-Iterator pairs (equiv.\ ranges) specify a \lstinline{begin()} and an \lstinline{end()} and can move between those two limits in various ways, depending on the type of iterator.
-As a result, important classes of problems that programmers are regularly faced with use structures that are not one-dimensional containers, and so the standard library algorithms can't be directly used.
-Multi-dimensional arrays are an example of one such kind of data structure. Matrices do have the nice property that they (typically) have the ability to be ``raveled'', i.e., the data underlying the matrix can still be treated as a one-dimensional container.  Multi-dimensional arrays also have the property that, even though they can be thought of as hierarchical containers, the hierarchy is uniform---an N-dimensional array is a container of N-1 dimensional arrays.
-
-Another important problem domain that does not fit into the category of one-dimensional ranges is that of \emph{graph algorithms and data structures}.
-Graphs are a powerful abstraction for modeling relationships between entities in a given problem domain,
-irrespective of what the actual entities are, and irrespective of what the actual relationships are.
-In that sense, graphs are, by their very nature, generic.
-Graphs are a fundamental abstraction in computer science, and are ubiquitous in real-world applications.
-
-Any problem concerned with connectivity can be modeled as a graph.  
-Just a small set of examples include
-Internet routing, circuit partitioning and layout, and finding the best route to take to a destination on map.
-There are also relationships between entities that are inferred from large sets of data, for example the graph of consumers who have purchased the same product, or who have viewed the same movie.
-Yet more interesting structures (hypergraphs or k-partite graphs) can arise when we want to model relationships between diverse types of data, such as the graph of consumers, the products they have purchased, and the vendors of the products.
-And, of course, graphs play a critical role in multiple aspects of machine learning.
-
-Along with these graph abstractions are the graph algorithms that are widely used for solving problems from these domains.
-Well-known graph algorithms include breadth-first search, Dijkstra's algorithm, connected components, and so on.
+Graphs are an important abstraction in Computer Science and that arise in numerous problem domains.  They have
+attracted significant attention recently with the increasing importance of their use in data science, machine
+learning, and artificial intelligence.
 %
-Because graphs can come from so many different problem domains, they will also be represented with many different kinds of data structures.
-To make graph algorithms as usable as possible across arbitrary representations requires application of the same principles that were used in the original STL: 
-a collection of related algorithms from a problem domain (in our case, graphs),
-minimizing the requirements imposed by the algorithms on their arguments,
-systematically organizing the requirements, and
-realizing this framework of requirements in the form of concepts.
+Moreover, graphs represent perhaps the most basic form of an interesting (non-trivial) hierarchical data
+structure.  For example, although the ``adjacency list'' representation of a graph only comprises two
+levels, it is richer than a two-dimensional container.  Most significantly, the ``inner container''
+of the adjacency list cannot be opaque; traversal of a graph is of necessity an interleaved traversal
+of the inner and outer containers.
 
-There are also many uses of graphs that would not be met by a standard set of algorithms.  A standardized interface for graphs is eminently useful in such situations as well.  
-In the most basic case, it would provide a well-defined framework for development.  But in keeping with the foundational goal of generic programming to enable reuse, it would also empower users to develop and deploy their own reusable graph components.  In the best case, such algorithms would be available to the broader C++ programmer community.
-
-Because graphs are so ubiquitous and so important to modern software systems, a standardized library of graph algorithms and data structures would have enormous benefit to the C++ development community.
-This proposal contains the specification of such a library, developed using the principles above.
-
-In total, all documents, taken as a whole for a Graph Library, propose the addition of \textbf{graph algorithms, operators, views, adaptors}, the 
-\textbf{graph container interface}, and a \textbf{graph container implementation} to the C++ library to support \textbf{machine learning} (ML), 
-as well as other applications. ML is a large and growing field, both in the \textbf{research community} and \textbf{industry}, that has 
-received a great deal of attention in recent years. This documents presents an \textbf{interface} of the proposed algorithms, operators, adaptors,
-views, graph functions, and containers.
 
 \section{Goals and Priorities}
 
-Because graphs and their algorithms cover a broad range of capabilities and implementations, we have defined a focused set of 
-goals and priorities that will provide an initial set of useful functionality, as well as a sound foundation for future work.
+The main goal of this library is to provide a self-consistent and systematic library of software components for
+graph computations, based on well-defined graph representations. it includes generic 
+algorithms, named requirements, views, and utilities.
+views.  
+%
+It is informed by the authors' past experience with the Boost Graph Library (BGL), the NWGraph library, the C++
+GraphBLAS, and the library proposed in P1709.  The proposed library seeks to leverage the existing Standard
+Library while introducing as little new machinery as possible.
+%
+Because of the broad scope of graph data structures and algorithms, we have defined a focused set of goals and
+priorities to deliver an initial set of useful and practical functionality that will also establish a solid
+foundation for future development.
 
-\begin{itemize}
-      \item Provide a firm theoretical foundation for the library.
-      \item Follow the separation of algorithms, ranges, views, and containers established by the standard library.
-      \item Include a rich enough set of algorithms for the library to be useful.
-            \begin{itemize}
-                  \item The syntax for an algorithm's implementation should be simple, expressive, and easy to understand. 
-                  \item The ability to write high-performance algorithms should not be compromised.
-                  \item Algorithms can expect vertices to be in a random access range with an integral vertex id initially.
-            \end{itemize}
-      \item Include views for common traversals of a graph's vertices and edges that is concise and consistant without having to use a lower level interface.
-            \begin{itemize}
-                  \item Simple views for vertexlist, incidence edges on a vertex, neighbors of a vertex, and edges of a graph.
-                  \item Complex views for depth-first search, breath-first search, and topological sort.
-            \end{itemize}
-      \item A Graph Container Interface, used by Views and Algorithms, that provides a consistent interface for different graph data structures. The interface
-            includes concepts, types, traits and functions and provides a similar role to the Ranges library for standard containers.
-            \begin{itemize}
-                  \item Info structs for a consistent data model for vertex, edge and neighbor by views and edge lists.
 
-                  \item Adjacency list, an outer range of vertices with an inner range of outgoing edges on each vertex.
-                        \begin{itemize}
-                              \item Be able to use the algorithms and views with existing graph data structures using customization points.
-                              \item Support for optional user-defined value types on an edge, vertex, and/or the graph itself.
-                              \item Support bipartite and multipartite graphs.
-                        \end{itemize}
+\textbf{Design Principles.}  We propose a lightweight library of software components for graph computing that is
+self-consistent and systematically defined.  The foundation of the library is its collection of generic traversal
+patterns and algorithms.  Although concepts will be used ``under the hood,'' the API for the library's
+algorithms and traversals will be specified using named requirements.  As little new machinery as possible is
+introduced; to the greatest extent possible, graph library components are built on top of existing Standard
+Library components.
 
-                  \item Edgelist, which is a range of edges that allow calling \tcode{source_id(e)} and \tcode{target_id(e)}, and
-                        optionally \tcode{edge_value(e)}. This is available for the following.
-                        \begin{itemize}
-                              \item From an \tcode{edgelist} view.
-                              \item From a user-defined range of concrete values.
-                        \end{itemize}
-            \end{itemize}
-      \item Provide one or more graph containers that can be used with the algorithms.
-            \begin{itemize}
-                  \item A high-performance \tcode{compressed_graph} container, based on the Compressed Sparse Row matrix.
-                  \item The ability to create simple graph container from standard containers, e.g. \tcode{vector<vector<int>>}.
-            \end{itemize}
-\end{itemize}
+\textbf{Named Requirements.}  The named requirements in the library reflect the needs of graph algorithms and
+are organized and named according to well-accepted practice in the underlying problem domain of graphs and graph
+algorithms.  The named requirements are intended to be minimal in order to enable the largest variety of
+concrete data structures to satisfy them.
 
-The design should not hinder the ability to extend the functionality to support expanded functionality identified in the future roadmap
-that follows.
+\textbf{Graph Representation.}  To be precise, and in keeping with common practice, the named requirements, the
+underlying concepts, and the algorithms in the library are defined in terms of representations of graphs.  
+What we mean by a graph representations is developed in detail in the companion document D3127.
+
+\textbf{Leverage the Standard Library.}
+With the basis of the library being the representation of graphs in the form of hierarchical containers, and
+with the intention for the library to be included as part of the C++ standard library, we leverage standard
+library components to the greatest extent possible.  Notably, compositions of Standard Library containers
+satisfy the graph representation requirements, sufficient for their use with the proposed graph library.
+
+\textbf{Graph Library Components.}  The library will comprise algorithms and views, along with domain-specific
+named requirements.\andrew{This is still in flux.  I imagine a diagram and a table of some kind.}
+
+% https://www.boost.org/doc/libs/1_81_0/libs/graph/doc/graph_concepts.html
+
 
 \subsection{Future Roadmap}
 
-The following are areas we'd like to see in future proposals, after the initial proposals are accepted. We endeavor to investigate
-these to assure the existing design will support them.
+\noindent
+\andrew{Aren't we doing most of these?}
+\noindent
+
+The following areas are opportunities for future proposals, after the initial proposals are accepted. We endeavor to investigate
+them (without introducing additional proposals) to ensure the currently proposed design will support them.
 \begin{itemize}
-      \item Additional graph algorithms. The Graph Algorithms paper identifies tiers of algorithms we'd like to see added in the future, 
-            including parallel algorithms.
+      \item Additional graph algorithms. The Graph Algorithms proposals (D3128) identifies tiers of algorithms that we suggest be added in a staged fashion (including parallel algorithms).
       \item Support for sparse vertex ids, implying the use of bi-directional containers such as \tcode{map} and \tcode{unordered_map} for vertices.
       \item Bi-directional graphs, where vertices have incoming and outgoing edges.
       \item Constexpr graphs, where vertices and edges are stored in \tcode{std::array} or other constexpr-friendly container.
@@ -191,16 +169,17 @@ Hypergraphs are not supported.
 This proposal is a pure \textbf{library} extension.
 
 \section{Interaction wtih Other Papers}
-Other than the papers identified as part of the Graph Libary, there is no interaction with other proposals to the standard.
+The entirety of our proposal for graph algorithms and data structures comprises multiple companion papers: D3127 (Terminology), D3128 (Algorithms), D3129 (Views), D3130 (Container Interface), D3131 (Containers), D9903 (Operators), and D9907 (Adaptors).
+Other than these papers, there are no interactions with other proposals to the standard.
 
 \section{Implementation Experience}
-The github \href{https://github.com/stdgraph}{github.com/stdgraph} repository contains an implementation for this proposal.
+The github \href{https://github.com/stdgraph}{github.com/stdgraph} repository contains a reference implementation for this proposal.
 
 \section{Usage Experience}
-There is no current use of the library. There are plans to begin using it in 2024 in a commercial setting.
+There is no current use of the library outside of the proposers. There are plans to begin using it in 2025 in commercial, academic, and research settings.
 
 \section{Deployment Experience}
-There is no current deployment experience of the library. There are plans for this to follow the usage experience.
+There is no current deployment experience of the library. Deployment experience will be gathered in conjunction with use.
 
 \section{Performance Considerations}
 The algorithms are being ported from NWGraph to the \href{https://github.com/stdgraph}{github.com/stdgraph} implementation used for this proposal. 
@@ -211,7 +190,7 @@ Performance analysis from those algorithms can be found in the peer-reviewed pap
 \textbf{boost::graph} has been an important C++ graph implementation since 2001. It was developed with the goal of providing
 a modern (at the time) generic library that addressed all the needs of a graph library user. It is still a viable library used today, attesting to the value it brings.
 
-However, boost::graph was written using C++98 in an ``expert-friendly'' style, adding many abstractions and using sophisticated tempate metaprogramming, making it difficult to use by a casual developer.
+However, boost::graph was written using C++98 in an ``expert-friendly'' style, adding many abstractions and using sophisticated tempate metaprogramming, making it difficult to use by a casual developer.  Particular pain-points described in ad-hoc discussions with users  include: property maps, parameter-passing, visitors.
 
 \medskip
 
@@ -219,7 +198,7 @@ However, boost::graph was written using C++98 in an ``expert-friendly'' style, a
 by Lumsdaine et al, bringing additional experience gained since creating boost::graph, to create a modern graph library using C++20 for its implementation 
 that was more accessible to the average developer. % with the latest algorithms.
 
-While NWGraph made important strides to introduce the idea of the graph as a range-of-ranges and implemented many important algorithms,
+While NWGraph made important strides to introduce the idea of an adjacency list as a range-of-ranges and implemented many important algorithms,
 there are some areas it didn't address that come a practical use in the field. For instance, it didn't have a well-defined API for graph
 data structures that could be applied to existing graphs, and there wasn't a uniform approach to properties.
 
@@ -319,7 +298,7 @@ There are other observations we've also discovered along the way that may not be
 \end{itemize}
 
 The addition of concepts to the standard library is a serious consideration because, once added, they cannot 
-be removed. We believe that graphs as a range-of-ranges merits the addition new concepts but we recognize that it
+be removed. We believe that adjacency lists as a range-of-ranges merits the addition new concepts but we recognize that it
 may be a controversial decision. Toward that end, we will continue to include them to help clarify the examples given
 and are assumed to be "For exposition only" as suggested implementation until a clear decision to include them, or not, 
 is made.
@@ -329,23 +308,6 @@ This sections lists the known and open issues for the Graph Library proposal acr
 by the paper they are associated with.
 
 \subsection{Open Design Issues}
-\begin{itemize}
-      \item \textbf{Pxxxx: Graph Operators} (paper not yet submitted)
-            \begin{enumerate}
-                  \item Complete the paper for additional utility functions including degree, sort, relabel, transpose and join.
-            \end{enumerate}
-      \item Build on \tcode{mdspan} and try to standardize (or at least understand) what might reasonably be called an unstructured span
-            \begin{itemize}
-                  \item The statement assumes vertices are in a random-access range and prevents the use of bi-directional ranges like std::map, which 
-                        could be used for sparse vertex ids. The existing design should be able to adept easily to \tcode{mdspan.}
-                  \item I don't think I expressed myself very well here. I completely take your point about not assuming that vertices are in a random-access range. 
-                        But what I'm trying to get at is as follows. 
-                        
-                        Suppose someone standardizes unstructured span, as a natural extension of mdspan. What could we 
-                        learn from its api that may be relevant for graphs? In both cases, we will presumably have a method which allows iteration over the ith partition 
-                        (or edges of a given node, for graphs). Consistency of the stl may mean we want these to have the same look/feel.
-            \end{itemize}
-\end{itemize}
 
 \subsection{Open Reported Issues}
 \begin{itemize}
@@ -375,58 +337,70 @@ by the paper they are associated with.
                         \end{itemize}
                   \item There needs to be a proper discussion about whether the paper's definition of graph is what some authors call a multigraph 
                         and whether it does/doesn't include loops.
-                        \begin{itemize}
-                              \item The current version of P3128 Algorithms has a summary table for each algorithm that includes Complexity, Directed?, Multi-edge?, 
-                                    Cycles?, Self-loops?, and Throws?. We still need to make a pass through the algorithms to assure the values are correct.
-                              \item The summary tables for the algorithms are necessary but not sufficient: 
-                                    \begin{itemize}
-                                          \item There needs to be a discussion of these aspects for graph implementations themselves. Various graph operations may 
-                                                be more efficient if the graph structure is more constrained. However, not allowing e.g. multiple edges between pairs 
-                                                of nodes prohibits representing many useful systems. There are trade-offs and these need to be discussed.
-                                          \item A justification of the choices made for the algorithms may be helpful.
-                              \end{itemize}
-                              
-                        \end{itemize}
-                  \item The electrical circuit example has issues in P3127, section 6.1.
-                        \begin{itemize}
-                              \item We acknowledge this and will remove it, or replace it with a better example.
-                              \item I think it's very valuable to include electrical circuits in addition to a simpler example. As we've discussed, electrical 
-                                    circuits are surprisingly subtle to represent using graphs, but I think users of a graph library should rightly expect that 
-                                    it can be elegantly done. I think signs of a good design for std::graph is that people can do this. So I think electrical 
-                                    circuits should stay in, in all their glory, but complemented by something less subtle. 
-                        \end{itemize}
       \end{enumerate}
       \item \href{https://www.wg21.link/P3128}{P3128 Graph Algorithms}
             \begin{enumerate}
-                  \item A concern is that the DFS and BFS functionality isn't flexible enough, especially when compared to boost::graph's visitors.
+                  \item The summary tables for the algorithms are necessary but not sufficient: 
                         \begin{itemize}
-                              \item We agree having a more general and flexible BFS and DFS would be valuable. We have investigated the use
-                                    of coroutines and boost::graph-like visitors and found that the coroutine implementation has better
-                                    syntax but is 20\% slower than the visitor implementation. That kind of performance penalty is not 
-                                    acceptable, making the visitor implementation the clear choice.
-                              \item Visitors have been added to Dijkstra's and Belman-Ford shortest paths algorithms and will be added 
-                                    to BFS, DFS and Topological Sort algorithms in the next revision of P3128.
-                              \item We are also considering adding similar functionality to the views in P3129.
-                        \end{itemize}
+                              \item There needs to be a discussion of these aspects for graph implementations themselves. Various graph operations may 
+                                    be more efficient if the graph structure is more constrained. However, not allowing e.g. multiple edges between pairs 
+                                    of nodes prohibits representing many useful systems. There are trade-offs and these need to be discussed.
+                                    \begin{itemize}
+                                          \item Improvements to the Dikstra and Bellman-Ford algorithms have been made. PLease review give feedback.
+                                    \end{itemize}
+                              \item A justification of the choices made for the algorithms may be helpful.
+                  \end{itemize}
             \end{enumerate}
-      \item \textbf{P3337: Comparison to boost::graph} (paper not yet submitted)
+      \item \href{https://www.wg21.link/P3337}{P3337 Comparison to Other Graph Libraries} (Unpublished)
             \begin{enumerate}
                   \item My comment about the structure of the paper changing was a reference to previous comparisons with boost::graph. 
                         I'm sure these were in an earlier version, or am I misremembering?
                   \begin{itemize}
                         \item We never had any comparisons to boost::graph. 
-                        \item We are planning on adding a new paper to compare it to graph-v2 in regards to syntax and performance.
+                        \item A draft was reviewed in the March 2025 SG19 meeting. It will be published after it is updated with new
+                              benchmark numbers when the descriptors functionality is fully implemented.
                   \end{itemize}
             \end{enumerate}
 \end{itemize}
 
 \subsection{Resolved Issues}
 \begin{itemize}
+      \item General Library Design
+            \begin{enumerate}
+                  \item Build on \tcode{mdspan} and try to standardize (or at least understand) what might reasonably be called an unstructured span
+                              
+                  Suppose someone standardizes unstructured span, as a natural extension of mdspan. What could we 
+                  learn from its api that may be relevant for graphs? In both cases, we will presumably have a method which allows iteration over the ith partition 
+                  (or edges of a given node, for graphs). Consistency of the stl may mean we want these to have the same look/feel.
+                  \begin{itemize}
+                        \item This is a very different direction and beyond the scope of this proposal. This will not be pursued
+                              and we invite others to submit a separate proposal.
+                  \end{itemize}
+            \item Complete the unpublished \textbf{Graph Operators} proposal, which adds utility functions including degree, sort, relabel, transpose and join.
+                  \begin{itemize}
+                        \item While useful, the funcitons are not critical to offer a complete library. This is deferred until the other papers 
+                              have been voted out of SG19.
+                  \end{itemize}
+            \end{enumerate}
       \item \href{https://www.wg21.link/P3126}{P3126 Overview}
             \begin{enumerate}
                   \item GraphBLAS is not included as part of the prior art.
                         \begin{itemize}
                               \item Added in P3126r1.
+                        \end{itemize}
+                  \item The electrical circuit example has issues in P3127, section 6.1.
+                        \begin{itemize}
+                              \item Removed in P3126r3.
+                        \end{itemize}
+            \end{enumerate}
+      \item \href{https://www.wg21.link/P3128}{P3128 Graph Algorithms}
+            \begin{enumerate}
+                  \item A concern is that the DFS and BFS functionality isn't flexible enough, especially when compared to boost::graph's visitors.
+                        \begin{itemize}
+                              \item Visitors have been added to the BFS and DFS algorithms, and to Dijkstra's and Belman-Ford shortest 
+                                    paths algorithms. The same visitor events are supported as boost::graph for each of the algorithms. 
+                                    If a visitor event is not used, there is no performance overhead. We also investigated the use of 
+                                    coroutines but found it resulted in an unacceptable overhead, whether a visitor event was used or not.
                         \end{itemize}
             \end{enumerate}
       \item \href{https://www.wg21.link/P3130}{P3130 Graph Container Interface}
