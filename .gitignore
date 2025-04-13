@@ -1,7 +1,8 @@
 ## Specific files:
 D1709[rR]?.pdf
 D990?.pdf
-D31*.pdf
+D3*.pdf
+D4*.pdf
 
 ## Core latex/pdflatex auxiliary files:
 *.aux
