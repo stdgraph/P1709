@@ -27,39 +27,6 @@ is integral. Future designs may relax these requirements, but for now they are r
 
 \section{Adjacency List Interface}
 
-\subsection{Descriptors}
-Descriptors are opaque, abstract objects that represent vertices and edges in an adjacency list. They are 
-particularly useful because they abstract away the implementation details of the adjacency list, allowing 
-a user to work with different graph types in a consistent manner. 
-
-A benefit of using descriptors is that it reduces the number of functions and concepts needed for the GCI
-compared to previous designs. Without them, an iterface would require additional functions and concepts, 
-and algorithms would need to be specialized for vertices stored in random-access containers compared to
-associative containers.
-
-Practically, a descriptor is either an integral index or an iterator, depending on the underlying container of vertices
-or edges. For example, a descriptor for a vertex in a \tcode{vector} is an index, while the descriptor for an edge in a
-\tcode{list} is an iterator. Looking forward to the future, beyond this proposal, a descriptor for a vertex in a 
-\tcode{map} or \tcode{unordered\_map} would use an iterator; the door is opened for future expansion with minimal 
-impact to the GCI.
-
-The vertex and edge descriptors are defined as the \tcode{vertex_t<G>} and \tcode{edge_t<G>} types, respectively. 
-The following are characteristics of descriptors:
-\begin{itemize}
-    \item Equality comparison: Descriptors can be compared for equality using the \tcode{==} and \tcode{!=} operators.
-    \item Ordering: Descriptors can be ordered using the \tcode{<}, \tcode{<=}, \tcode{>}, and \tcode{>=} operators, if supported 
-          by the iterators in underlying container being used.
-    \item Copy and assignment: Descriptors can be copied and assigned, ensuring they can be used in standard algorithms and containers.
-    \item Default construction: Descriptors can be default-constructed, though the resulting value are not guaranteed to represent 
-          a valid vertex or edge.
-\end{itemize}
- 
-The only vertex function that requires a vertex id \tcode{(uid)}is \tcode{find_vertex(g,uid).} All other functions
-that accept vertex id are convenience functions that imply a call to \tcode{find_vertex(g,uid)}to get the vertex 
-descriptor before a call.
-
-\phil{I think we need to define a minimal set of functions on the descriptor so that external graph containers can be adapted.}
-
 \subsection{Concepts}
 
 This section describes the concepts to describe the adjacency lists used for graphs in the Graph Library. There are 
@@ -350,6 +317,52 @@ expose the vertices as a range.
     \item Use the value returned by \tcode{vertex_id(g,u)} when overridden for a graph.
     \item Use the index value on the descriptor.
 \end{enumerate}
+
+\subsection{Vertex and Edge Descriptor Views}
+The ranges returned by \tcode{vertices(g)} and \tcode{edges(g,u)} are views of their respective underlying 
+container in the adjacency list. The value\_type of the view is a descriptor, which refers to an object in 
+the underlying range.
+
+Descriptors are opaque, abstract objects that represent vertices and edges in an adjacency list. They are 
+particularly useful because they abstract away the implementation details of the adjacency list, allowing 
+a user to work with different graph types in a consistent manner. 
+
+A benefit of using descriptors is that it reduces the number of functions and concepts needed for the GCI
+compared to previous designs. Without them, an iterface would require additional functions and concepts, 
+and algorithms would need to be specialized for vertices stored in random-access containers compared to
+associative containers.
+
+Practically, a descriptor is either an integral index or an iterator, depending on the underlying container of vertices
+or edges. For example, a descriptor for a vertex in a \tcode{vector} is an index, while the descriptor for an edge in a
+\tcode{list} is an iterator. Looking forward to the future, beyond this proposal, a descriptor for a vertex in a 
+\tcode{map} or \tcode{unordered\_map} would use an iterator; the door is opened for future expansion with minimal 
+impact to the GCI.
+
+The vertex and edge descriptors are defined as the \tcode{vertex_t<G>} and \tcode{edge_t<G>} types, respectively. 
+The following are characteristics of descriptors:
+\begin{itemize}
+    \item Equality comparison: Descriptors can be compared for equality using the \tcode{==} and \tcode{!=} operators.
+    \item Ordering: Descriptors can be ordered using the \tcode{<}, \tcode{<=}, \tcode{>}, and \tcode{>=} operators, if supported 
+          by the iterators in underlying container being used.
+    \item Copy and assignment: Descriptors can be copied and assigned, ensuring they can be used in standard algorithms and containers.
+    \item Default construction: Descriptors can be default-constructed, though the resulting value are not guaranteed to represent 
+          a valid vertex or edge.
+\end{itemize}
+
+In addition, a descriptor has an \tcode{inner_value()} member function that returns a reference to the underlying value
+in the underlying container. This is only needed for overriding the customization points when you're adapting your own
+graph container to the GCI.
+ 
+The only vertex function that requires a vertex id \tcode{(uid)}is \tcode{find_vertex(g,uid).} All other functions
+that accept vertex id are convenience functions that imply a call to \tcode{find_vertex(g,uid)}to get the vertex 
+descriptor before a call.
+
+The following are the descriptor views used by \tcode{vertices(g)} and \tcode{edges(g,u)}. \tcode{descriptor_subrange_view} 
+is used when edges for multiple vertices are stored in a single container, such as a CSR or adjacency matrix
+(e.g. \tcode{compressed\_graph}).
+{\small
+      \lstinputlisting{D3130_Container_Interface/src/descriptor_view.hpp}
+}
 
 \subsection{Unipartite, Bipartite and Multipartite Graph Representation}
 
