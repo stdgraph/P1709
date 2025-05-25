@@ -366,7 +366,7 @@ enum struct cancel_search : int8_t {
 template<class S)
 void cancel(S search, cancel_search);
 
-// Returns distance from the seed vertex to the current vertex, 
+// Returns distance from the source vertex to the current vertex, 
 // or to the target vertex for edge views
 template<class S>
 auto depth(S search) -> integral;
@@ -402,13 +402,13 @@ The range returned by \textit{sourced} views (includes source\_id) adheres to th
 
 \subsection{Depth First Search Views}
 
-Depth First Search views iterate over the vertices and edges from a given seed vertex, returning a \tcode{vertex_info} or \tcode{edge_info} on each iteration when it is first encountered, depending on the function used. 
+Depth First Search views iterate over the vertices and edges from a given source vertex, returning a \tcode{vertex_info} or \tcode{edge_info} on each iteration when it is first encountered, depending on the function used. 
 Table \ref{tab:dfs} shows the functions and their return values.
 
 %The \tcode{alloc} parameter shown in the following examples is optional and defaults to \tcode{std::allocator<bool>}. It is used for containers 
 %that are internal to the view. The \tcode{bool} argument has no particular meaning.
 
-% basic_edges_dfs(g,seed,evf) implies the use of Sourced type internally to have source_id in the call call to evf(eid)
+% basic_edges_dfs(g,source,evf) implies the use of Sourced type internally to have source_id in the call call to evf(eid)
 
 \phil{Consider adding an enum bitset of events matching the visitor events, and creating Overloads
       that accept the bitset. The returned type would be a subclass of \tcode{vertex_info} or \tcode{edge_info}
@@ -424,14 +424,14 @@ Table \ref{tab:dfs} shows the functions and their return values.
 \hline
     \textbf{Example} & \textbf{Return} \\
 \hline
-    \tcode{for(auto\&\& [v] : vertices_dfs(g,seed))} & \tcode{vertex_info<void,V,void>} \\
-    \tcode{for(auto\&\& [v,val] : vertices_dfs(g,seed,vvf))} & \tcode{vertex_info<void,V,VV>} \\
+    \tcode{for(auto\&\& [v] : vertices_dfs(g,source))} & \tcode{vertex_info<void,V,void>} \\
+    \tcode{for(auto\&\& [v,val] : vertices_dfs(g,source,vvf))} & \tcode{vertex_info<void,V,VV>} \\
 \hdashline
-    \tcode{for(auto\&\& [v,uv] : edges_dfs(g,seed))} & \tcode{edge_info<V,false,E,void>} \\
-    \tcode{for(auto\&\& [v,uv,val] : edges_dfs(g,seed,evf))} & \tcode{edge_info<V,false,E,EV>} \\
+    \tcode{for(auto\&\& [v,uv] : edges_dfs(g,source))} & \tcode{edge_info<V,false,E,void>} \\
+    \tcode{for(auto\&\& [v,uv,val] : edges_dfs(g,source,evf))} & \tcode{edge_info<V,false,E,EV>} \\
 \hdashline
-    \tcode{for(auto\&\& [u,v,uv] : sourced_edges_dfs(g,seed))} & \tcode{edge_info<V,true,E,void>} \\
-    \tcode{for(auto\&\& [u,v,uv,val] : sourced_edges_dfs(g,seed,evf))} & \tcode{edge_info<V,true,E,EV>} \\
+    \tcode{for(auto\&\& [u,v,uv] : sourced_edges_dfs(g,source))} & \tcode{edge_info<V,true,E,void>} \\
+    \tcode{for(auto\&\& [u,v,uv,val] : sourced_edges_dfs(g,source,evf))} & \tcode{edge_info<V,true,E,EV>} \\
 \hline
 \end{tabular}}
 \caption{depth\_first\_search View Functions}
@@ -442,14 +442,14 @@ Table \ref{tab:dfs} shows the functions and their return values.
 \subsection{Breadth First Search Views}
 \phil{NetworkX provides an optional depth\_limit parameter for bfs. Add? }
 
-Breadth First Search views iterate over the vertices and edges from a given seed vertex, returning a \tcode{vertex_info} 
+Breadth First Search views iterate over the vertices and edges from a given source vertex, returning a \tcode{vertex_info} 
 or \tcode{edge_info} on each iteration when it is first encountered, depending on the function used. 
 Table \ref{tab:bfs} shows the functions and their return values.
 
 %The \tcode{alloc} parameter shown in the following examples is optional and defaults to \tcode{std::allocator<bool>}. It is used for containers 
 %that are internal to the view. The \tcode{bool} argument has no particular meaning.
 
-% basic_edges_bfs(g,seed,evf) implies the use of Sourced type internally to have source_id in the call call to evf(eid)
+% basic_edges_bfs(g,source,evf) implies the use of Sourced type internally to have source_id in the call call to evf(eid)
 
 \phil{Consider adding an enum bitset of events matching the visitor events, and creating Overloads
       that accept the bitset. The returned type would be a subclass of \tcode{vertex_info} or \tcode{edge_info}
@@ -466,14 +466,14 @@ Table \ref{tab:bfs} shows the functions and their return values.
     \textbf{Example} & \textbf{Return} \\
 \hline
 \hdashline
-    \tcode{for(auto\&\& [v] : vertices_bfs(g,seed))} & \tcode{vertex_info<void,V,void>} \\
-    \tcode{for(auto\&\& [v,val] : vertices_bfs(g,seed,vvf))} & \tcode{vertex_info<void,V,VV>} \\
+    \tcode{for(auto\&\& [v] : vertices_bfs(g,source))} & \tcode{vertex_info<void,V,void>} \\
+    \tcode{for(auto\&\& [v,val] : vertices_bfs(g,source,vvf))} & \tcode{vertex_info<void,V,VV>} \\
 \hdashline
-    \tcode{for(auto\&\& [v,uv] : edges_bfs(g,seed))} & \tcode{edge_info<V,false,E,void>} \\
-    \tcode{for(auto\&\& [v,uv,val] : edges_bfs(g,seed,evf))} & \tcode{edge_info<V,false,E,EV>} \\
+    \tcode{for(auto\&\& [v,uv] : edges_bfs(g,source))} & \tcode{edge_info<V,false,E,void>} \\
+    \tcode{for(auto\&\& [v,uv,val] : edges_bfs(g,source,evf))} & \tcode{edge_info<V,false,E,EV>} \\
 \hdashline
-    \tcode{for(auto\&\& [u,v,uv] : sourced_edges_bfs(g,seed))} & \tcode{edge_info<V,true,E,void>} \\
-    \tcode{for(auto\&\& [u,v,uv,val] : sourced_edges_bfs(g,seed,evf))} & \tcode{edge_info<V,true,E,EV>} \\
+    \tcode{for(auto\&\& [u,v,uv] : sourced_edges_bfs(g,source))} & \tcode{edge_info<V,true,E,void>} \\
+    \tcode{for(auto\&\& [u,v,uv,val] : sourced_edges_bfs(g,source,evf))} & \tcode{edge_info<V,true,E,EV>} \\
 \hline
 \end{tabular}}
 \caption{breadth\_first\_search View Functions}
@@ -482,14 +482,14 @@ Table \ref{tab:bfs} shows the functions and their return values.
 \end{table}
 
 \subsection{Topological Sort Views}
-Topological Sort views iterate over the vertices and edges from a given seed vertex, returning a \tcode{vertex_info} or 
+Topological Sort views iterate over the vertices and edges from a given source vertex, returning a \tcode{vertex_info} or 
 \tcode{edge_info} on each iteration when it is first encountered, depending on the function used. 
 Table \ref{tab:topo_sort} shows the functions and their return values.
 
 %The \tcode{alloc} parameter shown in the following examples is optional and defaults to \tcode{std::allocator<bool>}. It is used for containers 
 %that are internal to the view. The \tcode{bool} argument has no particular meaning.
 
-% basic_edges_topological_sort(g,seed,evf) implies the use of Sourced type internally to have source_id in the call call to evf(eid)
+% basic_edges_topological_sort(g,source,evf) implies the use of Sourced type internally to have source_id in the call call to evf(eid)
 
 \phil{Consider adding an enum bitset of events matching the visitor events, and creating Overloads
       that accept the bitset. The returned type would be a subclass of \tcode{vertex_info} or \tcode{edge_info}
@@ -505,14 +505,14 @@ Table \ref{tab:topo_sort} shows the functions and their return values.
 \hline
     \textbf{Example} & \textbf{Return} \\
 \hline
-    \tcode{for(auto\&\& [v] : vertices_topological_sort(g,seed))} & \tcode{vertex_info<void,V,void>} \\
-    \tcode{for(auto\&\& [v,val] : vertices_topological_sort(g,seed,vvf))} & \tcode{vertex_info<void,V,VV>} \\
+    \tcode{for(auto\&\& [v] : vertices_topological_sort(g,source))} & \tcode{vertex_info<void,V,void>} \\
+    \tcode{for(auto\&\& [v,val] : vertices_topological_sort(g,source,vvf))} & \tcode{vertex_info<void,V,VV>} \\
 \hdashline
-    \tcode{for(auto\&\& [v,uv] : edges_topological_sort(g,seed))} & \tcode{edge_info<V,false,E,void>} \\
-    \tcode{for(auto\&\& [v,uv,val] : edges_topological_sort(g,seed,evf))} & \tcode{edge_info<V,false,E,EV>} \\
+    \tcode{for(auto\&\& [v,uv] : edges_topological_sort(g,source))} & \tcode{edge_info<V,false,E,void>} \\
+    \tcode{for(auto\&\& [v,uv,val] : edges_topological_sort(g,source,evf))} & \tcode{edge_info<V,false,E,EV>} \\
 \hdashline
-    \tcode{for(auto\&\& [u,v,uv] : sourced_edges_topological_sort(g,seed))} & \tcode{edge_info<V,true,E,void>} \\
-    \tcode{for(auto\&\& [u,v,uv,val] : sourced_edges_topological_sort(g,seed,evf))} & \tcode{edge_info<V,true,E,EV>} \\
+    \tcode{for(auto\&\& [u,v,uv] : sourced_edges_topological_sort(g,source))} & \tcode{edge_info<V,true,E,void>} \\
+    \tcode{for(auto\&\& [u,v,uv,val] : sourced_edges_topological_sort(g,source,evf))} & \tcode{edge_info<V,true,E,EV>} \\
 \hline
 \end{tabular}}
 \caption{topological\_sort View Functions}
