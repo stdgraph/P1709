@@ -261,13 +261,13 @@ also be non-linear. This is expected to be an uncommon case.
 \begin{table}[h!]
 \begin{center}
 \resizebox{\textwidth}{!}
-{\begin{tabular}{l l p{1.5cm} L{7.0cm}}
+{\begin{tabular}{l l p{1.5cm} L{6.7cm}}
 \hline
     \textbf{Function} & \textbf{Return Type} & \textbf{Cmplx} & \textbf{Default Implementation} \\
 \hline
     \tcode{target_id(g,uv)} & \tcode{vertex_id_t<G>} & constant & (see below) \\
     \tcode{target(g,uv)} & \tcode{vertex_t<G>} & constant & \tcode{*(begin(vertices(g)) + target_id(g, uv))} \\
-                         &                     &          & \hspace{3mm}if \tcode{random_access_range<vertex_range_t<G>>} \\
+                         &                     &          & if \tcode{random_access_range<vertex_range_t<G>>} \\
                          &                     &          & \hspace{3mm}\tcode{\&\& integral<target_id(g,uv)>} \\
     \tcode{edge_value(g,uv)} & \tcode{edge_value_t<G>} & constant & \tcode{uv} if \tcode{forward_range<vertex_t<G>>}, \\
                              &                         &          & n/a otherwise, optional \\
@@ -285,7 +285,7 @@ also be non-linear. This is expected to be an uncommon case.
 \hdashline
     \tcode{source_id(g,uv)} & \tcode{vertex_id_t<G>} & constant & n/a, optional \\
     \tcode{source(g,uv)} & \tcode{vertex_t<G>} & constant & \tcode{*(begin(vertices(g)) + source_id(g,uv))} \\
-                         &                     &          & \hspace{3mm}if \tcode{random_access_range<vertex_range_t<G>>} \\
+                         &                     &          & if \tcode{random_access_range<vertex_range_t<G>>} \\
                          &                     &          & \hspace{3mm}\tcode{&& integral<target_id(g,uv)>} \\
 \hline
 \end{tabular}}
