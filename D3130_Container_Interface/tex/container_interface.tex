@@ -482,7 +482,9 @@ is always available.
         \tcode{source_id(e)} & \tcode{vertex_id_t<EL>} & constant & (see below) \\
         \tcode{edge_value(e)} & \tcode{edge_value_t<EL>} & constant & optional, see below \\
     \hdashline
-        \tcode{contains_edge(el,uid,vid)} & \tcode{bool} & linear & \tcode{find_if(el, [](edge_reference_t<EL> e) \{return source_id(e)==uid && target_id(e)==vid\})} \\
+        \tcode{contains_edge(el,uid,vid)} & \tcode{bool} & linear & \tcode{find_if(el, [](edge_reference_t<EL> e) \{} \\
+                                          &              &        & \hspace{7mm}\tcode{return source_id(e)==uid} \\
+                                          &              &        & \hspace{13.5mm}\tcode{&& target_id(e)==vid;\} )} \\
         \tcode{num_edges(el)} & \tcode{integral} & constant & \tcode{size(el)} \\
         \tcode{has_edge(el)} & \tcode{bool} & constant & \tcode{num_edges(el)>0} \\
     \hline
