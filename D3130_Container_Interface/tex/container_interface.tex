@@ -272,7 +272,7 @@ also be non-linear. This is expected to be an uncommon case.
     \tcode{edge_value(g,uv)} & \tcode{edge_value_t<G>} & constant & \tcode{uv} if \tcode{forward_range<vertex_t<G>>}, \\
                              &                         &          & n/a otherwise, optional \\
     \tcode{find_vertex_edge(g,u,vid)} & \tcode{vertex_edge_t<G>} & linear & \tcode{find(edges(g,u),} \\
-                                      &                          &        & \\tcode{[](uv) {target_id(g,uv)==vid;\})}} \\
+                                      &                          &        & \tcode{[](uv) {target_id(g,uv)==vid;\})}} \\
     \tcode{find_vertex_edge(g,uid,vid)} & \tcode{vertex_edge_t<G>} & linear & \tcode{find_vertex_edge(} \\
                                         &                          &        & \tcode{g, *find_vertex(g,uid), vid)} \\
     \tcode{contains_edge(g,uid,vid)} & \tcode{bool} & constant & \tcode{uid < size(vertices(g))} \\
