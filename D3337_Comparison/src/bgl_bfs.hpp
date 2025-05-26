@@ -1,14 +1,14 @@
+using namespace std;
 using namespace boost;
-
 
 using G = compressed_sparse_row_graph<
              directedS, no_property, no_property>;
-using VId = graph_traits<G>::vertex_descriptor;
+using Vertex = graph_traits<G>::vertex_descriptor;
 
 G g;
 //populate g
 
-vector<VId> parents(num_vertices(g));
+vector<Vertex> parents(num_vertices(g));
 
 auto vis = make_bfs_visitor(
   make_pair(

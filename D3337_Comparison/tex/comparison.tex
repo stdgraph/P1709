@@ -36,12 +36,14 @@ In the following subsections, we address the syntax differences for each of
 these algorithms.
 
 \begin{figure}[ht]
-\noindent\begin{minipage}{.499\textwidth}
+\noindent\begin{minipage}{.492\textwidth}
+\subcaptionbox{ \bgl }
 {\small
       \lstinputlisting{D3337_Comparison/src/bgl_bfs.hpp}
 }
 \end{minipage}\hfill
-\begin{minipage}{.499\textwidth}
+\begin{minipage}{.492\textwidth}
+\subcaptionbox{ \stdgraph }
 {\small
       \lstinputlisting{D3337_Comparison/src/stdgraph_bfs.hpp}
 }
@@ -50,12 +52,14 @@ these algorithms.
 \label{fig:bfssyntax}
 \end{figure}
 \begin{figure}[ht]
-\noindent\begin{minipage}{.499\textwidth}
+\noindent\begin{minipage}{.492\textwidth}
+\subcaptionbox{ \bgl }
 {\small
       \lstinputlisting{D3337_Comparison/src/bgl_cc.hpp}
 }
 \end{minipage}\hfill
-\begin{minipage}{.499\textwidth}
+\begin{minipage}{.492\textwidth}
+\subcaptionbox{ \stdgraph }
 {\small
       \lstinputlisting{D3337_Comparison/src/stdgraph_cc.hpp}
 }
@@ -65,12 +69,14 @@ these algorithms.
 \end{figure}
 
 \begin{figure}[ht]
-\noindent\begin{minipage}{.499\textwidth}
+\noindent\begin{minipage}{.492\textwidth}
+\subcaptionbox{ \bgl }
 {\small
       \lstinputlisting{D3337_Comparison/src/bgl_sssp.hpp}
 }
 \end{minipage}\hfill
-\begin{minipage}{.499\textwidth}
+\begin{minipage}{.492\textwidth}
+\subcaptionbox{ \stdgraph }
 {\small
       \lstinputlisting{D3337_Comparison/src/stdgraph_sssp.hpp}
 }
@@ -80,12 +86,14 @@ these algorithms.
 \end{figure}
 
 \begin{figure}[ht]
-\noindent\begin{minipage}{.499\textwidth}
+\noindent\begin{minipage}{.492\textwidth}
+\subcaptionbox{ \bgl }
 {\small
       \lstinputlisting{D3337_Comparison/src/bgl_tc.hpp}
 }
 \end{minipage}\hfill
-\begin{minipage}{.499\textwidth}
+\begin{minipage}{.492\textwidth}
+\subcaptionbox{ \stdgraph }
 {\small
       \lstinputlisting{D3337_Comparison/src/stdgraph_tc.hpp}
 }
@@ -94,7 +102,26 @@ these algorithms.
 \label{fig:tcsyntax}
 \end{figure}
 
+\begin{figure}[ht]
+\noindent\begin{minipage}{.492\textwidth}
+\subcaptionbox{ \bgl }
+{\small
+      \lstinputlisting{D3337_Comparison/src/bgl_tc_low.hpp}
+}
+\end{minipage}\hfill
+\begin{minipage}{.492\textwidth}
+\subcaptionbox{ \stdgraph }
+{\small
+      \lstinputlisting{D3337_Comparison/src/stdgraph_tc_low.hpp}
+}
+\end{minipage}
+\caption{Triangle Counting Underlying Implementation Syntax Comparison}
+\label{fig:tclowsyntax}
+\end{figure}
+
 \subsection{Breadth-First Search}
+Figure~\ref{fig:bfssyntax} compares the simplest \bgl
+BFS visitor against the range-based-for loop implementation of \stdgraph.
 BFS is often described as a graph algorithm, though a BFS traversal
 by itself does not actually perform any task.
 In reality, it is a data access pattern which specifies an order
@@ -105,19 +132,25 @@ to customize function calls during BFS events.
 For example \tcode{discover\_vertex} is called when a vertex is encountered for the
 first time; \tcode{examine\_vertex} is called when a vertex is popped from the queue;
 \tcode{examine\_edge} is called on each edge of a vertex when it is discovered, etc.
-
-\scott{Need a few sentences or more to tie in previous paragraph with the code that
-is actually shown in the figure.}
+Figure~\ref{fig:bfssyntax}(a) demonstrates the usage of a BFS visitor
+\tcode{record\_predecessors} which is called upon event \tcode{on\_tree\_edge}
+during BFS traversal to store the parent node of every discovered vertex.
 
 This capability is very powerful but often cumbersome if the BFS traversal
 simply requires vertex and edge access upon visiting.
 For this reason \stdgraph provides a simple, range-based-for loop BFS traversal
 called a view.
-Figure~\ref{fig:bfssyntax} compares the simplest \bgl
-BFS visitor against the range-based-for loop implementation.
+Figure~\ref{fig:bfssyntax}(b) demonstrates how the visited edge \tcode{uv} and incident vertices \tcode{uid} and \tcode{vid} are exposed to the library user to store the parent information explicitly.
 The authors of this proposal acknowledge that some power users still want
 the full customization provided by visitors,
 and we plan to add them to this proposal.
+
+Also note \bgl often requires the use of vertex descriptors to uniquely
+identify vertices, as shown by the \tcode{graph\_traits<G>::vertex_descriptor}
+type in Figure~\ref{fig:bfssyntax}(a).
+Algorithms written using \stdgraph use a unique vertex id, as shown by the
+\tcode{vertex\_id\_t<G>} type in Figure~\ref{fig:bfssyntax}(b).
+This same difference is seen in the algorithms that follow.
 
 \subsection{Connected Components}
 There is very little difference in the connected component interfaces.
@@ -129,10 +162,11 @@ the very least a pointer like thing to contiguous memory.  What exactly does
 
 \subsection{Single Source Shortest Paths}
 Of the four algorithms discussed here, only SSSP makes use of an
-edge property, in this case distance.
-Along with the input edge property [\scott{input?}, the algorithm also associates with
+edge property associated with the input graph, the distance used
+to compute shortest paths.
+The algorithm computes for
 every vertex (1) a distance from the start vertex, and (2) a predecessor
-vertex to store the shortest path.
+vertex along the shortest path.
 In Figure~\ref{fig:ssspsyntax} we see that \bgl requires
 property maps to lookup edge and vertex properties.
 These property maps are tightly coupled with the graph data structures.
@@ -143,10 +177,31 @@ to lookup distance from the \tcode{edge\_reference\_t}.
 \subsection{Triangle Counting}
 \bgl does not provide a triangle counting algorithm
 similar to the one proposed in \stdgraph.
-For this paper, an algorithm is written that iterates through the vertices counting the number of triangles
-incident on every vertex, and adjust for overcounting at the end.
+The code example in Figure~\ref{fig:tcsyntax}(a) is representative of what is
+currently available in \bgl; it iterates through the vertices,
+counting the number of triangles
+incident on every vertex, and adjusts for overcounting at the end.
 
-\scott{Say something about the inefficient algorithm and also let's revisit an intersection approach.}
+\stdgraph provides a much more efficient implementation with a high level
+interface shown in Figure~\ref{fig:tcsyntax}(b).
+The underlying \stdgraph implementation performs a set intersection
+of the neighbor list of vertices $u$ and $v$, only if $v$ is a neighbor of $u$.
+This approach  requires the edges of a vertex to be stored
+in lexicographic order (by target vertex id), and to only contain successor
+edges (target vertex id greater than source vertex id). The latter
+requirement is equivalent to the graph only containing the upper triangular
+portion of the adjacency matrix.
+Then the set intersection is limited to neighbors with vertex ids greater
+than $u$ and $v$, avoiding duplicate counting.
+
+In fairness to \bgl, especially for the purposes of the performance comparison
+in Section \ref{performance}, we implement TC in \bgl using the same set
+intersection approach used inside \stdgraph.
+Figure~\ref{fig:tclowsyntax} compares the underlying implementation syntax
+for each library.
+Note again for \bgl the need to go through vertex descriptors to access the out
+edges of a vertex while \stdgraph uses a vertex id.
+\kevin{Say something about \tcode{incidence\_iterator} and \tcode{end(edges(g,uid))}? The while condition is different, think this has to be the case, not fully sure why \tcode{i != ie} doesn't work for BGL, say something?}
 
 \clearpage
 
@@ -160,11 +215,11 @@ and triangle counting (TC).  The performance of \nwgraph on the algorithms and a
 graph frameworks was carried out in~\cite{gapbs_2023}.
 Table~\ref{tab:gap_graphs} summarizes the graphs specified by the GAP benchmark.
 These graphs were chosen with a variety of degree distributions and diameters, and to be large (with edge counts into the billions) but still fit on shared memory machines.
-{\color{red} We compare to \bgl because it the commonly used sequential C++ graph library as described above.}
-\nwgraph was implemented with many of the ideas of this proposal in mind, and we expect very similar performance
-between \nwgraph and this reference implementation.
 
-\scott{\nwgraph needs to be introduced with a little more information about why it is being included.}
+We compare to \bgl because it the commonly used sequential C++ graph library as described above.
+\nwgraph is the direct predecessor of \stdgraph, with many of the \nwgraph authors contributing to this library proposal and the \stdgraph reference implementation.
+It was implemented with many of the ideas of this proposal in mind, e.g. graphs as a range of ranges and generic algorithms that support any data structure that meet the concept requirements.
+Since the two implementations are based on similar ideas, we expect similar experimental performance, and include \nwgraph to verify \stdgraph does not introduce any performance overhead.
 
 \begin{table}[h!]
 \centering
@@ -186,86 +241,107 @@ demonstrated performance improvement of \nwgraph over BGL~\cite{REF_nwgraph_pape
 To simplify experimental setup, we rerun these new experiments using the same machine used in that paper,
 (compute nodes consisting of two Intel® Xeon® Gold 6230 processors, each with 20 physical cores running at 2.1 GHz,
 and 188GB of memory per processor).
-\nwgraph and \stdgraph were compiled with gcc 13.2 using \tcode{-Ofast -march=native} compilation flags. \scott{How was \bgl compiled?} 
-
-The BFS implementations....what?
-
-The \nwgraph and \stdgraph implementation of CC is based on the Afforest \cite{sutton2018optimizing} algorithm.  \bgl does not provide an Afforest variant.  Instead, \bgl implements a simple breadth-first
-search based CC algorithm.
-
-Even though \nwgraph contains an implementation of Dijkstra, the SSSP results in \cite{REF_nwgraph_paper}
-were based on delta-stepping. For this comparison, \stdgraph and \nwgraph both use Dijkstra (\scott{or we show multiple variants}).
-The \nwgraph implementations also used a version of SSSP which did not compute
-a predecessor map, only providing the final distances.
-\stdgraph provides SSSP without predecessors called \tcode{dijkstra_shortest_distances} which is similar to the Dijkstra in
-Figure~\ref{fig:ssspsyntax} with the predecessor argument omitted.
-\bgl can also compute just shortest distances by omitting the predecessor map.
-We use the shortest distance version for these experiments.
-
-\nwgraph and \stdgraph contain similar implementations of TC 
-that perform a set intersection of the neighbor list of vertices
-$u$ and $v$, only if $v$ is a neighbor of $u$.
-By first performing a lexicographic sort of the vertex ids of the adjacency
-structure, the set intersection is limited to neighbors with vertex ids greater
-than $u$ and $v$, or equivalently the upper triangular portion of the adjacency
-matrix.  \bgl does not provide a TC algorithm and the resulting implementation in Figure~\cite{}
-is exceedingly inefficient by comparison.
-
-While BFS and SSSP implementations are very similar for \nwgraph and \stdgraph, the latter contains
-support for event-based visitors.
-If this functionality is not required it should be optimized out and not
-incur a performance penalty,
-but we seek to verify this experimentally.  \scott{verify and remove this sentence or explain why it is not optimized out.}
-
+All three implementations were compiled into a single experimental driver to ensure uniform compiler setup (gcc 13.2 using \tcode{-Ofast -march=native} compilation flags.)
+Additionally any graph preprocessing such as symmetricization (for undirected algorithms) or vertex relabeling are guaranteed to be the same for all three implementations.
 
 \subsection{Experimental Analysis}
 
-\scott{Maybe the discussion of the algorithm implementations above need to be folded into the explanations of the performance numbers below}
-
 Table~\ref{tab:performance_numbers} summarizes our GAP benchmark results for \stdgraph compared to \bgl and \nwgraph.
+In addition to runtime, the table contains the number of connected components and the number of
+triangles for each graph as this is helpful for understanding performance.
+The below subsections consider each GAP algorithm, describe the specific algorithm implementation(s)
+tested for each library, and examine the performance results.
 
 \begin{table}[h!]
 \centering
 \begin{tabular}{ c l c c c c c c }
 Algorithm & Library & Variant & road & twitter & kron & web & urand \\
 \hline
-\multirow{3}{*}{BFS} & \bgl & & 1.09s & 12.11s & 54.80s & 5.52s & 73.26s \\
-& \nwgraph  & & 0.91s & 11.25s & 38.86s & 2.37s & 64.63s \\
-& \stdgraph & & 1.39s &  8.54s & 16.34s & 3.52s & 62.75s \\
+\multirow{3}{*}{BFS} & \bgl & & 0.99s & 7.82s & 17.40s & 4.13s & 59.05s \\
+& \nwgraph  & & 0.88s & 9.08s & 25.04s & 2.09s & 68.18s \\
+& \stdgraph & & 0.92s &  7.00s & 15.93s & 2.61s & 55.13s \\
 \hline
-\multirow{3}{*}{CC} & \bgl & BFS-based & 1.36s & 21.96s & 81.18s & 6.64s & 134.23s \\
-& \nwgraph  & Afforest & 1.05s & 3.77s & 10.16s & 3.04s & 36.59s \\
-& \stdgraph & Afforest & 0.78s & 2.81s &  8.37s & 2.23s & 33.75s \\
+\multirow{3}{*}{CC} & & & 1 CC & 19.9M CC & 71.2M CC & 123 CC & 1 CC\\
+& \bgl & DFS-based & 1.30s & 32.03s & 71.38s & 11.93s & 94.80s \\
+& \stdgraph & DFS-based & 0.76s & 27.87s & 41.21s & 6.64s & 64.87s \\
+& \nwgraph  & Afforest & 1.15s & 6.09s & 28.42s & 3.29s & 28.73s \\
+& \stdgraph & Afforest & 0.97s & 5.85s & 23.37s & 3.16s & 33.84s \\
 \hline
-\multirow{3}{*}{SSSP} & \bgl & Dijkstra & 4.03s & 47.89s & 167.20s & 28.29s & OOM \\
-& \nwgraph  & Dijkstra & 3.63s & 109.37s & 344.12s & 35.58s & 400.23s \\
-& \stdgraph & Dijkstra & 4.22s &  79.75s & 211.37s & 33.87s & 493.15s \\
+\multirow{3}{*}{SSSP} & \bgl & Dijkstra & 3.97s & 45.24s & OOM & 24.86s & OOM \\
+& \nwgraph  & Dijkstra & 3.62s & 95.78s & 313.96s & 30.66s & 356.11s \\
+& \stdgraph & Dijkstra & 4.06s & 104.38s & 348.72s & 33.77s & 387.75s \\
+& \nwgraph & Delta\-Stepping & 1.49s & 24.48s & 74.43s & 12.53s & 103.97s \\
 \hline
-\multirow{3}{*}{TC} & \bgl & $\frac{1}{6} tr(A^3)$ & 1.34s & >24H & >24H & >24H & 4425.54s \\
-& \nwgraph  & Upper triangular & 0.41s & 1327.63s & 6840.38s & 131.47s & 387.53s \\
-& \stdgraph & Upper triangular & 0.17s &  459.08s & 2357.95s &  50.04s & 191.36s \\
+\multirow{3}{*}{TC} & & & 439K T & 34.8B T & 107B T & 84.9B T & 5.38K T\\
+& \bgl & $\frac{1}{6} tr(A^3)$ & 1.34s & >24H & >24H & >24H & 4425.54s \\
+& \bgl & Upper triangular & 0.61s & 1672.71s & 8346.70s & 251.78s & 405.37s \\
+& \nwgraph  & Upper triangular & 0.20s & 567.97s & 2962.32s & 107.85s & 152.52s \\
+& \stdgraph & Upper triangular & 0.17s &  524.68s & 2683.41s & 71.10s & 128.32s \\
 \hline
 \end{tabular}
 \caption{GAP Benchmark Performance: Time for GAP benchmark algorithms is shown for \bgl, \nwgraph, \stdgraph}
 \label{tab:performance_numbers}
 \end{table}
 
+\subsubsection{Breadth-First Search}
+All implementations of BFS use a sequential push variant that one could find in a textbook
+(no direction optimization or parallel processing of frontier).
+As mentioned in Section \ref{syntax}, \bgl contains support for visitors which is not available
+in \nwgraph or the version of \stdgraph being tested here.
 
-BFS results are consistent between the three implementations,
-except for the kron graph where \stdgraph is 2.4x faster
-than \nwgraph and 3.4x faster than \bgl.
+BFS results are competitive between the libraries, with the \stdgraph implementation achieving the fastest time on all but the road graph.
+\nwgraph has noticably worse performance on kron and urand.
+\bgl underperforms on web by 2x but this run only takes around 4s.
 
-Of the four algorithms, CC shows the closest agreement between \nwgraph
-and \stdgraph.  Both are much faster than \bgl on twitter, kron, and urand.
-This is reasonable as \bgl is using a simple breadth-first
-search based CC algorithm while the other two implementations use the
-Afforest algorithm.
+\subsubsection{Connected Components}
+The \nwgraph implementation of CC is based on the Afforest \cite{sutton2018optimizing} algorithm.
+\bgl does not provide an Afforest variant.
+Instead, \bgl implements a simple depth-first search based CC algorithm.
+\stdgraph contains implementations of both.
+However, the \stdgraph implementation of Afforest does not contain support for parallel execution
+policies which \nwgraph does, and does not contain the overhead of atomics.
 
-SSSP results are more mixed, with differing performance on twitter and kron.
-Interestingly of the algorithms we profile, this is the only one where
-\bgl is often faster than the other implementations,
-faster than \stdgraph by 1.7x on twitter and 1.3x on kron, though
-failing by running out of memory on urand.
+It is likely that other researchers implementing the GAP benchmark use CC to refer
+to weakly connected components of a directed graph.
+As the DFS based CC implmentation of \bgl and \stdgraph assumes an undirected graph,
+we make all graphs undirected before running these experiments.
+
+Comparing the two DFS based implementations, \stdgraph has consistently better performance, up to 2x, over the \bgl implementation.
+The Afforest implementations outperform the DFS based implementations.
+Of the two Afforest implementations, \stdgraph is slightly faster but this is reasonable considering
+it does not have the parallel overhead of the \nwgraph implementation.
+
+\subsubsection{Single Source Shortest Paths}
+For this SSSP comparison, we test a Dijkstra implementation for each of the libraries.
+\nwgraph contains multiple Dijkstra implementations, but we use the simplest one which
+is taken directly from the \nwgraph benchmark directory.
+Even though \nwgraph contains an implementation of Dijkstra,
+the SSSP results in \cite{REF_nwgraph_paper} were based on delta-stepping.
+In fairness to \nwgraph, we also include delta-stepping performance for \nwgraph 
+as this was highly tuned compared to \nwgraph's Dijkstra implementation.
+However, this implementation contains \tcode{std::for\_each} and is therefore not sequential.
+
+The GAP specification for SSSP only requires that the algorithm compute the shortest distance
+to every vertex, not the shortest path.
+Each library has a variant of Dijkstra that only computes shortest distances which we use for these experiments.
+
+SSSP results are more mixed, with superior performance for \bgl on twitter and web,
+while \bgl fails by running out of memory on kron and urand.
+The edge distances required for SSSP make this a more memory intensive algorithm
+than the other GAP algorithms.
+The 2x performance of \bgl over \nwgraph and \stdgraph on twitter is notable and calls for further
+investigation.
+\kevin{See if we can get kron numbers for \bgl by doing more memory cleanup}
+
+\subsubsection{Triangle Counting}
+
+\nwgraph and \stdgraph contain similar implementations of TC 
+that perform a set intersection of the neighbor list of vertices.
+This is discussed in Section \ref{syntax} and the \stdgraph code is shown
+in Figure~\ref{fig:tclowsyntax}(b).
+As noted in Section \ref{syntax}, the na\"ive \bgl TC implementation shown in Figure~\ref{fig:tcsyntax}(a) is very inefficient.
+For these performance experiments we include both the inefficient \bgl approach, and our own
+\bgl set intersection implementation shown in Figure~\ref{fig:tclowsyntax}(b).
 
 TC performance from our na\"ive \bgl implementation
 is far slower than the adjacency matrix set intersection used by \nwgraph
@@ -273,11 +349,14 @@ and \stdgraph.
 Since the same triangle is counted six times in \bgl,
 one can expect at least that much of a slowdown; however, the slowdown
 is often much worse likely due to poor memory access patterns.
-
-The TC results are concerning because the \stdgraph
-performance is around 2x that of \nwgraph.
-We plan to review the implementation details to discover the cause of
-this discrepancy.  \scott{Find out why and discuss here, or solve the issue and remove this sentence.}
+The \bgl implementation of the set intersection approach is much faster
+than the na\"ive approach, but is still significantly slower than the
+\nwgraph or \stdgraph implementations, up to a factor of 3x on road and kron.
+It is unclear if this is a fundamental limitation of \bgl or our implementation could be
+further optimized.
+\stdgraph consistently outperforms \nwgraph, up to 1.5x on web.
+This is surprising given the similarity of the implementations, and could indicate more
+efficient data access for the \stdgraph graph data structure.
 
 \section{Memory Allocation}
 

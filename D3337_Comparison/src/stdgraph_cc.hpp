@@ -9,7 +9,7 @@ G g;
 //populate g
 
 vector<size_t> c(size(vertices(g))); //components
-size_t num_cmps = connected_components(g, c);
+int num_cmps = connected_components(g, c);
 
 
 

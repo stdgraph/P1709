@@ -4,12 +4,12 @@ using namespace boost;
 using G = compressed_sparse_row_graph<
              directedS, no_property,
              property<edge_weight_t, int>>;
-using VId = graph_traits<G>::vertex_descriptor;
+using Vertex = graph_traits<G>::vertex_descriptor;
 
 G g;
 //populate g
 
-vector<VId> p(num_vertices(g)); //predecessors
+vector<Vertex> p(num_vertices(g)); //predecessors
 vector<int> d(num_vertices(g)); //distances
 
 
