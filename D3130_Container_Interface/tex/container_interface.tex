@@ -266,17 +266,25 @@ also be non-linear. This is expected to be an uncommon case.
     \textbf{Function} & \textbf{Return Type} & \textbf{Complexity} & \textbf{Default Implementation} \\
 \hline
     \tcode{target_id(g,uv)} & \tcode{vertex_id_t<G>} & constant & (see below) \\
-    \tcode{target(g,uv)} & \tcode{vertex_t<G>} & constant & \tcode{*(begin(vertices(g)) + target_id(g, uv))} if \tcode{random_access_range<vertex_range_t<G>> \&\& integral<target_id(g,uv)>} \\
-    \tcode{edge_value(g,uv)} & \tcode{edge_value_t<G>} & constant & \tcode{uv} if \tcode{forward_range<vertex_t<G>>}, n/a otherwise, optional \\
-    \tcode{find_vertex_edge(g,u,vid)} & \tcode{vertex_edge_t<G>} & linear & \tcode{find(edges(g,u), [](uv) {target_id(g,uv)==vid;\})}} \\
-    \tcode{find_vertex_edge(g,uid,vid)} & \tcode{vertex_edge_t<G>} & linear & \tcode{find_vertex_edge(g,*find_vertex(g,uid),vid)} \\
-    \tcode{contains_edge(g,uid,vid)} & \tcode{bool} & constant & \tcode{uid < size(vertices(g)) \&\& vid < size(vertices(g))} if \tcode{is_adjacency_matrix_v<G>}.\\
-    & & linear & \tcode{find_vertex_edge(g,uid) != end(edges(g,uid))} otherwise. \\
+    \tcode{target(g,uv)} & \tcode{vertex_t<G>} & constant & \tcode{*(begin(vertices(g)) + target_id(g, uv))} \\
+                         &                     &          & \hspace{3mm}if \tcode{random_access_range<vertex_range_t<G>>} \\
+                         &                     &          & \hspace{3mm}\tcode{\&\& integral<target_id(g,uv)>} \\
+    \tcode{edge_value(g,uv)} & \tcode{edge_value_t<G>} & constant & \tcode{uv} if \tcode{forward_range<vertex_t<G>>}, \\
+                             &                         &          & n/a otherwise, optional \\
+    \tcode{find_vertex_edge(g,u,vid)} & \tcode{vertex_edge_t<G>} & linear & \tcode{find(edges(g,u),} \\
+                                      &                          &        & \hspace{8mm}\tcode{[](uv) {target_id(g,uv)==vid;\})}} \\
+    \tcode{find_vertex_edge(g,uid,vid)} & \tcode{vertex_edge_t<G>} & linear & \tcode{find_vertex_edge(} \\
+                                        &                          &        & \hspace{8mm}\tcode{g, *find_vertex(g,uid), vid)} \\
+    \tcode{contains_edge(g,uid,vid)} & \tcode{bool} & constant & \tcode{uid < size(vertices(g))} \tcode{&& vid < size(vertices(g))} \\
+    \                                &              &          & \hspace{5mm}if \tcode{is_adjacency_matrix_v<G>}.\\
+    & & linear & \tcode{find_vertex_edge(g,uid)} \tcode{!= end(edges(g,uid))} otherwise. \\
 \hdashline
     \multicolumn{4}{c}{The following are only available when the optional \tcode{source_id(g,uv)} is defined for the edge} \\
 \hdashline
     \tcode{source_id(g,uv)} & \tcode{vertex_id_t<G>} & constant & n/a, optional \\
-    \tcode{source(g,uv)} & \tcode{vertex_t<G>} & constant & \tcode{*(begin(vertices(g)) + source_id(g,uv))} if \tcode{random_access_range<vertex_range_t<G>> \&\& integral<target_id(g,uv)>} \\
+    \tcode{source(g,uv)} & \tcode{vertex_t<G>} & constant & \tcode{*(begin(vertices(g)) + source_id(g,uv))} \\
+                         &                     &          & \hspace{3mm}if \tcode{random_access_range<vertex_range_t<G>>} \\
+                         &                     &          & \hspace{3mm}\tcode{&& integral<target_id(g,uv)>} \\
 \hline
 \end{tabular}}
 \caption{Edge Functions}
