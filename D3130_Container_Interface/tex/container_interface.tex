@@ -267,10 +267,6 @@ also be non-linear. This is expected to be an uncommon case.
 \hdashline
     \multicolumn{4}{c}{The following are only available when the optional \tcode{source_id(g,uv)} is defined for the edge} \\
 \hdashline
-    \tcode{source_id(g,uv)} & \tcode{vertex_id_t<G>} & constant & n/a, optional \\
-    \tcode{source(g,uv)} & \tcode{vertex_t<G>} & constant & \tcode{*(begin(vertices(g)) + source_id(g,uv))} \\
-                         &                     &          & if \tcode{random_access_range<vertex_range_t<G>>} \\
-                         &                     &          & \hspace{3mm}\tcode{&& integral<target_id(g,uv)>} \\
 \hline
 \end{tabular}}
 \caption{Edge Functions}
