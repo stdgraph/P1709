@@ -484,7 +484,7 @@ is always available.
     \hdashline
         \tcode{contains_edge(el,uid,vid)} & \tcode{bool}     & linear & \tcode{find_if(el, [](edge_reference_t<EL> e) \{} \\
                                           &                  &        & \hspace{5mm} \tcode{return source_id(e)==uid} \\
-                                          &                  &        & \hspace{11.5mm} \tcode{&& target_id(e)==vid\} ) } \\
+                                          &                  &        & \hspace{11.5mm} \tcode{target_id(e)==vid\} ) } \\
         \tcode{num_edges(el)}             & \tcode{integral} & constant & \tcode{size(el)} \\
         \tcode{has_edge(el)}              & \tcode{bool}     & constant & \tcode{num_edges(el)>0} \\
     \hline
