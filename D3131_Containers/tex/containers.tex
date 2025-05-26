@@ -224,7 +224,7 @@ requiring any function overrides.
 
 \begin{lstlisting}
     using EL = vector<tuple<int, int, double>>;
-    using E  = std::ranges::range_value_t<EL>;
+    using E  = std::range_value_t<EL>;
     EL el{{1, 2, 11.1}, {1, 4, 22.2}, {2, 3, 3.33}, {2, 4, 4.44}};
     for (auto&& e : el) {
       int    sid = source_id(e);
@@ -237,7 +237,7 @@ An alternative is to use the \tcode{edge_info} used in this proposal. Notice tha
 is the definition of the edgelist type. All other code is identical to the previous example.
 \begin{lstlisting}
     using EL = vector<edge_info<int, true, void, double>>;
-    using E  = std::ranges::range_value_t<EL>;
+    using E  = std::range_value_t<EL>;
     EL el{{1, 2, 11.1}, {1, 4, 22.2}, {2, 3, 3.33}, {2, 4, 4.44}};
     for (auto&& e : el) {
       int    sid = source_id(e);

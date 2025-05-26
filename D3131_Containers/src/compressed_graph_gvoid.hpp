@@ -15,19 +15,19 @@ public: // Construction/Destruction
   constexpr compressed_graph& operator=(compressed_graph&&)      = default;
 
   // edge-only construction
-  template <ranges::forward_range ERng, 
+  template <forward_range ERng, 
             class                 EProj = identity, 
-            ranges::forward_range PartRng = vector<VId>>
-  requires copyable_edge<invoke_result_t<EProj, ranges::range_value_t<ERng>>, VId, EV>
+            forward_range PartRng = vector<VId>>
+  requires copyable_edge<invoke_result_t<EProj, range_value_t<ERng>>, VId, EV>
   constexpr compressed_graph(const ERng&    erng,
                              EProj          eprojection         = identity(),
                              const PartRng& partition_start_ids = vector<VId>(),
                              const Alloc&   alloc               = Alloc())
 
   // edge and vertex value construction
-  template <ranges::forward_range ERng,
-            ranges::forward_range VRng,
-            ranges::forward_range PartRng,
+  template <forward_range ERng,
+            forward_range VRng,
+            forward_range PartRng,
             class EProj = identity,
             class VProj = identity>
   constexpr compressed_graph(const ERng&    erng,

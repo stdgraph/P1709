@@ -4,6 +4,11 @@
 
 \section{Algorithm Selection} \label{other_algo}
 
+% \andrew{I've tagged the algorithms below as Tier 2 or Tier 3 -- denoting whether they should be done right now or done later or done much later.}
+
+% \andrew{I've used NetworkX as inspiration for organization.  Oddly, NetworkX only has DFS as an adaptor (view).}
+% \phil{If the use of Yield is any indicator, then NetworkX implements topological sort as adaptor also.}
+
 \phil{Use \tcode{basic_index_adjacency_list} as the concept for all algorithms.}
 
 When determining the algorithms to propose we split them into different tiers. Tier 1 algorithms are included
@@ -254,7 +259,7 @@ Compute the breadth-first path from one or more \tcode{source} vertices to all r
 \label{tab:algo_example}
 \end{table}
 
-\phil{BGL doesn't include distances or predecessors.}
+%\phil{BGL doesn't include distances or predecessors.}
 
 \subsubsection{Single Source Breadth-First Search}
 
@@ -271,10 +276,13 @@ Compute the breadth-first path from one or more \tcode{source} vertices to all r
 \begin{itemdescr}
       %\pnum\mandates
       % \pnum
-\preconditions
+      \hardprecond
             \begin{itemize}
                   \item
                         \lstinline{0 <= source < num_vertices(graph)} for the single-source version.
+            \end{itemize}
+      \preconditions
+            \begin{itemize}
                   \item
                         \lstinline{0 <= source < num_vertices(graph)}, for each \lstinline{source} in \lstinline{sources}, 
                                    for the multi-source version.
@@ -290,10 +298,6 @@ Compute the breadth-first path from one or more \tcode{source} vertices to all r
             \end{itemize}
       %\pnum\result
       %\pnum\returns \lstinline{void} \\
-      \pnum\throws
-            \begin{itemize}
-                  \item \tcode{out_of_range} is thrown when \tcode{source} is not in the range \tcode{0 <= source < num_vertices(g)}.
-            \end{itemize}
       \pnum\complexity
             \begin{itemize}
                   \item $\mathcal{O}((|E| + |V|)\log{|V|})$ based on using the binary heap in \tcode{std::priority_queue}.
@@ -347,7 +351,7 @@ Traverse the depth-first path from one or more \tcode{source} vertices to all re
 \begin{itemdescr}
       %\pnum\mandates
       % \pnum
-\preconditions
+      \hardprecond
             \begin{itemize}
                   \item
                         \lstinline{0 <= source < num_vertices(graph)}.
@@ -369,10 +373,6 @@ Traverse the depth-first path from one or more \tcode{source} vertices to all re
             \end{itemize}
       %\pnum\result
       %\pnum\returns \lstinline{void} \\
-      \pnum\throws
-            \begin{itemize}
-                  \item \tcode{out_of_range} is thrown when \tcode{source} is not in the range \tcode{0 <= source < num_vertices(g)}.
-            \end{itemize}
       \pnum\complexity
             \begin{itemize}
                   \item $\mathcal{O}(|V| + |E|)$.
@@ -430,10 +430,15 @@ A linear ordering of vertices such that for every directed edge (u,v) from verte
 
 \begin{itemdescr}
       %\pnum\mandates
-      \pnum\preconditions
+      \pnum\hardprecond
             \begin{itemize}
                   \item
                         \lstinline{0 <= source < num_vertices(graph)} for the single-source version.
+                  \item
+                        \lstinline{size(predecessors) >= size(vertices(g))}
+            \end{itemize}
+      \pnum\preconditions
+            \begin{itemize}
                   \item
                         \lstinline{0 <= source < num_vertices(graph)}, for each \lstinline{source} in \lstinline{sources}, 
                                    for the multi-source version.
@@ -450,14 +455,6 @@ A linear ordering of vertices such that for every directed edge (u,v) from verte
             \end{itemize}
       %\pnum\result
       %\pnum\returns \lstinline{void} \\
-      \pnum\throws 
-            \begin{itemize}
-                  \item An \tcode{out_of_range} exception is thrown in the following cases:
-                        \begin{itemize}
-                              \item \lstinline{size(predecessor) < size(vertices(g))}
-                              \item \lstinline{source} is not in the range \lstinline{0 <= source < num_vertices(graph)}.
-                        \end{itemize}
-            \end{itemize}
       \pnum\complexity
             \begin{itemize}
                   \item $\mathcal{O}((|E| + |V|)\log{|V|})$ based on using the binary heap in \tcode{std::priority_queue}.
@@ -559,27 +556,30 @@ instead of a binary heap implemented with \tcode{std::priority_queue}.
       \lstinputlisting{D3128_Algorithms/src/dijkstra_shortest_paths_multi.hpp}
 }
 
-\andrew{Should we include the check for negative weights (performance)?}
-\phil{It's the cost of safety. BGL did it, so there is precedent. The check isn't done if weights are unsigned 
-integral values.}
+%\andrew{Should we include the check for negative weights (performance)?}
+%\phil{It's the cost of safety. BGL did it, so there is precedent. The check isn't done if weights are unsigned 
+%integral values.}
+%\phil{For the standard, no, because it is an O(n) check.  But we can add it as an option in the future for the
+%      non-standard version.}
 
 \begin{itemdescr}
-      \pnum\mandates
+      \pnum\hardprecond
             \begin{itemize}
-                  \item
-                        \lstinline{0 <= source < num_vertices(graph)} for the single-source version.
-                  \item
-                        \lstinline{0 <= source < num_vertices(graph)}, for each \lstinline{source} in \lstinline{sources}, 
-                                   for the multi-source version.
-                  \item
-                        The weight function \lstinline{w} must return a non-negative value.
+                  \item \lstinline{0 <= source < num_vertices(graph)} for the single-source version.
+                  \item \lstinline{size(distances) >= size(vertices(g))}
+                  \item \lstinline{size(predecessor) >= size(vertices(g))}
             \end{itemize}
       \pnum\preconditions
             \begin{itemize}
                   \item
+                        \lstinline{0 <= source < num_vertices(graph)}, for each \lstinline{source} in \lstinline{sources}, 
+                                   for the multi-source version.
+                  \item
                         \lstinline{distances[i] = shortest_path_infinite_distance()} for \lstinline{0 <= i < num_vertices(g)}.
                   \item
                         \lstinline{predecessors[i] = i} for \lstinline{0 <= i < num_vertices(g)}.
+                  \item
+                        The weight function \lstinline{weight} must return a non-negative value.
             \end{itemize}
       \pnum\effects
             \begin{itemize}
@@ -602,17 +602,6 @@ integral values.}
             \end{itemize}
       %\pnum\result
       %\pnum\returns \lstinline{void} \\
-      \pnum\throws 
-            \begin{itemize}
-                  \item An \tcode{out_of_range} exception is thrown in the following cases:
-                        \begin{itemize}
-                              \item \lstinline{size(distances) < size(vertices(g))}
-                              \item \lstinline{size(predecessor) < size(vertices(g))}
-                              \item \lstinline{source} is not in the range \lstinline{0 <= source < num_vertices(graph)}.
-                              \item The weight function returns a negative value. This check is not made if the weight
-                                    value type is an unsigned integral type.
-                        \end{itemize}
-            \end{itemize}
       \pnum\complexity
             \begin{itemize}
                   \item $\mathcal{O}((|E| + |V|)\log{|V|})$ based on using the binary heap in \tcode{std::priority_queue}.
@@ -641,20 +630,20 @@ giving a small performance improvement with lower memory overhead.
 }
 
 \begin{itemdescr}
-      \pnum\mandates
+      \pnum\hardprecond
             \begin{itemize}
-                  \item
-                        \lstinline{0 <= source < num_vertices(graph)} for the single-source version. 
-                  \item
-                        \lstinline{0 <= source < num_vertices(graph)}, for each \lstinline{source} in \lstinline{sources}, 
-                                   for the multi-source version.
-                  \item
-                        The weight function \lstinline{w} must return a non-negative value.
+                  \item \lstinline{0 <= source < num_vertices(graph)} for the single-source version. 
+                  \item \lstinline{size(distances) >= size(vertices(g))}
             \end{itemize}
       \pnum\preconditions
             \begin{itemize}
                   \item
+                        \lstinline{0 <= source < num_vertices(graph)}, for each \lstinline{source} in \lstinline{sources}, 
+                        for the multi-source version.
+                  \item
                         \lstinline{distances[i] = shortest_path_infinite_distance()} for \lstinline{0 <= i < num_vertices(g)}.
+                  \item
+                        The weight function \lstinline{weight} must return a non-negative value.
             \end{itemize}
       \pnum\effects
             \begin{itemize}
@@ -672,16 +661,6 @@ giving a small performance improvement with lower memory overhead.
             \end{itemize}
       %\pnum\result
       %\pnum\returns \lstinline{void} \\
-      \pnum\throws 
-            \begin{itemize}
-                  \item An \tcode{out_of_range} exception is thrown in the following cases:
-                        \begin{itemize}
-                              \item \lstinline{size(distances) < size(vertices(g))}
-                              \item \lstinline{source} is not in the range \lstinline{0 <= source < num_vertices(graph)}.
-                              \item The weight function returns a negative value. This check is not made if the weight
-                                    value type is an unsigned integral type.
-                        \end{itemize}
-            \end{itemize}
       \pnum\complexity
             \begin{itemize}
                   \item $\mathcal{O}((|E| + |V|)\log{|V|})$ based on using the binary heap in \tcode{std::priority_queue}.
@@ -746,16 +725,17 @@ get the vertex ids of the negative weight cycle.
 }
 
 \begin{itemdescr}
-      \pnum\mandates
+      \pnum\hardprecond
             \begin{itemize}
-                  \item
-                        \lstinline{0 <= source < num_vertices(graph)} for the single-source version. 
-                  \item
-                        \lstinline{0 <= source < num_vertices(graph)}, for each \lstinline{source} in \lstinline{sources}, 
-                                   for the multi-source version.
+                  \item \lstinline{0 <= source < num_vertices(graph)} for the single-source version. 
+                  \item \lstinline{size(distances) >= size(vertices(g))}
+                  \item \lstinline{size(predecessor) >= size(vertices(g))}
             \end{itemize}
       \pnum\preconditions
             \begin{itemize}
+                  \item
+                        \lstinline{0 <= source < num_vertices(graph)}, for each \lstinline{source} in \lstinline{sources}, 
+                        for the multi-source version.
                   \item
                         \lstinline{distances[i] = shortest_path_infinite_distance()} for \lstinline{0 <= i < num_vertices(g)}.
                   \item
@@ -787,14 +767,6 @@ get the vertex ids of the negative weight cycle.
                         vertex id in the cycle is returned. \lstinline{find_negative_cycle}
                         can be called to get the vertex ids of the cycle.
             \end{itemize}
-      \pnum\throws 
-            \begin{itemize}
-                  \item An \tcode{out_of_range} exception is thrown in the following cases:
-                        \begin{itemize}
-                              \item \lstinline{size(distances) < size(vertices(g))}
-                              \item \lstinline{source} is not in the range \lstinline{0 <= source < num_vertices(graph)}.
-                        \end{itemize}
-            \end{itemize}
       \pnum\complexity $\mathcal{O}(|E| \cdot |V|)$. Complexity may also be affected when visitor events are called. \\
       \pnum\remarks 
             \begin{itemize}
@@ -821,16 +793,18 @@ giving a small performance improvement with lower memory overhead.
 }
 
 \begin{itemdescr}
-      \pnum\mandates
+      \pnum\hardprecond
             \begin{itemize}
                   \item
                         \lstinline{0 <= source < num_vertices(graph)} for the single-source version. 
-                  \item
-                        \lstinline{0 <= source < num_vertices(graph)}, for each \lstinline{source} in \lstinline{sources}, 
-                                   for the multi-source version.
+                  \item 
+                        \lstinline{size(distances) >= size(vertices(g))}
             \end{itemize}
       \pnum\preconditions
             \begin{itemize}
+                  \item
+                        \lstinline{0 <= source < num_vertices(graph)}, for each \lstinline{source} in \lstinline{sources}, 
+                                   for the multi-source version.
                   \item
                         \lstinline{distances[i] = shortest_path_infinite_distance()} for \lstinline{0 <= i < num_vertices(g)}.
             \end{itemize}
@@ -849,28 +823,20 @@ giving a small performance improvement with lower memory overhead.
             \end{itemize}
       %\pnum\result
       \pnum\returns 
-      \begin{itemize}
-            \item \lstinline{optional<vertex_id_t<G>} If no negative weight cycle is found, 
-                  there is no associated vertex id. If a negative weight cycle is found, a
-                  vertex id in the cycle is returned. \lstinline{bellman_ford_shortest_paths} must be used
-                  to get the predecessors if it is importantant to get the vertex ids of the cycle
-                  using \lstinline{find_negative_cycle}.
-      \end{itemize}
-\pnum\throws 
             \begin{itemize}
-                  \item An \tcode{out_of_range} exception is thrown in the following cases:
-                        \begin{itemize}
-                              \item \lstinline{size(distances) < size(vertices(g))}
-                              \item \lstinline{source} is not in the range \lstinline{0 <= source < num_vertices(graph)}.
-                        \end{itemize}
+                  \item \lstinline{optional<vertex_id_t<G>} If no negative weight cycle is found, 
+                        there is no associated vertex id. If a negative weight cycle is found, a
+                        vertex id in the cycle is returned. \lstinline{bellman_ford_shortest_paths} must be used
+                        to get the predecessors if it is importantant to get the vertex ids of the cycle
+                        using \lstinline{find_negative_cycle}.
             \end{itemize}
       \pnum\complexity $\mathcal{O}(|E| \cdot |V|)$. Complexity may also be affected when visitor events are called. \\
-      \pnum\remarks 
-            \begin{itemize}
-                  \item Duplicate sources do not affect the algorithm's complexity or correctness.
-                  \item Unlike Dijkstra's algorithm, Bellman-Ford allows negative edge weights. 
-                        Performance constraints limit this to smaller graphs.
-            \end{itemize}
+            \pnum\remarks 
+                  \begin{itemize}
+                        \item Duplicate sources do not affect the algorithm's complexity or correctness.
+                        \item Unlike Dijkstra's algorithm, Bellman-Ford allows negative edge weights. 
+                              Performance constraints limit this to smaller graphs.
+                  \end{itemize}
       %\pnum\errors
 \end{itemdescr}
 
@@ -944,10 +910,6 @@ Compute the number of triangles in a graph.
             \begin{itemize}
                   \item Number of triangles
             \end{itemize}
-      \pnum\throws
-            \begin{itemize}
-                  \item A \tcode{graph_error} is thrown when the target\_id for an outgoing edge is less than the target\_id of the previous edge.
-            \end{itemize}
       \pnum\complexity $\mathcal{O}(N^3)$ \\
       \pnum\remarks 
             \begin{itemize}
@@ -992,18 +954,22 @@ Some label propagation implementations use vertex ids as an initial labeling. Th
       \pnum\preconditions
             \begin{itemize}
                   \item
-                  \lstinline{label} contains initial vertex labels.
+                        \lstinline{label} contains initial vertex labels.
                   \item
-                  \lstinline{rng} is a random number generator for vertex voting order.
+                        \lstinline{rng} is a random number generator for vertex voting order.
                   \item
-                  \lstinline{max_iters} is the maximum number of iterations of the label propagation, or equivalently the maximum distance a label will propagate from its starting vertex.
+                        \lstinline{max_iters} is the maximum number of iterations of the label propagation, or equivalently 
+                        the maximum distance a label will propagate from its starting vertex.
             \end{itemize}
       \pnum\effects \lstinline{label[uid]} is the label assignments of vertex id \lstinline{uid} discovered by label propagation. \\
       %\pnum\result
       %\pnum\returns
       %\pnum\throws
       \pnum\complexity  $\mathcal{O}(M)$ \\
-      \pnum\remarks     User is responsible for initial vertex labels.
+      \pnum\remarks
+            \begin{itemize}
+                  \item User is responsible for initial vertex labels.
+            \end{itemize}
       %\pnum\errors
 \end{itemdescr}
 
@@ -1033,20 +999,27 @@ Some label propagation implementations use vertex ids as an initial labeling. Th
       \pnum\preconditions
             \begin{itemize}
                   \item
-                  \lstinline{label} contains initial vertex labels.
+                        \lstinline{label} contains initial vertex labels.
                   \item
-                  \lstinline{empty_label} defines a label that is considered empty and will not be propagated.
+                        \lstinline{empty_label} defines a label that is considered empty and will not be propagated.
                   \item
-                  \lstinline{rng} is a random number generator for vertex voting order.
+                        \lstinline{rng} is a random number generator for vertex voting order.
                   \item
-                  \lstinline{max_iters} is the maximum number of iterations of the label propagation, or equivalently the maximum distance a label will propagate from its starting vertex.
+                        \lstinline{max_iters} is the maximum number of iterations of the label propagation, or equivalently 
+                        the maximum distance a label will propagate from its starting vertex.
             \end{itemize}
-      \pnum\effects \lstinline{label[uid]} is the label assignments of vertex id \lstinline{uid} discovered by label propagation. \\
+      \pnum\effects 
+            \begin{itemize}
+                  \item \lstinline{label[uid]} is the label assignments of vertex id \lstinline{uid} discovered by label propagation.
+            \end{itemize}
       %\pnum\result
       %\pnum\returns
       %\pnum\throws
       \pnum\complexity  $\mathcal{O}(M)$ \\
-      \pnum\remarks     User is responsible for initial vertex labels.
+      \pnum\remarks     
+            \begin{itemize}
+                  \item User is responsible for initial vertex labels.
+            \end{itemize}
       %\pnum\errors
 \end{itemdescr}
 
@@ -1083,12 +1056,14 @@ Find articulation points, or cut vertices, which when removed disconnect the gra
       \pnum\preconditions
             \begin{itemize}
                   \item
-                  Output iterator \lstinline{cut_vertices} can be assigned vertices of type \lstinline{vertex_id_t<G>} when dereferenced.
+                        Output iterator \lstinline{cut_vertices} can be assigned vertices of type 
+                        \lstinline{vertex_id_t<G>} when dereferenced.
             \end{itemize}
       \pnum\effects
             \begin{itemize}
                   \item
-                  Output iterator \lstinline{cut_vertices} contains articulation point vertices, those which removed increase the number of components of \lstinline{g}.
+                        Output iterator \lstinline{cut_vertices} contains articulation point 
+                        vertices, those which removed increase the number of components of \lstinline{g}.
             \end{itemize}
       %\pnum\result
       %\pnum\returns
@@ -1099,7 +1074,8 @@ Find articulation points, or cut vertices, which when removed disconnect the gra
 \end{itemdescr}
 
 \subsection{BiConnected Components}
-Find the biconnected components, or maximal biconnected subgraphs of a graph, which are components that will remain connected if a vertex is removed. Time complexity based on Hopcroft-Tarjan algorithm.
+Find the biconnected components, or maximal biconnected subgraphs of a graph, which are components that 
+will remain connected if a vertex is removed. Time complexity based on Hopcroft-Tarjan algorithm.
 
 \begin{table}[h]
 \setcellgapes{3pt}
@@ -1133,13 +1109,11 @@ Find the biconnected components, or maximal biconnected subgraphs of a graph, wh
       %\pnum\mandates
       \pnum\preconditions
             \begin{itemize}
-                  \item
-                  \lstinline{components} is a container of containers. The inner container stores vertex ids.
+                  \item \lstinline{components} is a container of containers. The inner container stores vertex ids.
             \end{itemize}
       \pnum\effects
             \begin{itemize}
-                  \item
-                  \lstinline{components} contains groups of biconnected components.
+                  \item \lstinline{components} contains groups of biconnected components.
             \end{itemize}
       %\pnum\result
       %\pnum\returns
@@ -1194,7 +1168,14 @@ Find weakly connected components of a graph. Weakly connected components are sub
       %\pnum\returns
       %\pnum\throws
       \pnum\complexity $\mathcal{O}(|E|+|V|)$ \\
-      %\pnum\remarks 
+      \pnum\remarks 
+            \begin{itemize}
+                  \item
+                        If the maximum component id is 0, then all vertices are in a single connected component.
+                  \item
+                        If the maximum component id is \lstinline{num_vertices(g)-1}, each vertex is the sole vertex in its 
+                        own connected component.
+            \end{itemize}
       %\pnum\errors
 \end{itemdescr}
 
@@ -1227,23 +1208,37 @@ Find strongly connected components of a graph using Kosaraju's algorithm. Strong
 
 \begin{itemdescr}
       %\pnum\mandates
+      \pnum\hardprecond
+            \begin{itemize}
+                  \item
+                        \lstinline{num_vertices(g) == num_vertices(g_t)}.
+                  \item
+                        \lstinline{size(component) >= num_vertices(g)}.
+            \end{itemize}
       \pnum\preconditions
             \begin{itemize}
                   \item
-                        \lstinline{g_t} is the transpose of \lstinline{g}. Edge \lstinline{uv} in \lstinline{g} implies edge \lstinline{vu} in \lstinline{g_t}. \lstinline{num_vertices(g)} equals \lstinline{num_vertices(g_t)}.
-                  \item
-                        \lstinline{size(component) >= num_vertices(g)}.
+                        \lstinline{g_t} is the transpose of \lstinline{g}, where edge \lstinline{uv} in \lstinline{g} implies edge \lstinline{vu} in \lstinline{g_t}.
             \end{itemize}
       \pnum\effects
             \begin{itemize}
                   \item
                         \lstinline{component[v]} is the strongly connected component id of vertex \lstinline{v}.
+                  \item
+                        The component id {component[v]} is in the range \lstinline{0 <= {component[v] < num_vertices(g)}.
             \end{itemize}
       %\pnum\result
       %\pnum\returns
       %\pnum\throws
       \pnum\complexity $\mathcal{O}(|E|+|V|)$ \\
-      %\pnum\remarks 
+      \pnum\remarks 
+            \begin{itemize}
+                  \item
+                        If the maximum component id is 0, then all vertices are in a single strongly connected component.
+                  \item
+                        If the maximum component id is \lstinline{num_vertices(g)-1}, each vertex is the sole vertex in its 
+                        own strongly connected component.
+            \end{itemize}
       %\pnum\errors
 \end{itemdescr}
 
@@ -1276,7 +1271,7 @@ Find strongly connected components of a graph using Tarjan's algorithm. Strongly
 
 \begin{itemdescr}
       %\pnum\mandates
-      \pnum\preconditions
+      \pnum\hardprecond
             \begin{itemize}
                   \item
                         \lstinline{size(component) >= num_vertices(g)}.
@@ -1290,13 +1285,20 @@ Find strongly connected components of a graph using Tarjan's algorithm. Strongly
       %\pnum\returns
       %\pnum\throws
       \pnum\complexity $\mathcal{O}(|E|+|V|)$ \\
-      %\pnum\remarks 
+      \pnum\remarks 
+            \begin{itemize}
+                  \item
+                        If the maximum component id is 0, then all vertices are in a single strongly connected component.
+                  \item
+                        If the maximum component id is \lstinline{num_vertices(g)-1}, each vertex is the sole vertex in its 
+                        own strongly connected component.
+            \end{itemize}
       %\pnum\errors
 \end{itemdescr}
 
 \section{Maximal Independent Set}
 \subsection{Maximal Independent Set}
-Find a maximally independent set of vertices in a graph starting from a seed vertex. An independent vertex set indicates no pair of vertices in the set are adjacent.
+Find a maximally independent set of vertices in a graph starting from a source vertex. An independent vertex set indicates no pair of vertices in the set are adjacent.
 
 \begin{table}[h]
 \setcellgapes{3pt}
@@ -1319,19 +1321,23 @@ Find a maximally independent set of vertices in a graph starting from a seed ver
 {\small
       \lstinputlisting{D3128_Algorithms/src/mis.hpp}
 }
+\phil{The mandates condition should be part of the requires clause.}
 \begin{itemdescr}
       %\pnum\mandates
-      \pnum\preconditions
+      \pnum\mandates
             \begin{itemize}
                   \item
-                        \lstinline{0 <= seed < num_vertices(graph)}.
+                        The \tcode{value_type} for the \lstinline{mis} output iterator is convertible to \lstinline{vertex_id_t<G>}.
+      \end{itemize}
+      \pnum\hardprecond
+            \begin{itemize}
                   \item
-                        \lstinline{mis} output iterator can be assigned vertices of type \lstinline{vertex_id_t<G>} when dereferenced.
+                        \lstinline{0 <= source < num_vertices(graph)}.
       \end{itemize}
       \pnum\effects
             \begin{itemize}
                   \item
-                        Output iterator \lstinline{mis} contains maximal independent set of vertices containing \lstinline{seed}, 
+                        Output iterator \lstinline{mis} contains maximal independent set of vertices containing \lstinline{source}, 
                         which is a subset of \lstinline{vertices(graph)}. \\
       \end{itemize}
       %\pnum\result
@@ -1381,8 +1387,9 @@ as to whether the edge reference is useful by the consumer or not (e.g. basic\_ 
       %\pnum\mandates
       \pnum\preconditions
             \begin{itemize}
-                  \item
-                  \lstinline{out} is an operator for setting the resulting Jaccard coefficient. This function is expected to be of the form \lstinline{out(vertex_id_t<G> uid, vertex_id_t<G> vid, edge_t<G> uv, T val)}.
+                  \item 
+                        \lstinline{out} is an operator for setting the resulting Jaccard coefficient. This function 
+                        is expected to be of the form \lstinline{out(vertex_id_t<G> uid, vertex_id_t<G> vid, edge_t<G> uv, T val)}.
             \end{itemize}
       \pnum\effects 
             \begin{itemize}
@@ -1429,8 +1436,8 @@ Find the minimum weight spanning tree of a graph using Kruskal's algorithm.
       %\pnum\mandates
       \pnum\preconditions
             \begin{itemize}
-                  \item
-                        \lstinline{e} is an \lstinline{edgelist}.
+                  %\item
+                  %      \lstinline{e} is an \lstinline{edgelist}.
                   \item
                         \lstinline{compare} operator is a valid comparison operation on two edge values of type \lstinline{range_value_t<EL>::value_type} 
                         which returns a bool.
@@ -1476,23 +1483,28 @@ Find the minimum weight spanning tree of a graph using Prim's algorithm.
       \lstinputlisting[firstline=13,lastline=29]{D3128_Algorithms/src/mst.hpp}
 }
 
+\phil{The mandates condition should be part of the requires clause. When done, we don't have to specify a Mandates clause.}
 \begin{itemdescr}
-      %\pnum\mandates
-      \pnum\preconditions
+      \pnum\mandates
             \begin{itemize}
                   \item
-                        \lstinline{0 <= seed < num_vertices(g)}.
-                  \item
-                        Size of \lstinline{weight} and \lstinline{predecessor} is greater than or equal to \lstinline{num_vertices(g)}.
-                  \item
                         \lstinline{compare} operator is a valid comparison operation on two edge values of type \lstinline{edge_value_t<G>} which returns a bool.
+            \end{itemize}
+      \pnum\hardprecond
+            \begin{itemize}
+                  \item
+                        \lstinline{0 <= source < num_vertices(g)}.
+                  \item
+                        \lstinline{size(weight) >= to num_vertices(g)}.
+                  \item
+                        \lstinline{size(predecessor >= to num_vertices(g)}.
             \end{itemize}
       \pnum\effects
             \begin{itemize}
                   \item
-                        \lstinline{predecessor[v]} is the parent vertex of \lstinline{v} in a tree rooted at \lstinline{seed} and \lstinline{weight[v]} is the value of the edge between \lstinline{v} and \lstinline{predecessor[v]} in the tree. When \lstinline{compare} is \lstinline{<} and \lstinline{init_dist==+inf}, \lstinline{predecessor} represents a minimum weight spanning tree.
+                        \lstinline{predecessor[v]} is the parent vertex of \lstinline{v} in a tree rooted at \lstinline{source} and \lstinline{weight[v]} is the value of the edge between \lstinline{v} and \lstinline{predecessor[v]} in the tree. When \lstinline{compare} is \lstinline{<} and \lstinline{init_dist==+inf}, \lstinline{predecessor} represents a minimum weight spanning tree.
                   \item
-                        If \lstinline{predecessor} and \lstinline{weight} are not initialized by user, and the graph is not fully connected, \lstinline{predecessor[v]} and \lstinline{weight[v]} will be undefined for vertices not in the same connected component as \lstinline{seed}.
+                        If \lstinline{predecessor} and \lstinline{weight} are not initialized by user, and the graph is not fully connected, \lstinline{predecessor[v]} and \lstinline{weight[v]} will be undefined for vertices not in the same connected component as \lstinline{source}.
             \end{itemize}
       %\pnum\result
       %\pnum\returns
@@ -1502,161 +1514,3 @@ Find the minimum weight spanning tree of a graph using Prim's algorithm.
       %\pnum\errors
 \end{itemdescr}
 
-\andrew{I've tagged the algorithms below as Tier 2 or Tier 3 -- denoting whether they should be done right now or done later or done much later.}
-
-\andrew{I've used NetworkX as inspiration for organization.  Oddly, NetworkX only has DFS as an adaptor (view).}
-\phil{If the use of Yield is any indicator, then NetworkX implements topological sort as adaptor also.}
-
-
-
-
-\begin{comment}
-
-      %Algorithms with [TBD] are candidates to consider but having been decided for being in the paper
-      %We are targeting the paper to be under 50pp
-      All algorithms are customization points.
-
-      \phil{Algorithms marked [TBD] are provisional and may be moved to a separate proposal to keep the size of this proposal manageable}
-
-      \subsection{Dijkstra's Shortest Paths and Shortest Distances}
-      %Dijkstra's algorithm \cite{REF_} is a single-source, shortest paths algorithm for non-negative weights. It finds the shortest paths
-      %and their weighted distances to all vertices connected to a single seed vertex.
-
-      \begin{lstlisting}
-      template <adjacency_list G, class DistanceValue>
-      auto dijkstra_infinite_distance() {
-      return numeric_limits<DistanceValue>::max();
-      }
-
-      template <adjacency_list              G,
-            ranges::random_access_range Distance,
-            ranges::random_access_range Predecessor,
-            class EVF   = std::function<ranges::range_value_t<Distance>(edge_reference_t<G>)>,
-            queueable Q = 
-                  priority_queue<
-                        weighted_vertex<G,invoke_result_t<EVF,edge_reference_t<G>>>,
-                        vector<weighted_vertex<G,invoke_result_t<EVF,edge_reference_t<G>>>>,
-                        greater<weighted_vertex<G,invoke_result_t<EVF,edge_reference_t<G>>>>>>
-      requires ranges::random_access_range<vertex_range_t<G>> &&                  //
-            integral<vertex_id_t<G>> &&                                           //
-            is_arithmetic_v<ranges::range_value_t<Distance>> &&                   //
-            convertible_to<vertex_id_t<G>, ranges::range_value_t<Predecessor>> && //
-            edge_weight_function<G, EVF>
-      constexpr void dijkstra_shortest_paths(
-            G&&            g,           // graph
-            vertex_id_t<G> seed,        // starting vertex_id
-            Distance&      distance,    // out: distance[uid] of vertex_id uid from seed
-            Predecessor&   predecessor, // out: predecessor[uid] of vertex_id uid in path
-            EVF            weight_fn = [](edge_reference_t<G> uv)  // weight_fn(uv) -> 1
-                                          { return ranges::range_value_t<Distance>(1); },
-            Q              q = Q()
-            );
-      \end{lstlisting}
-
-      \begin{table}[h!]
-            %\begin{center}
-            %\resizebox{\textwidth}{!}
-            {\begin{tabular}{l l}
-                        \hline
-                        \textit{Complexity}     & O(V log(V)).                                                                                                                                                  \\
-                                                & Additional time will be required to pre-extend  or initialize the \tcode{distance} range by the caller.                                                       \\
-                                                & Additional time may also be required to pre-extend \tcode{predecessor}.                                                                                       \\
-                        \andrew{O((|E| + |V|)log(|V|) or O(|E| + |V|log(|V|).  Initializing distance and predecessor are O(|V|) so don't change the complexity.}
-                        \hline
-                        \textit{Constraints}    & Values returned by \tcode{weight_fn} must be non-negative.                                                                                                    \\
-                        \hline
-                        \textit{Preconditions}  & \tcode{seed >= 0                                                                                                               &  & seed < size(vertices(g))} \\
-                                                & \tcode{size(distance) >= size(vertices(g))}; caller must pre-extend with \tcode{dijkstra_infinite_distance()}                                                   \\
-                                                & \tcode{size(predecessor) >= size(vertices(g))}; caller must pre-extend                                                                                        \\
-                                                & \tcode{distance[i] = dijkstra_infinite_distance()} for \tcode{i < size(vertices(g))}                                                                           \\
-                        \hline
-                        \textit{Postconditions} & \tcode{distance[seed] == 0}                                                                                                                                   \\
-                                                & \tcode{predecessor[seed] == seed}.                                                                                                                            \\
-                        \hline
-                        \textit{\effects}       & \tcode{distance[uid]} will be the shortest, weighted distance of vertex\_id \tcode{uid} from \tcode{seed}.                                                    \\
-                                                & If \tcode{uid} is not connected to \tcode{seed} by any edges then it will have a value of \tcode{dijkstra_infinite_distance()}.                                \\
-                                                &                                                                                                                                                               \\
-                                                & \tcode{predecessor[uid]} will have the preceding vertex\_id of \tcode{uid} in the weighted shortest path to \tcode{seed}                                      \\
-                                                & when \tcode{distance[uid] != dijkstra_infinite_distance()}.                                                                                                    \\
-                        \hline
-                  \end{tabular}}
-            %\caption{\tcode{incidence} View Functions}
-            %\label{tab:incidence}
-            %\end{center}
-      \end{table}
-
-      \phil{Describe the pros and cons of different kinds of queues}
-
-      The default weight function \tcode{weight_fn} returns a value of 1. When that is used, \tcode{distance[uid]} will have the shortest number of edges
-      between vertex \tcode{uid} and vertex \tcode{seed}. The distance from \tcode{seed} to itself is zero.
-
-      If the caller wishes to use a different queue other than \tcode{priority_queue}, the queue will need to have elements of \tcode{weighted_vertex}
-      which is used internally by the algorithm.
-      \begin{lstlisting}
-      template <class G, class W>
-      requires is_default_constructible_v<vertex_id_t<G>> && is_default_constructible_v<W>
-      struct weighted_vertex {
-      vertex_id_t<G> vertex_id = vertex_id_t<G>();
-      W              weight    = W();
-      constexpr auto operator<=>(const weighted_vertex&) const noexcept; // compare vertex_id
-      };
-      \end{lstlisting}
-
-      The \tcode{dijkstra_shortest_distances} function is the same as \tcode{dijkstra_shortest_paths} except that it doesn't include
-      the \tcode{predecessor} parameter.
-      \begin{lstlisting}
-      template <adjacency_list              G,
-            ranges::random_access_range Distance,
-            class EVF   = std::function<ranges::range_value_t<Distance>(edge_reference_t<G>)>,
-            queueable Q = 
-                  priority_queue<
-                        weighted_vertex<G,invoke_result_t<EVF,edge_reference_t<G>>>,
-                        vector<weighted_vertex<G,invoke_result_t<EVF,edge_reference_t<G>>>>,
-                        greater<weighted_vertex<G,invoke_result_t<EVF,edge_reference_t<G>>>>>>
-      requires ranges::random_access_range<vertex_range_t<G>> &&                  //
-            integral<vertex_id_t<G>> &&                                           //
-            is_arithmetic_v<ranges::range_value_t<Distance>> &&                   //
-            edge_weight_function<G, EVF>
-      constexpr void dijkstra_shortest_distances(
-            G&&            g,           // graph
-            vertex_id_t<G> seed,        // starting vertex_id
-            Distance&      distance,    // out: distance[uid] of vertex_id uid from seed
-            EVF            weight_fn = [](edge_reference_t<G> uv)  // weight_fn(uv) -> 1
-                                          { return ranges::range_value_t<Distance>(1); },
-            Q              q = Q()
-            );
-      \end{lstlisting}
-
-      \subsection{[TBD] Delta Stepping Shortest Paths}
-      %The  algorithm \cite{REF_} ...
-
-      \subsection{Bellman-Ford Shortest Paths}
-      %The Bellman-Ford algorithm \cite{REF_} ...
-
-      \subsection{[TBD] Shortest Paths}
-      (Overloads to select appropriate algorithm based on inputs)
-
-      \subsection{Connected Components}
-      %Connected components \cite{REF_} ...
-
-      \subsection{Strongly Connected Components}
-      %Strongly connected components \cite{REF_} ...
-
-      \subsection{Biconnected Components}
-      %Biconnected components \cite{REF_} ...
-
-      \subsection{Articulation Points}
-      %Articulation points \cite{REF_} ...
-
-      \subsection{Minimum Spanning Tree}
-      %Minimum Spanning Tree \cite{REF_} ...
-
-      \subsection{[TBD] Betweenness Centrality}
-      \subsection{[TBD] Triangle Count}
-      \subsection{[TBD] Subgraph Isomorphism}
-      \subsection{[TBD] Kruskal Minimum Spanning Tree}
-      \subsection{[TBD] Prim Minimum Spanning Tree}
-      \subsection{[TBD] Louvain (Community Detection)}
-      \subsection{[TBD] Label propagation (Community Detection)}
-
-\end{comment}

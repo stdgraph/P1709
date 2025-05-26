@@ -125,15 +125,15 @@ void breadth_first_search(ExecutionPolicy&& policy,
  * BFS: multiple source
  */
 template <adjacency_list_graph G, class S, property P, property D>
-requires std::ranges::forward_range<S>
+requires std::forward_range<S>
 void breadth_first_search(const G& graph, S&& sources, P&& predecessors, D&& distances);
 
 template <adjacency_list_graph G, class S, property P, property D, queueable Q>
-requires std::ranges::forward_range<S>
+requires std::forward_range<S>
 void breadth_first_search(const G& graph, S&& sources, P&& predecessors, D&& distances, Q&& q);
 
 template <class ExecutionPolicy, adjacency_list_graph G, class S, property P, property D>
-requires std::ranges::forward_range<S>
+requires std::forward_range<S>
 void breadth_first_search(
       ExecutionPolicy&& policy, const G& graph, S&& sources, P&& predecessors, D&& distances);
 
@@ -143,7 +143,7 @@ template <class ExecutionPolicy,
           property  P,
           property  D,
           queueable Q>
-requires std::ranges::forward_range<S>
+requires std::forward_range<S>
 void breadth_first_search(ExecutionPolicy&& policy,
                           const G&          graph,
                           S&&               sources,
@@ -179,7 +179,7 @@ void dijkstra_shortest_paths(const G&       graph,
                              D&&            distances);
 
 template <adjacency_list_graph G, class S, property P, property D>
-requires std::ranges::forward_range<S>
+requires std::forward_range<S>
 void dijkstra_shortest_paths(const G& graph, S&& sources, P&& predecessors, D&& distances);
 
 /*
@@ -240,7 +240,7 @@ void dijkstra_shortest_paths(const G&       graph,
  */
 
 template <adjacency_list_graph G, class S, class W, property P, property D>
-requires weight_function<W, edge_t<G>> && std::ranges::forward_range<S>
+requires weight_function<W, edge_t<G>> && std::forward_range<S>
 void dijkstra_shortest_paths(
       const G& graph, S&& sources, W&& w, P&& predecessors, D&& distances) {}
 
@@ -251,7 +251,7 @@ template <adjacency_list_graph G,
           property D,
           class Compare,
           class Combine>
-requires weight_function<W, edge_t<G>> && std::ranges::forward_range<S>
+requires weight_function<W, edge_t<G>> && std::forward_range<S>
 void dijkstra_shortest_paths(const G&  graph,
                              S&&       sources,
                              W&&       w,
@@ -299,11 +299,11 @@ void bellman_ford_shortest_paths(ExecutionPolicy&& e,
                                  D&&               distances);
 
 template <edge_list_graph G, class S, property P, property D>
-requires std::ranges::forward_range<S>
+requires std::forward_range<S>
 void bellman_ford_shortest_paths(const G& graph, S&& sources, P&& predecessors, D&& distances);
 
 template <class ExecutionPolicy, edge_list_graph G, class S, property P, property D>
-requires std::ranges::forward_range<S>
+requires std::forward_range<S>
 void bellman_ford_shortest_paths(
       ExecutionPolicy&& e, const G& graph, S&& sources, P&& predecessors, D&& distances);
 
@@ -403,7 +403,7 @@ void bellman_ford_shortest_paths(const G&       graph,
  */
 
 template <edge_list_graph G, class S, class W, property P, property D>
-requires weight_function<W, edge_t<G>> && std::ranges::forward_range<S>
+requires weight_function<W, edge_t<G>> && std::forward_range<S>
 void bellman_ford_shortest_paths(
       const G& graph, S&& sources, W&& w, P&& predecessors, D&& distances) {}
 
@@ -414,7 +414,7 @@ template <edge_list_graph G,
           property D,
           class Compare,
           class Combine>
-requires weight_function<W, edge_t<G>> && std::ranges::forward_range<S>
+requires weight_function<W, edge_t<G>> && std::forward_range<S>
 void bellman_ford_shortest_paths(const G&  graph,
                                  S&&       sources,
                                  W&&       w,
@@ -424,7 +424,7 @@ void bellman_ford_shortest_paths(const G&  graph,
                                  Combine&& comb) {}
 
 template <class ExecutionPolicy, edge_list_graph G, class S, class W, property P, property D>
-requires weight_function<W, edge_t<G>> && std::ranges::forward_range<S>
+requires weight_function<W, edge_t<G>> && std::forward_range<S>
 void bellman_ford_shortest_paths(ExecutionPolicy&& e,
                                  const G&          graph,
                                  S&&               sources,
@@ -440,7 +440,7 @@ template <class ExecutionPolicy,
           property D,
           class Compare,
           class Combine>
-requires weight_function<W, edge_t<G>> && std::ranges::forward_range<S>
+requires weight_function<W, edge_t<G>> && std::forward_range<S>
 void bellman_ford_shortest_paths(ExecutionPolicy&& e,
                                  const G&          graph,
                                  S&&               sources,
@@ -594,7 +594,7 @@ template <class ExecutionPolicy,
           class W,
           property P,
           property D>
-requires weight_function<W, edge_t<G>> && std::ranges::forward_range<S>
+requires weight_function<W, edge_t<G>> && std::forward_range<S>
 void delta_stepping_shortest_paths(ExecutionPolicy&& e,
                                    const G&          graph,
                                    S&&               sources,
@@ -610,7 +610,7 @@ template <class ExecutionPolicy,
           property D,
           class Compare,
           class Combine>
-requires weight_function<W, edge_t<G>> && std::ranges::forward_range<S>
+requires weight_function<W, edge_t<G>> && std::forward_range<S>
 void delta_stepping_shortest_paths(ExecutionPolicy&& e,
                                    const G&          graph,
                                    S&&               sources,
@@ -627,7 +627,7 @@ template <class ExecutionPolicy,
           property P,
           property D,
           class T>
-requires weight_function<W, edge_t<G>> && std::ranges::forward_range<S>
+requires weight_function<W, edge_t<G>> && std::forward_range<S>
 void delta_stepping_shortest_paths(ExecutionPolicy&& e,
                                    const G&          graph,
                                    S&&               sources,
@@ -645,7 +645,7 @@ template <class ExecutionPolicy,
           class Compare,
           class Combine,
           class T>
-requires weight_function<W, edge_t<G>> && std::ranges::forward_range<S>
+requires weight_function<W, edge_t<G>> && std::forward_range<S>
 void delta_stepping_shortest_paths(ExecutionPolicy&& e,
                                    const G&          graph,
                                    S&&               sources,

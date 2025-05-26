@@ -143,7 +143,7 @@ The type aliases are defined by either a function specialization for the underly
 
 \begin{table}[h!]
 \begin{center}
-\resizebox{\textwidth}{!}
+%\resizebox{\textwidth}{!}
 {\begin{tabular}{l l L{1.5cm}}
 \hline
     \textbf{Type Alias} & \textbf{Definition} & \textbf{Comment} \\
@@ -229,14 +229,16 @@ implementation. Specific graph implementations may have different characteristic
 \resizebox{\textwidth}{!}
 {\begin{tabular}{l l p{1.5cm} L{7.0cm}}
 \hline
-    \textbf{Function} & \textbf{Return Type} & \textbf{Complexity} & \textbf{Default Implementation} \\
+    \textbf{Function} & \textbf{Return Type} & \textbf{Cmplx} & \textbf{Default Implementation} \\
 \hline
     \tcode{find_vertex(g,uid)} & \tcode{vertex_iterator_t<G>} & constant & \tcode{begin(vertices(g)) + uid} \\
-    & & & if \tcode{random_access_range<vertex_range_t<G>>}  \\
+                               &                              &          & \hspace{3mm}if \tcode{random_access_range<vertex_range_t<G>>} \\
     \tcode{vertex_id(g,u)} & \tcode{vetex_id_t<G>} & constant & (see Determining the vertex\_id type below) \\
-    & & & Override to define a different \tcode{vertex_id_t<G>} type (e.g. int32\_t). \\
+                           &                       &          & Override to define a different \\
+                           &                       &          & \tcode{vertex_id_t<G>} type (e.g. int32\_t). \\
     \tcode{vertex_value(g,u)} & \tcode{vertex_value_t<G>} & constant & n/a, optional \\
-    \tcode{vertex_value(g,uid)} & \tcode{vertex_value_t<G>} & constant & \tcode{vertex_value(g,*find_vertex(g,uid))}, optional \\
+    \tcode{vertex_value(g,uid)} & \tcode{vertex_value_t<G>} & constant & \tcode{vertex_value(g,*find_vertex(g,uid))}, \\
+                                &                           &          & optional \\
     \tcode{degree(g,u)} & \tcode{integral} & constant & \tcode{size(edges(g,u))} if \tcode{sized_range<vertex_edge_range_t<G>>} \\
     \tcode{degree(g,uid)} & \tcode{integral} & constant & \tcode{size(edges(g,uid))} if \tcode{sized_range<vertex_edge_range_t<G>>} \\
     \tcode{edges(g,u)} & \tcode{vertex_edge_range_t<G>} & constant & \tcode{u} if \tcode{forward range<vertex_t<G>>}, n/a otherwise \\
@@ -259,22 +261,32 @@ also be non-linear. This is expected to be an uncommon case.
 \begin{table}[h!]
 \begin{center}
 \resizebox{\textwidth}{!}
-{\begin{tabular}{l l p{1.5cm} L{7.0cm}}
+{\begin{tabular}{l l p{1.5cm} L{6.7cm}}
 \hline
-    \textbf{Function} & \textbf{Return Type} & \textbf{Complexity} & \textbf{Default Implementation} \\
+    \textbf{Function} & \textbf{Return Type} & \textbf{Cmplx} & \textbf{Default Implementation} \\
 \hline
     \tcode{target_id(g,uv)} & \tcode{vertex_id_t<G>} & constant & (see below) \\
-    \tcode{target(g,uv)} & \tcode{vertex_t<G>} & constant & \tcode{*(begin(vertices(g)) + target_id(g, uv))} if \tcode{random_access_range<vertex_range_t<G>> \&\& integral<target_id(g,uv)>} \\
-    \tcode{edge_value(g,uv)} & \tcode{edge_value_t<G>} & constant & \tcode{uv} if \tcode{forward_range<vertex_t<G>>}, n/a otherwise, optional \\
-    \tcode{find_vertex_edge(g,u,vid)} & \tcode{vertex_edge_t<G>} & linear & \tcode{find(edges(g,u), [](uv) {target_id(g,uv)==vid;\})}} \\
-    \tcode{find_vertex_edge(g,uid,vid)} & \tcode{vertex_edge_t<G>} & linear & \tcode{find_vertex_edge(g,*find_vertex(g,uid),vid)} \\
-    \tcode{contains_edge(g,uid,vid)} & \tcode{bool} & constant & \tcode{uid < size(vertices(g)) \&\& vid < size(vertices(g))} if \tcode{is_adjacency_matrix_v<G>}.\\
-    & & linear & \tcode{find_vertex_edge(g,uid) != end(edges(g,uid))} otherwise. \\
+    \tcode{target(g,uv)} & \tcode{vertex_t<G>} & constant & \tcode{*(begin(vertices(g)) + target_id(g, uv))} \\
+                         &                     &          & \hspace{3mm}if \tcode{random_access_range<vertex_range_t<G>>} \\
+                         &                     &          & \hspace{3mm}\tcode{\&\& integral<target_id(g,uv)>} \\
+    \tcode{edge_value(g,uv)} & \tcode{edge_value_t<G>} & constant & \tcode{uv} if \tcode{forward_range<vertex_t<G>>}, \\
+                             &                         &          & n/a otherwise, optional \\
+    \tcode{find_vertex_edge(g,u,vid)} & \tcode{vertex_edge_t<G>} & linear & \tcode{find(edges(g,u),} \\
+                                      &                          &        & \hspace{8mm}\tcode{[](uv) {target_id(g,uv)==vid;\})}} \\
+    \tcode{find_vertex_edge(g,uid,vid)} & \tcode{vertex_edge_t<G>} & linear & \tcode{find_vertex_edge(} \\
+                                        &                          &        & \hspace{8mm}\tcode{g, *find_vertex(g,uid), vid)} \\
+    \tcode{contains_edge(g,uid,vid)} & \tcode{bool} & constant & \tcode{uid < size(vertices(g))} \\
+                                     &              &          & \tcode{&& vid < size(vertices(g))} \\
+                                     &              &          & \hspace{3mm}if \tcode{is_adjacency_matrix_v<G>}.\\
+                                     &              & linear   & \tcode{find_vertex_edge(g,uid)} \\
+                                     &              &          & \tcode{!= end(edges(g,uid))} otherwise. \\
 \hdashline
     \multicolumn{4}{c}{The following are only available when the optional \tcode{source_id(g,uv)} is defined for the edge} \\
 \hdashline
     \tcode{source_id(g,uv)} & \tcode{vertex_id_t<G>} & constant & n/a, optional \\
-    \tcode{source(g,uv)} & \tcode{vertex_t<G>} & constant & \tcode{*(begin(vertices(g)) + source_id(g,uv))} if \tcode{random_access_range<vertex_range_t<G>> \&\& integral<target_id(g,uv)>} \\
+    \tcode{source(g,uv)} & \tcode{vertex_t<G>} & constant & \tcode{*(begin(vertices(g)) + source_id(g,uv))} \\
+                         &                     &          & \hspace{3mm}if \tcode{random_access_range<vertex_range_t<G>>} \\
+                         &                     &          & \hspace{3mm}\tcode{&& integral<target_id(g,uv)>} \\
 \hline
 \end{tabular}}
 \caption{Edge Functions}
@@ -302,7 +314,8 @@ If the concept requirements for the default implementation aren't met by the gra
 To determine the type for \tcode{vertex_id_t<G>} the following steps are taken, in order, to determine its type.
 \begin{enumerate}
     \item Use the type returned by \tcode{vertex_id(g,u)} when overridden for a graph.
-    \item When the graph matches the pattern \tcode{random_access_range<forward_range<integral>>} or \tcode{random_access_range<forward_range<tuple<integral,...>>>},
+    \item When the graph matches the pattern \tcode{random_access_range<forward_range<integral>>} or \\
+          \tcode{random_access_range<forward_range<tuple<integral,...>>>},
           use the \tcode{integral} type specified, which is assumed to be the target\_id on an edge.
     \item Use \tcode{size_t} in all other cases.
 \end{enumerate}
@@ -445,7 +458,7 @@ those types (e.g. an iterator of a range). Table \ref{tab:edgelist_func} describ
 \begin{table}[h!]
 \begin{center}
 %\resizebox{\textwidth}{!}
-{\begin{tabular}{l l L{1.5cm}}
+{\begin{tabular}{l l L{1.7cm}}
 \hline
     \textbf{Type Alias} & \textbf{Definition} & \textbf{Comment} \\
 \hline
@@ -474,15 +487,17 @@ is always available.
 \begin{table}[h!]
     \begin{center}
     \resizebox{\textwidth}{!}
-    {\begin{tabular}{l l p{1.5cm} L{7.0cm}}
+    {\begin{tabular}{l l p{1.5cm} L{6.7cm}}
     \hline
-        \textbf{Function} & \textbf{Return Type} & \textbf{Complexity} & \textbf{Default Implementation} \\
+        \textbf{Function} & \textbf{Return Type} & \textbf{Cmplx} & \textbf{Default Implementation} \\
     \hline
         \tcode{target_id(e)} & \tcode{vertex_id_t<EL>} & constant & (see below) \\
         \tcode{source_id(e)} & \tcode{vertex_id_t<EL>} & constant & (see below) \\
         \tcode{edge_value(e)} & \tcode{edge_value_t<EL>} & constant & optional, see below \\
     \hdashline
-        \tcode{contains_edge(el,uid,vid)} & \tcode{bool} & linear & \tcode{find_if(el, [](edge_reference_t<EL> e) \{return source_id(e)==uid && target_id(e)==vid\})} \\
+        \tcode{contains_edge(el,uid,vid)} & \tcode{bool} & linear & \tcode{find_if(el, [](edge_reference_t<EL> e) \{} \\
+                                          &              &        & \hspace{7mm}\tcode{return source_id(e)==uid} \\
+                                          &              &        & \hspace{13.5mm}\tcode{&& target_id(e)==vid;\} )} \\
         \tcode{num_edges(el)} & \tcode{integral} & constant & \tcode{size(el)} \\
         \tcode{has_edge(el)} & \tcode{bool} & constant & \tcode{num_edges(el)>0} \\
     \hline
