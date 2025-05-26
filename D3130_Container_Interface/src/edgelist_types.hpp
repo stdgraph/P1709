@@ -5,7 +5,7 @@ template <basic_sourced_edgelist EL> // For exposition only
 using edge_iterator_t = ranges::iterator_t<edge_range_t<EL>>;
 
 template <basic_sourced_edgelist EL> // For exposition only
-using edge_t = ranges::range_value_t<edge_range_t<EL>>;
+using edge_t = range_value_t<edge_range_t<EL>>;
 
 template <basic_sourced_edgelist EL> // For exposition only
 using edge_reference_t = ranges::range_reference_t<edge_range_t<EL>>;

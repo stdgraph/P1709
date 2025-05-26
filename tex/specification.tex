@@ -81,15 +81,15 @@ concept has_contains_edge = requires(G&& g, vertex_id_t<G> uid, vertex_id_t<G> v
 namespace std::graph {
 
 template <class G>
-concept vertex_range = ranges::forward_range<vertex_range_t<G>> && 
+concept vertex_range = forward_range<vertex_range_t<G>> && 
                        ranges::sized_range<vertex_range_t<G>> &&
 requires(G&& g, vertex_iterator_t<G> ui) {
-  { vertices(g) } -> ranges::forward_range;
+  { vertices(g) } -> forward_range;
   vertex_id(g, ui);
 };
 
 template <class G, class ER>
-concept targeted_edge = ranges::forward_range<ER> && 
+concept targeted_edge = forward_range<ER> && 
 requires(G&& g, ranges::range_reference_t<ER> uv) {
   target_id(g, uv);
   target(g, uv);
@@ -105,8 +105,8 @@ requires(G&& g, ranges::range_reference_t<ER> uv) {
 template <class G>
 concept adjacency_list = vertex_range<G> && targeted_edge<G, edge_t<G>> &&
       requires(G&& g, vertex_reference_t<G> u, vertex_id_t<G> uid) {
-  { edges(g, u) } -> ranges::forward_range;
-  { edges(g, uid) } -> ranges::forward_range;
+  { edges(g, u) } -> forward_range;
+  { edges(g, uid) } -> forward_range;
 };
 
 template <class G>
@@ -198,16 +198,16 @@ public: // Construction/Destruction
   constexpr compressed_graph& operator=(const compressed_graph&) = default;
   constexpr compressed_graph& operator=(compressed_graph&&)      = default;
 
-  template <ranges::forward_range ERng, class EProj = identity>
-  requires copyable_edge<invoke_result<EProj, ranges::range_value_t<ERng>>, VId, EV>
+  template <forward_range ERng, class EProj = identity>
+  requires copyable_edge<invoke_result<EProj, range_value_t<ERng>>, VId, EV>
   constexpr compressed_graph(const ERng&  erng, 
                       EProj        eprojection, 
                       const Alloc& alloc = Alloc());
 
-  template <ranges::forward_range ERng, ranges::forward_range VRng,
+  template <forward_range ERng, forward_range VRng,
             class EProj = identity,     class VProj = identity>
-  requires copyable_edge<invoke_result<EProj, ranges::range_value_t<ERng>>, VId, EV> &&
-           copyable_vertex<invoke_result<VProj, ranges::range_value_t<VRng>>, VId, VV>
+  requires copyable_edge<invoke_result<EProj, range_value_t<ERng>>, VId, EV> &&
+           copyable_vertex<invoke_result<VProj, range_value_t<VRng>>, VId, VV>
   constexpr compressed_graph(const ERng&  erng,
                       const VRng&  vrng,
                       EProj        eprojection = {},
@@ -225,25 +225,25 @@ public: // Construction/Destruction
 When \tcode{GV} is not \tcode{void} the following constructors are also available.
 
 \begin{lstlisting}
-  template <ranges::forward_range ERng, class EProj = identity>
-  requires copyable_edge<invoke_result<EProj, ranges::range_value_t<ERng>>, VId, EV>
+  template <forward_range ERng, class EProj = identity>
+  requires copyable_edge<invoke_result<EProj, range_value_t<ERng>>, VId, EV>
   constexpr compressed_graph(const graph_value_type& value, 
                       const ERng&             erng, 
                       EProj                   eprojection, 
                       const Alloc&            alloc = Alloc());
   
-  template <ranges::forward_range ERng, class EProj = identity>
-  requires copyable_edge<invoke_result<EProj, ranges::range_value_t<ERng>>, VId, EV>
+  template <forward_range ERng, class EProj = identity>
+  requires copyable_edge<invoke_result<EProj, range_value_t<ERng>>, VId, EV>
   constexpr compressed_graph(graph_value_type&& value,
                       const ERng&        erng, 
                       EProj              eprojection, 
                       const Alloc&       alloc = Alloc());
 
 
-  template <ranges::forward_range ERng, ranges::forward_range VRng,
+  template <forward_range ERng, forward_range VRng,
             class EProj = identity,     class VProj = identity>
-  requires copyable_edge<invoke_result<EProj, ranges::range_value_t<ERng>>, VId, EV> &&
-           copyable_vertex<invoke_result<VProj, ranges::range_value_t<VRng>>, VId, VV>
+  requires copyable_edge<invoke_result<EProj, range_value_t<ERng>>, VId, EV> &&
+           copyable_vertex<invoke_result<VProj, range_value_t<VRng>>, VId, VV>
   constexpr compressed_graph(const graph_value_type& value,
                       const ERng&             erng,
                       const VRng&             vrng,
@@ -251,10 +251,10 @@ When \tcode{GV} is not \tcode{void} the following constructors are also availabl
                       VProj                   vprojection = {},
                       const Alloc&            alloc       = Alloc());
 
-  template <ranges::forward_range ERng, ranges::forward_range VRng,
+  template <forward_range ERng, forward_range VRng,
             class EProj = identity,     class VProj = identity>
-  requires copyable_edge<invoke_result<EProj, ranges::range_value_t<ERng>>, VId, EV> &&
-           copyable_vertex<invoke_result<VProj, ranges::range_value_t<VRng>>, VId, VV>
+  requires copyable_edge<invoke_result<EProj, range_value_t<ERng>>, VId, EV> &&
+           copyable_vertex<invoke_result<VProj, range_value_t<VRng>>, VId, VV>
   constexpr compressed_graph(graph_value_type&& value,
                       const ERng&        erng,
                       const VRng&        vrng,

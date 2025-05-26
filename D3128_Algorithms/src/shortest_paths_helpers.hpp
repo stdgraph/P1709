@@ -10,7 +10,7 @@ template <class Distances>
 constexpr void init_shortest_paths(Distances& distances) {
   // exposition only
   ranges::fill(distances, 
-               shortest_path_infinite_distance<ranges::range_value_t<Distances>>());
+               shortest_path_infinite_distance<range_value_t<Distances>>());
 }
 
 template <class Distances, class Predecessors>

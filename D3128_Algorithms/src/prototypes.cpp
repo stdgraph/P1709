@@ -134,7 +134,7 @@ template <class G>
 concept edge_list_graph = std::copyable<G>;
 
 template <class P>
-concept property = std::ranges::random_access_range<P>;
+concept property = std::random_access_range<P>;
 
 template <class Q>
 concept queueable = std::copyable<Q> && requires(Q q) {
