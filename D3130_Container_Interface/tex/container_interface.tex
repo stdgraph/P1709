@@ -232,11 +232,13 @@ implementation. Specific graph implementations may have different characteristic
     \textbf{Function} & \textbf{Return Type} & \textbf{Complexity} & \textbf{Default Implementation} \\
 \hline
     \tcode{find_vertex(g,uid)} & \tcode{vertex_iterator_t<G>} & constant & \tcode{begin(vertices(g)) + uid} \\
-    & & & if \tcode{random_access_range<vertex_range_t<G>>}  \\
+                               &                              &          & if \tcode{random_access_range<vertex_range_t<G>>} \\
     \tcode{vertex_id(g,u)} & \tcode{vetex_id_t<G>} & constant & (see Determining the vertex\_id type below) \\
-    & & & Override to define a different \tcode{vertex_id_t<G>} type (e.g. int32\_t). \\
+                           &                       &          & Override to define a different \\
+                           &                       &          & \tcode{vertex_id_t<G>} type (e.g. int32\_t). \\
     \tcode{vertex_value(g,u)} & \tcode{vertex_value_t<G>} & constant & n/a, optional \\
-    \tcode{vertex_value(g,uid)} & \tcode{vertex_value_t<G>} & constant & \tcode{vertex_value(g,*find_vertex(g,uid))}, optional \\
+    \tcode{vertex_value(g,uid)} & \tcode{vertex_value_t<G>} & constant & \tcode{vertex_value(g,*find_vertex(g,uid))}, \\
+                                &                           &          & optional \\
     \tcode{degree(g,u)} & \tcode{integral} & constant & \tcode{size(edges(g,u))} if \tcode{sized_range<vertex_edge_range_t<G>>} \\
     \tcode{degree(g,uid)} & \tcode{integral} & constant & \tcode{size(edges(g,uid))} if \tcode{sized_range<vertex_edge_range_t<G>>} \\
     \tcode{edges(g,u)} & \tcode{vertex_edge_range_t<G>} & constant & \tcode{u} if \tcode{forward range<vertex_t<G>>}, n/a otherwise \\
@@ -302,7 +304,8 @@ If the concept requirements for the default implementation aren't met by the gra
 To determine the type for \tcode{vertex_id_t<G>} the following steps are taken, in order, to determine its type.
 \begin{enumerate}
     \item Use the type returned by \tcode{vertex_id(g,u)} when overridden for a graph.
-    \item When the graph matches the pattern \tcode{random_access_range<forward_range<integral>>} or \tcode{random_access_range<forward_range<tuple<integral,...>>>},
+    \item When the graph matches the pattern \tcode{random_access_range<forward_range<integral>>} or \\
+          \tcode{random_access_range<forward_range<tuple<integral,...>>>},
           use the \tcode{integral} type specified, which is assumed to be the target\_id on an edge.
     \item Use \tcode{size_t} in all other cases.
 \end{enumerate}
