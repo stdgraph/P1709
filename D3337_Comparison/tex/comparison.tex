@@ -35,6 +35,12 @@ code which populates the graph data structures.
 In the following subsections, we address the syntax differences for each of
 these algorithms.
 
+\phil{Make sure you have a reference to the repo with the source code so people can
+see the code to load the graph.}
+
+\phil{Is there a reason to show the BFS View instead of the BFS Algorithm? I think the
+algorithm code would be similar to BGL.}
+
 \begin{figure}[ht]
 \noindent\begin{minipage}{.492\textwidth}
 \subcaptionbox{ \bgl }
@@ -145,6 +151,9 @@ The authors of this proposal acknowledge that some power users still want
 the full customization provided by visitors,
 and we plan to add them to this proposal.
 
+\phil{The visitors have been added to the proposal and implemented with Dijkstra. I
+don't believe they've been implemented in the BFS algo.}
+
 Also note \bgl often requires the use of vertex descriptors to uniquely
 identify vertices, as shown by the \tcode{graph\_traits<G>::vertex_descriptor}
 type in Figure~\ref{fig:bfssyntax}(a).
@@ -173,6 +182,8 @@ These property maps are tightly coupled with the graph data structures.
 With \stdgraph, we propose properties be stored external to the graph.
 For edge properties we provide a weight lambda function to the algorithm
 to lookup distance from the \tcode{edge\_reference\_t}.
+
+\phil{Why are properties recommended to be stored externally from the graph?}
 
 \subsection{Triangle Counting}
 \bgl does not provide a triangle counting algorithm
@@ -289,6 +300,11 @@ All implementations of BFS use a sequential push variant that one could find in 
 As mentioned in Section \ref{syntax}, \bgl contains support for visitors which is not available
 in \nwgraph or the version of \stdgraph being tested here.
 
+\phil{Visitors are shown in the P3128 proposal for the BFS algo, but it isn't implemented yet. They have been
+implemented in Dijkstra and it can be used as a starting point for the BFS implementaion. }
+
+\phil{Are visitiors relevent in this test? If not, should the comments about it be dropped?}
+
 BFS results are competitive between the libraries, with the \stdgraph implementation achieving the fastest time on all but the road graph.
 \nwgraph has noticably worse performance on kron and urand.
 \bgl underperforms on web by 2x but this run only takes around 4s.
@@ -312,6 +328,8 @@ Of the two Afforest implementations, \stdgraph is slightly faster but this is re
 it does not have the parallel overhead of the \nwgraph implementation.
 
 \subsubsection{Single Source Shortest Paths}
+\phil{This paragraph is awkward. Please review and reword.}
+
 For this SSSP comparison, we test a Dijkstra implementation for each of the libraries.
 \nwgraph contains multiple Dijkstra implementations, but we use the simplest one which
 is taken directly from the \nwgraph benchmark directory.
