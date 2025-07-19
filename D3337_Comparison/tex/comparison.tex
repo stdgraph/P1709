@@ -32,8 +32,13 @@ Intermediate data structures (e.g., edge lists) will be needed
 to construct the compressed graph structures.
 In order to focus on the differences in algorithm syntax, we omit
 code which populates the graph data structures.
+See the tests or examples in the \stdgraph repository (https://github.com/stdgraph/graph-v2) to better understand
+graph construction. 
 In the following subsections, we address the syntax differences for each of
 these algorithms.
+
+\phil{Is there a reason to show the BFS View instead of the BFS Algorithm? I think the
+algorithm code would be similar to BGL.}
 
 \begin{figure}[ht]
 \noindent\begin{minipage}{.492\textwidth}
@@ -145,6 +150,9 @@ The authors of this proposal acknowledge that some power users still want
 the full customization provided by visitors,
 and we plan to add them to this proposal.
 
+\phil{The visitors have been added to the proposal and implemented with Dijkstra. I
+don't believe they've been implemented in the BFS algo.}
+
 Also note \bgl often requires the use of vertex descriptors to uniquely
 identify vertices, as shown by the \tcode{graph\_traits<G>::vertex_descriptor}
 type in Figure~\ref{fig:bfssyntax}(a).
@@ -153,26 +161,44 @@ Algorithms written using \stdgraph use a unique vertex id, as shown by the
 This same difference is seen in the algorithms that follow.
 
 \subsection{Connected Components}
-There is very little difference in the connected component interfaces.
-
-\scott{There is at least one difference.  The requirements on the container
-that holds the component information.  \bgl seems to require a C-array or at
-the very least a pointer like thing to contiguous memory.  What exactly does
-\stdgraph require?  What is the concept?  Is it more flexible than the BGL interface?}
+From Figure~\ref{fig:ccsyntax} we see little difference in how the connected components
+algorithm is used in \stdgraph and \bgl.
+However when looking at the function definition there is a slight difference in the
+requirements on the resulting component vector \tcode{c}.
+\stdgraph requires the component data structure to meet the concept requirements
+of \tcode{std::ranges::random_access_range} which requires the data structure to be contiguous.
+\bgl requires a map data structure which satisfies \bgl's own \tcode{WritablePropertyMapConcept}
+(C++20 concepts were not available at the time).
+This concept only requires the data structure by indexable by vertex id, so the data structure
+need not be contiguous.
 
 \subsection{Single Source Shortest Paths}
+SSSP algorithm computes for
+every vertex (1) a distance from the start vertex, and (2) a predecessor
+vertex along the shortest path.
+A commonly used SSSP algorithm is the Dijkstra algorithm, which is available
+in \bgl and \stdgraph and shown in Figure~\ref{fig:ssspsyntax}.
+
 Of the four algorithms discussed here, only SSSP makes use of an
 edge property associated with the input graph, the distance used
 to compute shortest paths.
-The algorithm computes for
-every vertex (1) a distance from the start vertex, and (2) a predecessor
-vertex along the shortest path.
-In Figure~\ref{fig:ssspsyntax} we see that \bgl requires
-property maps to lookup edge and vertex properties.
-These property maps are tightly coupled with the graph data structures.
-With \stdgraph, we propose properties be stored external to the graph.
-For edge properties we provide a weight lambda function to the algorithm
-to lookup distance from the \tcode{edge\_reference\_t}.
+In Figure~\ref{fig:ssspsyntax} we see a difference in how
+each implementation accesses this distance property of an edge.
+\bgl creates a property map for the edge weights so the algorithm
+can access an edge's weight via it's edge descriptor.
+This \bgl example is more general than necessary since
+if the weight map is not provided, the Dijkstra implmentation
+creates a default one based on the edge weight property tag
+in the graph type declaration (\tcode{property<edge_weight_t, int>}).
+Property maps can be confusing and difficult to use which is
+why \stdgraph provides the equivalent functionality using a lambda
+function shown in Figure~\ref{fig:ssspsyntax}(b).
+The user tells the algorithm how it will access the distance property
+given an edge reference.
+
+\bgl also requires property maps be used to store the resulting path and distance unlike \stdgraph.
+This leads to a much more verbose function call to Dijkstra than the equivalent \stdgraph
+usage.
 
 \subsection{Triangle Counting}
 \bgl does not provide a triangle counting algorithm
@@ -201,7 +227,10 @@ Figure~\ref{fig:tclowsyntax} compares the underlying implementation syntax
 for each library.
 Note again for \bgl the need to go through vertex descriptors to access the out
 edges of a vertex while \stdgraph uses a vertex id.
-\kevin{Say something about \tcode{incidence\_iterator} and \tcode{end(edges(g,uid))}? The while condition is different, think this has to be the case, not fully sure why \tcode{i != ie} doesn't work for BGL, say something?}
+The \tcode{incidence\_iterator} in \stdgraph is not random access and requires
+\tcode{!=} comparison.
+When using the same \tcode{!=} comparison in the \bgl example, we find the while loop to continue past the end of a neighbor list, so the comparison operator is used instead.
+This is not expected and perhaps a bug in the \bgl version we use.
 
 \clearpage
 
@@ -289,6 +318,9 @@ All implementations of BFS use a sequential push variant that one could find in 
 As mentioned in Section \ref{syntax}, \bgl contains support for visitors which is not available
 in \nwgraph or the version of \stdgraph being tested here.
 
+\phil{Visitors are shown in the P3128 proposal for the BFS algo, but it isn't implemented yet. They have been implemented in Dijkstra and it can be used as a starting point for the BFS implementaion. }
+\phil{Are visitiors relevent in this test? If not, should the comments about it be dropped?}
+
 BFS results are competitive between the libraries, with the \stdgraph implementation achieving the fastest time on all but the road graph.
 \nwgraph has noticably worse performance on kron and urand.
 \bgl underperforms on web by 2x but this run only takes around 4s.
@@ -312,20 +344,25 @@ Of the two Afforest implementations, \stdgraph is slightly faster but this is re
 it does not have the parallel overhead of the \nwgraph implementation.
 
 \subsubsection{Single Source Shortest Paths}
-For this SSSP comparison, we test a Dijkstra implementation for each of the libraries.
-\nwgraph contains multiple Dijkstra implementations, but we use the simplest one which
+Each graph library contains an implementation of Dijkstra's SSSP algorithm which
+we include in these experiments.
+Actually \nwgraph contains multiple Dijkstra implementations, but we use the simplest one which
 is taken directly from the \nwgraph benchmark directory.
-Even though \nwgraph contains an implementation of Dijkstra,
-the SSSP results in \cite{REF_nwgraph_paper} were based on delta-stepping.
-In fairness to \nwgraph, we also include delta-stepping performance for \nwgraph 
-as this was highly tuned compared to \nwgraph's Dijkstra implementation.
-However, this implementation contains \tcode{std::for\_each} and is therefore not sequential.
-
 The GAP specification for SSSP only requires that the algorithm compute the shortest distance
 to every vertex, not the shortest path.
-Each library has a variant of Dijkstra that only computes shortest distances which we use for these experiments.
+We use a variant of SSSP that only computes shortest distances for all of these results.
 
-SSSP results are more mixed, with superior performance for \bgl on twitter and web,
+Although we include performance numbers of the \nwgraph implementation of Dijkstra,
+the SSSP results in \cite{REF_nwgraph_paper} were based on delta-stepping.
+\nwgraph's delta-stepping implmentation was highly tuned for performance compared
+to its Dijkstra implementation.
+Therefore we include \nwgraph delta-stepping timing to consider its best
+``out of the box'' performance.
+This implementation is not sequential as it contains \tcode{std::for\_each}, and is therefore
+not useful for helping us understand potential difference between libraries or their
+Dijkstra implmentations.
+
+SSSP results are mixed, with superior performance for \bgl on twitter and web,
 while \bgl fails by running out of memory on kron and urand.
 The edge distances required for SSSP make this a more memory intensive algorithm
 than the other GAP algorithms.
