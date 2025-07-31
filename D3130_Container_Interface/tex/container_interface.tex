@@ -275,11 +275,6 @@ also be non-linear. This is expected to be an uncommon case.
                                       &                          &        & \tcode{[](uv) \{ return target_id(g,uv)==vid; \})} \\
     \tcode{find_vertex_edge(g,uid,vid)} & \tcode{vertex_edge_t<G>} & linear & \tcode{find_vertex_edge(} \\
                                         &                          &        & \hspace{8mm}\tcode{g, *find_vertex(g,uid), vid)} \\
-    \tcode{contains_edge(g,uid,vid)} & \tcode{bool} & constant & \tcode{uid < size(vertices(g))} \\
-                                     &              &          & \tcode{&& vid < size(vertices(g))} \\
-                                     &              &          & \hspace{3mm}if \tcode{is_adjacency_matrix_v<G>}.\\
-                                     &              & linear   & \tcode{find_vertex_edge(g,uid,vid)} \\
-                                     &              &          & \tcode{!= end(edges(g,uid))} otherwise. \\
 \hline
 \end{tabular}}
 \caption{Edge Functions}
