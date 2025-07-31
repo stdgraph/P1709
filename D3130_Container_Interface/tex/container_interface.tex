@@ -3,7 +3,7 @@
 %% \chapter{Graph Container Interface}
 \section{Graph Container Interface}
 
-The Graph Container Interface (GCI) defines the primitive concepts, traits, types and functions used to define and access an adjacency lists (aka graph)
+The Graph Container Interface (GCI) defines the primitive concepts, traits, types and functions used to define and access adjacency lists (aka graphs)
 and edgelists, no matter their internal design and organization. For instance, an adjacency list can be a vector of lists from standard containers, 
 CSR-based graph and adjacency matrix. Likewise, an edgelist can be a range of edges from a standard container or externally defined edge types, 
 provided they have a source\_id, target\_id and optional edge\_value. 
@@ -267,12 +267,12 @@ also be non-linear. This is expected to be an uncommon case.
 \hline
     \tcode{target_id(g,uv)} & \tcode{vertex_id_t<G>} & constant & (see below) \\
     \tcode{target(g,uv)} & \tcode{vertex_t<G>} & constant & \tcode{*(begin(vertices(g)) + target_id(g, uv))} \\
-                         &                     &          & \hspace{3mm}if \tcode{random_access_range<vertex_range_t<G>>} \\
+                         &                     &          & if \tcode{random_access_range<vertex_range_t<G>>} \\
                          &                     &          & \hspace{3mm}\tcode{\&\& integral<decltype(target_id(g,uv))>} \\
     \tcode{edge_value(g,uv)} & \tcode{edge_value_t<G>} & constant & \tcode{uv} if \tcode{forward_range<vertex_t<G>>}, \\
                              &                         &          & n/a otherwise, optional \\
     \tcode{find_vertex_edge(g,u,vid)} & \tcode{vertex_edge_t<G>} & linear & \tcode{find(edges(g,u),} \\
-                                      &                          &        & \hspace{8mm}\tcode{[](uv) \{ return target_id(g,uv)==vid; \})} \\
+                                      &                          &        & \tcode{[](uv) \{ return target_id(g,uv)==vid; \})} \\
     \tcode{find_vertex_edge(g,uid,vid)} & \tcode{vertex_edge_t<G>} & linear & \tcode{find_vertex_edge(} \\
                                         &                          &        & \hspace{8mm}\tcode{g, *find_vertex(g,uid), vid)} \\
     \tcode{contains_edge(g,uid,vid)} & \tcode{bool} & constant & \tcode{uid < size(vertices(g))} \\
@@ -285,7 +285,7 @@ also be non-linear. This is expected to be an uncommon case.
 \hdashline
     \tcode{source_id(g,uv)} & \tcode{vertex_id_t<G>} & constant & n/a, optional \\
     \tcode{source(g,uv)} & \tcode{vertex_t<G>} & constant & \tcode{*(begin(vertices(g)) + source_id(g,uv))} \\
-                         &                     &          & \hspace{3mm}if \tcode{random_access_range<vertex_range_t<G>>} \\
+                         &                     &          & if \tcode{random_access_range<vertex_range_t<G>>} \\
                          &                     &          & \hspace{3mm}\tcode{\&\& integral<decltype(source_id(g,uv))>} \\
 \hline
 \end{tabular}}
@@ -358,7 +358,7 @@ The following are characteristics of descriptors:
     \item Ordering: Descriptors can be ordered using the \tcode{<}, \tcode{<=}, \tcode{>}, and \tcode{>=} operators, if supported 
           by the iterators in underlying container being used.
     \item Copy and assignment: Descriptors can be copied and assigned, ensuring they can be used in standard algorithms and containers.
-    \item Default construction: Descriptors can be default-constructed, though the resulting value are not guaranteed to represent 
+    \item Default construction: Descriptors can be default-constructed, though the resulting values are not guaranteed to represent 
           a valid vertex or edge.
 \end{itemize}
 
@@ -366,8 +366,8 @@ In addition, a descriptor has an \tcode{inner_value()} member function that retu
 in the underlying container. This is only needed for overriding the customization points when you're adapting your own
 graph container to the GCI.
  
-The only vertex function that requires a vertex id \tcode{(uid)}is \tcode{find_vertex(g,uid).} All other functions
-that accept vertex id are convenience functions that imply a call to \tcode{find_vertex(g,uid)}to get the vertex 
+The only vertex function that requires a vertex id \tcode{(uid)} is \tcode{find_vertex(g,uid).} All other functions
+that accept vertex id are convenience functions that imply a call to \tcode{find_vertex(g,uid)} to get the vertex 
 descriptor before a call.
 
 The following are the descriptor views used by \tcode{vertices(g)} and \tcode{edges(g,u)}. \tcode{descriptor_subrange_view} 
@@ -407,14 +407,14 @@ This isn't needed for bipartite graphs.
 An edgelist is a range of values where we can get the source\_id and target\_id, and an optional edge\_value. It is similar to edges in an
 adjacency list or edges in the incidence view, but is a distinct range of values that are separate from the others.
 
-Like the adjacency list, the edgelist has default implementations that use the standard library for simple implmentations out of the box.
+Like the adjacency list, the edgelist has default implementations that use the standard library for simple implementations out of the box.
 It's also able to easily adapt to externally defined edge types by overriding the \tcode{source_id(e)}, \tcode{target_id(e)} and 
 \tcode{edge_value(e)} functions.
 
 \subsection{Namespace}
 The concepts and types for the edgelist are defined in the \tcode{std::graph::edgelist} namespace to avoid conflicts with the adjacency list.
 
-\phil{It would be nice to include them in std::graph, but I'm having difficulting figuring out how to do that based on adjlist and edgelist concepts.}
+\phil{It would be nice to include them in std::graph, but I'm having difficulty figuring out how to do that based on adjlist and edgelist concepts.}
 
 
 \subsection{Concepts}
@@ -497,7 +497,7 @@ is always available.
     \hdashline
         \tcode{contains_edge(el,uid,vid)} & \tcode{bool} & linear & \tcode{find_if(el, [](edge_reference_t<EL> e) \{} \\
                                           &              &        & \hspace{7mm}\tcode{return source_id(e)==uid} \\
-                                          &              &        & \hspace{13.5mm}\tcode{&& target_id(e)==vid;\} )} \\
+                                          &              &        & \hspace{13.5mm}\tcode{\&\& target_id(e)==vid; \} )} \\
         \tcode{num_edges(el)} & \tcode{integral} & constant & \tcode{size(el)} \\
         \tcode{has_edge(el)} & \tcode{bool} & constant & \tcode{num_edges(el)>0} \\
     \hline
