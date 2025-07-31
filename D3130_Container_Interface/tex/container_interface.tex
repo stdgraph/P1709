@@ -276,7 +276,6 @@ also be non-linear. This is expected to be an uncommon case.
     \tcode{find_vertex_edge(g,uid,vid)} & \tcode{vertex_edge_t<G>} & linear & \tcode{find_vertex_edge(} \\
                                         &                          &        & \hspace{8mm}\tcode{g, *find_vertex(g,uid), vid)} \\
     \tcode{contains_edge(g,uid,vid)} & \tcode{bool} & constant & \tcode{uid < size(vertices(g))} \\
-                                     &              &          & \tcode{&& vid < size(vertices(g))} \\
 \hdashline
     \multicolumn{4}{c}{The following are only available when the optional \tcode{source_id(g,uv)} is defined for the edge} \\
 \hdashline
