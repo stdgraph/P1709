@@ -1,0 +1,78 @@
+%!TEX root = std.tex
+%%--------------------------------------------------
+%% Default Authors and Contributors System
+%% This file defines the default authors and contributors for all papers.
+%% Individual papers can override these by defining custom commands in their config.tex files.
+%%--------------------------------------------------
+
+\makeatletter  % Enable @ in command names for internal LaTeX commands
+
+%% Default authors - these appear as "Reply-to:" in the title page
+\newcommand{\defaultauthors}{%
+&Phil Ratzloff (SAS Institute)\\
+&\href{mailto:phil.ratzloff@sas.com}{\nolinkurl{phil.ratzloff@sas.com}}\\
+&Andrew Lumsdaine\\
+&\href{mailto:lumsdaine@gmail.com}{\nolinkurl{lumsdaine@gmail.com}}\\
+}
+
+%% Default contributors - these appear as "Contributors:" in the title page
+\newcommand{\defaultcontributors}{%
+&Kevin Deweese\\
+&Muhammad Osama (AMD, Inc)\\
+&Scott McMillan (Carnegie Mellon University)\\
+&Jesun Firoz\\
+&Michael Wong (Intel)\\
+&Jens Maurer\\
+&Richard Dosselmann (University of Regina)\\
+&Matthew Galati (Amazon)\\
+&Guy Davidson (Creative Assembly)\\
+&Oliver Rosten%
+}
+
+%% Paper-specific authors (defaults to default authors, can be overridden)
+%% Check if custom authors are defined in the paper's config, otherwise use defaults
+\@ifundefined{custompaperauthors}{%
+  \newcommand{\paperauthors}{\defaultauthors}%
+}{%
+  \newcommand{\paperauthors}{\custompaperauthors}%
+}
+
+%% Paper-specific contributors (defaults to default contributors, can be overridden)  
+%% Check if custom contributors are defined in the paper's config, otherwise use defaults
+\@ifundefined{custompapercontributors}{%
+  \newcommand{\papercontributors}{\defaultcontributors}%
+}{%
+  \newcommand{\papercontributors}{\custompapercontributors}%
+}
+
+\makeatother  % Restore @ to normal behavior
+
+%%--------------------------------------------------
+%% Usage Instructions:
+%%
+%% To use default authors and contributors:
+%% Just include this file and use \paperauthors and \papercontributors in your title template.
+%% No configuration needed in individual papers.
+%%
+%% To override authors for a specific paper, add this to the paper's config.tex:
+%% \newcommand{\custompaperauthors}{%
+%% &Custom Author (Institution)\\
+%% &\href{mailto:custom@example.com}{\nolinkurl{custom@example.com}}\\
+%% &Another Author\\
+%% &\href{mailto:another@example.com}{\nolinkurl{another@example.com}}\\
+%% }
+%%
+%% To override contributors for a specific paper:
+%% \newcommand{\custompapercontributors}{%
+%% &Special Contributor\\
+%% &Another Expert\\
+%% &Yet Another Contributor%
+%% }
+%%
+%% To add to the default contributors (keeping defaults plus adding more):
+%% \newcommand{\custompapercontributors}{%
+%% \defaultcontributors\\
+%% &Additional Contributor\\
+%% &Special Expert for This Paper%
+%% }
+%%--------------------------------------------------
