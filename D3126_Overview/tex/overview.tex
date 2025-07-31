@@ -35,9 +35,8 @@ of the inner and outer containers.
 \section{Goals and Priorities}
 
 The main goal of this library is to provide a self-consistent and systematic library of software components for
-graph computations, based on well-defined graph representations. it includes generic 
-algorithms, named requirements, views, and utilities.
-views.  
+graph computations, based on well-defined graph representations. It includes generic 
+algorithms, named requirements, views, and utilities.  
 %
 It is informed by the authors' past experience with the Boost Graph Library (BGL), the NWGraph library, the C++
 GraphBLAS, and the library proposed in P1709.  The proposed library seeks to leverage the existing Standard
@@ -168,7 +167,7 @@ Hypergraphs are not supported.
 \section{Impact on the Standard}
 This proposal is a pure \textbf{library} extension.
 
-\section{Interaction wtih Other Papers}
+\section{Interaction with Other Papers}
 The entirety of our proposal for graph algorithms and data structures comprises multiple companion papers: D3127 (Terminology), D3128 (Algorithms), D3129 (Views), D3130 (Container Interface), D3131 (Containers), D9903 (Operators), and D9907 (Adaptors).
 Other than these papers, there are no interactions with other proposals to the standard.
 
@@ -190,7 +189,7 @@ Performance analysis from those algorithms can be found in the peer-reviewed pap
 \textbf{boost::graph} has been an important C++ graph implementation since 2001. It was developed with the goal of providing
 a modern (at the time) generic library that addressed all the needs of a graph library user. It is still a viable library used today, attesting to the value it brings.
 
-However, boost::graph was written using C++98 in an ``expert-friendly'' style, adding many abstractions and using sophisticated tempate metaprogramming, making it difficult to use by a casual developer.  Particular pain-points described in ad-hoc discussions with users  include: property maps, parameter-passing, visitors.
+However, boost::graph was written using C++98 in an ``expert-friendly'' style, adding many abstractions and using sophisticated template metaprogramming, making it difficult to use by a casual developer.  Particular pain-points described in ad-hoc discussions with users  include: property maps, parameter-passing, visitors.
 
 \medskip
 
@@ -199,7 +198,7 @@ by Lumsdaine et al, bringing additional experience gained since creating boost::
 that was more accessible to the average developer. % with the latest algorithms.
 
 While NWGraph made important strides to introduce the idea of an adjacency list as a range-of-ranges and implemented many important algorithms,
-there are some areas it didn't address that come a practical use in the field. For instance, it didn't have a well-defined API for graph
+there are some areas it didn't address that are of practical use in the field. For instance, it didn't have a well-defined API for graph
 data structures that could be applied to existing graphs, and there wasn't a uniform approach to properties.
 
 This proposal takes the best of NWGraph, with previous work done for P1709 to define a Graph Container Interface, to provide a library that
@@ -271,7 +270,7 @@ Alternative locations include the following:
 \item[]\tcode{std::ranges/graph}, \tcode{std::ranges::graph::views} and \tcode{std::ranges::graph::edgelist}
 \end{itemize}
 The advantage of these two options are that there would be no requirement to use the ranges:: prefix for things
-in the std::ranges namespace, a common occurance.
+in the std::ranges namespace, a common occurrence.
 
 \section{Notes and Considerations}
 There are some interesting observations that can be made about graphs and how they compare and contrast to the 
@@ -298,7 +297,7 @@ There are other observations we've also discovered along the way that may not be
 \end{itemize}
 
 The addition of concepts to the standard library is a serious consideration because, once added, they cannot 
-be removed. We believe that adjacency lists as a range-of-ranges merits the addition new concepts but we recognize that it
+be removed. We believe that adjacency lists as a range-of-ranges merits the addition of new concepts but we recognize that it
 may be a controversial decision. Toward that end, we will continue to include them to help clarify the examples given
 and are assumed to be "For exposition only" as suggested implementation until a clear decision to include them, or not, 
 is made.

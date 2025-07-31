@@ -16,7 +16,7 @@ jobs:
           submodules: recursive
 
       - name: Compile LaTeX document
-        uses: xu-cheng/latex-action@v3
+        uses: xu-cheng/latex-action@v4
         with:
           root_file: |
             D3126_Overview.tex
