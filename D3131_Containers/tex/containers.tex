@@ -8,10 +8,10 @@ uses \href{https://en.wikipedia.org/wiki/Sparse_matrix#Compressed_sparse_row_\%2
 (CSR) format to store its vertices, edges and associated values. Once constructed, vertices and edges cannot be added or deleted 
 but values on vertices and edges can be modified.
 
-There are a number of features added beyond the typical CSR implmentation:
+There are a number of features added beyond the typical CSR implementation:
 \begin{itemize}
     \item   \textbf{User-defined values} The typical CSR implementation stores values on edges (columns) by defining the \tcode{EV}
-            template paraemter. \tcode{compressed_graph} extends that to also allow values on vertices (rows) and the graph itself 
+            template parameter. \tcode{compressed_graph} extends that to also allow values on vertices (rows) and the graph itself 
             by defining the \tcode{VV} and \tcode{GV} template arguments respectively. If a type is void, no memory overhead is incurred.
     \item   \textbf{Index type sizes} The size of the integral indexes into the internal vertex (row) and edge (column) structures can be 
             controlled by the \tcode{VId} and \tcode{EIndex} template arguments respectively to give a balance between capacity, memory 
@@ -24,7 +24,7 @@ There are a number of features added beyond the typical CSR implmentation:
 The listings in the following sections show the prototypes for the \tcode{compressed_graph} when the graph value type \tcode{GV} is 
 non-\tcode{void} (section \ref{compressed_full}) and a class template specialization when it is \tcode{void} (section \ref{compressed_specialization}).
 
-Only the constuctors and destructor shown for \tcode{compressed_graph} are public. All other types and functions related to the graph
+Only the constructors and destructor shown for \tcode{compressed_graph} are public. All other types and functions related to the graph
 are only accessible through the types and functions in the Graph Container Interface.
 
 \begin{table}[h]
@@ -35,7 +35,7 @@ are only accessible through the types and functions in the Graph Container Inter
     \hline
     \textbf{vertex\_id assignment:} Contiguous & \textbf{\tcode{has_edge(g)}} $O(1)$ & \textbf{Append vertices?} No \\
     \textbf{Vertices range:} Contiguous & \textbf{\tcode{num_edges(g)}} $O(1)$ & \textbf{Append edges?} No \\
-    \textbf{Edge range:} Contiguous & \textbf{\tcode{partition_id(g,uid)}} $O(log(P+1))$ & \textbf{Partions?} Yes\\
+    \textbf{Edge range:} Contiguous & \textbf{\tcode{partition_id(g,uid)}} $O(log(P+1))$ & \textbf{Partitions?} Yes\\
     & & \textbf{is\_directed?} No \\
     %O(log(P+1)) is the complexity of std::upper_bound; +1 is for the number of vertices added at the end of partition_start_ids
     \hline
@@ -43,7 +43,7 @@ are only accessible through the types and functions in the Graph Container Inter
     %\caption{Jaccard Coefficient Summary}
     \label{tab:compressed_graph_summary}
 \end{table}
-$P$ is the number of partitions and is exepected to be small, e.g. $P = 2$ for bipartite and $P \leq 10$ for typical 
+$P$ is the number of partitions and is expected to be small, e.g. $P = 2$ for bipartite and $P \leq 10$ for typical 
 multi-partite graphs.
 
 The \tcode{is_directed} trait is not supported. If \tcode{compressed_graph} is intended to be used for an undirected
@@ -70,8 +70,8 @@ When \tcode{GV} is void the number of constructors decreases significantly as sh
 \begin{itemdescr}
     \pnum\mandates
         \begin{itemize}
-            \item The \tcode{EV} template argument for an edge value must be a copyable type or \tcode{void.}
-            \item The \tcode{VV} template argument for a vertex value must be a copyable type or \tcode{void.}
+            \item The \tcode{EV} template argument for an edge value must be a copyable type or \tcode{void}.
+            \item The \tcode{VV} template argument for a vertex value must be a copyable type or \tcode{void}.
             \item When the \tcode{GV} template argument for a graph value is not \tcode{void} it can be movable or copyable. It must have a 
                   default constructor if it is not passed in a \tcode{compressed_graph} constructor.
             \item The \tcode{EProj} template argument must be a projection that returns a value of \tcode{copyable_edge<VId, true, EV>} type
@@ -128,7 +128,7 @@ no function overrides.
 \subsubsection{Using Standard Containers for an Adjacency List}
 When the graph is defined using standard containers, the GCI functions can be used without any function overrides.
 
-For example this we'll use \tcode{G = vector<forward_list<tuple<int,double>>>} to define the graph, where \tcode{g} 
+In this example, we'll use \tcode{G = vector<forward_list<tuple<int,double>>>} to define the graph, where \tcode{g} 
 is an instance of \tcode{G}. \tcode{tuple<int,double>} defines the target\_id and weight property respectively. We
 can write loops to go through the vertices, and edges within each vertex, as follows.
 

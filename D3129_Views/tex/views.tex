@@ -24,7 +24,7 @@
 %
 
 The views in this paper provide common ways that algorithms use to traverse graphs. They are a simple as iterating 
-through the set of vertices, or more complex ways such as depth-first search and breadth-first search. The also 
+through the set of vertices, or more complex ways such as depth-first search and breadth-first search. They also 
 provide a consistent and reliable way to access related elements using the View Return Types, and guaranteeing expected 
 values, such as that the target is really the target on unordered edges.
 
@@ -87,7 +87,7 @@ exists.
      \lstinputlisting{D3129_Views/src/vertex_info.hpp}
 }
 
-Specializations are defined with \tcode{V=void} or \tcode{VV=void} to suppress the existance of their associated member variables, 
+Specializations are defined with \tcode{V=void} or \tcode{VV=void} to suppress the existence of their associated member variables, 
 giving the following valid combinations in Table \ref{tab:vertex-view} . For instance, the second entry, \tcode{vertex_info<VId, void>} 
 has one member \tcode{\{vertex_type vertex;\}} and \tcode{value_type} is \tcode{void}.
 \begin{table}[h!]
@@ -123,7 +123,7 @@ When \tcode{Sourced=true}, the \tcode{source} member is included with type \tcod
      \lstinputlisting{D3129_Views/src/edge_info.hpp}
 }
 
-Specializations are defined with \tcode{Sourced=true|false}, \tcode{E=void} or \tcode{EV=void} to suppress the existance of the associated 
+Specializations are defined with \tcode{Sourced=true|false}, \tcode{E=void} or \tcode{EV=void} to suppress the existence of the associated 
 member variables, giving the following valid combinations in Table \ref{tab:edge-view} . For instance, the second entry, 
 \tcode{edge_info<VId,true,E>} has three members \tcode{\{source_id_type source_id; target_id_type target_id; edge_type edge;\}} 
 and \tcode{value_type} is \tcode{void}.
@@ -161,7 +161,7 @@ When \tcode{Sourced=true}, the \tcode{source} member is included with type \tcod
      \lstinputlisting{D3129_Views/src/neighbor_info.hpp}
 }
 
-Specializations are defined with \tcode{Sourced=true|false} or \tcode{EV}=void to suppress the existance of the 
+Specializations are defined with \tcode{Sourced=true|false} or \tcode{EV}=void to suppress the existence of the 
 associated member variables, giving the following valid combinations in Table \ref{tab:neighbor-view} . For instance, the second entry, 
 \tcode{neighbor_info<V,true>} has two members \tcode{\{source_type source; target_type target;\}} 
 and \tcode{value_type} is \tcode{void}.
@@ -363,7 +363,7 @@ enum struct cancel_search : int8_t {
 };
 
 // stop searching from current vertex
-template<class S)
+template<class S>
 void cancel(S search, cancel_search);
 
 // Returns distance from the source vertex to the current vertex, 

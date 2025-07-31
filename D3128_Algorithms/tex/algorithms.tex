@@ -76,7 +76,7 @@ Traversal and Shortest Paths algorithms include single-source and multi-source v
 Additional algorithms that were considered but not included in this proposal are shown in Table \ref{tab:other_algorithms}. 
 Tier X algorithms are variations of shortest paths algorithms that complement the Single Source, Multiple Target algorithms 
 in this proposal.
-It is assumed that future proposals will include them, thought the exact mix for each proposal will depend on feedback received
+It is assumed that future proposals will include them, though the exact mix for each proposal will depend on feedback received
 and our experience with the current proposal.
 
 \phil{We may want to revisit the Driver idea in the future after we have more algorithms.}
@@ -114,7 +114,7 @@ and our experience with the current proposal.
 \end{center}
 \end{table}
 
-\andrew{All Pairs: Tier 2?  People bring this up alot -- but it is very expensive in terms of computation and memory.}
+\andrew{All Pairs: Tier 2?  People bring this up a lot -- but it is very expensive in terms of computation and memory.}
 \phil{If it's useful to enough people it should be included. Users can make their own determination of whether they want to use it, based on the cost.}
 
 \phil{The same variations for Shortest Paths algorithms can also be useful for topological sort.}
@@ -510,7 +510,7 @@ A linear ordering of vertices such that for every directed edge (u,v) from verte
             \begin{itemize}
                   \item \lstinline{shortest_path_infinite_distance()} returns the largest distance value,
                         typically \lstinline{numeric_limits<DistanceValue>::max()} for numeric types.
-                  \item \lstinline{shortest_path_zero()} returns a value for for a zero-length path,
+                  \item \lstinline{shortest_path_zero()} returns a value for a zero-length path,
                         typically \lstinline{0} for numeric types.
             \end{itemize}
 \end{itemdescr}
@@ -762,7 +762,7 @@ get the vertex ids of the negative weight cycle.
       %\pnum\result
       \pnum\returns 
             \begin{itemize}
-                  \item \lstinline{optional<vertex_id_t<G>} If no negative weight cycle is found, 
+                  \item \lstinline{optional<vertex_id_t<G>>} If no negative weight cycle is found, 
                         there is no associated vertex id. If a negative weight cycle is found, a
                         vertex id in the cycle is returned. \lstinline{find_negative_cycle}
                         can be called to get the vertex ids of the cycle.
@@ -824,10 +824,10 @@ giving a small performance improvement with lower memory overhead.
       %\pnum\result
       \pnum\returns 
             \begin{itemize}
-                  \item \lstinline{optional<vertex_id_t<G>} If no negative weight cycle is found, 
+                  \item \lstinline{optional<vertex_id_t<G>>} If no negative weight cycle is found, 
                         there is no associated vertex id. If a negative weight cycle is found, a
                         vertex id in the cycle is returned. \lstinline{bellman_ford_shortest_paths} must be used
-                        to get the predecessors if it is importantant to get the vertex ids of the cycle
+                        to get the predecessors if it is important to get the vertex ids of the cycle
                         using \lstinline{find_negative_cycle}.
             \end{itemize}
       \pnum\complexity $\mathcal{O}(|E| \cdot |V|)$. Complexity may also be affected when visitor events are called. \\
@@ -1162,7 +1162,7 @@ Find weakly connected components of a graph. Weakly connected components are sub
                   \item
                         \lstinline{component[v]} is the connected component id of vertex \lstinline{v}.
                   \item
-                        There is at least one Connected Component, with compondent id of \lstinline{0}, for \lstinline{num_vertices(g) > 0}.
+                        There is at least one Connected Component, with component id of \lstinline{0}, for \lstinline{num_vertices(g) > 0}.
             \end{itemize}
       %\pnum\result
       %\pnum\returns
@@ -1497,7 +1497,7 @@ Find the minimum weight spanning tree of a graph using Prim's algorithm.
                   \item
                         \lstinline{size(weight) >= to num_vertices(g)}.
                   \item
-                        \lstinline{size(predecessor >= to num_vertices(g)}.
+                        \lstinline{size(predecessor) >= num_vertices(g)}.
             \end{itemize}
       \pnum\effects
             \begin{itemize}

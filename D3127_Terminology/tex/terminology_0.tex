@@ -85,7 +85,7 @@ The number of elements in $V$ is denoted by $|V|$ and the number of elements in 
 We summarize some remaining terminology about vertices and edges.
 \begin{itemize}
 \item 
-An edge $e_k$ may  be \emph{directed}, denoted as the ordered pair $e_k=(v_i, v_j)$, or it may be
+An edge $e_k$ may be \emph{directed}, denoted as the ordered pair $e_k=(v_i, v_j)$, or it may be
   \emph{undirected}, denoted as the (unordered) set $e_k=\{v_i, v_j\}$.  The edges 
 in $E$ are either all directed or all undirected,
   corresponding respectively to a \emph{directed graph} or to an \emph{undirected} graph.
@@ -390,7 +390,7 @@ appeared in (``movie-actor'' and ``actor-movie'' tables, respectively).  Such ta
 %
 Thus, a graph, as we have defined it, cannot model the IMDB.  
 
-There is a small generalization we can make to the definition of graph that will result in a suitable abstraction for modeling the IMDB.  In particular, we need one set of vertices corresponding to actors, another set of vertices corresponding to movies, and then a set of edges corresponding to the relationships between actors and movies.  There are two kinds of relationships to consider actors in movies or movies starring actors.  To be well-defined, the edge set may only contain one kind of relationship.  To capture this kind of model, we define a \emph{structurally bipartite graph} $H = \{ U, V, E \}$, where vertex sets $U$ and $V$ are enumerated $U = \{ u_0, u_1, \ldots , u_{n0} \}$ and $V  = \{ v_0, v_1, \ldots v_{n1}\}$, 
+There is a small generalization we can make to the definition of graph that will result in a suitable abstraction for modeling the IMDB.  In particular, we need one set of vertices corresponding to actors, another set of vertices corresponding to movies, and then a set of edges corresponding to the relationships between actors and movies.  There are two kinds of relationships to consider: actors in movies or movies starring actors.  To be well-defined, the edge set may only contain one kind of relationship.  To capture this kind of model, we define a \emph{structurally bipartite graph} $H = \{ U, V, E \}$, where vertex sets $U$ and $V$ are enumerated $U = \{ u_0, u_1, \ldots , u_{n0} \}$ and $V  = \{ v_0, v_1, \ldots v_{n1}\}$, 
 and the edge set $E$ consists of pairs $(u_i, v_j)$ where $u_i$ is in $U$ and $v_j$ is in $V$.
 
 The \emph{adjacency matrix representation of a structurally bipartite graph} is
@@ -404,7 +404,7 @@ a $|U|\times |V|$ matrix $A = (a_{ij})$ such that,
  \end{array}
  \right.
  \]
-From this adjacency matrix representation we can readily construct  coordinate and compressed sparse representations.  The only structural difference between the representations of a structurally bipartite graph and that of a unipartite graph is that of vertex cardinality.  That is, in a unipartite graph, edges map from $V$ to $V$, and hence the values in the left hand column and in the right hand column of a coordinate representation would be in the same range: $[0, |V|)$.  However, for a structurally bipartite graph, this is no longer the case.  Although the coordinate representation still consists of pairs of vertex indices, the range of values in the left hand column is $[0, |U|)$, while in the right hand column it is $[0, |V|)$.  Similarly, the compressed representation will have $|U|$ entries, but the values stored in each entry may range from $[0, |V|)$.  We note that these are constraints on values, not on structure.
+From this adjacency matrix representation we can readily construct coordinate and compressed sparse representations.  The only structural difference between the representations of a structurally bipartite graph and that of a unipartite graph is that of vertex cardinality.  That is, in a unipartite graph, edges map from $V$ to $V$, and hence the values in the left hand column and in the right hand column of a coordinate representation would be in the same range: $[0, |V|)$.  However, for a structurally bipartite graph, this is no longer the case.  Although the coordinate representation still consists of pairs of vertex indices, the range of values in the left hand column is $[0, |U|)$, while in the right hand column it is $[0, |V|)$.  Similarly, the compressed representation will have $|U|$ entries, but the values stored in each entry may range from $[0, |V|)$.  We note that these are constraints on values, not on structure.
  
 
 \begin{figure}[ht]
@@ -474,9 +474,9 @@ While partitioned graphs can be used to model multipartite graphs, partitioned g
 
 % These are definitely already covered in the examples above.
 % \subsection{From Edge List to Adjacency List}
-% \andrew{Scan edge list and insert edgest into adjacency list.  Adjacency list must support insertion.}
+% \andrew{Scan edge list and insert edges into adjacency list.  Adjacency list must support insertion.}
 % \subsection{Edge List and Adjacency List: Compressed Edge List}
-% \andrew{Using a sort and group-by (or a sort, a run-length encoding, and a scan), we can compactify the edge-list reprentation and at the same time obtain an adjacency-list representation -- one that is memory and compute efficient.  Best of both worlds.  Has same basic structural principles as CSR / CSC matrices in linear algebra -- but much more general.}
+% \andrew{Using a sort and group-by (or a sort, a run-length encoding, and a scan), we can compactify the edge-list representation and at the same time obtain an adjacency-list representation -- one that is memory and compute efficient.  Best of both worlds.  Has same basic structural principles as CSR / CSC matrices in linear algebra -- but much more general.}
 
 \section{Regarding Algorithms}
 
@@ -599,7 +599,7 @@ The elements can be stored in coordinate form, where each triple is stored (eith
 A sparse matrix can be considered as a structurally bipartite graph representation.  Suppose that we have a sparse matrix $A$ represented as $\{(i, j, a_{ij})\}$.  We can create a structurally bipartite  $J = \{U, V, E\}$ such that $(i,j)$ is in $E$ if and only if $\{(i, j, a_{ij})\}$ is in $A$.  The coordinate and compressed representations for a sparse matrix are the same as for the graph (and, in fact, the terminology ``coordinate'' and ``compressed sparse'' originate in sparse numerical linear algebra).  For a matrix, the sets $U$ and $V$ have a particular meaning.  Either the indices of $U$ consist of row numbers and $V$ of column numbers, or vice versa.  In the former case, a compressed representation is known as ``compressed sparse row.''  In the latter case, it is known as ``compressed sparse column.''
 
 \andrew{This code is from nwgraph, need to bring it up to std::graph}
-The following code snippet illustrates a sparse matrix vector product when a compressed adjacency representation  is interpreted as a compressed sparse row matrix.
+The following code snippet illustrates a sparse matrix vector product when a compressed adjacency representation is interpreted as a compressed sparse row matrix.
 \begin{lstlisting}[language=C++]
   for (auto&& [row, u_neighbors] : make_neighbor_range(graph)) {
     for (auto&& [col, val] : u_neighbors) {
