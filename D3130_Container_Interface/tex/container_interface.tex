@@ -266,6 +266,9 @@ also be non-linear. This is expected to be an uncommon case.
     \textbf{Function} & \textbf{Return Type} & \textbf{Cmplx} & \textbf{Default Implementation} \\
 \hline
     \tcode{target_id(g,uv)} & \tcode{vertex_id_t<G>} & constant & (see below) \\
+    \tcode{target(g,uv)} & \tcode{vertex_t<G>} & constant & \tcode{*(begin(vertices(g)) + target_id(g, uv))} \\
+                         &                     &          & if \tcode{random_access_range<vertex_range_t<G>>} \\
+                         &                     &          & \hspace{3mm}\tcode{\&\& integral<decltype(target_id(g,uv))>} \\
 \hline
 \end{tabular}}
 \caption{Edge Functions}
