@@ -27,7 +27,7 @@ A very brief summary of our terminology is the following:
   \item A graph comprises a set of \emph{vertices} $\{V\}$ and a set of \emph{edges} $\{E\}$, and is written $G=\{V, E\}$.
   \item Expressing algorithms (mathematically as well as in code) requires a \emph{representation} of a graph, the most basic of which is an \emph{adjacency matrix}.  An adjacency matrix is constructed using an \emph{enumeration} of the vertices, not the vertices themselves.
     \item In addition to the (dense) adjacency matrix representation, we consider three sparse representations: coordinate, compressed, and packed coordinate.  The sparse forms store \emph{indices} defined by the enumeration.
-    \item The \emph{coordinate} and \emph{compressed} forms of the adjacency matrix\footnote{the terems coordinate and compressed are taken from linear algebra.} respectively correspond to representations of the graph theoretical 
+    \item The \emph{coordinate} and \emph{compressed} forms of the adjacency matrix\footnote{the terms coordinate and compressed are taken from linear algebra.} respectively correspond to representations of the graph theoretical 
 \emph{edge list} and \emph{adjacency list}.
 \end{itemize}
 
@@ -135,7 +135,7 @@ edge $\{v_i, v_k\}$.  In terms of the sequence above, a path is a cycle if the s
   \item A \emph{subgraph} of $G=\{V,E\}$ is a graph $H=\{V, F\}$ such that $F$ is a subset of $E$.
 \item A \emph{spanning tree} is a subgraph of $G$ that is also a tree.
 \end{itemize}
-If any of these properties is important to the correct functioning of an algorithm, either positively or negatively, it will be part of the corresponding requirements of the algorithm.  In general we assume that graphs are not multigraphs, not hyperspase, and that they do not have self-loops.
+If any of these properties is important to the correct functioning of an algorithm, either positively or negatively, it will be part of the corresponding requirements of the algorithm.  In general we assume that graphs are not multigraphs, not hypersparse, and that they do not have self-loops.
 
 \andrew{We should probably have pictures for all of these -- and others -- saves 1k (or 10k) words.}
 
