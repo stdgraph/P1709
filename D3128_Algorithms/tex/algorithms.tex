@@ -83,7 +83,7 @@ and our experience with the current proposal.
 %The Shortest Paths Driver is an idea of having a unified interface that chooses the best Shortest Path algorithm
 %based on characteristics like non-negative edge weight, multi-threading, etc.
 
-\begin{table}[h!]
+\begin{table}[ht]
 \begin{center}
 %\resizebox{\textwidth}{!}
 {\begin{tabular}{l|l|l}
@@ -180,6 +180,20 @@ concept edge_weight_function = // e.g. weight(uv)
       \end{lstlisting}
 \end{comment}
 
+\subsection{Ordered Vertex Edges Concept}
+The \lstinline{ordered_vertex_edges} concept requires that the outgoing edges of each vertex
+are sorted in ascending order of \lstinline{target_id}. This is needed by algorithms such as
+\lstinline{triangle_count} that rely on sorted adjacency lists for efficient intersection.
+
+\begin{lstlisting}
+// For exposition only
+template <class G>
+concept ordered_vertex_edges = adjacency_list<G> &&
+  requires(G& g, vertex_t<G> u) {
+    requires forward_iterator<decltype(ranges::begin(out_edges(g, u)))>;
+  };
+\end{lstlisting}
+
 \subsection{Visitor Concepts and Classes}
 Visitors are optional member functions on a user-defined class that are called during the execution of an algorithm. 
 Each algorithm has its own set of visitor events that it supports, and each event function must match the visitor concepts 
@@ -191,18 +205,29 @@ The visitor events mimic those used in the Boost Graph Library.
 {\small
       \lstinputlisting{D3128_Algorithms/src/visitor_vertex.hpp}
 }
+Each vertex event concept exists in two variants.
+The \textit{descriptor} variant (e.g.\ \lstinline{has_on_initialize_vertex}) requires an event
+function whose second argument is \lstinline{const vertex_t<G>&}.
+The \textit{ID} variant (e.g.\ \lstinline{has_on_initialize_vertex_id}) requires an event
+function whose second argument is \lstinline{const vertex_id_t<G>&}.
+The ID variant is useful when the visitor only needs the vertex identifier rather than the full
+vertex descriptor.  In both variants the first argument is \lstinline{const G&}.
+
 The vertex events are called under the following conditions.
 \begin{itemize}
-      \item \lstinline{on_initialize_vertex(vdesc)} is called once for each vertex before
-            the algorithm is run.
-      \item \lstinline{on_discover_vertex(vdesc)} is called once for each source vertex passed
-            to the algorithm.
-      \item \lstinline{on_examine_vertex(vdesc)} is called for a vertex before any of 
-            its outgoing edges are examined. It is possible that it will be called multiple times 
-            for the same vertex if paths are found to it from other vertices with a shorter distance.
-      \item \lstinline{on_start_vertex(vdesc)} is called for a vertex that is being examined.
-      \item \lstinline{on_finish_vertex(vdesc)} is called for vertex that is being examined,
-            after all its outgoing edges have been examined.
+      \item \lstinline{on_initialize_vertex(g, vdesc)} (or \lstinline{on_initialize_vertex(g, uid)})
+            is called once for each vertex before the algorithm is run.
+      \item \lstinline{on_discover_vertex(g, vdesc)} (or \lstinline{on_discover_vertex(g, uid)})
+            is called once for each source vertex passed to the algorithm.
+      \item \lstinline{on_examine_vertex(g, vdesc)} (or \lstinline{on_examine_vertex(g, uid)})
+            is called for a vertex before any of its outgoing edges are examined.  It is possible
+            that it will be called multiple times for the same vertex if paths are found to it
+            from other vertices with a shorter distance.
+      \item \lstinline{on_start_vertex(g, vdesc)} (or \lstinline{on_start_vertex(g, uid)})
+            is called for a vertex that is being examined.
+      \item \lstinline{on_finish_vertex(g, vdesc)} (or \lstinline{on_finish_vertex(g, uid)})
+            is called for a vertex that is being examined, after all its outgoing edges have been
+            examined.
 \end{itemize}
 
 \subsubsection{Edge Visitor Concepts}
@@ -241,7 +266,7 @@ The edge events are called under the following conditions.
 \subsection{Breadth-First Search}
 Compute the breadth-first path from one or more \tcode{source} vertices to all reachable vertices in \tcode{graph}.
 
-\begin{table}[h]
+\begin{table}[ht]
 \setcellgapes{3pt}
 \makegapedcells
 \centering
@@ -249,14 +274,13 @@ Compute the breadth-first path from one or more \tcode{source} vertices to all r
 \hline
       \multirowcell{2}{
             \textbf{Complexity} \\
-            $\mathcal{O}((|E| + |V|)\log{|V|})$
+            $\mathcal{O}(|V| + |E|)$
             }
       & \textbf{Directed?} Yes & \textbf{Cycles?} No & \textbf{Throws?} Yes \\
       & \textbf{Multi-edge?} No & \textbf{Self-loops} Yes & \\
 \hline
 \end{tabular}
 %\caption{Algorithm Example}
-\label{tab:algo_example}
 \end{table}
 
 %\phil{BGL doesn't include distances or predecessors.}
@@ -300,8 +324,8 @@ Compute the breadth-first path from one or more \tcode{source} vertices to all r
       %\pnum\returns \lstinline{void} \\
       \pnum\complexity
             \begin{itemize}
-                  \item $\mathcal{O}((|E| + |V|)\log{|V|})$ based on using the binary heap in \tcode{std::priority_queue}.
-                  \item An implementation may choose to use a Fibonacci heap for a complexity of $\mathcal{O}(|E| + |V|\log{|V|})$.
+                  \item \textbf{Time:} $\mathcal{O}(|V| + |E|)$ --- BFS uses a FIFO queue; each vertex and edge is visited at most once.
+                  \item \textbf{Space:} $\mathcal{O}(|V|)$ auxiliary --- visited array and queue.
             \end{itemize}
       \pnum\remarks 
             \begin{itemize}
@@ -318,7 +342,7 @@ Compute the breadth-first path from one or more \tcode{source} vertices to all r
 \subsection{Depth-First Search}
 Traverse the depth-first path from one or more \tcode{source} vertices to all reachable vertices in \tcode{graph}.
 
-\begin{table}[h]
+\begin{table}[ht]
 \setcellgapes{3pt}
 \makegapedcells
 \centering
@@ -333,7 +357,6 @@ Traverse the depth-first path from one or more \tcode{source} vertices to all re
 \hline
 \end{tabular}
 %\caption{Algorithm Example}
-\label{tab:algo_example}
 \end{table}
 
 \subsubsection{Single Source Depth-First Search}
@@ -375,7 +398,8 @@ Traverse the depth-first path from one or more \tcode{source} vertices to all re
       %\pnum\returns \lstinline{void} \\
       \pnum\complexity
             \begin{itemize}
-                  \item $\mathcal{O}(|V| + |E|)$.
+                  \item \textbf{Time:} $\mathcal{O}(|V| + |E|)$ --- each vertex and edge is visited at most once.
+                  \item \textbf{Space:} $\mathcal{O}(|V|)$ auxiliary --- color array and DFS stack.
             \end{itemize}
       %\pnum\remarks 
       %\pnum\errors
@@ -384,7 +408,7 @@ Traverse the depth-first path from one or more \tcode{source} vertices to all re
 \subsection{Topological Sort}
 A linear ordering of vertices such that for every directed edge (u,v) from vertex u to vertex v, u comes before v in the ordering.
 
-\begin{table}[h]
+\begin{table}[ht]
 \setcellgapes{3pt}
 \makegapedcells
 \centering
@@ -399,22 +423,13 @@ A linear ordering of vertices such that for every directed edge (u,v) from verte
 \hline
 \end{tabular}
 %\caption{Algorithm Example}
-\label{tab:algo_example}
 \end{table}
 
-\subsubsection{Initialization}
+\subsubsection{Full-Graph Topological Sort}
 
 {\small
       \lstinputlisting{D3128_Algorithms/src/topological_sort_helpers.hpp}
 }
-
-\begin{itemdescr}
-      \effects
-      \begin{itemize}
-            \item
-                  Each \lstinline{predecessors[i]} is initialized to \lstinline{i}.
-      \end{itemize}
-\end{itemdescr}
 
 \subsubsection{Single Source Topological Sort}
 
@@ -435,34 +450,29 @@ A linear ordering of vertices such that for every directed edge (u,v) from verte
                   \item
                         \lstinline{0 <= source < num_vertices(graph)} for the single-source version.
                   \item
-                        \lstinline{size(predecessors) >= size(vertices(g))}
-            \end{itemize}
-      \pnum\preconditions
-            \begin{itemize}
-                  \item
-                        \lstinline{0 <= source < num_vertices(graph)}, for each \lstinline{source} in \lstinline{sources}, 
-                                   for the multi-source version.
-                  \item
-                        \lstinline{predecessors[i] = i} for \lstinline{0 <= i < num_vertices(g)}.
+                        \lstinline{0 <= source < num_vertices(graph)}, for each \lstinline{source} in \lstinline{sources},
+                        for the multi-source version.
             \end{itemize}
       \pnum\effects
             \begin{itemize}
                   \item
-                        If vertex with index \lstinline{i} is reachable
-                        from vertex \lstinline{source}, then \lstinline{predecessors[i]} will contain the
-                        predecessor vertex of vertex \lstinline{i}. Otherwise \lstinline{predecessors[i]} will contain
-                        \lstinline{i}.
+                        Vertices reachable from the source(s) are written to the output iterator in reverse
+                        topological (finish-time) order.
             \end{itemize}
-      %\pnum\result
-      %\pnum\returns \lstinline{void} \\
+      \pnum\returns
+            \begin{itemize}
+                  \item \lstinline{true} if the topological ordering succeeded.
+                  \item \lstinline{false} if a cycle was detected in the (sub)graph reachable from the source(s).
+            \end{itemize}
       \pnum\complexity
             \begin{itemize}
-                  \item $\mathcal{O}((|E| + |V|)\log{|V|})$ based on using the binary heap in \tcode{std::priority_queue}.
-                  \item An implementation may choose to use a Fibonacci heap for a complexity of $\mathcal{O}(|E| + |V|\log{|V|})$.
+                  \item \textbf{Time:} $\mathcal{O}(|V| + |E|)$ --- DFS-based; each vertex and edge is visited at most once.
+                  \item \textbf{Space:} $\mathcal{O}(|V|)$ auxiliary --- color array, finish-order vector, and DFS stack.
             \end{itemize}
-      \pnum\remarks 
+      \pnum\remarks
             \begin{itemize}
                   \item Duplicate sources do not affect the algorithm's complexity or correctness.
+                  \item The full-graph overload visits all vertices regardless of reachability from a single source.
             \end{itemize}
       %\pnum\errors
 \end{itemdescr}
@@ -520,7 +530,7 @@ A linear ordering of vertices such that for every directed edge (u,v) from verte
 Compute the shortest path and associated distance from vertex \tcode{source} to all reachable vertices in \tcode{graph}
 using non-negative weights.
 
-\begin{table}[h]
+\begin{table}[ht]
 \setcellgapes{3pt}
 \makegapedcells
 \centering
@@ -535,7 +545,6 @@ using non-negative weights.
 \hline
 \end{tabular}
 %\caption{Algorithm Example}
-\label{tab:algo_example}
 \end{table}
 
 Note that complexity may be $\mathcal{O}(|E| + |V|\log{|V|)}$ for certain implementations that use a Fibonacci heap
@@ -568,6 +577,15 @@ instead of a binary heap implemented with \tcode{std::priority_queue}.
                   \item \lstinline{0 <= source < num_vertices(graph)} for the single-source version.
                   \item \lstinline{size(distances) >= size(vertices(g))}
                   \item \lstinline{size(predecessor) >= size(vertices(g))}
+            \end{itemize}
+      \pnum\throws
+            \begin{itemize}
+                  \item \lstinline{std::out_of_range} if any source vertex ID is not in
+                        \lstinline{[0, num_vertices(g))}.
+                  \item \lstinline{std::out_of_range} if \lstinline{size(distances) < num_vertices(g)}.
+                  \item \lstinline{std::out_of_range} if \lstinline{size(predecessor) < num_vertices(g)}.
+                  \item \lstinline{std::out_of_range} if a negative edge weight is encountered
+                        (for signed weight types).
             \end{itemize}
       \pnum\preconditions
             \begin{itemize}
@@ -604,8 +622,9 @@ instead of a binary heap implemented with \tcode{std::priority_queue}.
       %\pnum\returns \lstinline{void} \\
       \pnum\complexity
             \begin{itemize}
-                  \item $\mathcal{O}((|E| + |V|)\log{|V|})$ based on using the binary heap in \tcode{std::priority_queue}.
-                  \item An implementation may choose to use a Fibonacci heap for a complexity of $\mathcal{O}(|E| + |V|\log{|V|})$.
+                  \item \textbf{Time:} $\mathcal{O}((|E| + |V|)\log{|V|})$ based on using the binary heap in \tcode{std::priority_queue}.
+                  \item \textbf{Space:} $\mathcal{O}(|V|)$ auxiliary --- priority queue and bookkeeping arrays.
+                  \item An implementation may choose to use a Fibonacci heap for a time complexity of $\mathcal{O}(|E| + |V|\log{|V|})$.
             \end{itemize}
       \pnum\remarks 
             \begin{itemize}
@@ -635,6 +654,14 @@ giving a small performance improvement with lower memory overhead.
                   \item \lstinline{0 <= source < num_vertices(graph)} for the single-source version. 
                   \item \lstinline{size(distances) >= size(vertices(g))}
             \end{itemize}
+      \pnum\throws
+            \begin{itemize}
+                  \item \lstinline{std::out_of_range} if any source vertex ID is not in
+                        \lstinline{[0, num_vertices(g))}.
+                  \item \lstinline{std::out_of_range} if \lstinline{size(distances) < num_vertices(g)}.
+                  \item \lstinline{std::out_of_range} if a negative edge weight is encountered
+                        (for signed weight types).
+            \end{itemize}
       \pnum\preconditions
             \begin{itemize}
                   \item
@@ -663,8 +690,9 @@ giving a small performance improvement with lower memory overhead.
       %\pnum\returns \lstinline{void} \\
       \pnum\complexity
             \begin{itemize}
-                  \item $\mathcal{O}((|E| + |V|)\log{|V|})$ based on using the binary heap in \tcode{std::priority_queue}.
-                  \item An implementation may choose to use a Fibonacci heap for a complexity of $\mathcal{O}(|E| + |V|\log{|V|})$.
+                  \item \textbf{Time:} $\mathcal{O}((|E| + |V|)\log{|V|})$ based on using the binary heap in \tcode{std::priority_queue}.
+                  \item \textbf{Space:} $\mathcal{O}(|V|)$ auxiliary --- priority queue and bookkeeping arrays.
+                  \item An implementation may choose to use a Fibonacci heap for a time complexity of $\mathcal{O}(|E| + |V|\log{|V|})$.
             \end{itemize}
       \pnum\remarks 
             \begin{itemize}
@@ -677,7 +705,7 @@ giving a small performance improvement with lower memory overhead.
 \subsection{Bellman-Ford Shortest Paths and Shortest Distances}
 Compute the shortest path and associated distance from vertex \tcode{source} to all reachable vertices in \tcode{graph}.
 
-\begin{table}[h]
+\begin{table}[ht]
 \setcellgapes{3pt}
 \makegapedcells
 \centering
@@ -692,7 +720,6 @@ Compute the shortest path and associated distance from vertex \tcode{source} to 
 \hline
 \end{tabular}
 %\caption{Algorithm Example}
-\label{tab:algo_example}
 \end{table}
 
 %\andrew{Complexity is really is atrocious.  Suitable only for really small graphs.}
@@ -707,7 +734,7 @@ There is a special case where edges form a negative cycle.
 that is reachable from the source, then there is no cheapest path: any path that has a point 
 on the negative cycle can be made cheaper by one more walk around the negative cycle. In such 
 a case, the Bellman–Ford algorithm can detect and report the negative cycle." 
-\textbf{Wikipedia} (\cite{REF_bellman})
+\textbf{[Wikipedia, Bellman–Ford algorithm]}
 
 \tcode{find_negative_cycle} can be called after calling \tcode{bellman_ford_shortest_paths} to
 get the vertex ids of the negative weight cycle.
@@ -730,6 +757,13 @@ get the vertex ids of the negative weight cycle.
                   \item \lstinline{0 <= source < num_vertices(graph)} for the single-source version. 
                   \item \lstinline{size(distances) >= size(vertices(g))}
                   \item \lstinline{size(predecessor) >= size(vertices(g))}
+            \end{itemize}
+      \pnum\throws
+            \begin{itemize}
+                  \item \lstinline{std::out_of_range} if any source vertex ID is not in
+                        \lstinline{[0, num_vertices(g))}.
+                  \item \lstinline{std::out_of_range} if \lstinline{size(distances) < num_vertices(g)}.
+                  \item \lstinline{std::out_of_range} if \lstinline{size(predecessor) < num_vertices(g)}.
             \end{itemize}
       \pnum\preconditions
             \begin{itemize}
@@ -767,7 +801,11 @@ get the vertex ids of the negative weight cycle.
                         vertex id in the cycle is returned. \lstinline{find_negative_cycle}
                         can be called to get the vertex ids of the cycle.
             \end{itemize}
-      \pnum\complexity $\mathcal{O}(|E| \cdot |V|)$. Complexity may also be affected when visitor events are called. \\
+      \pnum\complexity
+            \begin{itemize}
+                  \item \textbf{Time:} $\mathcal{O}(|E| \cdot |V|)$. Complexity may also be affected when visitor events are called.
+                  \item \textbf{Space:} $\mathcal{O}(1)$ auxiliary beyond caller-provided arrays.
+            \end{itemize}
       \pnum\remarks 
             \begin{itemize}
                   \item Duplicate sources do not affect the algorithm's complexity or correctness.
@@ -800,6 +838,12 @@ giving a small performance improvement with lower memory overhead.
                   \item 
                         \lstinline{size(distances) >= size(vertices(g))}
             \end{itemize}
+      \pnum\throws
+            \begin{itemize}
+                  \item \lstinline{std::out_of_range} if any source vertex ID is not in
+                        \lstinline{[0, num_vertices(g))}.
+                  \item \lstinline{std::out_of_range} if \lstinline{size(distances) < num_vertices(g)}.
+            \end{itemize}
       \pnum\preconditions
             \begin{itemize}
                   \item
@@ -830,7 +874,11 @@ giving a small performance improvement with lower memory overhead.
                         to get the predecessors if it is important to get the vertex ids of the cycle
                         using \lstinline{find_negative_cycle}.
             \end{itemize}
-      \pnum\complexity $\mathcal{O}(|E| \cdot |V|)$. Complexity may also be affected when visitor events are called. \\
+      \pnum\complexity
+            \begin{itemize}
+                  \item \textbf{Time:} $\mathcal{O}(|E| \cdot |V|)$. Complexity may also be affected when visitor events are called.
+                  \item \textbf{Space:} $\mathcal{O}(1)$ auxiliary beyond caller-provided arrays.
+            \end{itemize}
             \pnum\remarks 
                   \begin{itemize}
                         \item Duplicate sources do not affect the algorithm's complexity or correctness.
@@ -865,7 +913,11 @@ not evaluate predecessors.
       %\pnum\result
       %\pnum\returns 
       %\pnum\throws 
-      \pnum\complexity  $\mathcal{O}(|E|+|V|)$ \\
+      \pnum\complexity
+            \begin{itemize}
+                  \item \textbf{Time:} $\mathcal{O}(|E|+|V|)$.
+                  \item \textbf{Space:} $\mathcal{O}(|V|)$ auxiliary --- cycle-tracking array.
+            \end{itemize}
       %\pnum\remarks 
       %\pnum\errors
 \end{itemdescr}
@@ -877,7 +929,7 @@ Compute the number of triangles in a graph.
 \andrew{The literature for triangle counting is typically for undirected graphs. Directed graphs
       can also be evaluated by disabling the checks that limit it to the 2nd half of the graph.}
 
-\begin{table}[h]
+\begin{table}[ht]
 \setcellgapes{3pt}
 \makegapedcells
 \centering
@@ -892,7 +944,6 @@ Compute the number of triangles in a graph.
 \hline
 \end{tabular}
 %\caption{Algorithm Example}
-\label{tab:algo_example}
 \end{table}
 
 {\small
@@ -910,11 +961,17 @@ Compute the number of triangles in a graph.
             \begin{itemize}
                   \item Number of triangles
             \end{itemize}
-      \pnum\complexity $\mathcal{O}(N^3)$ \\
+      \pnum\complexity
+            \begin{itemize}
+                  \item \textbf{Time:} $\mathcal{O}(m^{3/2})$ average, where $m = |E|$.
+                  \item \textbf{Space:} $\mathcal{O}(1)$ auxiliary.
+            \end{itemize}
       \pnum\remarks 
             \begin{itemize}
                   \item To avoid duplicate counting, only directed triangles of a certain orientation will be detected. 
                         If \tcode{vertex_id(u) < vertex_id(v) < vertex_id(w)}, count triangle if graph contains edges \tcode{uv, vw, uw}.
+                  \item The graph must satisfy \lstinline{ordered_vertex_edges<G>}: the outgoing
+                        edges of each vertex must be sorted in ascending order of \lstinline{target_id}.
             \end{itemize}
       %\pnum\errors
 \end{itemdescr}
@@ -926,7 +983,7 @@ Propagate vertex labels by setting each vertex's label to the most popular label
 
 Some label propagation implementations use vertex ids as an initial labeling. This is not supported here because the label type can be more generic than the vertex id type. User is responsible for meaningful initial labeling.
 
-\begin{table}[h]
+\begin{table}[ht]
 \setcellgapes{3pt}
 \makegapedcells
 \centering
@@ -941,7 +998,6 @@ Some label propagation implementations use vertex ids as an initial labeling. Th
 \hline
 \end{tabular}
 %\caption{Algorithm Example}
-\label{tab:algo_example}
 \end{table}
 
 \phil{What is M?}
@@ -965,7 +1021,11 @@ Some label propagation implementations use vertex ids as an initial labeling. Th
       %\pnum\result
       %\pnum\returns
       %\pnum\throws
-      \pnum\complexity  $\mathcal{O}(M)$ \\
+      \pnum\complexity
+            \begin{itemize}
+                  \item \textbf{Time:} $\mathcal{O}(M)$ per iteration, with convergence typically in few iterations relative to graph size.
+                  \item \textbf{Space:} $\mathcal{O}(|V|)$ auxiliary --- shuffled vertex IDs and frequency map.
+            \end{itemize}
       \pnum\remarks
             \begin{itemize}
                   \item User is responsible for initial vertex labels.
@@ -973,7 +1033,7 @@ Some label propagation implementations use vertex ids as an initial labeling. Th
       %\pnum\errors
 \end{itemdescr}
 
-\begin{table}[h]
+\begin{table}[ht]
 \setcellgapes{3pt}
 \makegapedcells
 \centering
@@ -988,7 +1048,6 @@ Some label propagation implementations use vertex ids as an initial labeling. Th
 \hline
 \end{tabular}
 %\caption{Algorithm Example}
-\label{tab:algo_example}
 \end{table}
 
 {\small
@@ -1015,7 +1074,11 @@ Some label propagation implementations use vertex ids as an initial labeling. Th
       %\pnum\result
       %\pnum\returns
       %\pnum\throws
-      \pnum\complexity  $\mathcal{O}(M)$ \\
+      \pnum\complexity
+            \begin{itemize}
+                  \item \textbf{Time:} $\mathcal{O}(M)$ per iteration, with convergence typically in few iterations relative to graph size.
+                  \item \textbf{Space:} $\mathcal{O}(|V|)$ auxiliary --- shuffled vertex IDs and frequency map.
+            \end{itemize}
       \pnum\remarks     
             \begin{itemize}
                   \item User is responsible for initial vertex labels.
@@ -1027,7 +1090,7 @@ Some label propagation implementations use vertex ids as an initial labeling. Th
 \subsection{Articulation Points}
 Find articulation points, or cut vertices, which when removed disconnect the graph into multiple components. Time complexity based on Hopcroft-Tarjan algorithm.
 
-\begin{table}[h]
+\begin{table}[ht]
 \setcellgapes{3pt}
 \makegapedcells
 \centering
@@ -1042,7 +1105,6 @@ Find articulation points, or cut vertices, which when removed disconnect the gra
 \hline
 \end{tabular}
 %\caption{Algorithm Example}
-\label{tab:algo_example}
 \end{table}
 
 {\small
@@ -1068,7 +1130,11 @@ Find articulation points, or cut vertices, which when removed disconnect the gra
       %\pnum\result
       %\pnum\returns
       %\pnum\throws
-      \pnum\complexity $\mathcal{O}(|E|+|V|)$ \\
+      \pnum\complexity
+            \begin{itemize}
+                  \item \textbf{Time:} $\mathcal{O}(|E|+|V|)$.
+                  \item \textbf{Space:} $\mathcal{O}(|V|)$ auxiliary --- DFS stack and bookkeeping arrays.
+            \end{itemize}
       %\pnum\remarks 
       %\pnum\errors
 \end{itemdescr}
@@ -1077,7 +1143,7 @@ Find articulation points, or cut vertices, which when removed disconnect the gra
 Find the biconnected components, or maximal biconnected subgraphs of a graph, which are components that 
 will remain connected if a vertex is removed. Time complexity based on Hopcroft-Tarjan algorithm.
 
-\begin{table}[h]
+\begin{table}[ht]
 \setcellgapes{3pt}
 \makegapedcells
 \centering
@@ -1092,7 +1158,6 @@ will remain connected if a vertex is removed. Time complexity based on Hopcroft-
 \hline
 \end{tabular}
 %\caption{Algorithm Example}
-\label{tab:algo_example}
 \end{table}
 
 {\small
@@ -1118,7 +1183,11 @@ will remain connected if a vertex is removed. Time complexity based on Hopcroft-
       %\pnum\result
       %\pnum\returns
       %\pnum\throws
-      \pnum\complexity $\mathcal{O}(|E|+|V|)$ \\
+      \pnum\complexity
+            \begin{itemize}
+                  \item \textbf{Time:} $\mathcal{O}(|E|+|V|)$.
+                  \item \textbf{Space:} $\mathcal{O}(|V|)$ auxiliary --- DFS stack and bookkeeping arrays.
+            \end{itemize}
       %\pnum\remarks 
       %\pnum\errors
 \end{itemdescr}
@@ -1126,7 +1195,7 @@ will remain connected if a vertex is removed. Time complexity based on Hopcroft-
 \subsection{Connected Components}
 Find weakly connected components of a graph. Weakly connected components are subgraphs where a path exists between all pairs of vertices when ignoring edge direction.
 
-\begin{table}[h]
+\begin{table}[ht]
 \setcellgapes{3pt}
 \makegapedcells
 \centering
@@ -1141,14 +1210,12 @@ Find weakly connected components of a graph. Weakly connected components are sub
 \hline
 \end{tabular}
 %\caption{Algorithm Example}
-\label{tab:algo_example}
 \end{table}
 
-{\small
-     \lstinputlisting[firstline=21,lastline=24]{D3128_Algorithms/src/connected_components.hpp}
+{
+\small
+     \lstinputlisting[firstline=14,lastline=18]{D3128_Algorithms/src/connected_components.hpp}
 }
-
-\phil{Return number of components \tcode{C}? If \tcode{C==num_vertices(g)} then all components are of \tcode{size==1} (a.k.a. no components).}
 
 \begin{itemdescr}
       %\pnum\mandates
@@ -1165,9 +1232,13 @@ Find weakly connected components of a graph. Weakly connected components are sub
                         There is at least one Connected Component, with component id of \lstinline{0}, for \lstinline{num_vertices(g) > 0}.
             \end{itemize}
       %\pnum\result
-      %\pnum\returns
+      \pnum\returns The number of connected components found.
       %\pnum\throws
-      \pnum\complexity $\mathcal{O}(|E|+|V|)$ \\
+      \pnum\complexity
+            \begin{itemize}
+                  \item \textbf{Time:} $\mathcal{O}(|E|+|V|)$.
+                  \item \textbf{Space:} $\mathcal{O}(|V|)$ auxiliary --- component array and DFS stack.
+            \end{itemize}
       \pnum\remarks 
             \begin{itemize}
                   \item
@@ -1179,11 +1250,82 @@ Find weakly connected components of a graph. Weakly connected components are sub
       %\pnum\errors
 \end{itemdescr}
 
+\subsection{Afforest Connected Components}
+Find connected components of a graph using the Afforest algorithm.
+Afforest is a sampling-based algorithm that first links vertices through a small number of
+neighbor rounds before processing the remaining edges, making it well suited for
+parallel execution.
+
+\begin{table}[ht]
+\setcellgapes{3pt}
+\makegapedcells
+\centering
+\begin{tabular}{|P{0.30\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|}
+\hline
+      \multirowcell{2}{
+            \textbf{Complexity} \\
+                  $\mathcal{O}(|V| + |E| \cdot \alpha(|V|))$
+            }
+      & \textbf{Directed?} No & \textbf{Cycles?} Yes & \textbf{Throws?} No \\
+      & \textbf{Multi-edge?} No & \textbf{Self-loops} Yes & \\
+\hline
+\end{tabular}
+\label{tab:algo_afforest}
+\end{table}
+
+{\small
+      \lstinputlisting[firstline=20, lastline=27]{D3128_Algorithms/src/connected_components.hpp}
+}
+
+\begin{itemdescr}
+      %\pnum\mandates
+      \pnum\hardprecond
+            \begin{itemize}
+                  \item
+                        \lstinline{size(component) >= num_vertices(g)}.
+                  \item
+                        \lstinline{num_vertices(g) == num_vertices(g_t)} for the two-graph overload.
+            \end{itemize}
+      \pnum\preconditions
+            \begin{itemize}
+                  \item
+                        For the two-graph overload, \lstinline{g_t} is the transpose of \lstinline{g},
+                        where edge \lstinline{uv} in \lstinline{g} implies edge \lstinline{vu} in \lstinline{g_t}.
+            \end{itemize}
+      \pnum\effects
+            \begin{itemize}
+                  \item
+                        \lstinline{component[v]} is the connected component id of vertex \lstinline{v}.
+                  \item
+                        There is at least one connected component, with component id of \lstinline{0}, for \lstinline{num_vertices(g) > 0}.
+            \end{itemize}
+      %\pnum\result
+      %\pnum\returns
+      %\pnum\throws
+      \pnum\complexity
+            \begin{itemize}
+                  \item \textbf{Time:} $\mathcal{O}(|V| + |E| \cdot \alpha(|V|))$, where $\alpha$ is the inverse Ackermann function.
+                  \item \textbf{Space:} $\mathcal{O}(|V|)$ auxiliary --- component array only.
+            \end{itemize}
+      \pnum\remarks
+            \begin{itemize}
+                  \item
+                        \lstinline{neighbor_rounds} controls how many neighbors are sampled per vertex
+                        before the full-edge pass. The default of 2 provides a good balance for most graphs.
+                  \item
+                        Afforest (Sampling-based Connected Components) is described in
+                        Sutton, Sanders, Steil, \emph{An efficient parallel algorithm for graph
+                        connected components}, IEEE International Conference on Parallel Processing
+                        (ICPP), 2018.
+            \end{itemize}
+      %\pnum\errors
+\end{itemdescr}
+
 \subsection{Strongly Connected Components}
-\subsubsection{Kosaraju's SCC}
+\subsubsection{Kosaraju}
 Find strongly connected components of a graph using Kosaraju's algorithm. Strongly connected components are subgraphs where a path exists between all pairs of vertices.
 
-\begin{table}[h]
+\begin{table}[ht]
 \setcellgapes{3pt}
 \makegapedcells
 \centering
@@ -1198,27 +1340,25 @@ Find strongly connected components of a graph using Kosaraju's algorithm. Strong
 \hline
 \end{tabular}
 %\caption{Algorithm Example}
-\label{tab:algo_example}
 \end{table}
 
 {\small
-      \lstinputlisting[firstline=29, lastline=34]{D3128_Algorithms/src/connected_components.hpp}
+      \lstinputlisting[firstline=29, lastline=36]{D3128_Algorithms/src/connected_components.hpp}
 }
-\phil{Return number of components \tcode{C}? If \tcode{C==num_vertices(g)} then all components are of \tcode{size==1} (a.k.a. no components).}
 
 \begin{itemdescr}
       %\pnum\mandates
       \pnum\hardprecond
             \begin{itemize}
                   \item
-                        \lstinline{num_vertices(g) == num_vertices(g_t)}.
+                        \lstinline{num_vertices(g) == num_vertices(g_t)} for the two-graph overload.
                   \item
                         \lstinline{size(component) >= num_vertices(g)}.
             \end{itemize}
       \pnum\preconditions
             \begin{itemize}
                   \item
-                        \lstinline{g_t} is the transpose of \lstinline{g}, where edge \lstinline{uv} in \lstinline{g} implies edge \lstinline{vu} in \lstinline{g_t}.
+                        For the two-graph overload, \lstinline{g_t} is the transpose of \lstinline{g}, where edge \lstinline{uv} in \lstinline{g} implies edge \lstinline{vu} in \lstinline{g_t}.
             \end{itemize}
       \pnum\effects
             \begin{itemize}
@@ -1230,7 +1370,11 @@ Find strongly connected components of a graph using Kosaraju's algorithm. Strong
       %\pnum\result
       %\pnum\returns
       %\pnum\throws
-      \pnum\complexity $\mathcal{O}(|E|+|V|)$ \\
+      \pnum\complexity
+            \begin{itemize}
+                  \item \textbf{Time:} $\mathcal{O}(|E|+|V|)$.
+                  \item \textbf{Space:} $\mathcal{O}(|V|)$ auxiliary --- visited array and finish order.
+            \end{itemize}
       \pnum\remarks 
             \begin{itemize}
                   \item
@@ -1243,64 +1387,15 @@ Find strongly connected components of a graph using Kosaraju's algorithm. Strong
 \end{itemdescr}
 
 \subsubsection{Tarjan's SCC}
-Find strongly connected components of a graph using Tarjan's algorithm. Strongly connected components are subgraphs where a path exists between all pairs of vertices.
-
-\begin{table}[h]
-\setcellgapes{3pt}
-\makegapedcells
-\centering
-\begin{tabular}{|P{0.30\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|}
-\hline
-      \multirowcell{2}{
-            \textbf{Complexity} \\
-                  $\mathcal{O}(|E|+|V|)$
-            }
-      & \textbf{Directed?} Yes & \textbf{Cycles?} Yes & \textbf{Throws?} No \\
-      & \textbf{Multi-edge?} No & \textbf{Self-loops} Yes & \\
-\hline
-\end{tabular}
-%\caption{Algorithm Example}
-\label{tab:algo_example}
-\end{table}
-
-{\small
-      \lstinputlisting[firstline=39,lastline=43]{D3128_Algorithms/src/connected_components.hpp}
-}
-
-\phil{Return number of components \tcode{C}? If \tcode{C==num_vertices(g)} then all components are of \tcode{size==1} (a.k.a. no components).}
-
-\begin{itemdescr}
-      %\pnum\mandates
-      \pnum\hardprecond
-            \begin{itemize}
-                  \item
-                        \lstinline{size(component) >= num_vertices(g)}.
-            \end{itemize}
-      \pnum\effects
-            \begin{itemize}
-                  \item
-                        \lstinline{component[v]} is the strongly connected component id of \lstinline{v}.
-            \end{itemize}
-      %\pnum\result
-      %\pnum\returns
-      %\pnum\throws
-      \pnum\complexity $\mathcal{O}(|E|+|V|)$ \\
-      \pnum\remarks 
-            \begin{itemize}
-                  \item
-                        If the maximum component id is 0, then all vertices are in a single strongly connected component.
-                  \item
-                        If the maximum component id is \lstinline{num_vertices(g)-1}, each vertex is the sole vertex in its 
-                        own strongly connected component.
-            \end{itemize}
-      %\pnum\errors
-\end{itemdescr}
+Tarjan's strongly-connected-components algorithm is planned for a future revision.
+For current use, see \tcode{kosaraju} above, which provides both a two-graph overload and a
+single-graph overload for \lstinline{index_bidirectional_adjacency_list} graphs.
 
 \section{Maximal Independent Set}
 \subsection{Maximal Independent Set}
 Find a maximally independent set of vertices in a graph starting from a source vertex. An independent vertex set indicates no pair of vertices in the set are adjacent.
 
-\begin{table}[h]
+\begin{table}[ht]
 \setcellgapes{3pt}
 \makegapedcells
 \centering
@@ -1315,13 +1410,11 @@ Find a maximally independent set of vertices in a graph starting from a source v
 \hline
 \end{tabular}
 %\caption{Algorithm Example}
-\label{tab:algo_example}
 \end{table}
 
 {\small
       \lstinputlisting{D3128_Algorithms/src/mis.hpp}
 }
-\phil{The mandates condition should be part of the requires clause.}
 \begin{itemdescr}
       %\pnum\mandates
       \pnum\mandates
@@ -1332,16 +1425,16 @@ Find a maximally independent set of vertices in a graph starting from a source v
       \pnum\hardprecond
             \begin{itemize}
                   \item
-                        \lstinline{0 <= source < num_vertices(graph)}.
+                        \lstinline{0 <= seed < num_vertices(graph)}.
       \end{itemize}
       \pnum\effects
             \begin{itemize}
                   \item
-                        Output iterator \lstinline{mis} contains maximal independent set of vertices containing \lstinline{source}, 
-                        which is a subset of \lstinline{vertices(graph)}. \\
+                        Output iterator \lstinline{mis} contains the maximal independent set of vertices that
+                        includes \lstinline{seed}, which is a subset of \lstinline{vertices(graph)}.
       \end{itemize}
       %\pnum\result
-      %\pnum\returns
+      \pnum\returns The number of vertices in the maximal independent set.
       %\pnum\throws
       \pnum\complexity $\mathcal{O}(|E|)$ \\
       %\pnum\remarks 
@@ -1356,7 +1449,7 @@ Find a maximally independent set of vertices in a graph starting from a source v
 \subsection{Jaccard Coefficient}
 Calculate the Jaccard coefficient of a graph
 
-\begin{table}[h]
+\begin{table}[ht]
 \setcellgapes{3pt}
 \makegapedcells
 \centering
@@ -1371,7 +1464,6 @@ Calculate the Jaccard coefficient of a graph
 \hline
 \end{tabular}
 %\caption{Algorithm Example}
-\label{tab:algo_example}
 \end{table}
 
 {\small
@@ -1400,7 +1492,11 @@ as to whether the edge reference is useful by the consumer or not (e.g. basic\_ 
       %\pnum\result
       %\pnum\returns
       %\pnum\throws
-      \pnum\complexity $\mathcal{O}(|N|^3)$ \\
+      \pnum\complexity
+            \begin{itemize}
+                  \item \textbf{Time:} $\mathcal{O}(|V| + |E| \cdot d_{\min})$, where $d_{\min}$ is the minimum degree of either endpoint.
+                  \item \textbf{Space:} $\mathcal{O}(|V|+|E|)$ auxiliary --- precomputed neighbor sets.
+            \end{itemize}
       %\pnum\remarks 
       %\pnum\errors
 \end{itemdescr}
@@ -1411,7 +1507,7 @@ as to whether the edge reference is useful by the consumer or not (e.g. basic\_ 
 \subsection{Kruskal Minimum Spanning Tree}
 Find the minimum weight spanning tree of a graph using Kruskal's algorithm.
 
-\begin{table}[h]
+\begin{table}[ht]
 \setcellgapes{3pt}
 \makegapedcells
 \centering
@@ -1426,7 +1522,6 @@ Find the minimum weight spanning tree of a graph using Kruskal's algorithm.
 \hline
 \end{tabular}
 %\caption{Algorithm Example}
-\label{tab:algo_example}
 \end{table}
 
 {\small
@@ -1449,10 +1544,76 @@ Find the minimum weight spanning tree of a graph using Kruskal's algorithm.
                         When \lstinline{compare} is \lstinline{<}, \lstinline{t} represents a minimum weight spanning tree.
             \end{itemize}
       %\pnum\result
-      %\pnum\returns
+      \pnum\returns A \lstinline{pair<EV, size_t>} containing the total weight of the spanning tree or
+            forest and the number of connected components.
       %\pnum\throws
-      \pnum\complexity $\mathcal{O}(|E|)$ \\
+      \pnum\complexity
+            \begin{itemize}
+                  \item \textbf{Time:} $\mathcal{O}(|E|\log{|E|})$.
+                  \item \textbf{Space:} $\mathcal{O}(|E|+|V|)$ auxiliary --- edge copy and union-find.
+            \end{itemize}
       %\pnum\remarks 
+      %\pnum\errors
+\end{itemdescr}
+
+\subsection{Inplace Kruskal Minimum Spanning Tree}
+Memory-efficient variant of Kruskal's algorithm that sorts the input edge list in place
+rather than making a copy.  The input range must satisfy \lstinline{permutable<iterator_t<IELR>>}.
+
+\begin{table}[ht]
+\setcellgapes{3pt}
+\makegapedcells
+\centering
+\begin{tabular}{|P{0.30\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|}
+\hline
+      \multirowcell{2}{
+            \textbf{Complexity} \\
+            $\mathcal{O}(|E|\log{|E|})$
+            }
+      & \textbf{Directed?} Yes & \textbf{Cycles?} No & \textbf{Throws?} No \\
+      & \textbf{Multi-edge?} No & \textbf{Self-loops} No & \\
+\hline
+\end{tabular}
+\label{tab:algo_inplace_kruskal}
+\end{table}
+
+{\small
+      \lstinputlisting[firstline=13,lastline=19]{D3128_Algorithms/src/mst.hpp}
+}
+\begin{itemdescr}
+      %\pnum\mandates
+      \pnum\hardprecond
+            \begin{itemize}
+                  \item
+                        \lstinline{e} must be a mutable range whose iterators satisfy \lstinline{permutable}.
+            \end{itemize}
+      \pnum\preconditions
+            \begin{itemize}
+                  \item
+                        \lstinline{compare} operator, when provided, is a valid comparison operation on two edge values
+                        of type \lstinline{range_value_t<EL>::value_type} which returns a bool.
+            \end{itemize}
+      \pnum\effects 
+            \begin{itemize}
+                  \item
+                        The input edge list \lstinline{e} is sorted by edge weight (or by \lstinline{compare}
+                        when provided).
+                  \item
+                        Edgelist \lstinline{t} contains edges representing a spanning tree or forest, which
+                        minimize the comparison operator.  When \lstinline{compare} is \lstinline{<},
+                        \lstinline{t} represents a minimum weight spanning tree.
+            \end{itemize}
+      %\pnum\result
+      \pnum\returns A \lstinline{pair<EV, size_t>} containing the total weight of the spanning tree or
+            forest and the number of connected components.
+      %\pnum\throws
+      \pnum\complexity
+            \begin{itemize}
+                  \item \textbf{Time:} $\mathcal{O}(|E|\log{|E|})$.
+                  \item \textbf{Space:} $\mathcal{O}(|V|)$ auxiliary --- union-find only; no edge copy.
+            \end{itemize}
+      \pnum\remarks The input edge list is modified (sorted).  If the caller needs to
+            preserve the original order, use \lstinline{kruskal} instead.
       %\pnum\errors
 \end{itemdescr}
 
@@ -1461,7 +1622,7 @@ Find the minimum weight spanning tree of a graph using Prim's algorithm.
 
 \phil{Use general form of dijkstra's shortest path?}
 
-\begin{table}[h]
+\begin{table}[ht]
 \setcellgapes{3pt}
 \makegapedcells
 \centering
@@ -1476,14 +1637,12 @@ Find the minimum weight spanning tree of a graph using Prim's algorithm.
 \hline
 \end{tabular}
 %\caption{Algorithm Example}
-\label{tab:algo_example}
 \end{table}
 
 {\small
-      \lstinputlisting[firstline=13,lastline=29]{D3128_Algorithms/src/mst.hpp}
+      \lstinputlisting[firstline=24,lastline=43]{D3128_Algorithms/src/mst.hpp}
 }
 
-\phil{The mandates condition should be part of the requires clause. When done, we don't have to specify a Mandates clause.}
 \begin{itemdescr}
       \pnum\mandates
             \begin{itemize}
@@ -1493,23 +1652,33 @@ Find the minimum weight spanning tree of a graph using Prim's algorithm.
       \pnum\hardprecond
             \begin{itemize}
                   \item
-                        \lstinline{0 <= source < num_vertices(g)}.
+                        \lstinline{0 <= seed < num_vertices(g)}.
                   \item
-                        \lstinline{size(weight) >= to num_vertices(g)}.
+                        \lstinline{size(weight) >= num_vertices(g)}.
                   \item
                         \lstinline{size(predecessor) >= num_vertices(g)}.
+            \end{itemize}
+      \pnum\preconditions
+            \begin{itemize}
+                  \item
+                        \lstinline{weight_fn}, when provided, must satisfy \lstinline{basic_edge_weight_function<G, WF, range_value_t<Weight>, CompareOp>}.
+                        When omitted, the default is \lstinline{edge_value(g, uv)}.
             \end{itemize}
       \pnum\effects
             \begin{itemize}
                   \item
-                        \lstinline{predecessor[v]} is the parent vertex of \lstinline{v} in a tree rooted at \lstinline{source} and \lstinline{weight[v]} is the value of the edge between \lstinline{v} and \lstinline{predecessor[v]} in the tree. When \lstinline{compare} is \lstinline{<} and \lstinline{init_dist==+inf}, \lstinline{predecessor} represents a minimum weight spanning tree.
+                        \lstinline{predecessor[v]} is the parent vertex of \lstinline{v} in a tree rooted at \lstinline{seed} and \lstinline{weight[v]} is the value of the edge between \lstinline{v} and \lstinline{predecessor[v]} in the tree. When \lstinline{compare} is \lstinline{<} and \lstinline{init_dist==+inf}, \lstinline{predecessor} represents a minimum weight spanning tree.
                   \item
-                        If \lstinline{predecessor} and \lstinline{weight} are not initialized by user, and the graph is not fully connected, \lstinline{predecessor[v]} and \lstinline{weight[v]} will be undefined for vertices not in the same connected component as \lstinline{source}.
+                        If \lstinline{predecessor} and \lstinline{weight} are not initialized by the user, and the graph is not fully connected, \lstinline{predecessor[v]} and \lstinline{weight[v]} will be undefined for vertices not in the same connected component as \lstinline{seed}.
             \end{itemize}
       %\pnum\result
-      %\pnum\returns
+      \pnum\returns The total weight of the minimum spanning tree rooted at \lstinline{seed}.
       %\pnum\throws
-      \pnum\complexity $\mathcal{O}(|E|log|V|)$ \\
+      \pnum\complexity
+            \begin{itemize}
+                  \item \textbf{Time:} $\mathcal{O}(|E|\log{|V|})$.
+                  \item \textbf{Space:} $\mathcal{O}(|V|)$ auxiliary --- priority queue and bookkeeping arrays.
+            \end{itemize}
       %\pnum\remarks 
       %\pnum\errors
 \end{itemdescr}

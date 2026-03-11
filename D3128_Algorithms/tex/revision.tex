@@ -53,8 +53,31 @@
 
 \subsection*{\paperno r4}
 \begin{itemize}
-      \item Added the \textit{Hardened preconditions} section to the algorithms for C++26 which helped to reword
-            the other clauses so they conform to expectations of the standard. Statements incorrectly included in 
-            the \textit{Mandates} and \textit{Preconditions} sections were moved to the \textit{Hardened preconditions} 
-            section and the \textit{Throws} claus was removed, simplifying and clarifying the defintions.
+      \item Adopt value-based descriptor design throughout: \tcode{vertex_t<G>} and \tcode{edge_t<G>}
+            replace the former \tcode{vertex_reference_t<G>}, \tcode{edge_reference_t<G>},
+            \tcode{vertex_info}, and \tcode{edge_info} types.
+      \item Add \tcode{basic_edge_weight_function} and \tcode{edge_weight_function} concepts
+            using a 2-argument form \tcode{WF(G\&, edge_t<G>\&)}.
+      \item Add \tcode{ordered_vertex_edges<G>} concept for algorithms requiring sorted adjacency.
+      \item Rewrite vertex visitor concepts (\tcode{has_on_initialize_vertex}, etc.) to use
+            2-argument descriptor form \tcode{(const G\&, const vertex_t<G>\&)}.
+            Add corresponding \tcode{_id} variants accepting \tcode{vertex_id_t<G>}.
+      \item Rewrite edge visitor concepts (\tcode{has_on_examine_edge}, etc.) to use
+            2-argument form \tcode{(const G\&, const edge_t<G>\&)}.
+      \item Add hardened preconditions section to each algorithm for C++26.  Reword
+            existing clauses to conform to standard expectations; move statements formerly in
+            \textit{Mandates} and \textit{Preconditions} to \textit{Hardened preconditions};
+            add \textit{Throws} clauses where appropriate.
+      \item Add time and space complexity to every algorithm section.
+      \item New algorithms:
+            \begin{itemize}
+                  \item Clustering: Triangle Counting.
+                  \item Communities: Label Propagation (single-graph and two-graph overloads).
+                  \item Components: Articulation Points, BiConnected Components, Connected
+                        Components, Afforest Connected Components, and Kosaraju Strongly
+                        Connected Components.
+                  \item Maximal Independent Set.
+                  \item Link Analysis: Jaccard Coefficient.
+                  \item Minimum Spanning Tree: Kruskal, Inplace Kruskal, and Prim.
+            \end{itemize}
 \end{itemize}

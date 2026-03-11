@@ -67,8 +67,6 @@
 %% }
 
 \usepackage{array}
-\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
-\newcolumntype{R}[1]{>{\raggedleft\arraybackslash}p{#1}}
 
 \usepackage{multirow}
 \usepackage{multicol}
@@ -148,11 +146,11 @@
 \usepackage{fancyhdr}
 \pagestyle{fancy}
 \fancyhead{} % clear all header fields
-\fancyhead[LO,LE]{\copyright\,\textsc{ISO/IEC}}
-\fancyhead[RO,RE]{\textbf{\docno}}
+\fancyhead[L]{\copyright\,\textsc{ISO/IEC}}
+\fancyhead[R]{\textbf{\docno}}
 \fancyfoot{} % clear all footer fields
-\fancyfoot[RO,RE]{\thepage}
-\fancyfoot[LO,LE]{\S\thesubsection}
+\fancyfoot[R]{\thepage}
+\fancyfoot[L]{\S\thesubsection}
 
 \newcounter{Paras}
 \counterwithin{Paras}{section}

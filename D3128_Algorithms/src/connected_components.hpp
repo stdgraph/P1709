@@ -18,6 +18,15 @@ template <index_adjacency_list G, random_access_range Component>
 size_t connected_components(G&& g, Component& component);
 
 /*
+ * Afforest Connected Components
+ */
+template <index_adjacency_list G, random_access_range Component>
+void afforest(G&& g, Component& component, const size_t neighbor_rounds = 2);
+
+template <index_adjacency_list G, adjacency_list GT, random_access_range Component>
+void afforest(G&& g, GT&& g_t, Component& component, const size_t neighbor_rounds = 2);
+
+/*
  * Kosaraju Strongly Connected Components
  */
 template <index_adjacency_list G, index_adjacency_list GT, random_access_range Component>

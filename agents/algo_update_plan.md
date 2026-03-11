@@ -536,38 +536,38 @@ Legend: `[ ]` = not started, `[~]` = in progress, `[x]` = complete, `[!]` = bloc
 | 3.7  | Label propagation: add `requires`, fix `empty_label` type                                       | `src/lp.hpp`                       | `[x]`  |
 | 3.8  | MIS: `size_t` return, `seed` param, default `= 0`                                               | `src/mis.hpp`                      | `[x]`  |
 | 3.9  | Jaccard: `invocable`, fix param types                                                           | `src/jaccard.hpp`                  | `[x]`  |
-| 3.10 | Kruskal: return `pair<EV,size_t>`, fix concept name, add `inplace_kruskal` overloads            | `src/mst.hpp`                      | `[ ]`  |
-| 3.11 | Prim: return weight, add WF, `seed`, `basic_edge_weight_function`                               | `src/prim.hpp`                     | `[ ]`  |
-| 3.12 | Connected components: `size_t` return, kosaraju rename + bidir overload, biconn requires clause | `src/connected_components.hpp`     | `[ ]`  |
-| —    | **Build check**                                                                                 |                                    | `[ ]`  |
+| 3.10 | Kruskal: return `pair<EV,size_t>`, fix concept name, add `inplace_kruskal` overloads            | `src/mst.hpp`                      | `[x]`  |
+| 3.11 | Prim: return weight, add WF, `seed`, `basic_edge_weight_function`                               | `src/prim.hpp`                     | `[x]`  |
+| 3.12 | Connected components: `size_t` return, kosaraju rename + bidir overload, biconn requires clause | `src/connected_components.hpp`     | `[x]`  |
+| —    | **Build check**                                                                                 |                                    | `[x]`  |
 
 ### Phase 4 — LaTeX Prose
 
 | ID   | Task                                                         | Section in `algorithms.tex`       | Status |
 | ---- | ------------------------------------------------------------ | --------------------------------- | ------ |
-| 4.1  | BFS complexity: O(V+E)                                       | BFS Complexity clause             | `[ ]`  |
-| 4.2  | Topo sort: complexity + cycle detection + full-graph section | Topological Sort                  | `[ ]`  |
-| 4.3  | Dijkstra: error handling reconciliation                      | Dijkstra Throws/Preconditions     | `[ ]`  |
-| 4.4  | Bellman-Ford: error handling reconciliation                  | Bellman-Ford Throws/Preconditions | `[ ]`  |
-| 4.5  | Connected components return description                      | Connected Components Returns      | `[ ]`  |
-| 4.6  | Kosaraju: rename + bidir overload section + Tarjan (per D1)  | SCC section                       | `[ ]`  |
-| 4.7  | MIS returns + `seed` parameter description                   | MIS Returns/Parameters            | `[ ]`  |
-| 4.8  | Kruskal Returns clause                                       | Kruskal Returns                   | `[ ]`  |
-| 4.9  | Prim Returns clause + WF parameter description               | Prim Returns/Parameters           | `[ ]`  |
-| 4.10 | Triangle count: `ordered_vertex_edges` note                  | Triangle Count Remarks            | `[ ]`  |
-| 4.11 | Space complexity: add to all algorithm Complexity clauses    | All algorithm sections            | `[ ]`  |
+| 4.1  | BFS complexity: O(V+E) + O(V) space                          | BFS Complexity clause             | `[x]`  |
+| 4.2  | Topo sort: complexity + cycle detection + full-graph section | Topological Sort                  | `[x]`  |
+| 4.3  | Dijkstra: error handling reconciliation                      | Dijkstra Throws/Preconditions     | `[x]`  |
+| 4.4  | Bellman-Ford: error handling reconciliation                  | Bellman-Ford Throws/Preconditions | `[x]`  |
+| 4.5  | Connected components return description                      | Connected Components Returns      | `[x]`  |
+| 4.6  | Kosaraju: rename + bidir overload section + Tarjan (per D1)  | SCC section                       | `[x]`  |
+| 4.7  | MIS returns + `seed` parameter description                   | MIS Returns/Parameters            | `[x]`  |
+| 4.8  | Kruskal Returns clause                                       | Kruskal Returns                   | `[x]`  |
+| 4.9  | Prim Returns clause + WF parameter description               | Prim Returns/Parameters           | `[x]`  |
+| 4.10 | Triangle count: `ordered_vertex_edges` note                  | Triangle Count Remarks            | `[x]`  |
+| 4.11 | Space complexity: add to all algorithm Complexity clauses    | All algorithm sections            | `[x]`  |
 | —    | **Build check**                                              |                                   | `[ ]`  |
 
 ### Phase 5 — Structural Additions
 
 | ID  | Task                                                        | Status | Depends on |
 | --- | ----------------------------------------------------------- | ------ | ---------- |
-| 5.1 | Add `ordered_vertex_edges` concept definition/reference     | `[ ]`  |            |
-| 5.2 | Add `afforest` specification                                | `[ ]`  | D2         |
-| 5.3 | Add `inplace_kruskal` specification                         | `[ ]`  | D3         |
+| 5.1 | Add `ordered_vertex_edges` concept definition/reference     | `[x]`  |            |
+| 5.2 | Add `afforest` specification                                | `[x]`  | D2         |
+| 5.3 | Add `inplace_kruskal` specification                         | `[x]`  | D3         |
 | 5.4 | ~~Add `_null_range_type` exposition note~~ — omitted per D4 | `[x]`  | D4         |
-| 5.5 | Add `_id` visitor variant concepts                          | `[ ]`  | D5         |
-| —   | **Build check**                                             | `[ ]`  |            |
+| 5.5 | Add `_id` visitor variant concepts                          | `[x]`  | D5         |
+| —   | **Build check**                                             | `[x]`  |            |
 
 ### Phase 6 — Revision History and Cross-Paper
 
@@ -575,7 +575,7 @@ Legend: `[ ]` = not started, `[~]` = in progress, `[x]` = complete, `[!]` = bloc
 
 | ID  | Task                                                                                  | File / Output        | Status |
 | --- | ------------------------------------------------------------------------------------- | -------------------- | ------ |
-| 6.1 | Rewrite r4 revision history entry (fix typos + add missing bullets)                   | `tex/revision.tex`   | `[ ]`  |
+| 6.1 | Rewrite r4 revision history entry (fix typos + add missing bullets)                   | `tex/revision.tex`   | `[x]`  |
 | 6.2 | Create D3127 strategy/plan; update terminology (vertex_t, edge_t, remove refs)        | D3127 agents/        | `[ ]`  |
 | 6.3 | Create D3129 strategy/plan; update views (vertex_data/edge_data, structured bindings) | D3129 agents/        | `[ ]`  |
 | 6.4 | Create D3130 strategy/plan; verify containers expose descriptors not references       | D3130 agents/        | `[ ]`  |
