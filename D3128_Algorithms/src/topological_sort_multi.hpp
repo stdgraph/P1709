@@ -1,6 +1,4 @@
-template <index_adjacency_list G, input_range Sources, class Predecessors>
+template <index_adjacency_list G, input_range Sources, class OutputIterator>
 requires convertible_to<range_value_t<Sources>, vertex_id_t<G>> &&
-         convertible_to<vertex_id_t<G>, range_value_t<Predecessors>>
-void topological_sort(const G&       graph,
-                      const Sources& sources,
-                      Predecessors&  predecessors);
+         output_iterator<OutputIterator, vertex_id_t<G>>
+[[nodiscard]] bool topological_sort(const G& g, const Sources& sources, OutputIterator result);

@@ -27,7 +27,7 @@ Do not proceed to the next phase if the build fails.
 
 ## Phase 0 — Decisions (No File Edits)
 
-These questions must be answered before Phase 4 so that the correct signature files are written.
+These questions must be answered before Phase 3 so that the correct signature files are written.
 
 ### D1 — Tarjan's SCC
 **Decision: (b) Keep with a "planned/future" note.**
@@ -118,7 +118,7 @@ concept has_on_initialize_vertex = // For exposition only
     };
 ```
 
-If D5 is resolved to include `_id` variants, add them here as well.
+D5 is resolved to include `_id` variants; add them here.
 
 ### 2.2 — `visitor_edge.hpp` — replace `edge_info` with `(g, edge_t)`
 **File:** `D3128_Algorithms/src/visitor_edge.hpp`
@@ -170,8 +170,8 @@ definitions (they are shown verbatim via `\lstinputlisting`).
 
 ## Phase 3 — Algorithm Signature Files
 
-Update each `src/*.hpp` file to match the implementation. Work algorithm-by-algorithm;
-do a build check at the end of each sub-group.
+Update each `src/*.hpp` file to match the implementation. Work algorithm-by-algorithm.
+Optional: run subgroup build checks during edits. Required: run one build check at the end of Phase 3.
 
 ### 3.1 — Depth-First Search
 **File:** `D3128_Algorithms/src/depth_first_search.hpp`
@@ -280,9 +280,8 @@ Changes per `§2.17`:
 
 Changes per `§2.18` (syntax error already fixed in Phase 1):
 1. Change return type from `void` to `pair<EV, size_t>` (total weight, number of components).
-2. Update concept name: `index_edgelist_range` → `x_index_edgelist_range` (or whatever
-   the final proposal name is — confirm against the implementation's edge list concepts).
-3. If D3 resolves to include `inplace_kruskal`, add those overloads now.
+2. Update concept name: `index_edgelist_range` → `x_index_edgelist_range`.
+3. Add `inplace_kruskal` overloads (D3 resolved as include).
 
 Reference: `graph-v3/include/graph/algorithm/mst.hpp`.
 
@@ -291,8 +290,8 @@ Reference: `graph-v3/include/graph/algorithm/mst.hpp`.
 
 Changes per `§2.19`:
 1. Change return type from `void` to the MST total weight type.
-2. Add weight function parameter `WF` with default `[](const auto&, const edge_t<G>& uv)
-   { return edge_value(g, uv); }`.
+2. Add weight function parameter `WF` with an implementation-aligned default that accepts
+   `(const auto&, const edge_t<G>&)` and uses `edge_value`.
 3. Rename parameter `source` to `seed`.
 4. Add `requires basic_edge_weight_function<G, WF, ...>`.
 
@@ -303,10 +302,10 @@ Reference: `graph-v3/include/graph/algorithm/mst.hpp`.
 
 This file currently contains all four algorithms. Changes per `§2.11–2.14`:
 
-1. **Articulation Points** (lines 4–6): signature matches; no change.
-2. **Biconnected Components** (lines 11–16): decide whether to keep or drop the
+1. **Articulation Points** (`articulation_points` declaration): signature matches; no change.
+2. **Biconnected Components** (`biconnected_components` declaration): resolve whether to keep or drop the
    `requires forward_range<...> && integral<...>` clause. The implementation has no
-   explicit `requires` — confirm whether omitting it is intentional.
+   explicit `requires`; record the chosen direction and rationale in the change notes.
 3. **Connected Components**: change return type from `void` to `size_t`.
 4. **Kosaraju**: rename from `strongly_connected_components` to `kosaraju`;
    add the bidirectional overload `kosaraju(G&&, Component&)` that takes a single
@@ -325,12 +324,17 @@ After all `src/*.hpp` files are correct, update the surrounding LaTeX text in
 `D3128_Algorithms/tex/algorithms.tex`. The signature listings are pulled in verbatim,
 so this phase updates only: Complexity, Effects, Returns, Remarks, and section structure.
 
+> **Complexity convention:** Every Complexity clause must include both **time** and **space**
+> complexity. Source values are in `algo_update_strategy.md` §1.6.
+
 ### 4.1 — BFS complexity
 Correct the Complexity clause: remove the binary heap / O((E+V) log V) description and
-replace with O(V+E) (FIFO queue).
+replace with:
+- **Time:** O(V+E) — BFS uses a FIFO queue, not a priority queue.
+- **Space:** O(V) — visited array and queue.
 
 ### 4.2 — Topological Sort prose
-1. Complexity: O(V+E) (DFS-based), not O((E+V) log V).
+1. Complexity: time O(V+E) (DFS-based, not O((E+V) log V)); space O(V) (color array + finish order + DFS stack).
 2. Returns clause: add description of `false` return on cycle detection.
 3. Add specification section for the new full-graph overload `topological_sort(const G&, OutputIterator)`.
 4. Remove or annotate the `init_topological_sort` helper description.
@@ -367,6 +371,28 @@ the number of connected components."
 Add a note or cross-reference explaining `ordered_vertex_edges<G>` (edges of each vertex
 must be sorted in ascending order of `target_id`).
 
+### 4.11 — Space complexity additions
+For every algorithm section not already covered in §4.1–4.2, add (or extend) the Complexity
+clause to include both time and space. For algorithms with no existing Complexity clause, add one.
+Source: `algo_update_strategy.md` §1.6.
+
+| Algorithm                | Time               | Space (auxiliary)                     |
+| ------------------------ | ------------------ | ------------------------------------- |
+| DFS                      | O(V+E)             | O(V) — color array + DFS stack        |
+| Dijkstra                 | O((V+E) log V)     | O(V) — priority queue + bookkeeping   |
+| Bellman-Ford             | O(V·E)             | O(1)                                  |
+| Triangle count           | O(m^{3/2}) avg     | O(1)                                  |
+| Label propagation        | O(M) per iteration | O(V) — shuffled IDs + frequency map   |
+| MIS                      | O(V+E)             | O(V) — removed-vertex tracking array  |
+| Jaccard                  | O(V + E·d_min)     | O(V+E) — precomputed neighbor sets    |
+| Kruskal                  | O(E log E)         | O(E+V) — edge copy + union-find       |
+| Inplace Kruskal          | O(E log E)         | O(V) — union-find only (no edge copy) |
+| Prim                     | O(E log V)         | O(V) — priority queue + arrays        |
+| Connected components     | O(V+E)             | O(V) — component array + DFS stack    |
+| Kosaraju (2-graph)       | O(V+E)             | O(V) — visited array + finish order   |
+| Kosaraju (bidirectional) | O(V+E)             | O(V) — visited array + finish order   |
+| afforest                 | O(V + E·α(V))      | O(V) — component array only           |
+
 **Build check after Phase 4.**
 
 ---
@@ -379,20 +405,18 @@ These tasks depend on the decisions from Phase 0 and the prose work from Phase 4
 Add a definition or reference for the `ordered_vertex_edges<G>` concept to the concepts
 section of the document (or reference D3129).
 
-### 5.2 — `afforest` specification (if D2 = add)
+### 5.2 — `afforest` specification
 Add a full specification section for `afforest(G&&, Component&)` and
 `afforest(G&&, GT&&, Component&)` alongside Connected Components.
 Source: `graph-v3/include/graph/algorithm/connected_components.hpp`.
 
-### 5.3 — `inplace_kruskal` specification (if D3 = add)
+### 5.3 — `inplace_kruskal` specification
 Add specification alongside `kruskal`. Source: `graph-v3/include/graph/algorithm/mst.hpp`.
 
-### 5.4 — `_null_range_type` exposition note (if D4 = document)
-Add an exposition-only note in the Dijkstra section explaining how
-`dijkstra_shortest_distances` avoids predecessor overhead by passing `_null_predecessors`
-to `dijkstra_shortest_paths`.
+### 5.4 — `_null_range_type` exposition note
+No action. D4 resolves this as omitted from the proposal.
 
-### 5.5 — `_id` visitor variant concepts (if D5 = include)
+### 5.5 — `_id` visitor variant concepts
 Add `has_on_initialize_vertex_id`, `has_on_discover_vertex_id`, etc. to `visitor_vertex.hpp`
 and the concept section.
 
@@ -401,6 +425,14 @@ and the concept section.
 ---
 
 ## Phase 6 — Revision History and Cross-Paper Coordination
+
+> **Sequencing note:** Tasks 6.2–6.4 identify the work needed in the foundational papers.
+> That work should be completed in dependency order — D3127 first, then D3129, then D3130 —
+> before final publication sign-off for D3128. D3128 algorithm signatures reference
+> types and concepts defined in those papers; having them updated first avoids forward-reference
+> inconsistencies and allows reviewers to find every type D3128 depends on.
+>
+> Recommended order: D3127 → D3129 → D3130 → final D3128 consistency pass.
 
 ### 6.1 — `revision.tex` r4 entry
 **File:** `D3128_Algorithms/tex/revision.tex`
@@ -415,18 +447,42 @@ Rewrite the r4 bullet list to accurately reflect what r4 contains. At minimum co
 - Value-based descriptor design (`vertex_t<G>`, `edge_t<G>` replacing `vertex_reference_t`,
   `edge_reference_t`, `vertex_info`, `edge_info`)
 
-### 6.2 — Cross-paper impacts
-The reference → descriptor design shift (§0 of the strategy) is not isolated to D3128.
-Identify and note the corresponding changes required in:
-- **D3129 (Views)** — view iteration yields `vertex_data`/`edge_data` values; remove
-  `vertex_info`/`edge_info` from view descriptions.
-- **D3127 (Terminology/GCI)** — `vertex_t<G>`, `edge_t<G>` type aliases; remove
-  `vertex_reference_t<G>` and `edge_reference_t<G>` if they are defined there.
-- **D3130 (Container Interface)** — ensure container interface does not expose the old
-  reference wrapper types.
+### 6.2 — D3127 (Terminology/GCI) — update first
+**Dependency:** D3128 uses `vertex_t<G>`, `edge_t<G>`, `vertex_id_t<G>` defined here.
 
-Capture the specific sections of those papers that need updating in their respective
-strategy/plan documents.
+Create a strategy/plan document for D3127 covering:
+- Define `vertex_t<G>` and `edge_t<G>` type aliases (replacing `vertex_reference_t<G>` /
+  `edge_reference_t<G>` which no longer exist)
+- Remove or annotate `vertex_reference_t<G>` and `edge_reference_t<G>` if present
+- Ensure `vertex_id_t<G>` definition is current
+- Cross-check all type aliases against `graph-v3/include/graph/adj_list/detail/graph_cpo.hpp`
+
+Use this to run a final D3128 consistency pass before publication.
+
+### 6.3 — D3129 (Views) — update second
+**Dependency:** D3128 visitor concepts and weight functions use the iteration idioms
+defined here; `vertex_data`/`edge_data` are the value types yielded by views.
+
+Create a strategy/plan document for D3129 covering:
+- Replace `vertex_info`/`edge_info` with `vertex_data`/`edge_data` throughout
+- Document structured binding patterns for views
+- Ensure `vertex_data<VId,V,VV>` and `edge_data<VId,Sourced,E,EV>` (and aliases
+  `copyable_vertex_t`, `copyable_edge_t`, `edgelist_edge`) are specified
+- Cross-check against `graph-v3/include/graph/graph_data.hpp`
+
+**D3128 §2 (per-algorithm) prose depends on view iteration being correct here.**
+
+### 6.4 — D3130 (Container Interface) — update third
+**Dependency:** Containers must not expose old reference wrapper types.
+
+Create a strategy/plan document for D3130 covering:
+- Verify no container interface exposes `vertex_reference_t<G>` / `edge_reference_t<G>`
+- Ensure containers yield `vertex_t<G>` / `edge_t<G>` descriptors from their ranges
+- Cross-check against `graph-v3/include/graph/container/`
+
+### 6.5 — Final D3128 consistency pass
+After 6.2–6.4 are complete, run a final consistency pass over D3128 prose to ensure all
+references align with the now-current D3127/D3129/D3130 definitions.
 
 **Final build check: full clean build of D3128.**
 
@@ -450,36 +506,36 @@ Legend: `[ ]` = not started, `[~]` = in progress, `[x]` = complete, `[!]` = bloc
 
 | ID   | Task                                      | File                                 | Status |
 | ---- | ----------------------------------------- | ------------------------------------ | ------ |
-| 1.1a | Fix comma between `Gen` and `class T`     | `src/lp.hpp`                         | `[ ]`  |
-| 1.1b | Fix comma after `empty_label` param       | `src/lp.hpp`                         | `[ ]`  |
-| 1.2  | Fix malformed Kruskal template param list | `src/mst.hpp`                        | `[ ]`  |
-| 1.3  | Fix `requires` clause position            | `src/breadth_first_search_multi.hpp` | `[ ]`  |
-| 1.4  | Fix `requires` clause position            | `src/topological_sort.hpp`           | `[ ]`  |
-| —    | **Build check**                           |                                      | `[ ]`  |
+| 1.1a | Fix comma between `Gen` and `class T`     | `src/lp.hpp`                         | `[x]`  |
+| 1.1b | Fix comma after `empty_label` param       | `src/lp.hpp`                         | `[x]`  |
+| 1.2  | Fix malformed Kruskal template param list | `src/mst.hpp`                        | `[x]`  |
+| 1.3  | Fix `requires` clause position            | `src/breadth_first_search_multi.hpp` | `[x]`  |
+| 1.4  | Fix `requires` clause position            | `src/topological_sort.hpp`           | `[x]`  |
+| —    | **Build check**                           |                                      | `[x]`  |
 
 ### Phase 2 — Shared Concept Files
 
 | ID  | Task                                                       | File                             | Status |
 | --- | ---------------------------------------------------------- | -------------------------------- | ------ |
-| 2.1 | Replace `vertex_info` → `(g, const vertex_t<G>&)`          | `src/visitor_vertex.hpp`         | `[ ]`  |
-| 2.2 | Replace `edge_info` → `(g, const edge_t<G>&)`              | `src/visitor_edge.hpp`           | `[ ]`  |
-| 2.3 | Update weight concepts to 2-arg; add `edge_value_function` | `src/shortest_paths_helpers.hpp` | `[ ]`  |
-| —   | **Build check**                                            |                                  | `[ ]`  |
+| 2.1 | Replace `vertex_info` → `(g, const vertex_t<G>&)`          | `src/visitor_vertex.hpp`         | `[x]`  |
+| 2.2 | Replace `edge_info` → `(g, const edge_t<G>&)`              | `src/visitor_edge.hpp`           | `[x]`  |
+| 2.3 | Update weight concepts to 2-arg; add `edge_value_function` | `src/shortest_paths_helpers.hpp` | `[x]`  |
+| —   | **Build check**                                            |                                  | `[x]`  |
 
 ### Phase 3 — Algorithm Signature Files
 
 | ID   | Task                                                                                            | File(s)                            | Status |
 | ---- | ----------------------------------------------------------------------------------------------- | ---------------------------------- | ------ |
-| 3.1  | Verify DFS (no changes expected)                                                                | `src/depth_first_search.hpp`       | `[ ]`  |
-| 3.2  | Verify BFS (Phase 1+2 already fix it)                                                           | `src/breadth_first_search*.hpp`    | `[ ]`  |
-| 3.3  | Topo sort: OutputIterator, bool, [[nodiscard]], full-graph                                      | `src/topological_sort*.hpp`        | `[ ]`  |
-| 3.4  | Dijkstra: 2-arg weight, `source` → const ref                                                    | `src/dijkstra_shortest_*.hpp` (×4) | `[ ]`  |
-| 3.5a | Bellman-Ford: 2-arg weight, `source` → const ref, [[nodiscard]]                                 | `src/bellman_shortest_*.hpp` (×4)  | `[ ]`  |
-| 3.5b | `find_negative_cycle`: verify `const G&`                                                        | `src/find_negative_cycle.hpp`      | `[ ]`  |
-| 3.6  | Triangle count: add `requires`, `[[nodiscard]]`, `noexcept`                                     | `src/tc.hpp`                       | `[ ]`  |
-| 3.7  | Label propagation: add `requires`, fix `empty_label` type                                       | `src/lp.hpp`                       | `[ ]`  |
-| 3.8  | MIS: `size_t` return, `seed` param, default `= 0`                                               | `src/mis.hpp`                      | `[ ]`  |
-| 3.9  | Jaccard: `invocable`, fix param types                                                           | `src/jaccard.hpp`                  | `[ ]`  |
+| 3.1  | Verify DFS (no changes expected)                                                                | `src/depth_first_search.hpp`       | `[x]`  |
+| 3.2  | Verify BFS (Phase 1+2 already fix it)                                                           | `src/breadth_first_search*.hpp`    | `[x]`  |
+| 3.3  | Topo sort: OutputIterator, bool, [[nodiscard]], full-graph                                      | `src/topological_sort*.hpp`        | `[x]`  |
+| 3.4  | Dijkstra: 2-arg weight, `source` → const ref                                                    | `src/dijkstra_shortest_*.hpp` (×4) | `[x]`  |
+| 3.5a | Bellman-Ford: 2-arg weight, `source` → const ref, [[nodiscard]]                                 | `src/bellman_shortest_*.hpp` (×4)  | `[x]`  |
+| 3.5b | `find_negative_cycle`: verify `const G&`                                                        | `src/find_negative_cycle.hpp`      | `[x]`  |
+| 3.6  | Triangle count: add `requires`, `[[nodiscard]]`, `noexcept`                                     | `src/tc.hpp`                       | `[x]`  |
+| 3.7  | Label propagation: add `requires`, fix `empty_label` type                                       | `src/lp.hpp`                       | `[x]`  |
+| 3.8  | MIS: `size_t` return, `seed` param, default `= 0`                                               | `src/mis.hpp`                      | `[x]`  |
+| 3.9  | Jaccard: `invocable`, fix param types                                                           | `src/jaccard.hpp`                  | `[x]`  |
 | 3.10 | Kruskal: return `pair<EV,size_t>`, fix concept name, add `inplace_kruskal` overloads            | `src/mst.hpp`                      | `[ ]`  |
 | 3.11 | Prim: return weight, add WF, `seed`, `basic_edge_weight_function`                               | `src/prim.hpp`                     | `[ ]`  |
 | 3.12 | Connected components: `size_t` return, kosaraju rename + bidir overload, biconn requires clause | `src/connected_components.hpp`     | `[ ]`  |
@@ -494,11 +550,12 @@ Legend: `[ ]` = not started, `[~]` = in progress, `[x]` = complete, `[!]` = bloc
 | 4.3  | Dijkstra: error handling reconciliation                      | Dijkstra Throws/Preconditions     | `[ ]`  |
 | 4.4  | Bellman-Ford: error handling reconciliation                  | Bellman-Ford Throws/Preconditions | `[ ]`  |
 | 4.5  | Connected components return description                      | Connected Components Returns      | `[ ]`  |
-| 4.6  | Kosaraju: rename + bidir overload section + Tarjan (per D1)  | SCC section                       | `[!]`  |
+| 4.6  | Kosaraju: rename + bidir overload section + Tarjan (per D1)  | SCC section                       | `[ ]`  |
 | 4.7  | MIS returns + `seed` parameter description                   | MIS Returns/Parameters            | `[ ]`  |
 | 4.8  | Kruskal Returns clause                                       | Kruskal Returns                   | `[ ]`  |
 | 4.9  | Prim Returns clause + WF parameter description               | Prim Returns/Parameters           | `[ ]`  |
 | 4.10 | Triangle count: `ordered_vertex_edges` note                  | Triangle Count Remarks            | `[ ]`  |
+| 4.11 | Space complexity: add to all algorithm Complexity clauses    | All algorithm sections            | `[ ]`  |
 | —    | **Build check**                                              |                                   | `[ ]`  |
 
 ### Phase 5 — Structural Additions
@@ -506,18 +563,21 @@ Legend: `[ ]` = not started, `[~]` = in progress, `[x]` = complete, `[!]` = bloc
 | ID  | Task                                                        | Status | Depends on |
 | --- | ----------------------------------------------------------- | ------ | ---------- |
 | 5.1 | Add `ordered_vertex_edges` concept definition/reference     | `[ ]`  |            |
-| 5.2 | Add `afforest` specification                                | `[!]`  | D2         |
-| 5.3 | Add `inplace_kruskal` specification                         | `[!]`  | D3         |
+| 5.2 | Add `afforest` specification                                | `[ ]`  | D2         |
+| 5.3 | Add `inplace_kruskal` specification                         | `[ ]`  | D3         |
 | 5.4 | ~~Add `_null_range_type` exposition note~~ — omitted per D4 | `[x]`  | D4         |
 | 5.5 | Add `_id` visitor variant concepts                          | `[ ]`  | D5         |
 | —   | **Build check**                                             | `[ ]`  |            |
 
 ### Phase 6 — Revision History and Cross-Paper
 
-| ID  | Task                                                                | File               | Status |
-| --- | ------------------------------------------------------------------- | ------------------ | ------ |
-| 6.1 | Rewrite r4 revision history entry (fix typos + add missing bullets) | `tex/revision.tex` | `[ ]`  |
-| 6.2 | Document D3129 impacts (views / vertex_data / edge_data)            | (notes)            | `[ ]`  |
-| 6.3 | Document D3127 impacts (terminology / vertex_t / edge_t)            | (notes)            | `[ ]`  |
-| 6.4 | Document D3130 impacts (container interface)                        | (notes)            | `[ ]`  |
-| —   | **Final clean build check**                                         |                    | `[ ]`  |
+> Complete D3127 → D3129 → D3130, then run the final D3128 consistency pass (6.5) before publication.
+
+| ID  | Task                                                                                  | File / Output        | Status |
+| --- | ------------------------------------------------------------------------------------- | -------------------- | ------ |
+| 6.1 | Rewrite r4 revision history entry (fix typos + add missing bullets)                   | `tex/revision.tex`   | `[ ]`  |
+| 6.2 | Create D3127 strategy/plan; update terminology (vertex_t, edge_t, remove refs)        | D3127 agents/        | `[ ]`  |
+| 6.3 | Create D3129 strategy/plan; update views (vertex_data/edge_data, structured bindings) | D3129 agents/        | `[ ]`  |
+| 6.4 | Create D3130 strategy/plan; verify containers expose descriptors not references       | D3130 agents/        | `[ ]`  |
+| 6.5 | Final D3128 consistency pass after 6.2–6.4 complete                                   | `tex/algorithms.tex` | `[ ]`  |
+| —   | **Final clean build check**                                                           |                      | `[ ]`  |

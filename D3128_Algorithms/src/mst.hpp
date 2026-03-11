@@ -1,27 +1,43 @@
 /*
  * Kruskal's Algorithm
  */
-template <index_edgelist_range IELR, index_edgelist_range OELR>
-void kruskal(IELR&& e, OELR&& t);
+template <x_index_edgelist_range IELR, x_index_edgelist_range OELR>
+auto kruskal(IELR&& e, OELR&& t);
 
-template <index_edgelist_range IELR, index_edgelist_range OELR T, CompareOp>
-void kruskal(IELR&& e, OELR&& t, CompareOp compare);
+template <x_index_edgelist_range IELR, x_index_edgelist_range OELR, class CompareOp>
+auto kruskal(IELR&& e, OELR&& t, CompareOp compare);
+
+/*
+ * Inplace Kruskal's Algorithm
+ */
+template <x_index_edgelist_range IELR, x_index_edgelist_range OELR>
+requires permutable<iterator_t<IELR>>
+auto inplace_kruskal(IELR&& e, OELR&& t);
+
+template <x_index_edgelist_range IELR, x_index_edgelist_range OELR, class CompareOp>
+requires permutable<iterator_t<IELR>>
+auto inplace_kruskal(IELR&& e, OELR&& t, CompareOp compare);
 
 /*
  * Prim's Algorithm
  */
-template <index_adjacency_list        G,
-          random_access_range Predecessor,
-          random_access_range Weight>
-void prim(G&& g, Predecessor& predecessor, Weight& weight, vertex_id_t<G> source = 0);
+template <index_adjacency_list G, random_access_range Predecessor, random_access_range Weight>
+auto prim(G&& g, Predecessor& predecessor, Weight& weight, const vertex_id_t<G>& seed = 0);
 
-template <index_adjacency_list        G,
-          random_access_range Predecessor,
-          random_access_range Weight,
-          class CompareOp>
-void prim(G&&                           g,
-          Predecessor&                  predecessor,
-          Weight&                       weight,
-          CompareOp                     compare,
+template <index_adjacency_list G,
+          random_access_range  Predecessor,
+          random_access_range  Weight,
+          class CompareOp,
+          class WF>
+requires basic_edge_weight_function<G,
+                                    WF,
+                                    range_value_t<Weight>,
+                                    CompareOp,
+                                    plus<range_value_t<Weight>>>
+auto prim(G&&                   g,
+          Predecessor&          predecessor,
+          Weight&               weight,
+          CompareOp             compare,
           range_value_t<Weight> init_dist,
-          vertex_id_t<G>                source = 0);
+          WF&&                  weight_fn,
+          vertex_id_t<G>        seed = 0);

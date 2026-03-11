@@ -146,6 +146,41 @@ type alias doesn't appear in the LaTeX.
 
 No change needed — these match.
 
+### 1.6 Complexity Clause Format
+
+All algorithm Complexity clauses in the proposal must specify **both time and space complexity**.
+The implementation headers are the authoritative source for these values (Doxygen comments in
+`graph-v3/include/graph/algorithm/*.hpp`). Where the proposal states only one dimension,
+add the missing one. Where a value is wrong, correct it.
+
+Standard format for every Complexity clause:
+- **Time:** O(…)
+- **Space:** O(…) auxiliary (excluding graph storage and caller-supplied output parameters)
+
+Complexity values from the reference implementation:
+
+| Algorithm                | Time               | Space (auxiliary)                             |
+| ------------------------ | ------------------ | --------------------------------------------- |
+| BFS                      | O(V+E)             | O(V) — visited array + queue                  |
+| DFS                      | O(V+E)             | O(V) — color array + DFS stack                |
+| Topological sort         | O(V+E)             | O(V) — color array + finish order + DFS stack |
+| Dijkstra                 | O((V+E) log V)     | O(V) — priority queue + bookkeeping           |
+| Bellman-Ford             | O(V·E)             | O(1)                                          |
+| Triangle count           | O(m^{3/2}) avg     | O(1)                                          |
+| Label propagation        | O(M) per iteration | O(V) — shuffled IDs + frequency map           |
+| MIS                      | O(V+E)             | O(V) — removed-vertex tracking array          |
+| Jaccard                  | O(V + E·d_min)     | O(V+E) — precomputed neighbor sets            |
+| Kruskal                  | O(E log E)         | O(E+V) — edge copy + union-find               |
+| Inplace Kruskal          | O(E log E)         | O(V) — union-find only (no edge copy)         |
+| Prim                     | O(E log V)         | O(V) — priority queue + arrays                |
+| Connected components     | O(V+E)             | O(V) — component array + DFS stack            |
+| Kosaraju (2-graph)       | O(V+E)             | O(V) — visited array + finish order           |
+| Kosaraju (bidirectional) | O(V+E)             | O(V) — visited array + finish order           |
+| afforest                 | O(V + E·α(V))      | O(V) — component array only                   |
+
+**Action:** Cross-reference this table when writing or reviewing Phase 4 prose. Every
+algorithm section must include both Time and Space rows in its Complexity clause.
+
 ---
 
 ## 2. Per-Algorithm Discrepancies
@@ -161,7 +196,7 @@ No change needed — these match.
 | BFS visitor events listed  | `on_initialize_vertex, on_discover_vertex, on_examine_vertex, on_finish_vertex, on_examine_edge, on_edge_relaxed, on_edge_not_relaxed` | `on_initialize_vertex, on_discover_vertex, on_examine_vertex, on_finish_vertex, on_examine_edge, on_edge_relaxed, on_edge_not_relaxed` |
 
 **Action:**
-1. **Fix complexity**: BFS uses a FIFO queue, not a priority queue. Change from O((E+V) log V) to **O(V+E)**.
+1. **Fix complexity**: BFS uses a FIFO queue, not a priority queue. Change time from O((E+V) log V) to **O(V+E)**; add space complexity **O(V)** (visited array + queue). See §1.6 for the full reference table.
 2. Update visitor concept signatures (see §1.1).
 3. Update weight function arity if BFS uses one (it does not in the current implementation — BFS is
    unweighted, visitor-only).
@@ -197,7 +232,7 @@ No change needed — these match.
 3. **Add `[[nodiscard]]` attribute**.
 4. **Add full-graph variant** `topological_sort(const G&, OutputIterator)`.
 5. **Remove `init_topological_sort` helper** or mark it as removed.
-6. **Fix complexity** from O((E+V) log V) to **O(V+E)**.
+6. **Fix complexity**: time from O((E+V) log V) to **O(V+E)** (DFS-based); add space complexity **O(V)** (color array + finish order + DFS stack). See §1.6.
 7. **Add cycle detection description** to Effects/Returns.
 8. Update `D3128_Algorithms/src/topological_sort.hpp`, `topological_sort_multi.hpp`,
    and `topological_sort_helpers.hpp`.

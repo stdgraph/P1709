@@ -1,4 +1,2 @@
-template <class Predecessors>
-constexpr void init_topological_sort(Predecessors& predecessors) {
-  std::ranges::iota(predecessors, 0); // exposition only
-}
+// The initialization helper has been removed; initialization is now
+// internal to the algorithm.
