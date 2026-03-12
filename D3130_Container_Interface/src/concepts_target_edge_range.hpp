@@ -1,9 +1,9 @@
 // For exposition only
 
-template <class G>
-concept targeted_edge_range = 
-          basic_targeted_edge_range<G> &&
-          requires(G&& g, vertex_reference_t<G> u, vertex_id_t<G> uid) {
-            { edges(g, u) } -> forward_range;
-            { edges(g, uid) } -> forward_range; // implies call to find\_vertex(g,uid)
-          };
+template <class R, class G>
+concept out_edge_range = forward_range<R> &&
+                         edge<G, range_value_t<R>>;
+
+template <class R, class G>
+concept in_edge_range = forward_range<R> &&
+                        edge<G, range_value_t<R>>;

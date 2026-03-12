@@ -1,11 +1,44 @@
-template <forward_range R>
-constexpr auto descriptor_view(R&& r);
+// For exposition only
 
-template <forward_range R>
-using descriptor_view_t = decltype(descriptor_view(declval<R>()));
+template <class VertexIter>
+class vertex_descriptor_view : public view_interface<vertex_descriptor_view<VertexIter>> {
+public:
+  using vertex_desc        = vertex_descriptor<VertexIter>;
+  using storage_type       = typename vertex_desc::storage_type;
+  using underlying_iterator = VertexIter;
 
-template <forward_range R>
-constexpr auto descriptor_subrange_view(R&& rng, R&& subrng);
+  class iterator; // forward iterator yielding vertex\_desc by value
+  using const_iterator = iterator;
 
-template <forward_range R>
-using descriptor_subrange_view_t = decltype(descriptor_subrange_view(declval<R>(), declval<R>()));
+  constexpr vertex_descriptor_view() = default;
+
+  template <class Container>
+  constexpr explicit vertex_descriptor_view(Container& c);
+
+  constexpr iterator begin() const noexcept;
+  constexpr iterator end() const noexcept;
+  constexpr size_t   size() const noexcept;
+};
+
+
+template <class EdgeIter,
+          class VertexIter,
+          class EdgeDirection = out_edge_tag>
+class edge_descriptor_view
+    : public view_interface<edge_descriptor_view<EdgeIter, VertexIter, EdgeDirection>> {
+public:
+  using edge_desc  = edge_descriptor<EdgeIter, VertexIter, EdgeDirection>;
+  using vertex_desc = vertex_descriptor<VertexIter>;
+
+  class iterator; // forward iterator yielding edge\_desc by value
+  using const_iterator = iterator;
+
+  constexpr edge_descriptor_view() = default;
+
+  template <class Container>
+  constexpr edge_descriptor_view(Container& c, vertex_desc source);
+
+  constexpr iterator begin() const noexcept;
+  constexpr iterator end() const noexcept;
+  constexpr size_t   size() const noexcept;
+};

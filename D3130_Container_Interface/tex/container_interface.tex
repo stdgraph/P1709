@@ -78,7 +78,7 @@ There is precedent for this design choice of not validating the return type, as 
 
 \paragraph{Edge Range Concepts}
 
-There is a single edge range concept.
+The edge range concepts constrain out-edge and in-edge ranges.
 {\small
      \lstinputlisting{D3130_Container_Interface/src/concepts_target_edge_range.hpp}
 }
@@ -365,14 +365,25 @@ The following are characteristics of descriptors:
 In addition, a descriptor has an \tcode{inner_value()} member function that returns a reference to the underlying value
 in the underlying container. This is only needed for overriding the customization points when you're adapting your own
 graph container to the GCI.
- 
+
+The \tcode{vertex_descriptor} and \tcode{edge_descriptor} classes are shown below. Internally, each stores either an
+integral index (for random-access containers) or an iterator (for bidirectional containers), marked as exposition-only.
+The \tcode{edge_descriptor} also carries the source \tcode{vertex_descriptor} and an \tcode{EdgeDirection} tag
+(\tcode{out_edge_tag} or \tcode{in_edge_tag}) that controls source/target semantics.
+{\small
+      \lstinputlisting{D3130_Container_Interface/src/descriptor.hpp}
+}
+
+The following type traits identify whether a type is a vertex or edge descriptor.
+{\small
+      \lstinputlisting{D3130_Container_Interface/src/descriptor_traits.hpp}
+}
+
 The only vertex function that requires a vertex id \tcode{(uid)} is \tcode{find_vertex(g,uid).} All other functions
 that accept vertex id are convenience functions that imply a call to \tcode{find_vertex(g,uid)} to get the vertex 
 descriptor before a call.
 
-The following are the descriptor views used by \tcode{vertices(g)} and \tcode{edges(g,u)}. \tcode{descriptor_subrange_view} 
-is used when edges for multiple vertices are stored in a single container, such as a CSR or adjacency matrix
-(e.g. \tcode{compressed\_graph}).
+The following are the descriptor views used by \tcode{vertices(g)} and \tcode{out_edges(g,u)}.
 {\small
       \lstinputlisting{D3130_Container_Interface/src/descriptor_view.hpp}
 }
@@ -408,11 +419,11 @@ An edgelist is a range of values where we can get the source\_id and target\_id,
 adjacency list or edges in the incidence view, but is a distinct range of values that are separate from the others.
 
 Like the adjacency list, the edgelist has default implementations that use the standard library for simple implementations out of the box.
-It's also able to easily adapt to externally defined edge types by overriding the \tcode{source_id(e)}, \tcode{target_id(e)} and 
-\tcode{edge_value(e)} functions.
+It's also able to easily adapt to externally defined edge types by overriding the \tcode{source_id(el,e)}, \tcode{target_id(el,e)} and 
+\tcode{edge_value(el,e)} functions.
 
 \subsection{Namespace}
-The concepts and types for the edgelist are defined in the \tcode{std::graph::edgelist} namespace to avoid conflicts with the adjacency list.
+The concepts and types for the edgelist are defined in the \tcode{std::graph::edge_list} namespace to avoid conflicts with the adjacency list.
 
 \phil{It would be nice to include them in std::graph, but I'm having difficulty figuring out how to do that based on adjlist and edgelist concepts.}
 
