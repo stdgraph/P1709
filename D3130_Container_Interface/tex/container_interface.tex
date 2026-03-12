@@ -349,44 +349,67 @@ expose the vertices as a range.
 \end{enumerate}
 
 \subsection{Vertex and Edge Descriptor Views}
-The ranges returned by \tcode{vertices(g)} and \tcode{out_edges(g,u)} are views of their respective underlying 
-container in the adjacency list. The value\_type of the view is a descriptor, which refers to an object in 
-the underlying range.
+Graph containers may store vertices and edges in very different data structures: a
+\tcode{vector}-based adjacency list uses integer indices as vertex identifiers while a
+\tcode{map}-based graph uses the map key. Exposing raw iterators directly would require
+concepts, algorithms, and user code to handle each storage strategy separately.
+Descriptors solve this by providing a lightweight, opaque handle that works uniformly
+regardless of the underlying container type. Table~\ref{tab:desc_vs_iter} compares raw
+iterators with descriptors.
 
-Descriptors are opaque, abstract objects that represent vertices and edges in an adjacency list. They are 
-particularly useful because they abstract away the implementation details of the adjacency list, allowing 
-a user to work with different graph types in a consistent manner. 
+\begin{table}[h!]
+\begin{center}
+\resizebox{\textwidth}{!}
+{\begin{tabular}{l L{5.5cm} L{7.0cm}}
+\hline
+    \textbf{Concern} & \textbf{Raw iterators} & \textbf{Descriptors} \\
+\hline
+    Abstraction & Expose container layout & Hide storage strategy --- one concept covers indexed and keyed graphs \\
+    Overload reduction & Separate overloads for index vs.\ iterator & A single overload accepts the descriptor \\
+    Invalidation & Invalidated by container mutation & Can be re-resolved via \tcode{find_vertex} \\
+    Copyability & Varies (e.g.\ \tcode{forward_list::iterator}) & Always trivially copyable or cheap \\
+    Size & May be pointer-sized or larger & Index-based: one integer \\
+\hline
+\hline
+\end{tabular}}
+\caption{Raw iterators vs.\ descriptors}
+\label{tab:desc_vs_iter}
+\end{center}
+\end{table}
 
-A benefit of using descriptors is that it reduces the number of functions and concepts needed for the GCI
-compared to previous designs. Without them, an interface would require additional functions and concepts, 
-and algorithms would need to be specialized for vertices stored in random-access containers compared to
-associative containers.
+A further benefit of index-based vertex descriptors is that they can refer to a vertex
+even when no physical vertex object exists in the container. Graphs that store only edges
+(e.g.\ a compressed adjacency list or an implicit grid graph) are identified purely by
+vertex index; algorithms and views operate identically whether or not the container
+materialises explicit vertex storage.
 
-Practically, a descriptor is either an integral index or an iterator, depending on the underlying container of vertices
-or edges. For example, a descriptor for a vertex in a \tcode{vector} is an index, while the descriptor for an edge in a
-\tcode{list} is an iterator. Looking forward to the future, beyond this proposal, a descriptor for a vertex in a 
-\tcode{map} or \tcode{unordered\_map} would use an iterator; the door is opened for future expansion with minimal 
-impact to the GCI.
+CPOs automatically detect the storage pattern of an adjacency list and select the
+appropriate descriptor strategy: \textbf{random-access} containers (\tcode{vector},
+\tcode{deque}) produce index-based vertex descriptors; \textbf{associative} containers
+(\tcode{map}, \tcode{unordered_map}) produce key-based (iterator) descriptors. Edge
+patterns --- \tcode{int}, \tcode{pair<int,W>}, \tcode{tuple<int,...>}, or custom structs
+--- are recognised automatically so that \tcode{target_id}, \tcode{source_id}, and
+\tcode{edge_value} CPOs are provided without user specialisation.
 
-The vertex and edge descriptors are defined as the \tcode{vertex_t<G>} and \tcode{edge_t<G>} types, respectively. 
-The following are characteristics of descriptors:
-\begin{itemize}
-    \item Equality comparison: Descriptors can be compared for equality using the \tcode{==} and \tcode{!=} operators.
-    \item Ordering: Descriptors can be ordered using the \tcode{<}, \tcode{<=}, \tcode{>}, and \tcode{>=} operators, if supported 
-          by the iterators in underlying container being used.
-    \item Copy and assignment: Descriptors can be copied and assigned, ensuring they can be used in standard algorithms and containers.
-    \item Default construction: Descriptors can be default-constructed, though the resulting values are not guaranteed to represent 
-          a valid vertex or edge.
-\end{itemize}
+The vertex and edge descriptors are defined as the \tcode{vertex_t<G>} and
+\tcode{edge_t<G>} types, respectively. \tcode{vertex_descriptor<VertexIter>} stores
+either a \tcode{size_t} index (for random-access containers) or an iterator (for
+associative containers) as an exposition-only private member.
+\tcode{edge_descriptor<EdgeIter,VertexIter,EdgeDirection>} additionally stores the
+source \tcode{vertex_descriptor} and an \tcode{EdgeDirection} tag (\tcode{out_edge_tag}
+or \tcode{in_edge_tag}) that controls source/target semantics, allowing bidirectional
+graphs to use the same edge type for both outgoing and incoming edges.
 
-In addition, a descriptor has an \tcode{inner_value()} member function that returns a reference to the underlying value
-in the underlying container. This is only needed for overriding the customization points when you're adapting your own
-graph container to the GCI.
+Both descriptor types support equality comparison (\tcode{==}, \tcode{!=}), ordering
+(\tcode{<}, \tcode{<=}, \tcode{>}, \tcode{>=} where supported), copy, assignment, and
+default construction. They also provide \tcode{underlying_value(c)} and
+\tcode{inner_value(c)} member function templates, where \tcode{c} is the owning
+container, to retrieve a reference to the underlying element. These are needed only
+when overriding CPOs to adapt an external graph container to the GCI.
 
-The \tcode{vertex_descriptor} and \tcode{edge_descriptor} classes are shown below. Internally, each stores either an
-integral index (for random-access containers) or an iterator (for bidirectional containers), marked as exposition-only.
-The \tcode{edge_descriptor} also carries the source \tcode{vertex_descriptor} and an \tcode{EdgeDirection} tag
-(\tcode{out_edge_tag} or \tcode{in_edge_tag}) that controls source/target semantics.
+Because descriptors are at most pointer-sized and trivially copyable, CPO signatures
+accept them by value. The \tcode{const&} form appears only in \tcode{requires} clauses
+of concepts where value copies are not permitted.
 {\small
       \lstinputlisting{D3130_Container_Interface/src/descriptor.hpp}
 }
@@ -485,7 +508,7 @@ Table \ref{tab:edgelist_type} summarizes the type aliases in the Edgelist Interf
 The type aliases are defined by either a function specialization for the edgelist implementation, or a refinement of one of 
 those types (e.g. an iterator of a range). Table \ref{tab:edgelist_func} describes the functions in more detail.
 
-\tcode{edge_value(g,uv)} can be optionally implemented, depending on whether or not the edgelist has values on the edge types.
+\tcode{edge_value(el,uv)} can be optionally implemented, depending on whether or not the edgelist has values on the edge types.
 
 \begin{table}[h!]
 \begin{center}
