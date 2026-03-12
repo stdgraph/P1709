@@ -1,129 +1,81 @@
-template <forward_iterator InnerIter>
-class descriptor {
+// For exposition only
+
+struct out_edge_tag {};
+struct in_edge_tag {};
+
+template <class VertexIter>
+class vertex_descriptor {
 public:
-  using inner_iterator   = InnerIter;
-  using inner_value_type = iter_value_t<inner_iterator>;
-  // preserve inner value constness based on inner\_iterator
-  using inner_reference = 
-            conditional_t<is_const_v<remove_reference_t<decltype(*declval<inner_iterator>())>>,
-                          add_lvalue_reference_t<std::add_const_t<inner_value_type>>,
-                          add_lvalue_reference_t<inner_value_type>>;
-  using inner_pointer = 
-            conditional_t<is_const_v<remove_reference_t<decltype(*declval<inner_iterator>())>>,
-                          add_pointer_t<std::add_const_t<inner_value_type>>,
-                          add_pointer_t<inner_value_type>>;
+  using iterator_type = VertexIter;
+  using value_type    = iter_value_t<VertexIter>;
 
-  // Determine if this an index-based or iterator-based descriptor
-  using id_type    = ptrdiff_t; 
-  using value_type = conditional_t<random_access_iterator<inner_iterator>, id_type, inner_iterator>;
+  // index for random-access, iterator for bidirectional (for exposition only)
+  using storage_type =
+      conditional_t<random_access_iterator<VertexIter>, size_t, VertexIter>;
 
-  // Honor the const/non-const contract for the value type
-  using pointer       = std::add_pointer_t<value_type>;
-  using const_pointer = std::add_pointer_t<std::add_const_t<value_type>>;
+  constexpr vertex_descriptor() = default;
+  constexpr explicit vertex_descriptor(storage_type val) noexcept;
 
-  using reference       = std::add_lvalue_reference_t<value_type>;
-  using const_reference = std::add_lvalue_reference_t<std::add_const_t<value_type>>;
+  // Properties
+  constexpr storage_type      value() const noexcept;
+  constexpr decltype(auto)    vertex_id() const noexcept;
 
-  using difference_type = std::iter_difference_t<inner_iterator>;
+  template <class Container>
+  constexpr decltype(auto) underlying_value(Container& c) const noexcept;
 
-  constexpr descriptor()                  = default;
-  constexpr descriptor(const descriptor&) = default;
-  constexpr descriptor(descriptor&&)      = default;
-  constexpr ~descriptor() noexcept        = default;
+  template <class Container>
+  constexpr decltype(auto) inner_value(Container& c) const noexcept;
 
-  constexpr descriptor(InnerIter first, InnerIter it) : begin_(first);
-  constexpr descriptor(InnerIter first, ptrdiff_t id);
+  // Iterator-like interface
+  constexpr vertex_descriptor& operator++() noexcept;
+  constexpr vertex_descriptor  operator++(int) noexcept;
 
-  // for testing
-  template <forward_range R>
-  requires is_convertible_v<iterator_t<R>, InnerIter>
-  constexpr descriptor(R& r, inner_iterator it).
-
-  template <forward_range R>
-  requires is_convertible_v<iterator_t<R>, InnerIter>
-  constexpr descriptor(R& r, std::ptrdiff_t id = 0);
-
-  constexpr descriptor& operator=(const descriptor&) = default;
-  constexpr descriptor& operator=(descriptor&&) = default;
-
-  // Properies
-public:
-  constexpr value_type& value() const noexcept;
-
-  constexpr inner_iterator get_inner_iterator() const;
-
-  [[nodiscard]] constexpr inner_reference inner_value() noexcept;
-  [[nodiscard]] constexpr inner_reference inner_value() const noexcept;
-
-  // Operators
-public:
-  //
-  // dereference
-  //
-  // Note: range concept requirement: decltype(*descriptor) == value\_type\&
-  [[nodiscard]] constexpr reference       operator*() noexcept;
-  [[nodiscard]] constexpr const_reference operator*() const noexcept;
-
-  [[nodiscard]] constexpr pointer       operator->() noexcept;
-  [[nodiscard]] constexpr const_pointer operator->() const noexcept;
-
-  //
-  // operator ++ += +
-  //
-  constexpr descriptor& operator++();
-  constexpr descriptor  operator++(int);
-
-  constexpr descriptor& operator+=(iter_difference_t<inner_iterator> n)
-  requires random_access_iterator<inner_iterator>;
-  constexpr descriptor operator+(iter_difference_t<inner_iterator> n) const
-  requires random_access_iterator<inner_iterator>;
-
-  //
-  // operator -- -= -
-  //
-  constexpr descriptor& operator--()
-  requires bidirectional_iterator<inner_iterator>;
-  constexpr descriptor operator--(int)
-  requires bidirectional_iterator<inner_iterator>;
-
-  constexpr descriptor& operator-=(iter_difference_t<inner_iterator> n)
-  requires random_access_iterator<inner_iterator>;
-  constexpr descriptor operator-(iter_difference_t<inner_iterator> n) const
-  requires random_access_iterator<inner_iterator>;
-
-  template <class InnerIter2>
-  constexpr iter_difference_t<inner_iterator> operator-(const descriptor<InnerIter2>& rhs) const
-  requires random_access_iterator<inner_iterator>;
-
-  //
-  // operator []
-  //
-  constexpr inner_reference operator[](iter_difference_t<inner_iterator> n) const
-  requires random_access_iterator<inner_iterator>;
-
-  //
-  // operators ==, <=>
-  //
-  constexpr bool operator==(const descriptor& rhs) const noexcept;
-
-  template <forward_iterator InnerIter2>
-  requires std::equality_comparable_with<InnerIter, InnerIter2>
-  constexpr bool operator==(const descriptor<InnerIter2>& rhs) const noexcept;
-
-  // for testing; useful in general?
-  template <forward_iterator InnerIter2>
-  requires std::equality_comparable_with<InnerIter, InnerIter2>
-  constexpr bool operator==(const InnerIter2& rhs) const noexcept;
-
-  constexpr auto operator<=>(const descriptor& rhs) const noexcept
-  requires std::integral<value_type> || std::random_access_iterator<inner_iterator>;
-
-  template <random_access_iterator InnerIter2>
-  requires std::three_way_comparable_with<InnerIter, InnerIter2> &&
-           (std::integral<value_type> || random_access_iterator<inner_iterator>)
-  constexpr auto operator<=>(const descriptor<InnerIter2>& rhs) const noexcept;
+  // Comparison
+  constexpr auto operator<=>(const vertex_descriptor&) const noexcept = default;
+  constexpr bool operator==(const vertex_descriptor&) const noexcept  = default;
 
 private:
-  value_type     value_ = value_type();     // index or iterator (for exposition only)
-  inner_iterator begin_ = inner_iterator(); // begin of the inner range (for exposition only)
+  storage_type storage_ = storage_type(); // for exposition only
+};
+
+
+template <class EdgeIter,
+          class VertexIter,
+          class EdgeDirection = out_edge_tag>
+class edge_descriptor {
+public:
+  using edge_iterator_type   = EdgeIter;
+  using vertex_iterator_type = VertexIter;
+  using vertex_desc          = vertex_descriptor<VertexIter>;
+  using edge_direction       = EdgeDirection;
+
+  static constexpr bool is_in_edge  = is_same_v<EdgeDirection, in_edge_tag>;
+  static constexpr bool is_out_edge = is_same_v<EdgeDirection, out_edge_tag>;
+
+  // index for random-access, iterator for forward (for exposition only)
+  using edge_storage_type =
+      conditional_t<random_access_iterator<EdgeIter>, size_t, EdgeIter>;
+
+  constexpr edge_descriptor() = default;
+  constexpr edge_descriptor(edge_storage_type edge_val,
+                            vertex_desc source) noexcept;
+
+  // Properties
+  constexpr edge_storage_type value() const noexcept;
+  constexpr vertex_desc       source() const noexcept;
+  constexpr decltype(auto)    source_id() const noexcept;
+
+  template <class VertexData>
+  constexpr auto target_id(const VertexData& vd) const noexcept;
+
+  template <class VertexData>
+  constexpr decltype(auto) underlying_value(VertexData& vd) const noexcept;
+
+  // Comparison
+  constexpr auto operator<=>(const edge_descriptor&) const noexcept = default;
+  constexpr bool operator==(const edge_descriptor&) const noexcept  = default;
+
+private:
+  edge_storage_type edge_storage_ = edge_storage_type(); // for exposition only
+  vertex_desc       source_       = vertex_desc();       // for exposition only
 };

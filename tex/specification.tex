@@ -36,7 +36,7 @@ template <typename G>
 auto vertex_id(G&& g, vertex_iterator_t<G>);
 
 template <typename G>
-auto vertex_value(G&& g, vertex_reference_t<G>);
+auto vertex_value(G&& g, vertex_t<G>);
 
 } // namespace std::graph
 \end{lstlisting}
@@ -55,7 +55,7 @@ namespace std::graph {
 namespace std::graph {
 
 template <class G>
-concept has_degree = requires(G&& g, vertex_reference_t<G> u) {
+concept has_degree = requires(G&& g, vertex_t<G> u) {
   {degree(g, u)};
 };
 
@@ -65,7 +65,7 @@ concept has_find_vertex = requires(G&& g, vertex_id_t<G> uid) {
 };
 
 template <class G>
-concept has_find_vertex_edge = requires(G&& g, vertex_id_t<G> uid, vertex_id_t<G> vid, vertex_reference_t<G> u) {
+concept has_find_vertex_edge = requires(G&& g, vertex_id_t<G> uid, vertex_id_t<G> vid, vertex_t<G> u) {
   { find_vertex_edge(g, u, vid) } -> forward_iterator;
   { find_vertex_edge(g, uid, vid) } -> forward_iterator;
 };
@@ -104,7 +104,7 @@ requires(G&& g, ranges::range_reference_t<ER> uv) {
 
 template <class G>
 concept adjacency_list = vertex_range<G> && targeted_edge<G, edge_t<G>> &&
-      requires(G&& g, vertex_reference_t<G> u, vertex_id_t<G> uid) {
+      requires(G&& g, vertex_t<G> u, vertex_id_t<G> uid) {
   { edges(g, u) } -> forward_range;
   { edges(g, uid) } -> forward_range;
 };
@@ -131,10 +131,10 @@ template <typename G>
 auto vertexlist(G&& g);
 
 template <typename G>
-auto incidence(G&& g, vertex_reference_t<G>);
+auto incidence(G&& g, vertex_t<G>);
 
 template <typename G>
-auto neighbors(G&& g, vertex_reference_t<G>);
+auto neighbors(G&& g, vertex_t<G>);
 
 template <typename G>
 auto edgelist(G&& g);
