@@ -124,10 +124,10 @@ Table \ref{tab:graph_traits} summarizes the type traits in the Graph Container I
 \hline
     \textbf{Trait} & \textbf{Type} & \textbf{Comment} \\
 \hline
-    \tcode{has_degree<G>} & concept & Is the \tcode{degree(g,u)} function available? \\
+    \tcode{has_degree<G>} & concept & Is the \tcode{out_degree(g,u)} function available? \\
     \tcode{has_find_vertex<G>} & concept & Are the \tcode{find_vertex(g,\_)} functions available? \\
-    \tcode{has_find_vertex_edge<G>} & concept & Are the \tcode{find_vertex_edge(g,\_)} functions available?\\
-    \tcode{has_contains_edge<G,V>} & concept & Is the \tcode{contains_edge(g,uid,vid)} function available?\\
+    \tcode{has_find_vertex_edge<G>} & concept & Are the \tcode{find_out_edge(g,\_)} functions available?\\
+    \tcode{has_contains_edge<G,V>} & concept & Is the \tcode{contains_out_edge(g,uid,vid)} function available?\\
 \hdashline
     \tcode{has_in_degree<G>} & concept & Is the \tcode{in_degree(g,u)} function available? \\
     \tcode{has_find_in_edge<G>} & concept & Are the \tcode{find_in_edge(g,\_)} functions available? \\
@@ -612,7 +612,7 @@ determine how to get the appropriate value.
           then return the appropriate value.
 \end{itemize}
 
-\tcode{edges(g,uid,pid)} and \tcode{edges(g,u,pid)} filter the edges where the target is in the partition \tcode{pid} passed.
+\tcode{out_edges(g,uid,pid)} and \tcode{out_edges(g,u,pid)} filter the edges where the target is in the partition \tcode{pid} passed.
 This isn't needed for bipartite graphs.
 
 \section{Edgelist Interface}
