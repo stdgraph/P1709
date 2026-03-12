@@ -38,7 +38,7 @@ configured, or run `cmake -S . -B build/linux-gcc-debug -DCMAKE_BUILD_TYPE=Debug
 | B | Type alias & traits tables | P1709 | A | Low — table-only edits | ✅ Done (`81014ef`) |
 | C | Function tables & CPOs | P1709 | B | Medium — cross-references with concepts | ✅ Done (`58ce4ab`) |
 | D | Concept sections | P1709 | A | Medium — concepts reference source files | ✅ Done (`8de6a14`) |
-| E | Descriptor section rewrite | P1709 | A | Medium — large prose rewrite | ⬜ Not started |
+| E | Descriptor section rewrite | P1709 | A | Medium — large prose rewrite | ✅ Done (`78680b3`) |
 | F | Edgelist section | P1709 | A, B | Medium — namespace change + pattern rename | ⬜ Not started |
 | G | New sections | P1709 | B, D | Low — additive | ⬜ Not started |
 | H | Prose audit & cleanup | P1709 | A–G | Low — mechanical search-and-replace | ⬜ Not started |

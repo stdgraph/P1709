@@ -377,11 +377,13 @@ iterators with descriptors.
 \end{center}
 \end{table}
 
-A further benefit of index-based vertex descriptors is that they can refer to a vertex
-even when no physical vertex object exists in the container. Graphs that store only edges
-(e.g.\ a compressed adjacency list or an implicit grid graph) are identified purely by
-vertex index; algorithms and views operate identically whether or not the container
-materialises explicit vertex storage.
+Index-based vertex descriptors provide an additional level of abstraction: they can
+refer to a vertex even when no physical vertex object exists in the graph.
+A \tcode{compressed_graph}, for example, stores only edges; there is no C++ object
+corresponding to each vertex. Because the vertex is identified purely by its index, the
+GCI's algorithms and views work identically whether or not the container materialises
+explicit vertex storage. An iterator-based approach cannot offer this property --- an
+iterator must point to an actual object.
 
 CPOs automatically detect the storage pattern of an adjacency list and select the
 appropriate descriptor strategy: \textbf{random-access} containers (\tcode{vector},
@@ -407,9 +409,11 @@ default construction. They also provide \tcode{underlying_value(c)} and
 container, to retrieve a reference to the underlying element. These are needed only
 when overriding CPOs to adapt an external graph container to the GCI.
 
-Because descriptors are at most pointer-sized and trivially copyable, CPO signatures
-accept them by value. The \tcode{const&} form appears only in \tcode{requires} clauses
-of concepts where value copies are not permitted.
+Because descriptors are small and trivially copyable, CPO signatures accept them by
+value. A \tcode{vertex_descriptor} is at most pointer-sized (one index or iterator).
+An \tcode{edge_descriptor} is larger because it also carries the source
+\tcode{vertex_descriptor}, but is still cheap to copy. The \tcode{const\&} form appears
+only in \tcode{requires} clauses of concepts where value copies are not permitted.
 {\small
       \lstinputlisting{D3130_Container_Interface/src/descriptor.hpp}
 }
@@ -459,13 +463,11 @@ An edgelist is a range of values where we can get the source\_id and target\_id,
 adjacency list or edges in the incidence view, but is a distinct range of values that are separate from the others.
 
 Like the adjacency list, the edgelist has default implementations that use the standard library for simple implementations out of the box.
-It's also able to easily adapt to externally defined edge types by overriding the \tcode{source_id(el,e)}, \tcode{target_id(el,e)} and 
-\tcode{edge_value(el,e)} functions.
+It's also able to easily adapt to externally defined edge types by overriding the \tcode{source_id(el,uv)}, \tcode{target_id(el,uv)} and 
+\tcode{edge_value(el,uv)} functions.
 
 \subsection{Namespace}
 The concepts and types for the edgelist are defined in the \tcode{std::graph::edge_list} namespace to avoid conflicts with the adjacency list.
-
-\phil{It would be nice to include them in std::graph, but I'm having difficulty figuring out how to do that based on adjlist and edgelist concepts.}
 
 
 \subsection{Concepts}
@@ -520,10 +522,10 @@ those types (e.g. an iterator of a range). Table \ref{tab:edgelist_func} describ
     \tcode{edge_range_t<EL>} & \tcode{EL} & \\    
     \tcode{edge_iterator_t<EL>} & \tcode{iterator_t<edge_range_t<EL>>} & \\    
     \tcode{edge_t<EL>} & \tcode{range_value_t<edge_range_t<EL>>} & \\       
-    \tcode{edge_reference_t<EL>} & \tcode{range_reference_t<edge_range_t<EL>>} & \\    
     \tcode{edge_value_t<EL>} & \tcode{decltype(edge_value(el,uv))} & optional \\
 \hline
-    \tcode{vertex_id_t<EL>} & \tcode{decltype(target_id(el,uv))} & \\
+    \tcode{vertex_id_t<EL>} & \tcode{decltype(source_id(el,uv))} & \\
+    \textit{\tcode{raw-vertex-id-type}} & \tcode{decltype(source_id(el,uv))} & exposition only \\
 \hline
 \end{tabular}}
 \caption{Edgelist Interface Type Aliases}
@@ -566,8 +568,13 @@ is always available.
 % [](edge_reference_t<EL>) \{return source_id(e)==uid && target_id(e)==vid\}
 
 \subsection{Determining the source\_id, target\_id and edge\_value types}
-Special patterns are recognized for edges based on the \tcode{tuple} and \tcode{edge_info} types. When they are used the \tcode{source_id(el,uv)},
+Special patterns are recognized for edges based on the \tcode{pair}, \tcode{tuple} and \tcode{edge_data} types. When they are used the \tcode{source_id(el,uv)},
 \tcode{target_id(el,uv)} and \tcode{edge_value(el,uv)} functions will be defined automatically.
+
+The \tcode{pair} pattern is
+\begin{itemize}
+    \item \tcode{pair<integral,integral>} for \tcode{source_id(el,uv)} and \tcode{target_id(el,uv)} respectively.
+\end{itemize}
 
 The \tcode{tuple} patterns are
 \begin{itemize}
@@ -575,10 +582,12 @@ The \tcode{tuple} patterns are
     \item \tcode{tuple<integral,integral,scalar>} for \tcode{source_id(el,uv)}, \tcode{target_id(el,uv)} and \tcode{edge_value(el,uv)} respectively.
 \end{itemize}
 
-The \tcode{edge_info} patterns are
+The \tcode{edge_data} patterns are
 \begin{itemize}
-    \item \tcode{edge_info<integral,true,void,void>} with \tcode{source_id(el,uv)} and \tcode{target_id(el,uv)}.
-    \item \tcode{edge_info<integral,true,void,scalar>} with \tcode{source_id(el,uv)}, \tcode{target_id(el,uv)} and \tcode{edge_value(el,uv)}.
+    \item \tcode{edge_data<VId,true,void,void>} with \tcode{source_id(el,uv)} and \tcode{target_id(el,uv)}.
+    \item \tcode{edge_data<VId,true,void,EV>} with \tcode{source_id(el,uv)}, \tcode{target_id(el,uv)} and \tcode{edge_value(el,uv)}.
+    \item \tcode{edge_data<VId,true,E\&,void>} with \tcode{source_id(el,uv)}, \tcode{target_id(el,uv)} and an edge descriptor reference.
+    \item \tcode{edge_data<VId,true,E\&,EV>} with \tcode{source_id(el,uv)}, \tcode{target_id(el,uv)}, an edge descriptor reference and \tcode{edge_value(el,uv)}.
 \end{itemize}
 
 In all other cases the functions will need to be overridden for the edge type.
