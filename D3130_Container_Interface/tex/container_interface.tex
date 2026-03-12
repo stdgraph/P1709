@@ -120,7 +120,7 @@ Table \ref{tab:graph_traits} summarizes the type traits in the Graph Container I
     \tcode{has_contains_in_edge<G,V>} & concept & Is the \tcode{contains_in_edge(g,uid,vid)} function available?\\
 \hdashline
     \tcode{has_basic_queries<G>} & concept & \tcode{has_degree<G> \&\& has_find_vertex<G> \&\& has_find_vertex_edge<G>} \\
-    \tcode{has_full_queries<G>} & concept & \tcode{has_basic_queries<G> \&\& has_contains_edge<G, vertex_t<G>{}>} \\
+    \tcode{has_full_queries<G>} & concept & \tcode{has_basic_queries<G> \&\& has_contains_edge<G, vertex_t<G>>} \\
 \hline
     \tcode{define_adjacency_matrix<G> : false_type} & struct & Specialize for graph implementation to derive from \tcode{true_type} for edges stored as a square 2-dimensional array. Not yet in reference implementation. \\
     \tcode{is_adjacency_matrix<G>} & struct & \\
@@ -157,7 +157,7 @@ The type aliases are defined by either a function specialization for the underly
     \tcode{vertex_t<G>} & \tcode{range_value_t<vertex_range_t<G>>} & descriptor \\    
     \tcode{vertex_id_t<G>} & \tcode{remove_cvref_t<decltype(vertex_id(g,vertex_t<G>))>} & \\
     \tcode{vertex_id_store_t<G>} & (see below) & normative \\
-    \tcode{\textit{raw-vertex-id-type}} & \tcode{decltype(vertex_id(g,vertex_t<G>))} & exposition only \\
+    \textit{\tcode{raw-vertex-id-type}} & \tcode{decltype(vertex_id(g,vertex_t<G>))} & exposition only \\
     \tcode{vertex_value_t<G>} & \tcode{decltype(vertex_value(g,u))} & optional \\
 \hline
     \tcode{out_edge_range_t<G>} & \tcode{decltype(out_edges(g,vertex_t<G>))} & \\
@@ -210,8 +210,8 @@ to be able to reflect all forms of adjacency graphs including a vector of lists,
     \tcode{graph_value(g)} & \tcode{graph_value_t<G>} & constant & n/a, optional \\
     \tcode{vertices(g)} & \tcode{vertex_range_t<G>} & constant & \tcode{g} if \tcode{random_access_range<G>}, n/a otherwise \\
     \tcode{num_vertices(g)} & \tcode{integral} & constant & \tcode{size(vertices(g))} \\
-    \tcode{num_edges(g)} & \tcode{integral} & |E| & \tcode{n=0; for(u: vertices(g)) n+=distance(edges(g,u)); return n;} \\
-    \tcode{has_edge(g)} & \tcode{bool} & |V| & \tcode{for(u: vertices(g)) if !empty(edges(g,u)) return true; return false;} \\
+    \tcode{num_edges(g)} & \tcode{integral} & |E| & \tcode{n=0; for(u: vertices(g)) n+=distance(out\_edges(g,u)); return n;} \\
+    \tcode{has_edges(g)} & \tcode{bool} & |V| & \tcode{for(u: vertices(g)) if !empty(out\_edges(g,u)) return true; return false;} \\
 \hdashline
     \tcode{num_partitions(g)} & \tcode{integral} & constant & 1 \\
     \tcode{vertices(g,pid)} & \tcode{partition_vertex_range_t<G>} & constant & \tcode{vertices(g)} \\
@@ -222,7 +222,7 @@ to be able to reflect all forms of adjacency graphs including a vector of lists,
 \label{tab:graph_func}
 \end{center}
 \end{table}
-The complexity shown above for \tcode{num_edges(g)} and \tcode{has_edge(g)} is for the default implementation. 
+The complexity shown above for \tcode{num_edges(g)} and \tcode{has_edges(g)} is for the default implementation.
 Specific graph implementations may have better characteristics.
 
 The only vertex function that requires a vertex id \tcode{(uid)} is \tcode{find_vertex(g,uid)}. The other 
@@ -247,10 +247,16 @@ implementation. Specific graph implementations may have different characteristic
     \tcode{vertex_value(g,u)} & \tcode{vertex_value_t<G>} & constant & n/a, optional \\
     \tcode{vertex_value(g,uid)} & \tcode{vertex_value_t<G>} & constant & \tcode{vertex_value(g,*find_vertex(g,uid))}, \\
                                 &                           &          & optional \\
-    \tcode{degree(g,u)} & \tcode{integral} & constant & \tcode{size(edges(g,u))} if \tcode{sized_range<vertex_edge_range_t<G>>} \\
-    \tcode{degree(g,uid)} & \tcode{integral} & constant & \tcode{size(edges(g,uid))} if \tcode{sized_range<vertex_edge_range_t<G>>} \\
-    \tcode{edges(g,u)} & \tcode{vertex_edge_range_t<G>} & constant & \tcode{u} if \tcode{forward_range<vertex_t<G>>}, n/a otherwise \\
-    \tcode{edges(g,uid)} & \tcode{vertex_edge_range_t<G>} & constant & \tcode{edges(g,*find_vertex(g,uid))} \\
+    \tcode{out_edges(g,u)} & \tcode{out_edge_range_t<G>} & constant & \tcode{u} if \tcode{forward_range<vertex_t<G>>}, n/a otherwise \\
+    \tcode{out_edges(g,uid)} & \tcode{out_edge_range_t<G>} & constant & \tcode{out\_edges(g,*find\_vertex(g,uid))} \\
+    \tcode{out_degree(g,u)} & \tcode{integral} & constant & \tcode{size(out\_edges(g,u))} if \tcode{sized_range<out_edge_range_t<G>>} \\
+    \tcode{out_degree(g,uid)} & \tcode{integral} & constant & \tcode{size(out\_edges(g,uid))} if \tcode{sized_range<out_edge_range_t<G>>} \\
+    (\tcode{edges}, \tcode{degree} are backward-compatible aliases for \tcode{out\_edges}, \tcode{out\_degree}) & & & \\
+\hdashline
+    \tcode{in_edges(g,u)} & \tcode{in_edge_range_t<G>} & constant & n/a (requires bidirectional graph) \\
+    \tcode{in_edges(g,uid)} & \tcode{in_edge_range_t<G>} & constant & \tcode{in\_edges(g,*find\_vertex(g,uid))} \\
+    \tcode{in_degree(g,u)} & \tcode{integral} & constant & \tcode{size(in\_edges(g,u))} if \tcode{sized_range<in_edge_range_t<G>>} \\
+    \tcode{in_degree(g,uid)} & \tcode{integral} & constant & \tcode{size(in\_edges(g,uid))} if \tcode{sized_range<in_edge_range_t<G>>} \\
 \hdashline
     \tcode{partition_id(g,u)} & \tcode{partition_id_t<G>} & constant &  \\
     \tcode{partition_id(g,uid)} & \tcode{partition_id_t<G>} & constant &  \\
@@ -262,8 +268,8 @@ implementation. Specific graph implementations may have different characteristic
 \end{center}
 \end{table}
 
-The default implementation for the \tcode{degree} functions assumes that \tcode{vertex_edge_range_t<G>} is a sized range
-to have constant complexity. If the underlying container has a non-linear \tcode{size(R)} function, the \tcode{degree} functions will 
+The default implementation for the \tcode{out_degree} and \tcode{in_degree} functions assumes that \tcode{out_edge_range_t<G>} or \tcode{in_edge_range_t<G>} is a sized range
+to have constant complexity. If the underlying container has a non-linear \tcode{size(R)} function, the degree functions will
 also be non-linear. This is expected to be an uncommon case.
 
 \begin{table}[h!]
@@ -279,22 +285,28 @@ also be non-linear. This is expected to be an uncommon case.
                          &                     &          & \hspace{3mm}\tcode{\&\& integral<decltype(target_id(g,uv))>} \\
     \tcode{edge_value(g,uv)} & \tcode{edge_value_t<G>} & constant & \tcode{uv} if \tcode{forward_range<vertex_t<G>>}, \\
                              &                         &          & n/a otherwise, optional \\
-    \tcode{find_vertex_edge(g,u,vid)} & \tcode{vertex_edge_t<G>} & linear & \tcode{find(edges(g,u),} \\
-                                      &                          &        & \tcode{[](uv) \{ return target_id(g,uv)==vid; \})} \\
-    \tcode{find_vertex_edge(g,uid,vid)} & \tcode{vertex_edge_t<G>} & linear & \tcode{find_vertex_edge(} \\
-                                        &                          &        & \hspace{8mm}\tcode{g, *find_vertex(g,uid), vid)} \\
-    \tcode{contains_edge(g,uid,vid)} & \tcode{bool} & constant & \tcode{uid < size(vertices(g))} \\
-                                     &              &          & \tcode{\&\& vid < size(vertices(g))} \\
-                                     &              &          & \hspace{3mm}if \tcode{is_adjacency_matrix_v<G>}.\\
-                                     &              & linear   & \tcode{find_vertex_edge(g,uid,vid)} \\
-                                     &              &          & \tcode{!= end(edges(g,uid))} otherwise. \\
+    \tcode{find_out_edge(g,u,vid)} & \tcode{out_edge_t<G>} & linear & \tcode{find(out\_edges(g,u),} \\
+                                   &                      &        & \tcode{[](uv) \{ return target\_id(g,uv)==vid; \})} \\
+    \tcode{find_out_edge(g,uid,vid)} & \tcode{out_edge_t<G>} & linear & \tcode{find\_out\_edge(} \\
+                                     &                      &        & \hspace{8mm}\tcode{g, *find\_vertex(g,uid), vid)} \\
+    (\tcode{find\_vertex\_edge} is a backward-compatible alias for \tcode{find\_out\_edge}) & & & \\
+    \tcode{contains_out_edge(g,uid,vid)} & \tcode{bool} & constant & \tcode{uid < size(vertices(g))} \\
+                                         &              &          & \tcode{\&\& vid < size(vertices(g))} \\
+                                         &              &          & \hspace{3mm}if \tcode{is_adjacency_matrix_v<G>}.\\
+                                         &              & linear   & \tcode{find\_out\_edge(g,uid,vid)} \\
+                                         &              &          & \tcode{!= end(out\_edges(g,uid))} otherwise. \\
+    (\tcode{contains\_edge} is a backward-compatible alias for \tcode{contains\_out\_edge}) & & & \\
 \hdashline
-    \multicolumn{4}{c}{The following are only available when the optional \tcode{source_id(g,uv)} is defined for the edge} \\
-\hdashline
-    \tcode{source_id(g,uv)} & \tcode{vertex_id_t<G>} & constant & n/a, optional \\
-    \tcode{source(g,uv)} & \tcode{vertex_t<G>} & constant & \tcode{*(begin(vertices(g)) + source_id(g,uv))} \\
+    \tcode{source_id(g,uv)} & \tcode{vertex_id_t<G>} & constant & mandatory for descriptor-based edges \\
+    \tcode{source(g,uv)} & \tcode{vertex_t<G>} & constant & \tcode{*(begin(vertices(g)) + source\_id(g,uv))} \\
                          &                     &          & if \tcode{random_access_range<vertex_range_t<G>>} \\
-                         &                     &          & \hspace{3mm}\tcode{\&\& integral<decltype(source_id(g,uv))>} \\
+                         &                     &          & \hspace{3mm}\tcode{\&\& integral<decltype(source\_id(g,uv))>} \\
+\hdashline
+    \tcode{find_in_edge(g,u,vid)} & \tcode{in_edge_t<G>} & linear & n/a (requires bidirectional graph) \\
+    \tcode{find_in_edge(g,uid,vid)} & \tcode{in_edge_t<G>} & linear & \tcode{find\_in\_edge(} \\
+                                    &                     &        & \hspace{8mm}\tcode{g, *find\_vertex(g,uid), vid)} \\
+    \tcode{contains_in_edge(g,uid,vid)} & \tcode{bool} & linear & \tcode{find\_in\_edge(g,uid,vid)} \\
+                                        &              &        & \tcode{!= end(in\_edges(g,uid))} \\
 \hline
 \end{tabular}}
 \caption{Edge Functions}
@@ -340,7 +352,7 @@ expose the vertices as a range.
 \end{enumerate}
 
 \subsection{Vertex and Edge Descriptor Views}
-The ranges returned by \tcode{vertices(g)} and \tcode{edges(g,u)} are views of their respective underlying 
+The ranges returned by \tcode{vertices(g)} and \tcode{out_edges(g,u)} are views of their respective underlying 
 container in the adjacency list. The value\_type of the view is a descriptor, which refers to an object in 
 the underlying range.
 
@@ -485,9 +497,9 @@ those types (e.g. an iterator of a range). Table \ref{tab:edgelist_func} describ
     \tcode{edge_iterator_t<EL>} & \tcode{iterator_t<edge_range_t<EL>>} & \\    
     \tcode{edge_t<EL>} & \tcode{range_value_t<edge_range_t<EL>>} & \\       
     \tcode{edge_reference_t<EL>} & \tcode{range_reference_t<edge_range_t<EL>>} & \\    
-    \tcode{edge_value_t<EL>} & \tcode{decltype(edge_value(e))} & optional \\
+    \tcode{edge_value_t<EL>} & \tcode{decltype(edge_value(el,uv))} & optional \\
 \hline
-    \tcode{vertex_id_t<EL>} & \tcode{decltype(target_id(e))} & \\
+    \tcode{vertex_id_t<EL>} & \tcode{decltype(target_id(el,uv))} & \\
 \hline
 \end{tabular}}
 \caption{Edgelist Interface Type Aliases}
@@ -499,7 +511,7 @@ those types (e.g. an iterator of a range). Table \ref{tab:edgelist_func} describ
 %     \lstinputlisting{D3130_Container_Interface/src/edgelist_types.hpp}
 %}
 \subsection{Functions}
-Table \ref{tab:edgelist_func} shows the functions available in the Edgelist Interface. Unlike the adjacency list, \tcode{source_id(e)}
+Table \ref{tab:edgelist_func} shows the functions available in the Edgelist Interface. Unlike the adjacency list, \tcode{source_id(el,uv)}
 is always available.
 
 
@@ -510,15 +522,15 @@ is always available.
     \hline
         \textbf{Function} & \textbf{Return Type} & \textbf{Cmplx} & \textbf{Default Implementation} \\
     \hline
-        \tcode{target_id(e)} & \tcode{vertex_id_t<EL>} & constant & (see below) \\
-        \tcode{source_id(e)} & \tcode{vertex_id_t<EL>} & constant & (see below) \\
-        \tcode{edge_value(e)} & \tcode{edge_value_t<EL>} & constant & optional, see below \\
+        \tcode{target_id(el,uv)} & \tcode{vertex_id_t<EL>} & constant & (see below) \\
+        \tcode{source_id(el,uv)} & \tcode{vertex_id_t<EL>} & constant & (see below) \\
+        \tcode{edge_value(el,uv)} & \tcode{edge_value_t<EL>} & constant & optional, see below \\
     \hdashline
-        \tcode{contains_edge(el,uid,vid)} & \tcode{bool} & linear & \tcode{find_if(el, [](edge_reference_t<EL> e) \{} \\
-                                          &              &        & \hspace{7mm}\tcode{return source_id(e)==uid} \\
-                                          &              &        & \hspace{13.5mm}\tcode{\&\& target_id(e)==vid; \} )} \\
+        \tcode{contains_edge(el,uid,vid)} & \tcode{bool} & linear & \tcode{find_if(el, [](auto\&\& uv) \{} \\
+                                          &              &        & \hspace{7mm}\tcode{return source\_id(el,uv)==uid} \\
+                                          &              &        & \hspace{13.5mm}\tcode{\&\& target\_id(el,uv)==vid; \} )} \\
         \tcode{num_edges(el)} & \tcode{integral} & constant & \tcode{size(el)} \\
-        \tcode{has_edge(el)} & \tcode{bool} & constant & \tcode{num_edges(el)>0} \\
+        \tcode{has_edges(el)} & \tcode{bool} & constant & \tcode{num_edges(el)>0} \\
     \hline
     \end{tabular}}
     \caption{Edgelist Interface Functions}
@@ -530,19 +542,19 @@ is always available.
 % [](edge_reference_t<EL>) \{return source_id(e)==uid && target_id(e)==vid\}
 
 \subsection{Determining the source\_id, target\_id and edge\_value types}
-Special patterns are recognized for edges based on the \tcode{tuple} and \tcode{edge_info} types. When they are used the \tcode{source_id(e)}, 
-\tcode{target_id(e)} and \tcode{edge_value} functions will be defined automatically.
+Special patterns are recognized for edges based on the \tcode{tuple} and \tcode{edge_info} types. When they are used the \tcode{source_id(el,uv)},
+\tcode{target_id(el,uv)} and \tcode{edge_value(el,uv)} functions will be defined automatically.
 
 The \tcode{tuple} patterns are
 \begin{itemize}
-    \item \tcode{tuple<integral,integral>} for \tcode{source_id(e)} and \tcode{target_id(e)} respectively.
-    \item \tcode{tuple<integral,integral,scalar>} for \tcode{source_id(e)}, \tcode{target_id(e)} and \tcode{edge_value(e)} respectively.
+    \item \tcode{tuple<integral,integral>} for \tcode{source_id(el,uv)} and \tcode{target_id(el,uv)} respectively.
+    \item \tcode{tuple<integral,integral,scalar>} for \tcode{source_id(el,uv)}, \tcode{target_id(el,uv)} and \tcode{edge_value(el,uv)} respectively.
 \end{itemize}
 
 The \tcode{edge_info} patterns are
 \begin{itemize}
-    \item \tcode{edge_info<integral,true,void,void>} with \tcode{source_id(e)} and \tcode{target_id(e)}.
-    \item \tcode{edge_info<integral,true,void,scalar>} with \tcode{source_id(e)}, \tcode{target_id(e)} and \tcode{edge_value(e)}.
+    \item \tcode{edge_info<integral,true,void,void>} with \tcode{source_id(el,uv)} and \tcode{target_id(el,uv)}.
+    \item \tcode{edge_info<integral,true,void,scalar>} with \tcode{source_id(el,uv)}, \tcode{target_id(el,uv)} and \tcode{edge_value(el,uv)}.
 \end{itemize}
 
 In all other cases the functions will need to be overridden for the edge type.
