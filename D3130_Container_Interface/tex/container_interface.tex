@@ -6,7 +6,16 @@
 The Graph Container Interface (GCI) defines the primitive concepts, traits, types and functions used to define and access adjacency lists (aka graphs)
 and edgelists, no matter their internal design and organization. For instance, an adjacency list can be a vector of lists from standard containers, 
 CSR-based graph and adjacency matrix. Likewise, an edgelist can be a range of edges from a standard container or externally defined edge types, 
-provided they have a source\_id, target\_id and optional edge\_value. 
+provided they have a source\_id, target\_id and optional edge\_value.
+
+The GCI covers two peer abstract data types, each with its own namespace:
+\begin{itemize}
+    \item \tcode{std::graph::adj\_list} --- concepts, type aliases, CPOs and descriptors for adjacency lists.
+    \item \tcode{std::graph::edge\_list} --- concepts, type aliases and CPOs for edge lists.
+\end{itemize}
+All adjacency list symbols are additionally re-exported into \tcode{std::graph} for convenience. Edge list
+symbols are \emph{not} re-exported because several names (notably \tcode{vertex\_id\_t}) have different
+definitions in each namespace and cannot coexist at the root level.
 
 If there is a desire to use the algorithms against externally defined data structures, the GCI exposes its functions as customization points
 to be overridden as needed. Likewise, externally defined algorithms can be used to operate on other data structures that meet the GCI requirements.
@@ -26,6 +35,14 @@ All algorithms in this and related proposals require that adjacency list vertice
 is integral. Future designs may relax these requirements, but for now they are required.
 
 \section{Adjacency List Interface}
+
+\subsection{Namespace}
+All adjacency list concepts, type aliases, CPOs and descriptors are defined in the \tcode{std::graph::adj\_list}
+namespace. Every symbol is also re-exported into \tcode{std::graph} via \tcode{using} declarations so that
+callers who include \tcode{<graph>} can write \tcode{graph::vertices(g)} rather than
+\tcode{graph::adj\_list::vertices(g)}. Code that wishes to be explicit about the choice of abstract data
+type, or that uses both an adjacency list and an edge list simultaneously, may qualify names with the
+\tcode{graph::adj\_list::} prefix.
 
 \subsection{Concepts}
 
@@ -607,7 +624,18 @@ It's also able to easily adapt to externally defined edge types by overriding th
 \tcode{edge_value(el,uv)} functions.
 
 \subsection{Namespace}
-The concepts and types for the edgelist are defined in the \tcode{std::graph::edge_list} namespace to avoid conflicts with the adjacency list.
+Edge list concepts, type aliases and CPOs are defined in the \tcode{std::graph::edge\_list} namespace.
+Unlike the adjacency list, these symbols are \emph{not} re-exported into \tcode{std::graph} because
+certain names have distinct meanings in each context --- most notably \tcode{vertex\_id\_t<G>} is derived
+from \tcode{vertex\_id(g,u)} for an adjacency list but from \tcode{target\_id(el,uv)} for an edge list.
+Bringing both into the root namespace would create an irresolvable ambiguity.
+
+\tcode{graph::adj\_list} and \tcode{graph::edge\_list} are \emph{peer} namespaces: neither is a
+subset or refinement of the other. An adjacency list provides per-vertex edge ranges and supports fast
+neighbour traversal; an edge list is a flat range of \tcode{(source, target [, value])} tuples suited to
+edge-centric algorithms such as Kruskal's MST or bulk construction. CPOs that operate directly on
+edge data --- \tcode{source\_id}, \tcode{target\_id} and \tcode{edge\_value} --- are shared and
+live in \tcode{std::graph}.
 
 
 \subsection{Concepts}
