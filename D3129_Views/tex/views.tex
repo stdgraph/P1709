@@ -33,63 +33,65 @@ views require a \tcode{stack} or \tcode{queue}, which are not available in a fre
 Additionally, \tcode{stack} and \tcode{queue} require memory allocation which could throw a \tcode{bad_alloc} 
 exception. 
 
-\section{Info Structs (Return Types)}
+\section{Data Structs (Return Types)}
 Views return one of the types in this section, providing a consistent set of value types for all graph data structures. 
 They are templated so that the view can adjust the types of the members to be appropriate for its use. The three types, 
-\tcode{vertex_info, edge_info} and \tcode{neighbor_info}, define the common data model used by algorithms.
+\tcode{vertex_data, edge_data} and \tcode{neighbor_data}, define the common data model used by algorithms.
 
 The following examples show the general design and how it's used. The example focuses 
 on vertexlist when iterating over vertices, and the same pattern applies with using the other
 view functions.
 
 \begin{lstlisting}
-// the type of uu is vertex\_info<vertex\_t<G>, void>
+// the type of uu is vertex\_data<vertex\_id\_t<G>, vertex\_t<G>, void>
 for(auto&& uu : vertexlist(g)) {
-  vertex_reference_t<G> u  = uu.vertex;
+  vertex_id_t<G> uid = uu.id;
+  vertex_t<G>    u   = uu.vertex;
   // ... do something interesting
 }
 \end{lstlisting}
 
 A function object can also be passed to return a value from the vertex. In this case, \tcode{vertexlist(g, vvf)} returns 
-a struct with two members, \tcode{vertex} and \tcode{value}.
+a struct with three members, \tcode{id}, \tcode{vertex} and \tcode{value}.
 \begin{lstlisting}
-auto vvf = [&g](vertex_reference_t<G> u) { return vertex_value(g,u); };
-// the type of uu is vertex\_info<vertex\_t<G>, decltype(vvf(u))>
+auto vvf = [](const auto& g, vertex_t<G> u) { return vertex_value(g,u); };
+// the type of uu is vertex\_data<vertex\_id\_t<G>, vertex\_t<G>, decltype(vvf(g,u))>
 for(auto&& uu : vertexlist(g, vvf)) {
-    vertex_reference_t<G> u  = uu.vertex;
-    vertex_value_t<G>& value  = uu.value;
+    vertex_id_t<G> uid   = uu.id;
+    vertex_t<G>    u     = uu.vertex;
+    auto           value = uu.value;
     // ... do something interesting
 }
 \end{lstlisting}
     
 Structured bindings make it simpler.
 \begin{lstlisting}
-for(auto&& [u] : vertexlist(g)) {
+for(auto&& [uid, u] : vertexlist(g)) {
   // ... do something interesting
 }
 \end{lstlisting}
 
 Finally, using structured binding with the vertex value function.
 \begin{lstlisting}
-// the type returned by vertexlist is vertex\_info<vertex\_t<G>, decltype(vvf(vertex\_t<G>))>
-auto vvf = [&g](vertex_reference_t<G> u) { return vertex_value(g,u); };
-for(auto&& [u, value] : vertexlist(g, vvf)) {
+// the type returned by vertexlist is vertex\_data<vertex\_id\_t<G>, vertex\_t<G>, decltype(vvf(g,u))>
+auto vvf = [](const auto& g, vertex_t<G> u) { return vertex_value(g,u); };
+for(auto&& [uid, u, value] : vertexlist(g, vvf)) {
   // ... do something interesting
 }
 \end{lstlisting}
 
-\subsection{\tcode{struct vertex_info<VId, VV>}}\label{vertex-view}\mbox{} \\
-\tcode{vertex_info} is used to return vertex information. It is used by \tcode{vertexlist(g)}, \tcode{vertices_breadth_first_search(g,u)}, 
-\tcode{vertices_dfs(g,u)} and others. The \tcode{vertex} member is typically a vertex descriptor, but can also be a vertex id, and always
-exists.
+\subsection{\tcode{struct vertex_data<VId, V, VV>}}\label{vertex-view}\mbox{} \\
+\tcode{vertex_data} is used to return vertex information. It is used by \tcode{vertexlist(g)}, \tcode{vertices_breadth_first_search(g,u)}, 
+\tcode{vertices_dfs(g,u)} and others. The \tcode{id} member is the vertex id, the \tcode{vertex} member is the vertex descriptor,
+and \tcode{value} is the result of the value function, if provided.
 
 {\small
      \lstinputlisting{D3129_Views/src/vertex_data.hpp}
 }
 
 Specializations are defined with \tcode{V=void} or \tcode{VV=void} to suppress the existence of their associated member variables, 
-giving the following valid combinations in Table \ref{tab:vertex-view} . For instance, the second entry, \tcode{vertex_info<VId, void>} 
-has one member \tcode{\{vertex_type vertex;\}} and \tcode{value_type} is \tcode{void}.
+giving the following valid combinations in Table \ref{tab:vertex-view} . For instance, the second entry, \tcode{vertex_data<VId, V, void>} 
+has two members \tcode{\{id_type id; vertex_type vertex;\}} and \tcode{value_type} is \tcode{void}.
 \begin{table}[h!]
 \begin{center}
 %\resizebox{\textwidth}{!}
@@ -100,24 +102,24 @@ has one member \tcode{\{vertex_type vertex;\}} and \tcode{value_type} is \tcode{
     \multicolumn{3}{c}{\textbf{Members}} \\
     %\textbf{Template Arguments} & id & vertex & value \\
 \hline
-    \tcode{vertex_info<VorVId, VV>} & \tcode{vertex} & \tcode{value} \\
-    \tcode{vertex_info<VorVId, void>} & \tcode{vertex} & \\
-    %\tcode{vertex_info<void, void>} & & & \\ % invalid
+    \tcode{vertex_data<VId, V, VV>} & \tcode{id} & \tcode{vertex} & \tcode{value} \\
+    \tcode{vertex_data<VId, V, void>} & \tcode{id} & \tcode{vertex} & \\
+    \tcode{vertex_data<VId, void, VV>} & \tcode{id} & & \tcode{value} \\
+    \tcode{vertex_data<VId, void, void>} & \tcode{id} & & \\
 \hline
 \end{tabular}}
-\caption{\tcode{vertex_info} Members}
+\caption{\tcode{vertex_data} Members}
 \label{tab:vertex-view}
 \end{center}
 \end{table}
 
-\subsection{\tcode{struct edge_info<VId, Sourced, E, EV>}}\label{edge-view}\mbox{} \\
+\subsection{\tcode{struct edge_data<VId, Sourced, E, EV>}}\label{edge-view}\mbox{} \\
 
-\tcode{edge_info} is used to return edge information. It is used by 
-\tcode{incidence(g,u), edgelist(g), edges_breadth_first_search(g,u), edges_dfs(g,u)} and others. \tcode{source} and \tcode{target} are
-typically vertex descriptors, but can also be vertex ids. If no specific mention of vertex ids are used, assume they are vertex descriptors.
-In this section, \tcode{source} and \tcode{target} can be either vertex descriptors or vertex ids.
+\tcode{edge_data} is used to return edge information. It is used by 
+\tcode{incidence(g,u), edgelist(g), edges_breadth_first_search(g,u), edges_dfs(g,u)} and others.
+\tcode{source_id} and \tcode{target_id} are vertex ids of type \tcode{vertex_id_t<G>}.
 
-When \tcode{Sourced=true}, the \tcode{source} member is included with type \tcode{V} or \tcode{VId}. The \tcode{target} member always exists.
+When \tcode{Sourced=true}, the \tcode{source_id} member is included. The \tcode{target_id} member always exists.
 
 {\small
      \lstinputlisting{D3129_Views/src/edge_data.hpp}
@@ -125,7 +127,7 @@ When \tcode{Sourced=true}, the \tcode{source} member is included with type \tcod
 
 Specializations are defined with \tcode{Sourced=true|false}, \tcode{E=void} or \tcode{EV=void} to suppress the existence of the associated 
 member variables, giving the following valid combinations in Table \ref{tab:edge-view} . For instance, the second entry, 
-\tcode{edge_info<VId,true,E>} has three members \tcode{\{source_id_type source_id; target_id_type target_id; edge_type edge;\}} 
+\tcode{edge_data<VId,true,E,void>} has three members \tcode{\{source_id_type source_id; target_id_type target_id; edge_type edge;\}} 
 and \tcode{value_type} is \tcode{void}.
 \begin{table}[h!]
 \begin{center}
@@ -135,35 +137,35 @@ and \tcode{value_type} is \tcode{void}.
     \multicolumn{1}{l}{\textbf{Template Arguments}}
     &
     \multicolumn{4}{c}{\textbf{Members}} \\
-    %\textbf{Template Arguments} & id & edge & value \\
 \hline
-    \tcode{edge_info<VorVId, true, E, EV>} & \tcode{source} & \tcode{target} & \tcode{edge} & \tcode{value} \\
-    \tcode{edge_info<VorVId, true, E, void>} & \tcode{source} & \tcode{target} & \tcode{edge} & \\
-    \tcode{edge_info<VorVId, true, void, EV>} & \tcode{source} & \tcode{target} & & \tcode{value} \\
-    \tcode{edge_info<VorVId, true, void, void>} & \tcode{source} & \tcode{target} & & \\
-    \tcode{edge_info<VorVId, false, E, EV>} & & \tcode{target} & \tcode{edge} & \tcode{value} \\
-    \tcode{edge_info<VorVId, false, E, void>} & & \tcode{target} & \tcode{edge} & \\
-    \tcode{edge_info<VorVId, false, void, EV>} & & \tcode{target} & & \tcode{value} \\
-    \tcode{edge_info<VorVId, false, void, void>} & & \tcode{target} & & \\
+    \tcode{edge_data<VId, true, E, EV>} & \tcode{source_id} & \tcode{target_id} & \tcode{edge} & \tcode{value} \\
+    \tcode{edge_data<VId, true, E, void>} & \tcode{source_id} & \tcode{target_id} & \tcode{edge} & \\
+    \tcode{edge_data<VId, true, void, EV>} & \tcode{source_id} & \tcode{target_id} & & \tcode{value} \\
+    \tcode{edge_data<VId, true, void, void>} & \tcode{source_id} & \tcode{target_id} & & \\
+    \tcode{edge_data<VId, false, E, EV>} & & \tcode{target_id} & \tcode{edge} & \tcode{value} \\
+    \tcode{edge_data<VId, false, E, void>} & & \tcode{target_id} & \tcode{edge} & \\
+    \tcode{edge_data<VId, false, void, EV>} & & \tcode{target_id} & & \tcode{value} \\
+    \tcode{edge_data<VId, false, void, void>} & & \tcode{target_id} & & \\
 \hline
 \end{tabular}}
-\caption{\tcode{edge_info} Members}
+\caption{\tcode{edge_data} Members}
 \label{tab:edge-view}
 \end{center}
 \end{table}
 
-\subsection{\tcode{struct neighbor_info<VId, Sourced, V, VV>}}\label{neighbor-view}\mbox{}
+\subsection{\tcode{struct neighbor_data<VId, Sourced, V, VV>}}\label{neighbor-view}\mbox{}
 
-\tcode{neighbor_info} is used to return information for a neighbor vertex, through an edge. It is used by \tcode{neighbors(g,u)}. 
-When \tcode{Sourced=true}, the \tcode{source} member is included with type \tcode{source_type}. The \tcode{target} member always exists.
+\tcode{neighbor_data} is used to return information for a neighbor vertex, through an edge. It is used by \tcode{neighbors(g,u)}. 
+When \tcode{Sourced=true}, the \tcode{source_id} member is included. The \tcode{target_id} member always exists.
+The \tcode{target} member holds the neighbor's vertex descriptor when \tcode{V} is not \tcode{void}.
 
 {\small
      \lstinputlisting{D3129_Views/src/neighbor_data.hpp}
 }
 
-Specializations are defined with \tcode{Sourced=true|false} or \tcode{EV}=void to suppress the existence of the 
+Specializations are defined with \tcode{Sourced=true|false}, \tcode{V=void} or \tcode{VV=void} to suppress the existence of the 
 associated member variables, giving the following valid combinations in Table \ref{tab:neighbor-view} . For instance, the second entry, 
-\tcode{neighbor_info<V,true>} has two members \tcode{\{source_type source; target_type target;\}} 
+\tcode{neighbor_data<VId,false,V,void>} has two members \tcode{\{target_id_type target_id; vertex_type target;\}} 
 and \tcode{value_type} is \tcode{void}.
 
 \begin{table}[h!]
@@ -175,13 +177,15 @@ and \tcode{value_type} is \tcode{void}.
     &
     \multicolumn{4}{c}{\textbf{Members}} \\
 \hline
-    \tcode{neighbor_info<VorVId, true, EV>} & \tcode{source} & \tcode{target} & \tcode{value} \\
-    \tcode{neighbor_info<VorVId, true, void>} & \tcode{source} & \tcode{target} & \\
-    \tcode{neighbor_info<VorVId, false, EV>} & & \tcode{target} & \tcode{value} \\
-    \tcode{neighbor_info<VorVId, false, void>} & & \tcode{target} & \\
+    \tcode{neighbor_data<VId, true, V, VV>} & \tcode{source_id} & \tcode{target_id} & \tcode{target} & \tcode{value} \\
+    \tcode{neighbor_data<VId, true, V, void>} & \tcode{source_id} & \tcode{target_id} & \tcode{target} & \\
+    \tcode{neighbor_data<VId, true, void, void>} & \tcode{source_id} & \tcode{target_id} & & \\
+    \tcode{neighbor_data<VId, false, V, VV>} & & \tcode{target_id} & \tcode{target} & \tcode{value} \\
+    \tcode{neighbor_data<VId, false, V, void>} & & \tcode{target_id} & \tcode{target} & \\
+    \tcode{neighbor_data<VId, false, void, void>} & & \tcode{target_id} & & \\
 \hline
 \end{tabular}}
-\caption{\tcode{neighbor_info} Members}
+\caption{\tcode{neighbor_data} Members}
 \label{tab:neighbor-view}
 \end{center}
 \end{table}
@@ -190,15 +194,15 @@ and \tcode{value_type} is \tcode{void}.
 \begin{comment}
 \phil{Do we really needs these, since VorVId can be either a descriptor or id.}
 
-\subsection{Copyable Info Structs}
+\subsection{Copyable Data Structs}
 
-\subsubsection{Copyable Info Struct Types}
-Copyable info structs are specializations of the info structs that can be copied. More specifically, they don't include
-a vertex or edge reference. \tcode{copyable_vertex_t<G>} shows the simple definition.
+\subsubsection{Copyable Data Struct Types}
+Copyable data structs are specializations of the data structs that can be copied. More specifically, they don't include
+a vertex or edge descriptor. \tcode{copyable_vertex_t<G>} shows the simple definition.
 
 \begin{lstlisting}
 template <class VId, class VV=void>
-using copyable_vertex_t = vertex_info<VId, void, VV>; // {id, value}
+using copyable_vertex_t = vertex_data<VId, void, VV>; // {id, value}
 \end{lstlisting}
 
 \begin{table}[h!]
@@ -208,17 +212,17 @@ using copyable_vertex_t = vertex_info<VId, void, VV>; // {id, value}
 \hline
     \textbf{Type} & \textbf{Definition} \\
 \hline
-    \tcode{copyable_vertex_t<V,VId,VV=void>} & \tcode{vertex_info<VId, void, VV>} \\
-    \tcode{copyable_edge_t<V,Vid,EV=void>} & \tcode{edge_info<VId, true, void, EV>>} \\
-    \tcode{copyable_neighbor_t<Vid,VV=void>} & \tcode{neighbor_info<VId, true, void, VV>} \\
+    \tcode{copyable_vertex_t<V,VId,VV=void>} & \tcode{vertex_data<VId, void, VV>} \\
+    \tcode{copyable_edge_t<V,Vid,EV=void>} & \tcode{edge_data<VId, true, void, EV>>} \\
+    \tcode{copyable_neighbor_t<Vid,VV=void>} & \tcode{neighbor_data<VId, true, void, VV>} \\
 \hline
 \end{tabular}}
-\caption{Info Struct Concepts}
+\caption{Data Struct Concepts}
 \label{tab:info_struct_concepts}
 \end{center}
 \end{table}
 
-\subsubsection{Copyable Info Struct Concepts (For Exposition Only)}
+\subsubsection{Copyable Data Struct Concepts (For Exposition Only)}
 
 Given the copyable types, it's useful to have concepts to determine if a type is a desired copyable type.
 \begin{table}[h!]
@@ -233,7 +237,7 @@ Given the copyable types, it's useful to have concepts to determine if a type is
     \tcode{copyable_neighbor<T,Vid,VV=void>} & \tcode{convertible_to<T, copyable_neighbor_t<VId, VV>>} \\
 \hline
 \end{tabular}}
-\caption{Info Struct Concepts}
+\caption{Data Struct Concepts}
 \label{tab:info_struct_concepts}
 \end{center}
 \end{table}
