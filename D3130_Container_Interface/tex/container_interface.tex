@@ -111,16 +111,18 @@ Table \ref{tab:graph_traits} summarizes the type traits in the Graph Container I
     \textbf{Trait} & \textbf{Type} & \textbf{Comment} \\
 \hline
     \tcode{has_degree<G>} & concept & Is the \tcode{degree(g,u)} function available? \\
-    \tcode{has_find_vertex<G>} & concept & Are the \tcode{find_vertex(g,_)} functions available? \\
-    \tcode{has_find_vertex_edge<G>} & concept & Are the \tcode{find_vertex_edge(g,_)} functions available?\\
-    \tcode{has_contains_edge<G>} & concept & Is the \tcode{contains_edge(g,uid,vid)} function available?\\
+    \tcode{has_find_vertex<G>} & concept & Are the \tcode{find_vertex(g,\_)} functions available? \\
+    \tcode{has_find_vertex_edge<G>} & concept & Are the \tcode{find_vertex_edge(g,\_)} functions available?\\
+    \tcode{has_contains_edge<G,V>} & concept & Is the \tcode{contains_edge(g,uid,vid)} function available?\\
+\hdashline
+    \tcode{has_in_degree<G>} & concept & Is the \tcode{in_degree(g,u)} function available? \\
+    \tcode{has_find_in_edge<G>} & concept & Are the \tcode{find_in_edge(g,\_)} functions available? \\
+    \tcode{has_contains_in_edge<G,V>} & concept & Is the \tcode{contains_in_edge(g,uid,vid)} function available?\\
+\hdashline
+    \tcode{has_basic_queries<G>} & concept & \tcode{has_degree<G> \&\& has_find_vertex<G> \&\& has_find_vertex_edge<G>} \\
+    \tcode{has_full_queries<G>} & concept & \tcode{has_basic_queries<G> \&\& has_contains_edge<G, vertex_t<G>{}>} \\
 \hline
-    \tcode{define_unordered_edge<G> : false_type} & struct & Specialize to derive from \tcode{true_type} for a graph with unordered edges \\
-    \tcode{unordered_edge<G>} & concept & \\
-\hline
-    \tcode{ordered_edge<G>} & concept & \\
-\hline
-    \tcode{define_adjacency_matrix<G> : false_type} & struct & Specialize for graph implementation to derive from \tcode{true_type} for edges stored as a square 2-dimensional array \\
+    \tcode{define_adjacency_matrix<G> : false_type} & struct & Specialize for graph implementation to derive from \tcode{true_type} for edges stored as a square 2-dimensional array. Not yet in reference implementation. \\
     \tcode{is_adjacency_matrix<G>} & struct & \\
     \tcode{is_adjacency_matrix_v<G>} & type alias & \\
     \tcode{adjacency_matrix<G>} & concept & \\
@@ -144,25 +146,31 @@ The type aliases are defined by either a function specialization for the underly
 \begin{table}[h!]
 \begin{center}
 %\resizebox{\textwidth}{!}
-{\begin{tabular}{l l L{1.5cm}}
+{\begin{tabular}{l l L{2.5cm}}
 \hline
     \textbf{Type Alias} & \textbf{Definition} & \textbf{Comment} \\
 \hline
-    \tcode{graph_reference_t<G>} & \tcode{add_lvalue_reference<G>} & \\
     \tcode{graph_value_t<G>} & \tcode{decltype(graph_value(g))} & optional \\
 \hline
     \tcode{vertex_range_t<G>} & \tcode{decltype(vertices(g))} & \\    
     \tcode{vertex_iterator_t<G>} & \tcode{iterator_t<vertex_range_t<G>>} & \\    
-    \tcode{vertex_t<G>} & \tcode{range_value_t<vertex_range_t<G>>} & \\    
-    \tcode{vertex_reference_t<G>} & \tcode{range_reference_t<vertex_range_t<G>>} & \\    
-    \tcode{vertex_id_t<G>} & \tcode{decltype(vertex_id(g,u))} & \\
+    \tcode{vertex_t<G>} & \tcode{range_value_t<vertex_range_t<G>>} & descriptor \\    
+    \tcode{vertex_id_t<G>} & \tcode{remove_cvref_t<decltype(vertex_id(g,vertex_t<G>))>} & \\
+    \tcode{vertex_id_store_t<G>} & (see below) & normative \\
+    \tcode{\textit{raw-vertex-id-type}} & \tcode{decltype(vertex_id(g,vertex_t<G>))} & exposition only \\
     \tcode{vertex_value_t<G>} & \tcode{decltype(vertex_value(g,u))} & optional \\
 \hline
-    \tcode{vertex_edge_range_t<G>} & \tcode{decltype(edges(g,u))} & \\    
-    \tcode{vertex_edge_iterator_t<G>} & \tcode{iterator_t<vertex_edge_range_t<G>>} & \\    
-    \tcode{edge_t<G>} & \tcode{range_value_t<vertex_edge_range_t<G>>} & \\    
-    \tcode{edge_reference_t<G>} & \tcode{range_reference_t<vertex_edge_range_t<G>>} & \\    
+    \tcode{out_edge_range_t<G>} & \tcode{decltype(out_edges(g,vertex_t<G>))} & \\
+    \tcode{out_edge_iterator_t<G>} & \tcode{iterator_t<out_edge_range_t<G>>} & \\
+    \tcode{out_edge_t<G>} & \tcode{range_value_t<out_edge_range_t<G>>} & descriptor \\
+    \tcode{vertex_edge_range_t<G>} & \tcode{out_edge_range_t<G>} & alias \\
+    \tcode{vertex_edge_iterator_t<G>} & \tcode{out_edge_iterator_t<G>} & alias \\
+    \tcode{edge_t<G>} & \tcode{out_edge_t<G>} & alias \\
     \tcode{edge_value_t<G>} & \tcode{decltype(edge_value(g,uv))} & optional \\
+\hdashline
+    \tcode{in_edge_range_t<G>} & \tcode{decltype(in_edges(g,vertex_t<G>))} & \\
+    \tcode{in_edge_iterator_t<G>} & \tcode{iterator_t<in_edge_range_t<G>>} & \\
+    \tcode{in_edge_t<G>} & \tcode{range_value_t<in_edge_range_t<G>>} & descriptor \\
 \hline
     \tcode{partition_id_t<G>} & \tcode{decltype(partition_id(g,u))} & optional \\
     \tcode{partition_vertex_range_t<G>} & \tcode{vertices(g,pid)} & optional \\    
