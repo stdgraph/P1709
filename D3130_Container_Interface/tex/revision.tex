@@ -74,36 +74,53 @@
 \subsection*{\paperno r4}
 
 \begin{itemize}
-      \item Adopt the new split-descriptor architecture: separate \tcode{vertex_descriptor<VertexIter>} and
-            \tcode{edge_descriptor<EdgeIter,VertexIter,EdgeDirection>} types, each with exposition-only internals.
-            Descriptor traits (\tcode{is_vertex_descriptor_v}, \tcode{is_edge_descriptor_v}, etc.) are defined in a
-            dedicated header. \tcode{vertex_descriptor_view} and \tcode{edge_descriptor_view} replace the
-            former \tcode{descriptor_view}.
+      \item \textbf{Associative-container support}: vertex and edge containers may now be
+            associative (e.g.\ \tcode{std::map}, \tcode{std::unordered_map}), enabling
+            graphs with non-integer or string vertex ids.  Related changes:
+            \begin{itemize}
+                  \item New concept \tcode{mapped_vertex_range} alongside \tcode{index_vertex_range}.
+                  \item New type aliases \tcode{vertex_id_store_t<G>} and \textit{raw-vertex-id-type}.
+                  \item New \tcode{vertex_property_map<G,T>} utility type alias;
+                        \tcode{make_vertex_property_map} (eager and lazy),
+                        \tcode{vertex_property_map_contains}, \tcode{vertex_property_map_get}.
+            \end{itemize}
+      \item \textbf{Bidirectional graph support}: a graph may now expose in-edge ranges
+            alongside out-edge ranges, enabling efficient reverse traversal.  Related changes:
+            \begin{itemize}
+                  \item New concept \tcode{in_edge_range<R,G>} alongside \tcode{out_edge_range<R,G>}
+                        (together replacing \tcode{targeted_edge_range}).
+                  \item Existing edge CPOs renamed with \tcode{out\_} prefix for symmetry:
+                        \tcode{edges(g,u)} $\rightarrow$ \tcode{out_edges(g,u)} (\tcode{edges} kept as alias);
+                        \tcode{degree(g,u)} $\rightarrow$ \tcode{out_degree(g,u)};
+                        \tcode{find_vertex_edge} $\rightarrow$ \tcode{find_out_edge};
+                        \tcode{contains_edge} $\rightarrow$ \tcode{contains_out_edge}.
+                  \item New in-edge CPOs: \tcode{in_edges}, \tcode{in_degree},
+                        \tcode{find_in_edge}, \tcode{contains_in_edge}.
+                  \item New type aliases \tcode{in_edge_range_t<G>} and \tcode{in_edge_t<G>};
+                        \tcode{vertex_edge_range_t<G>} / \tcode{edge_t<G>} retained as aliases for
+                        \tcode{out_edge_range_t<G>} / \tcode{out_edge_t<G>}.
+            \end{itemize}
+      \item Ground the descriptor types introduced in r3 with concrete specifications backed by a working
+            prototype: \tcode{vertex_descriptor<VertexIter>} and
+            \tcode{edge_descriptor<EdgeIter,VertexIter,EdgeDirection>} now have fully specified,
+            exposition-only internals.  Descriptor traits (\tcode{is_vertex_descriptor_v},
+            \tcode{is_edge_descriptor_v}, etc.) are defined in a dedicated header.
+            \tcode{vertex_descriptor_view} and \tcode{edge_descriptor_view} replace the former
+            \tcode{descriptor_view}.
       \item Simplify the concept hierarchy: the single \tcode{edge<G,E>} concept replaces the previous
-            \tcode{targeted_edge}/\tcode{sourced_edge} split; \tcode{out_edge_range<R,G>} and
-            \tcode{in_edge_range<R,G>} replace \tcode{targeted_edge_range}. Six adjacency list concepts
-            cover the index/mapped/bidirectional axes; \tcode{basic_*} and \tcode{sourced_*} variants are removed.
-            \tcode{mapped_vertex_range} is added alongside \tcode{index_vertex_range}.
-      \item CPO renames: \tcode{edges(g,u)} $\rightarrow$ \tcode{out_edges(g,u)} (\tcode{edges} kept as
-            backward-compatible alias); \tcode{degree(g,u)} $\rightarrow$ \tcode{out_degree(g,u)};
-            \tcode{find_vertex_edge} $\rightarrow$ \tcode{find_out_edge};
-            \tcode{contains_edge} (adj list) $\rightarrow$ \tcode{contains_out_edge}. In-edge CPOs
-            (\tcode{in_edges}, \tcode{in_degree}, \tcode{find_in_edge}, \tcode{contains_in_edge}) are added.
-      \item Type alias updates: \tcode{vertex_edge_range_t<G>} / \tcode{edge_t<G>} noted as aliases for
-            \tcode{out_edge_range_t<G>} / \tcode{out_edge_t<G>}. New: \tcode{out_edge_range_t},
-            \tcode{out_edge_t}, \tcode{in_edge_range_t}, \tcode{in_edge_t}, \tcode{vertex_id_store_t<G>},
-            \textit{raw-vertex-id-type}. Removed: \tcode{graph_reference_t}, \tcode{vertex_reference_t},
+            \tcode{targeted_edge}/\tcode{sourced_edge} split; six adjacency list concepts cover the
+            index/mapped/bidirectional axes; \tcode{basic_*} and \tcode{sourced_*} variants are removed.
+      \item Removed type aliases: \tcode{graph_reference_t}, \tcode{vertex_reference_t},
             \tcode{edge_reference_t}.
-      \item New data structures: \tcode{vertex_data}, \tcode{edge_data} and \tcode{neighbor_data} aggregates
-            with partial-specialisation families; \tcode{copyable_vertex_t}, \tcode{copyable_edge_t},
-            \tcode{copyable_neighbor_t} helper aliases.
       \item New concepts: \tcode{vertex_value_function} and \tcode{edge_value_function} (value-function
             concepts for views and algorithms).
-      \item New utility: \tcode{vertex_property_map<G,T>} type alias; \tcode{make_vertex_property_map}
-            (eager and lazy), \tcode{vertex_property_map_contains}, \tcode{vertex_property_map_get}.
       \item Edgelist namespace renamed from \tcode{std::graph::edgelist} to \tcode{std::graph::edge_list}.
             Adjacency list symbols now formally reside in \tcode{std::graph::adj_list} and are re-exported
             to \tcode{std::graph}; the two sub-namespaces are peers.
+      \item \tcode{vertex_data}, \tcode{edge_data} and \tcode{neighbor_data} aggregates
+            (renamed from \tcode{vertex_info}, \tcode{edge_info}, \tcode{neighbor_info})
+            with partial-specialisation families supply the value types held in associative
+            containers.
       \item Edgelist CPOs moved to 2-argument form \tcode{f(el,uv)}; \tcode{edge_info} renamed to
             \tcode{edge_data}; \tcode{edge_reference_t<EL>} removed; \tcode{raw-vertex-id-type} added.
 \end{itemize}

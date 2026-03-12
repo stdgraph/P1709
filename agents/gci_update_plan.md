@@ -40,9 +40,9 @@ configured, or run `cmake -S . -B build/linux-gcc-debug -DCMAKE_BUILD_TYPE=Debug
 | D | Concept sections | P1709 | A | Medium — concepts reference source files | ✅ Done (`8de6a14`) |
 | E | Descriptor section rewrite | P1709 | A | Medium — large prose rewrite | ✅ Done (`78680b3`) |
 | F | Edgelist section | P1709 | A, B | Medium — namespace change + pattern rename | ✅ Done (`ca08466`) |
-| G | New sections | P1709 | B, D | Low — additive | ⬜ Not started |
-| H | Prose audit & cleanup | P1709 | A–G | Low — mechanical search-and-replace | ⬜ Not started |
-| I | Implementation changes | graph-v3 | — (independent) | Medium — must pass tests | ⬜ Not started |
+| G | New sections | P1709 | B, D | Low — additive | ✅ Done (`66e30d2`) |
+| H | Prose audit & cleanup | P1709 | A–G | Low — mechanical search-and-replace | ✅ Done (`0cdcd7f`, `d095f87`) |
+| I | Implementation changes | graph-v3 | — (independent) | Medium — must pass tests | ✅ Done (`ae4910c`) |
 | J | Cross-paper fixups | P1709 | H | Low — mechanical | ⬜ Not started |
 
 Phases A–H are sequential within P1709 (each committed separately).
