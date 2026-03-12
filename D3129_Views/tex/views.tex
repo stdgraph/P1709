@@ -84,7 +84,7 @@ for(auto&& [u, value] : vertexlist(g, vvf)) {
 exists.
 
 {\small
-     \lstinputlisting{D3129_Views/src/vertex_info.hpp}
+     \lstinputlisting{D3129_Views/src/vertex_data.hpp}
 }
 
 Specializations are defined with \tcode{V=void} or \tcode{VV=void} to suppress the existence of their associated member variables, 
@@ -120,7 +120,7 @@ In this section, \tcode{source} and \tcode{target} can be either vertex descript
 When \tcode{Sourced=true}, the \tcode{source} member is included with type \tcode{V} or \tcode{VId}. The \tcode{target} member always exists.
 
 {\small
-     \lstinputlisting{D3129_Views/src/edge_info.hpp}
+     \lstinputlisting{D3129_Views/src/edge_data.hpp}
 }
 
 Specializations are defined with \tcode{Sourced=true|false}, \tcode{E=void} or \tcode{EV=void} to suppress the existence of the associated 
@@ -158,7 +158,7 @@ and \tcode{value_type} is \tcode{void}.
 When \tcode{Sourced=true}, the \tcode{source} member is included with type \tcode{source_type}. The \tcode{target} member always exists.
 
 {\small
-     \lstinputlisting{D3129_Views/src/neighbor_info.hpp}
+     \lstinputlisting{D3129_Views/src/neighbor_data.hpp}
 }
 
 Specializations are defined with \tcode{Sourced=true|false} or \tcode{EV}=void to suppress the existence of the 
