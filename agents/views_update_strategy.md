@@ -349,7 +349,7 @@ Identical structural changes as DFS (§1.8):
 | `vertices_topological_sort(g,source)` | 2-arg | `vertices_topological_sort(g)` — 1-arg | Remove source param |
 | `edges_topological_sort(g,source)` | 2-arg | `edges_topological_sort(g)` — 1-arg | Remove source param |
 | `sourced_edges_topological_sort(...)` | Present | **Does not exist** | **Remove** |
-| `_safe` cycle-detection factories | **Not in LaTeX** | Returns `tl::expected<view, vertex_t<G>>` | **Add** |
+| `_safe` cycle-detection factories | **Not in LaTeX** | Returns `std::expected<view, vertex_t<G>>` (C++23; `tl::expected` for C++20 compat) | **Add** |
 | Iterator type | Not specified | **`forward_iterator`** (eagerly computed) | Document — differs from DFS/BFS |
 | `depth()` member | Implied by "search views" section | **Not available** — topo sort has no tree depth | Clarify: topo sort does NOT satisfy `search_view` |
 | `cancel()` member | Implied | Present, but `cancel_branch` = `cancel_all` (flat ordering) | Document |
@@ -527,7 +527,22 @@ The search views overlap with algorithm concerns:
 | DFS/BFS visitor events vs search view events | Cross-reference D3128 visitor events. Note that search views are an alternative to visitor-based traversal. |
 | Topological sort algorithm vs view | Cross-reference D3128's `topological_sort()` algorithm. Note the algorithm returns `bool` for cycle detection; the view offers a `_safe` factory returning `expected`. |
 
-### 4.3 Shared `conventions.tex` Updates
+### 4.3 References to D3126 (Overview)
+
+D3126 Overview describes the library as targeting C++20 (§Prior Art, §Alternatives). The
+use of `std::expected` in the topological sort `_safe` view factories introduces a C++23
+dependency. D3126 should be updated to note:
+
+- The library baseline remains C++20.
+- The topological sort safe view factories use `std::expected` (C++23).
+- Implementations provide backward compatibility to C++20 via an external `expected`
+  library (e.g., `tl::expected`), switching to `std::expected` when C++23 or later is
+  used for building.
+
+A natural placement is adjacent to the existing "Freestanding" section in D3126, or as a
+new "Language Requirements" subsection.
+
+### 4.4 Shared `conventions.tex` Updates
 
 The conventions table (`tex/conventions.tex`) contains entries that apply to views:
 
@@ -569,7 +584,7 @@ implementation for the complete set.
 - (b) Group all basic views in a separate section
 - (c) Show standard views first, then a single "Basic View Variants" subsection listing all
 
-**Decision:** (a) — keeps related information together. Use a horizontal divider
+**Recommendation:** (a) — keeps related information together. Use a horizontal divider
 in each view's table to separate standard from basic rows, provided the table fits
 on the page. If a combined table is too wide or tall, split basic variants into a
 separate follow-on table within the same subsection.
@@ -583,7 +598,7 @@ separate follow-on table within the same subsection.
 - (b) Each view's subsection shows its pipe syntax alongside the function call syntax
 - (c) Both — show pipe in each subsection with a summary section
 
-**Decision:** (c) — show pipe syntax in each view table via an additional column or
+**Recommendation:** (c) — show pipe syntax in each view table via an additional column or
 examples, plus a summary "Range Adaptors" section listing all adaptor objects.
 
 ### Q4 — `tl::expected` Dependency
@@ -596,9 +611,18 @@ The standard has `std::expected` since C++23. Should the paper:
 - (b) Use an exposition-only `expected` type
 - (c) Use a different error reporting mechanism (e.g., `optional<vertex_t<G>>` error output)
 
-**Decision:** (b) — use an exposition-only `expected` type to avoid a hard C++23
-dependency. This keeps the paper compatible with C++20 while conveying the intended
-semantics.
+**Recommendation:** (a) — use `std::expected` and target C++23 for this part of the design.
+This matches the implementation intent and keeps the paper concrete.
+
+The implementation should provide backward compatibility to C++20 by using an external
+`expected` library (e.g., `tl::expected`) when building in C++20 mode, and switch to
+`std::expected` when C++23 or later is used for building. The paper should present
+`std::expected` as the specification type.
+
+**Cross-paper impact:** D3126 Overview currently describes the library as targeting C++20
+(see Overview §Prior Art and §Alternatives). A note should be added to D3126 stating that
+the library baseline is C++20, but the topological sort `_safe` view factories use
+`std::expected` (C++23). See Section 4.4 below.
 
 ### Q5 — Incoming Edge Search Views
 
@@ -612,7 +636,7 @@ document the accessor mechanism and/or request incoming-edge search variants?
   are possible future extensions
 - (c) Add incoming search view factories (requires implementation work)
 
-**Decision:** (b) — document the accessor mechanism as exposition-only and note that
+**Recommendation:** (b) — document the accessor mechanism as exposition-only and note that
 incoming variants are possible future extensions.
 
 ### Q6 — Event Enum / Coroutine-Style Events
@@ -625,7 +649,7 @@ coroutine-style event reporting. The implementation does not have this.
 - (b) Add a "Future Directions" note
 - (c) Implement the feature first
 
-**Decision:** (a) — remove all `\phil` notes about event enums. This is a future
+**Recommendation:** (a) — remove all `\phil` notes about event enums. This is a future
 direction that can be proposed separately. Keep the current visitor-based approach
 (D3128) and search-view approach (D3129) as complementary patterns.
 
@@ -636,7 +660,7 @@ vertex views (binding: `[v]`) and `edge_data<void, false, E, void>` for edge vie
 (binding: `[uv]`). The VId is `void` — no vertex id in the binding. Should the paper
 explicitly document this design choice and the rationale?
 
-**Decision:** Yes — add a brief "Design Note" paragraph explaining that search views
+**Recommendation:** Yes — add a brief "Design Note" paragraph explaining that search views
 yield descriptors rather than IDs, because the search context is per-graph (the user already
 knows which graph) and descriptors provide richer access via CPOs (`vertex_id(g, v)`,
 `vertex_value(g, v)`, etc.).
@@ -765,7 +789,8 @@ Draft entry for `revision.tex`:
     \item Added \tcode{transpose} view for direction-swapping graph adaption.
     \item Added pipe syntax support via range adaptors for all view functions.
     \item Added \tcode{\_safe} topological sort factories with cycle detection
-          via \tcode{std::expected}.
+          via \tcode{std::expected} (C++23; backward compatible to C++20 via external
+          \tcode{expected} library).
     \item Changed topological sort from seeded (single source) to all-vertex traversal.
     \item Removed \tcode{sourced\_edges\_dfs}, \tcode{sourced\_edges\_bfs}, and
           \tcode{sourced\_edges\_topological\_sort} — sourced search variants are no longer
