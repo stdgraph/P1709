@@ -32,18 +32,18 @@ configured, or run `cmake -S . -B build/linux-gcc-debug -DCMAKE_BUILD_TYPE=Debug
 
 ## Phase overview
 
-| Phase | Name | Repo | Depends on | Risk |
-|-------|------|------|------------|------|
-| A | Source file rewrite | P1709 | — | Low — self-contained `.hpp` files |
-| B | Type alias & traits tables | P1709 | A | Low — table-only edits |
-| C | Function tables & CPOs | P1709 | B | Medium — cross-references with concepts |
-| D | Concept sections | P1709 | A | Medium — concepts reference source files |
-| E | Descriptor section rewrite | P1709 | A | Medium — large prose rewrite |
-| F | Edgelist section | P1709 | A, B | Medium — namespace change + pattern rename |
-| G | New sections | P1709 | B, D | Low — additive |
-| H | Prose audit & cleanup | P1709 | A–G | Low — mechanical search-and-replace |
-| I | Implementation changes | graph-v3 | — (independent) | Medium — must pass tests |
-| J | Cross-paper fixups | P1709 | H | Low — mechanical |
+| Phase | Name | Repo | Depends on | Risk | Status |
+|-------|------|------|------------|------|--------|
+| A | Source file rewrite | P1709 | — | Low — self-contained `.hpp` files | ✅ Done (`c5fc672`) |
+| B | Type alias & traits tables | P1709 | A | Low — table-only edits | ✅ Done (`81014ef`) |
+| C | Function tables & CPOs | P1709 | B | Medium — cross-references with concepts | ⬜ Not started |
+| D | Concept sections | P1709 | A | Medium — concepts reference source files | ⬜ Not started |
+| E | Descriptor section rewrite | P1709 | A | Medium — large prose rewrite | ⬜ Not started |
+| F | Edgelist section | P1709 | A, B | Medium — namespace change + pattern rename | ⬜ Not started |
+| G | New sections | P1709 | B, D | Low — additive | ⬜ Not started |
+| H | Prose audit & cleanup | P1709 | A–G | Low — mechanical search-and-replace | ⬜ Not started |
+| I | Implementation changes | graph-v3 | — (independent) | Medium — must pass tests | ⬜ Not started |
+| J | Cross-paper fixups | P1709 | H | Low — mechanical | ⬜ Not started |
 
 Phases A–H are sequential within P1709 (each committed separately).
 Phase I is independent and can be done before, after, or interleaved with the paper phases.
