@@ -43,7 +43,7 @@ configured, or run `cmake -S . -B build/linux-gcc-debug -DCMAKE_BUILD_TYPE=Debug
 | G | New sections | P1709 | B, D | Low — additive | ✅ Done (`66e30d2`) |
 | H | Prose audit & cleanup | P1709 | A–G | Low — mechanical search-and-replace | ✅ Done (`0cdcd7f`, `d095f87`) |
 | I | Implementation changes | graph-v3 | — (independent) | Medium — must pass tests | ✅ Done (`ae4910c`) |
-| J | Cross-paper fixups | P1709 | H | Low — mechanical | ⬜ Not started |
+| J | Cross-paper fixups | P1709 | H | Low — mechanical | ✅ Done (`34f6068`) |
 
 Phases A–H are sequential within P1709 (each committed separately).
 Phase I is independent and can be done before, after, or interleaved with the paper phases.
