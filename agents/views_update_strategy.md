@@ -569,8 +569,10 @@ implementation for the complete set.
 - (b) Group all basic views in a separate section
 - (c) Show standard views first, then a single "Basic View Variants" subsection listing all
 
-**Recommendation:** (a) — keeps related information together. Use a horizontal divider
-in each view's table to separate standard from basic rows.
+**Decision:** (a) — keeps related information together. Use a horizontal divider
+in each view's table to separate standard from basic rows, provided the table fits
+on the page. If a combined table is too wide or tall, split basic variants into a
+separate follow-on table within the same subsection.
 
 ### Q3 — Pipe Syntax Presentation
 
@@ -581,7 +583,7 @@ in each view's table to separate standard from basic rows.
 - (b) Each view's subsection shows its pipe syntax alongside the function call syntax
 - (c) Both — show pipe in each subsection with a summary section
 
-**Recommendation:** (c) — show pipe syntax in each view table via an additional column or
+**Decision:** (c) — show pipe syntax in each view table via an additional column or
 examples, plus a summary "Range Adaptors" section listing all adaptor objects.
 
 ### Q4 — `tl::expected` Dependency
@@ -594,8 +596,9 @@ The standard has `std::expected` since C++23. Should the paper:
 - (b) Use an exposition-only `expected` type
 - (c) Use a different error reporting mechanism (e.g., `optional<vertex_t<G>>` error output)
 
-**Recommendation:** (a) — the graph library targets C++23 or later; `std::expected` is
-available. If C++20 compatibility is needed, use exposition-only.
+**Decision:** (b) — use an exposition-only `expected` type to avoid a hard C++23
+dependency. This keeps the paper compatible with C++20 while conveying the intended
+semantics.
 
 ### Q5 — Incoming Edge Search Views
 
@@ -609,7 +612,8 @@ document the accessor mechanism and/or request incoming-edge search variants?
   are possible future extensions
 - (c) Add incoming search view factories (requires implementation work)
 
-**Recommendation:** (b) — document the mechanism for completeness, note future extensibility.
+**Decision:** (b) — document the accessor mechanism as exposition-only and note that
+incoming variants are possible future extensions.
 
 ### Q6 — Event Enum / Coroutine-Style Events
 
@@ -621,9 +625,9 @@ coroutine-style event reporting. The implementation does not have this.
 - (b) Add a "Future Directions" note
 - (c) Implement the feature first
 
-**Recommendation:** (a) — remove the notes. This is a future direction that can be proposed
-separately. Keep the current visitor-based approach (D3128) and search-view approach (D3129)
-as complementary patterns.
+**Decision:** (a) — remove all `\phil` notes about event enums. This is a future
+direction that can be proposed separately. Keep the current visitor-based approach
+(D3128) and search-view approach (D3129) as complementary patterns.
 
 ### Q7 — Search View Binding Fields
 
@@ -632,7 +636,7 @@ vertex views (binding: `[v]`) and `edge_data<void, false, E, void>` for edge vie
 (binding: `[uv]`). The VId is `void` — no vertex id in the binding. Should the paper
 explicitly document this design choice and the rationale?
 
-**Recommendation:** Yes — add a brief "Design Note" paragraph explaining that search views
+**Decision:** Yes — add a brief "Design Note" paragraph explaining that search views
 yield descriptors rather than IDs, because the search context is per-graph (the user already
 knows which graph) and descriptors provide richer access via CPOs (`vertex_id(g, v)`,
 `vertex_value(g, v)`, etc.).
