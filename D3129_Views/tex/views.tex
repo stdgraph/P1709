@@ -353,56 +353,58 @@ adhere to \tcode{basic_sourced_edgelist}). If a \tcode{evf(g,uv)} function is pa
 \section{"Search" Views}
 
 \subsection{Common Types and Functions for ``Search'' }
-\phil{Do these apply to all "search" functions?}
 
-The Depth First, Breadth First, and Topological Sort searches share a number of common types and functions. 
+The Depth First, Breadth First, and Topological Sort searches share a number of common types and member functions.
 
-Here are the types and functions for cancelling a search, getting the current depth of the search, and active elements in the search (e.g. number of vertices in a stack or queue).
+Search views provide member functions for cancelling a search, querying the current depth, and the number of vertices or edges visited so far. The \tcode{cancel_search} enumeration controls search cancellation:
 \begin{lstlisting}
-// enum used to define how to cancel a search
-enum struct cancel_search : int8_t { 
-  continue_search, // no change (ignored)
-  cancel_branch,   // stops searching from current vertex
-  cancel_all       // stops searching and dfs will be at end()
+enum class cancel_search {
+  continue_search, // continue normal traversal
+  cancel_branch,   // skip current subtree/branch, continue with siblings
+  cancel_all       // stop entire search immediately
 };
-
-// stop searching from current vertex
-template<class S>
-void cancel(S search, cancel_search);
-
-// Returns distance from the source vertex to the current vertex, 
-// or to the target vertex for edge views
-template<class S>
-auto depth(S search) -> integral;
-
-// Returns number of pending vertices to process
-template<class S>
-auto size(S search) -> integral; 
 \end{lstlisting}
 
-Of particular note, \tcode{size(dfs)} is typically the same as \tcode{depth(dfs)} and is simple to calculate. breadth\_first\_search requires extra bookkeeping to evaluate \tcode{depth(bfs)} and returns a different value than \tcode{size(bfs)}.
+Each search view exposes the following member functions:
+\begin{lstlisting}
+cancel_search cancel() const noexcept;  // get current cancel state
+void cancel(cancel_search c) noexcept;  // set cancel state
+std::size_t depth() const noexcept;     // distance from seed to current vertex
+std::size_t num_visited() const noexcept; // total vertices/edges visited so far
+\end{lstlisting}
 
-The following example shows how the functions  could be used, using \tcode{dfs} for one of the depth\_first\_search views. The same functions can be used for all all search views.
+The \tcode{search_view} concept captures these requirements:
+\begin{lstlisting}
+template <class V>
+concept search_view = requires(V& v, const V& cv) {
+  { v.cancel() } -> std::convertible_to<cancel_search>;
+  { cv.depth() } -> std::convertible_to<std::size_t>;
+  { cv.num_visited() } -> std::convertible_to<std::size_t>;
+};
+\end{lstlisting}
+
+Topological sort views support \tcode{cancel()} and \tcode{num_visited()} but not \tcode{depth()} (flat ordering has no tree structure), so they do not satisfy \tcode{search_view}.
+
+For DFS, \tcode{dfs.num_visited()} is typically close to \tcode{dfs.depth()} and is simple to calculate. Breadth-first search requires extra bookkeeping to evaluate \tcode{bfs.depth()}, which returns a different value than \tcode{bfs.num_visited()}.
+
+The following example shows how the member functions could be used, using \tcode{dfs} for one of the depth-first search views. The same members are available on all search views that satisfy \tcode{search_view}.
 \begin{lstlisting}
 auto&& g = ...; // graph
-auto&& dfs = vertices_dfs(g,0); // start with vertex\_id=0
+auto&& dfs = vertices_dfs(g,0); // start with seed vertex\_id=0
 for(auto&& [uid,u] : dfs) {
   // No need to search deeper?
-  if(depth(dfs) > 3) {
-    cancel(dfs,cancel_search::cancel_branch);
+  if(dfs.depth() > 3) {
+    dfs.cancel(cancel_search::cancel_branch);
     continue;
   }
-  
-  if(size(dfs) > 1000) {
-    std::cout << "Big depth of " << size(dfs) << '\n';
+
+  if(dfs.num_visited() > 1000) {
+    std::cout << "Many visited: " << dfs.num_visited() << '\n';
   }
-  
+
   // do useful things
 }
 \end{lstlisting}
-
-The range returned by \textit{sourced} views (includes source\_id) adheres to the  \tcode{basic_sourced_index_edgelist} concept. If a 
-\tcode{evf(uv)} function is passed, it also adheres to the \tcode{has_edge_value} concept.
 
 \subsection{Depth First Search Views}
 
