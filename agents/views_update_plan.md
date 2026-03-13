@@ -31,15 +31,34 @@ broken `\lstinputlisting` or undefined `\tcode` references).
 |------|---------|------|
 | LaTeX builds | `latexmk -output-directory=pdf -aux-directory=aux D3129_Views.tex` in P1709 | After every phase |
 
+### Naming convention
+
+All structured bindings and prose must follow this convention consistently:
+
+| Symbol | Meaning |
+|--------|---------|
+| `u` | Source vertex (descriptor) |
+| `v` | Target vertex (descriptor) |
+| `uid` | Source vertex id |
+| `vid` | Target vertex id |
+| `uv` | Edge (from u to v) |
+
+**Context rules:**
+- **Vertex-only iteration** (vertexlist, vertex search views): use `uid`/`u` for the iterated vertex.
+- **Incidence / edge iteration**: `vid` = target id, `uv` = edge.
+- **Neighbor iteration**: `vid` = target id, `v` = target vertex.
+- **Edgelist iteration**: `uid` = source id, `vid` = target id, `uv` = edge.
+- **Basic views** (id-only): same convention but without descriptor bindings (e.g., `[uid]`, `[vid]`, `[uid, vid]`).
+
 ---
 
 ## Phase overview
 
 | Phase | Name | Depends on | Risk | Status |
 |-------|------|------------|------|--------|
-| A | Source file rewrite (data structs) | — | Low — 3 small `.hpp` files | Not started |
-| B | Data structs section rewrite | A | Medium — largest prose rewrite, tables | Not started |
-| C | Graph views update (vertexlist, incidence, neighbors, edgelist) | B | Medium — table + prose changes | Not started |
+| A | Source file rewrite (data structs) | — | Low — 3 small `.hpp` files | Done (ac5abdd) |
+| B | Data structs section rewrite | A | Medium — largest prose rewrite, tables | Done (1152806) |
+| C | Graph views update (vertexlist, incidence, neighbors, edgelist) | B | Medium — table + prose changes | Done (6f50537) |
 | D | Search common types update | B | Low — enum + member functions | Not started |
 | E | DFS / BFS views update | C, D | Medium — removals + binding changes | Not started |
 | F | Topological sort views update | C, D | Medium — signature changes + new `_safe` factories | Not started |
@@ -236,8 +255,8 @@ Update surrounding prose: "returning a `vertex_info`" → "returning a `vertex_d
 
 | Old | New |
 |-----|-----|
-| `for(auto&& [uv] : incidence(g,u))` → `edge_info<void,false,E,void>` | `for(auto&& [tid, uv] : incidence(g,u))` → `edge_data<VId,false,E,void>` |
-| `for(auto&& [uv,val] : incidence(g,u,evf))` → `edge_info<void,false,E,EV>` | `for(auto&& [tid, uv, val] : incidence(g,u,evf))` → `edge_data<VId,false,E,EV>` |
+| `for(auto&& [uv] : incidence(g,u))` → `edge_info<void,false,E,void>` | `for(auto&& [vid, uv] : incidence(g,u))` → `edge_data<VId,false,E,void>` |
+| `for(auto&& [uv,val] : incidence(g,u,evf))` → `edge_info<void,false,E,EV>` | `for(auto&& [vid, uv, val] : incidence(g,u,evf))` → `edge_data<VId,false,E,EV>` |
 
 Update prose: `edge_info` → `edge_data`.
 
@@ -245,8 +264,8 @@ Update prose: `edge_info` → `edge_data`.
 
 | Old | New |
 |-----|-----|
-| `for(auto&& [v] : neighbors(g,uid))` → `neighbor_info<void,false,V,void>` | `for(auto&& [tid, n] : neighbors(g,uid))` → `neighbor_data<VId,false,V,void>` |
-| `for(auto&& [v,val] : neighbors(g,uid,vvf))` → `neighbor_info<void,false,V,VV>` | `for(auto&& [tid, n, val] : neighbors(g,uid,vvf))` → `neighbor_data<VId,false,V,VV>` |
+| `for(auto&& [v] : neighbors(g,uid))` → `neighbor_info<void,false,V,void>` | `for(auto&& [vid, v] : neighbors(g,uid))` → `neighbor_data<VId,false,V,void>` |
+| `for(auto&& [v,val] : neighbors(g,uid,vvf))` → `neighbor_info<void,false,V,VV>` | `for(auto&& [vid, v, val] : neighbors(g,uid,vvf))` → `neighbor_data<VId,false,V,VV>` |
 
 Update prose: `neighbor_info` → `neighbor_data`, `vertex_info` → `vertex_data` (neighbors
 prose incorrectly says `vertex_info` in the LaTeX).
@@ -255,8 +274,8 @@ prose incorrectly says `vertex_info` in the LaTeX).
 
 | Old | New |
 |-----|-----|
-| `for(auto&& [u,v,uv] : edgelist(g))` → `edge_info<V,true,E,void>` | `for(auto&& [sid, tid, uv] : edgelist(g))` → `edge_data<VId,true,E,void>` |
-| `for(auto&& [u,v,uv,val] : edgelist(g,evf))` → `edge_info<V,true,E,EV>` | `for(auto&& [sid, tid, uv, val] : edgelist(g,evf))` → `edge_data<VId,true,E,EV>` |
+| `for(auto&& [u,v,uv] : edgelist(g))` → `edge_info<V,true,E,void>` | `for(auto&& [uid, vid, uv] : edgelist(g))` → `edge_data<VId,true,E,void>` |
+| `for(auto&& [u,v,uv,val] : edgelist(g,evf))` → `edge_info<V,true,E,EV>` | `for(auto&& [uid, vid, uv, val] : edgelist(g,evf))` → `edge_data<VId,true,E,EV>` |
 
 Update prose: `edge_info` → `edge_data`. Update `evf(uv)` references to `evf(g,uv)`.
 
@@ -333,8 +352,8 @@ Replace the free-function usage example:
 
 | Old Row | New Row |
 |---------|---------|
-| `[v] : vertices_dfs(g,source)` → `vertex_info<void,V,void>` | `[v] : vertices_dfs(g,seed)` → `vertex_data<void,V,void>` |
-| `[v,val] : vertices_dfs(g,source,vvf)` → `vertex_info<void,V,VV>` | `[v, val] : vertices_dfs(g,seed,vvf)` → `vertex_data<void,V,VV>` |
+| `[v] : vertices_dfs(g,source)` → `vertex_info<void,V,void>` | `[u] : vertices_dfs(g,seed)` → `vertex_data<void,V,void>` |
+| `[v,val] : vertices_dfs(g,source,vvf)` → `vertex_info<void,V,VV>` | `[u, val] : vertices_dfs(g,seed,vvf)` → `vertex_data<void,V,VV>` |
 | `[v,uv] : edges_dfs(g,source)` → `edge_info<V,false,E,void>` | `[uv] : edges_dfs(g,seed)` → `edge_data<void,false,E,void>` |
 | `[v,uv,val] : edges_dfs(g,source,evf)` → `edge_info<V,false,E,EV>` | `[uv, val] : edges_dfs(g,seed,evf)` → `edge_data<void,false,E,EV>` |
 | `[u,v,uv] : sourced_edges_dfs(g,source)` | **Remove** |
@@ -353,8 +372,8 @@ Identical structural changes as DFS:
 
 | Old Row | New Row |
 |---------|---------|
-| `[v] : vertices_bfs(g,source)` → `vertex_info<void,V,void>` | `[v] : vertices_bfs(g,seed)` → `vertex_data<void,V,void>` |
-| `[v,val] : vertices_bfs(g,source,vvf)` → `vertex_info<void,V,VV>` | `[v, val] : vertices_bfs(g,seed,vvf)` → `vertex_data<void,V,VV>` |
+| `[v] : vertices_bfs(g,source)` → `vertex_info<void,V,void>` | `[u] : vertices_bfs(g,seed)` → `vertex_data<void,V,void>` |
+| `[v,val] : vertices_bfs(g,source,vvf)` → `vertex_info<void,V,VV>` | `[u, val] : vertices_bfs(g,seed,vvf)` → `vertex_data<void,V,VV>` |
 | `[v,uv] : edges_bfs(g,source)` → `edge_info<V,false,E,void>` | `[uv] : edges_bfs(g,seed)` → `edge_data<void,false,E,void>` |
 | `[v,uv,val] : edges_bfs(g,source,evf)` → `edge_info<V,false,E,EV>` | `[uv, val] : edges_bfs(g,seed,evf)` → `edge_data<void,false,E,EV>` |
 | `[u,v,uv] : sourced_edges_bfs(g,source)` | **Remove** |
@@ -389,8 +408,8 @@ and add `_safe` factory documentation.
 
 | Old Row | New Row |
 |---------|---------|
-| `[v] : vertices_topological_sort(g,source)` | `[v] : vertices_topological_sort(g)` — no source param |
-| `[v,val] : vertices_topological_sort(g,source,vvf)` | `[v, val] : vertices_topological_sort(g,vvf)` |
+| `[v] : vertices_topological_sort(g,source)` | `[u] : vertices_topological_sort(g)` — no source param |
+| `[v,val] : vertices_topological_sort(g,source,vvf)` | `[u, val] : vertices_topological_sort(g,vvf)` |
 | `[v,uv] : edges_topological_sort(g,source)` | `[uv] : edges_topological_sort(g)` — VId=void |
 | `[v,uv,val] : edges_topological_sort(g,source,evf)` | `[uv, val] : edges_topological_sort(g,evf)` |
 | `[u,v,uv] : sourced_edges_topological_sort(g,source)` | **Remove** |
@@ -451,20 +470,20 @@ Add rows to each graph view table from Phase C:
 **incidence:**
 | New Row | Return |
 |---------|--------|
-| `for(auto&& [tid] : basic_incidence(g,uid))` | `edge_data<VId,false,void,void>` |
-| `for(auto&& [tid, val] : basic_incidence(g,uid,evf))` | `edge_data<VId,false,void,EV>` |
+| `for(auto&& [vid] : basic_incidence(g,uid))` | `edge_data<VId,false,void,void>` |
+| `for(auto&& [vid, val] : basic_incidence(g,uid,evf))` | `edge_data<VId,false,void,EV>` |
 
 **neighbors:**
 | New Row | Return |
 |---------|--------|
-| `for(auto&& [tid] : basic_neighbors(g,uid))` | `neighbor_data<VId,false,void,void>` |
-| `for(auto&& [tid, val] : basic_neighbors(g,uid,vvf))` | `neighbor_data<VId,false,void,VV>` |
+| `for(auto&& [vid] : basic_neighbors(g,uid))` | `neighbor_data<VId,false,void,void>` |
+| `for(auto&& [vid, val] : basic_neighbors(g,uid,vvf))` | `neighbor_data<VId,false,void,VV>` |
 
 **edgelist:**
 | New Row | Return |
 |---------|--------|
-| `for(auto&& [sid, tid] : basic_edgelist(g))` | `edge_data<VId,true,void,void>` |
-| `for(auto&& [sid, tid, val] : basic_edgelist(g,evf))` | `edge_data<VId,true,void,EV>` |
+| `for(auto&& [uid, vid] : basic_edgelist(g))` | `edge_data<VId,true,void,void>` |
+| `for(auto&& [uid, vid, val] : basic_edgelist(g,evf))` | `edge_data<VId,true,void,EV>` |
 
 Add brief prose explaining that basic views omit descriptors and yield only IDs.
 

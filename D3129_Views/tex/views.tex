@@ -295,8 +295,8 @@ uses a value function.
 \hline
     \textbf{Example} & \textbf{Return} \\
 \hline
-    \tcode{for(auto\&\& [tid, uv] : incidence(g,u))} & \tcode{edge_data<VId,false,E,void>} \\
-    \tcode{for(auto\&\& [tid, uv, val] : incidence(g,u,evf))} & \tcode{edge_data<VId,false,E,EV>} \\
+    \tcode{for(auto\&\& [vid, uv] : incidence(g,u))} & \tcode{edge_data<VId,false,E,void>} \\
+    \tcode{for(auto\&\& [vid, uv, val] : incidence(g,u,evf))} & \tcode{edge_data<VId,false,E,EV>} \\
 \hline
 \end{tabular}}
 \caption{\tcode{incidence} View Functions}
@@ -318,8 +318,8 @@ to include \tcode{source_id} in the output.
 \hline
     \textbf{Example} & \textbf{Return} \\
 \hline
-    \tcode{for(auto\&\& [tid, n] : neighbors(g,uid))} & \tcode{neighbor_data<VId,false,V,void>} \\
-    \tcode{for(auto\&\& [tid, n, val] : neighbors(g,uid,vvf))} & \tcode{neighbor_data<VId,false,V,VV>} \\
+    \tcode{for(auto\&\& [vid, v] : neighbors(g,uid))} & \tcode{neighbor_data<VId,false,V,void>} \\
+    \tcode{for(auto\&\& [vid, v, val] : neighbors(g,uid,vvf))} & \tcode{neighbor_data<VId,false,V,VV>} \\
 \hline
 \end{tabular}}
 \caption{\tcode{neighbors} View Functions}
@@ -341,8 +341,8 @@ adhere to \tcode{basic_sourced_edgelist}). If a \tcode{evf(g,uv)} function is pa
 \hline
     \textbf{Example} & \textbf{Return} \\
 \hline
-    \tcode{for(auto\&\& [sid, tid, uv] : edgelist(g))} & \tcode{edge_data<VId,true,E,void>} \\
-    \tcode{for(auto\&\& [sid, tid, uv, val] : edgelist(g,evf))} & \tcode{edge_data<VId,true,E,EV>} \\
+    \tcode{for(auto\&\& [uid, vid, uv] : edgelist(g))} & \tcode{edge_data<VId,true,E,void>} \\
+    \tcode{for(auto\&\& [uid, vid, uv, val] : edgelist(g,evf))} & \tcode{edge_data<VId,true,E,EV>} \\
 \hline
 \end{tabular}}
 \caption{\tcode{edgelist} View Functions}
@@ -386,7 +386,7 @@ The following example shows how the functions  could be used, using \tcode{dfs} 
 \begin{lstlisting}
 auto&& g = ...; // graph
 auto&& dfs = vertices_dfs(g,0); // start with vertex\_id=0
-for(auto&& [vid,v] : dfs) {
+for(auto&& [uid,u] : dfs) {
   // No need to search deeper?
   if(depth(dfs) > 3) {
     cancel(dfs,cancel_search::cancel_branch);
