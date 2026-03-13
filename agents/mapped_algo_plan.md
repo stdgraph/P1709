@@ -12,15 +12,14 @@ the LaTeX must conform to it.
 
 ## Approach
 
-Changes are organised into five phases, ordered from lowest to highest risk:
+Changes are organised into four phases, ordered from lowest to highest risk:
 
-1. **Decisions** — resolve open questions before touching files
-2. **Add vertex_property_map section** — new prose in "Common Algorithm Definitions" (paper only)
-3. **Simple concept-only src updates** — `index_adjacency_list` → `adjacency_list`, no requires
+1. **Add vertex_property_map section** — new prose in "Common Algorithm Definitions" (paper only)
+2. **Simple concept-only src updates** — `index_adjacency_list` → `adjacency_list`, no requires
    changes
-4. **Requires-clause updates** — `random_access_range` → `vertex_property_map_for` plus related
+3. **Requires-clause updates** — `random_access_range` → `vertex_property_map_for` plus related
    changes for Dijkstra, Bellman-Ford, MST/Prim, Label Propagation, Connected Components
-5. **Prose updates and hole resolution** — algorithms.tex prose, Kosaraju bidir investigation,
+4. **Prose updates and hole resolution** — algorithms.tex prose, Kosaraju bidir investigation,
    stale comments, examples
 
 Each phase ends with a LaTeX build check: `cd /mnt/d/dev_graph/P1709 && make D3128`.
@@ -28,36 +27,21 @@ Do not proceed to the next phase if the build fails.
 
 ---
 
-## Phase 0 — Decisions (No File Edits)
+## Resolved Decisions
 
-These questions must be resolved before Phase 2 to avoid rework.
+All design decisions were reviewed and confirmed before implementation began.
 
-### D-MA-1 — Scope of mapped support in paper
-**Decision:** Document only the general `adjacency_list` form.  Add a note: *"Every
-`index_adjacency_list<G>` automatically satisfies `adjacency_list<G>`; existing index-based
-callers require no changes."*  Do not add separate `index_adjacency_list` overloads.
-
-### D-MA-2 — Where to place the `vertex_property_map` section
-**Decision:** Inside D3128 "Common Algorithm Definitions" (algorithms.tex §126), as a new
-subsection after "Ordered Vertex Edges Concept" and before "Visitor Concepts and Classes".
-Rationale: `vertex_property_map_for` appears directly in algorithm `requires` clauses and
-belongs beside the other algorithm-prerequisite concepts.
-
-### D-MA-3 — Where to define mapped graph concepts
-**Decision:** `hashable_vertex_id`, `mapped_vertex_range`, `mapped_adjacency_list`, and
-`mapped_bidirectional_adjacency_list` belong in D3130 Container Interface (they describe
-container properties).  D3128 "Common Algorithm Definitions" adds only a forward-reference
-cross-cite to D3130.
-
-### D-MA-4 — Kosaraju single-graph (bidirectional) overload
-**Decision:** Investigate whether `mapped_bidirectional_adjacency_list` supports `in_edges()`.
-If it does, upgrade the overload to `bidirectional_adjacency_list<G>`.  If it does not,
-keep `index_bidirectional_adjacency_list<G>` and add an explicit prose note explaining the
-limitation.  Investigation is part of Phase 4C below.
-
-### D-MA-5 — `Predecessors` parameter in Dijkstra / Bellman-Ford
-**Decision:** Retain as a separate template parameter constrained by `vertex_property_map_for`,
-matching the implementation exactly.  Do not merge with the return type.
+- **D-MA-1:** Document only the general `adjacency_list` form.  Note that every
+  `index_adjacency_list<G>` automatically satisfies `adjacency_list<G>`; existing index-based
+  callers require no changes.  No separate `index_adjacency_list` overloads.
+- **D-MA-2:** `vertex_property_map` section goes in D3128 "Common Algorithm Definitions"
+  (algorithms.tex §126), after "Ordered Vertex Edges Concept" and before "Visitor Concepts".
+- **D-MA-3:** `hashable_vertex_id`, `mapped_vertex_range`, `mapped_adjacency_list`, and
+  `mapped_bidirectional_adjacency_list` are defined in D3130; D3128 cross-references D3130.
+- **D-MA-4:** Investigate `mapped_bidirectional_adjacency_list` + `in_edges()` support in
+  Phase 4C; upgrade Kosaraju bidir overload if supported, otherwise document the limitation.
+- **D-MA-5:** Retain `Predecessors` as a separate template parameter with
+  `vertex_property_map_for` constraint, matching the implementation.
 
 ---
 
@@ -287,7 +271,7 @@ Steps:
 
 ---
 
-## Phase 5 — Mapped Container Example
+## Phase 4D — Mapped Container Example
 
 **File:** `D3128_Algorithms/tex/algorithms.tex` or a new `D3128_Algorithms/src/` example file.
 
@@ -314,7 +298,7 @@ std::cout << vertex_property_map_get(dist, "c"sv, inf) << "\n";
 The concrete mapped container type should be derived from an actual graph-v3 mapped container
 used in the existing test suite (check `graph-v3/tests/` for usage).
 
-**Build check after Phase 5.**
+**Build check after Phase 4.**
 
 ---
 
@@ -322,11 +306,11 @@ used in the existing test suite (check `graph-v3/tests/` for usage).
 
 | Phase | Task | Status |
 |---|---|---|
-| 0 | D-MA-1: document `adjacency_list` form only | not started |
-| 0 | D-MA-2: `vertex_property_map` section → D3128 Common Defs | not started |
-| 0 | D-MA-3: mapped graph concepts → D3130, cross-ref in D3128 | not started |
-| 0 | D-MA-4: Kosaraju bidir — investigate before Phase 4C | not started |
-| 0 | D-MA-5: retain `Predecessors` as separate param | not started |
+| — | D-MA-1: document `adjacency_list` form only | confirmed |
+| — | D-MA-2: `vertex_property_map` section → D3128 Common Defs | confirmed |
+| — | D-MA-3: mapped graph concepts → D3130, cross-ref in D3128 | confirmed |
+| — | D-MA-4: Kosaraju bidir — investigate in Phase 4C | confirmed |
+| — | D-MA-5: retain `Predecessors` as separate param | confirmed |
 | 1 | Revise stale editorial note (line 12) | not started |
 | 1 | Add `\subsection{Vertex Property Map}` to algorithms.tex | not started |
 | 1 | Build check | not started |
@@ -348,8 +332,8 @@ used in the existing test suite (check `graph-v3/tests/` for usage).
 | 4B | Stale comments in graph-v3 implementation | not started |
 | 4C | Kosaraju bidir investigation and fix/note | not started |
 | 4 | Build check | not started |
-| 5 | Mapped-graph Dijkstra example | not started |
-| 5 | Build check | not started |
+| 4D | Mapped-graph Dijkstra example | not started |
+| 4 | Build check (final) | not started |
 
 ---
 
@@ -357,7 +341,7 @@ used in the existing test suite (check `graph-v3/tests/` for usage).
 
 | File | Phase | Role |
 |---|---|---|
-| `D3128_Algorithms/tex/algorithms.tex` | 1, 4A, 5 | New subsection; prose updates; example |
+| `D3128_Algorithms/tex/algorithms.tex` | 1, 4A, 4D | New subsection; prose updates; example |
 | `D3128_Algorithms/src/breadth_first_search.hpp` | 2 | Concept only |
 | `D3128_Algorithms/src/breadth_first_search_multi.hpp` | 2 | Concept only |
 | `D3128_Algorithms/src/depth_first_search.hpp` | 2 | Concept only |
