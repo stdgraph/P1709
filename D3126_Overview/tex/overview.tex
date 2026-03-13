@@ -254,6 +254,9 @@ require a \tcode{stack} or \tcode{queue}, which are not available in a freestand
 Additionally, \tcode{stack} and \tcode{queue} require memory allocation which could throw a \tcode{bad_alloc} 
 exception.
 
+\section{Language Requirements}
+The library targets C++20 as its baseline. The topological sort safe view factories (\tcode{vertices_topological_sort_safe}, \tcode{edges_topological_sort_safe}) use \tcode{std::expected} from C++23. The reference implementation provides backward compatibility to C++20 via an external \tcode{expected} library (e.g., \tcode{tl::expected}), switching to \tcode{std::expected} when C++23 or later is available.
+
 \section{Namespaces}
 Graph containers and their views and algorithms are not interchangeable with existing containers and algorithms.
 Additionally, there are some domain-specific terms that may clash with existing or future names, such as 
