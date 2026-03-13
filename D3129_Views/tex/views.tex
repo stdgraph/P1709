@@ -4,28 +4,9 @@
 
 \section{Introduction}
 
-\phil{Use \tcode{basic_index_adjacency_list} as the concept for all views.}
-
-\phil{Group views by basic first, like with concepts.}
-
-\phil{Use \tcode{&&} instead of \tcode{const\&} for value function parameters.}
-
-\phil{Can \tcode{std::ref} be used for the value function?}
-
-
-% Phil:
-% It's tempting to try to consolidate the views so there's no regular views that return a reference to a vertex/edge,
-% versus the basic_ views that don't include the reference. There doesn't appear to be any real need to include the
-% reference since the vvf/evf can be used to return the value(s) needed by the algorithm.
-%
-% That's true for the cases where the vertex_id/target_id is also returned by the view. However, for other types
-% of graph data structures, it may be better to have the vertex/edge reference for edges(g,u) or target_id(g,uv)
-% because there is likely a way to get the return value in O(1) time instead of O(log n) when using an id.
-%
-
 The views in this paper provide common ways that algorithms use to traverse graphs. They are as simple as iterating 
 through the set of vertices, or more complex such as iterating through the vertices in a depth-first and breadth-first order. They also 
-provide a consistent and reliable way to access related elements using the View Return Types, and guaranteeing expected 
+provide a consistent and reliable way to access related elements using the data structs (\S\ref{sec:data-structs}), and guaranteeing expected 
 values, such as that the target is really the target on unordered edges.
 
 We are unable to support freestanding implementations in this proposal. Many of the
@@ -36,7 +17,7 @@ exception.
 \paragraph{Value Function Concepts.}
 Many views accept a \emph{vertex value function} (\tcode{vvf}) or \emph{edge value function} (\tcode{evf}) that projects a user-defined value from each vertex or edge. The \tcode{vertex_value_function} and \tcode{edge_value_function} concepts (defined in D3130, Graph Container Interface) constrain these parameters and are used throughout this paper.
 
-\section{Data Structs (Return Types)}
+\section{Data Structs (Return Types)}\label{sec:data-structs}
 Views return one of the types in this section, providing a consistent set of value types for all graph data structures. 
 They are templated so that the view can adjust the types of the members to be appropriate for its use. The three types, 
 \tcode{vertex_data, edge_data} and \tcode{neighbor_data}, define the common data model used by algorithms.
@@ -194,58 +175,7 @@ and \tcode{value_type} is \tcode{void}.
 \end{table}
 
 
-\begin{comment}
-\phil{Do we really needs these, since VorVId can be either a descriptor or id.}
-
-\subsection{Copyable Data Structs}
-
-\subsubsection{Copyable Data Struct Types}
-Copyable data structs are specializations of the data structs that can be copied. More specifically, they don't include
-a vertex or edge descriptor. \tcode{copyable_vertex_t<G>} shows the simple definition.
-
-\begin{lstlisting}
-template <class VId, class VV=void>
-using copyable_vertex_t = vertex_data<VId, void, VV>; // {id, value}
-\end{lstlisting}
-
-\begin{table}[h!]
-\begin{center}
-%\resizebox{\textwidth}{!}
-{\begin{tabular}{l L{12.0cm}}
-\hline
-    \textbf{Type} & \textbf{Definition} \\
-\hline
-    \tcode{copyable_vertex_t<V,VId,VV=void>} & \tcode{vertex_data<VId, void, VV>} \\
-    \tcode{copyable_edge_t<V,Vid,EV=void>} & \tcode{edge_data<VId, true, void, EV>>} \\
-    \tcode{copyable_neighbor_t<Vid,VV=void>} & \tcode{neighbor_data<VId, true, void, VV>} \\
-\hline
-\end{tabular}}
-\caption{Data Struct Concepts}
-\label{tab:info_struct_concepts}
-\end{center}
-\end{table}
-
-\subsubsection{Copyable Data Struct Concepts (For Exposition Only)}
-
-Given the copyable types, it's useful to have concepts to determine if a type is a desired copyable type.
-\begin{table}[h!]
-\begin{center}
-%\resizebox{\textwidth}{!}
-{\begin{tabular}{l L{12.0cm}}
-\hline
-    \textbf{Concept} & \textbf{Definition} \\
-\hline
-    \tcode{copyable_vertex<T,VId,VV=void>} & \tcode{convertible_to<T, copyable_vertex_t<VId, VV>>} \\
-    \tcode{copyable_edge<T,Vid,EV=void>} & \tcode{convertible_to<T, copyable_edge_t<VId, EV>>} \\
-    \tcode{copyable_neighbor<T,Vid,VV=void>} & \tcode{convertible_to<T, copyable_neighbor_t<VId, VV>>} \\
-\hline
-\end{tabular}}
-\caption{Data Struct Concepts}
-\label{tab:info_struct_concepts}
-\end{center}
-\end{table}
-
-\end{comment}
+% Copyable Data Structs section removed — basic_ view variants (G.1) supersede this.
 
 
 \section{Graph Views}
