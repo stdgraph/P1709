@@ -4,28 +4,9 @@
 
 \section{Introduction}
 
-\phil{Use \tcode{basic_index_adjacency_list} as the concept for all views.}
-
-\phil{Group views by basic first, like with concepts.}
-
-\phil{Use \tcode{&&} instead of \tcode{const\&} for value function parameters.}
-
-\phil{Can \tcode{std::ref} be used for the value function?}
-
-
-% Phil:
-% It's tempting to try to consolidate the views so there's no regular views that return a reference to a vertex/edge,
-% versus the basic_ views that don't include the reference. There doesn't appear to be any real need to include the
-% reference since the vvf/evf can be used to return the value(s) needed by the algorithm.
-%
-% That's true for the cases where the vertex_id/target_id is also returned by the view. However, for other types
-% of graph data structures, it may be better to have the vertex/edge reference for edges(g,u) or target_id(g,uv)
-% because there is likely a way to get the return value in O(1) time instead of O(log n) when using an id.
-%
-
 The views in this paper provide common ways that algorithms use to traverse graphs. They are as simple as iterating 
 through the set of vertices, or more complex such as iterating through the vertices in a depth-first and breadth-first order. They also 
-provide a consistent and reliable way to access related elements using the View Return Types, and guaranteeing expected 
+provide a consistent and reliable way to access related elements using the data structs (\S\ref{sec:data-structs}), and guaranteeing expected 
 values, such as that the target is really the target on unordered edges.
 
 We are unable to support freestanding implementations in this proposal. Many of the
@@ -33,63 +14,68 @@ views require a \tcode{stack} or \tcode{queue}, which are not available in a fre
 Additionally, \tcode{stack} and \tcode{queue} require memory allocation which could throw a \tcode{bad_alloc} 
 exception. 
 
-\section{Info Structs (Return Types)}
+\paragraph{Value Function Concepts.}
+Many views accept a \emph{vertex value function} (\tcode{vvf}) or \emph{edge value function} (\tcode{evf}) that projects a user-defined value from each vertex or edge. The \tcode{vertex_value_function} and \tcode{edge_value_function} concepts (defined in D3130, Graph Container Interface) constrain these parameters and are used throughout this paper.
+
+\section{Data Structs (Return Types)}\label{sec:data-structs}
 Views return one of the types in this section, providing a consistent set of value types for all graph data structures. 
 They are templated so that the view can adjust the types of the members to be appropriate for its use. The three types, 
-\tcode{vertex_info, edge_info} and \tcode{neighbor_info}, define the common data model used by algorithms.
+\tcode{vertex_data, edge_data} and \tcode{neighbor_data}, define the common data model used by algorithms.
 
 The following examples show the general design and how it's used. The example focuses 
 on vertexlist when iterating over vertices, and the same pattern applies with using the other
 view functions.
 
 \begin{lstlisting}
-// the type of uu is vertex\_info<vertex\_t<G>, void>
+// the type of uu is vertex\_data<vertex\_id\_t<G>, vertex\_t<G>, void>
 for(auto&& uu : vertexlist(g)) {
-  vertex_reference_t<G> u  = uu.vertex;
+  vertex_id_t<G> uid = uu.id;
+  vertex_t<G>    u   = uu.vertex;
   // ... do something interesting
 }
 \end{lstlisting}
 
 A function object can also be passed to return a value from the vertex. In this case, \tcode{vertexlist(g, vvf)} returns 
-a struct with two members, \tcode{vertex} and \tcode{value}.
+a struct with three members, \tcode{id}, \tcode{vertex} and \tcode{value}.
 \begin{lstlisting}
-auto vvf = [&g](vertex_reference_t<G> u) { return vertex_value(g,u); };
-// the type of uu is vertex\_info<vertex\_t<G>, decltype(vvf(u))>
+auto vvf = [](const auto& g, vertex_t<G> u) { return vertex_value(g,u); };
+// the type of uu is vertex\_data<vertex\_id\_t<G>, vertex\_t<G>, decltype(vvf(g,u))>
 for(auto&& uu : vertexlist(g, vvf)) {
-    vertex_reference_t<G> u  = uu.vertex;
-    vertex_value_t<G>& value  = uu.value;
+    vertex_id_t<G> uid   = uu.id;
+    vertex_t<G>    u     = uu.vertex;
+    auto           value = uu.value;
     // ... do something interesting
 }
 \end{lstlisting}
     
 Structured bindings make it simpler.
 \begin{lstlisting}
-for(auto&& [u] : vertexlist(g)) {
+for(auto&& [uid, u] : vertexlist(g)) {
   // ... do something interesting
 }
 \end{lstlisting}
 
 Finally, using structured binding with the vertex value function.
 \begin{lstlisting}
-// the type returned by vertexlist is vertex\_info<vertex\_t<G>, decltype(vvf(vertex\_t<G>))>
-auto vvf = [&g](vertex_reference_t<G> u) { return vertex_value(g,u); };
-for(auto&& [u, value] : vertexlist(g, vvf)) {
+// the type returned by vertexlist is vertex\_data<vertex\_id\_t<G>, vertex\_t<G>, decltype(vvf(g,u))>
+auto vvf = [](const auto& g, vertex_t<G> u) { return vertex_value(g,u); };
+for(auto&& [uid, u, value] : vertexlist(g, vvf)) {
   // ... do something interesting
 }
 \end{lstlisting}
 
-\subsection{\tcode{struct vertex_info<VId, VV>}}\label{vertex-view}\mbox{} \\
-\tcode{vertex_info} is used to return vertex information. It is used by \tcode{vertexlist(g)}, \tcode{vertices_breadth_first_search(g,u)}, 
-\tcode{vertices_dfs(g,u)} and others. The \tcode{vertex} member is typically a vertex descriptor, but can also be a vertex id, and always
-exists.
+\subsection{\tcode{struct vertex_data<VId, V, VV>}}\label{vertex-view}\mbox{} \\
+\tcode{vertex_data} is used to return vertex information. It is used by \tcode{vertexlist(g)}, \tcode{vertices_breadth_first_search(g,u)}, 
+\tcode{vertices_dfs(g,u)} and others. The \tcode{id} member is the vertex id, the \tcode{vertex} member is the vertex descriptor,
+and \tcode{value} is the result of the value function, if provided.
 
 {\small
-     \lstinputlisting{D3129_Views/src/vertex_info.hpp}
+     \lstinputlisting{D3129_Views/src/vertex_data.hpp}
 }
 
 Specializations are defined with \tcode{V=void} or \tcode{VV=void} to suppress the existence of their associated member variables, 
-giving the following valid combinations in Table \ref{tab:vertex-view} . For instance, the second entry, \tcode{vertex_info<VId, void>} 
-has one member \tcode{\{vertex_type vertex;\}} and \tcode{value_type} is \tcode{void}.
+giving the following valid combinations in Table \ref{tab:vertex-view} . For instance, the second entry, \tcode{vertex_data<VId, V, void>} 
+has two members \tcode{\{id_type id; vertex_type vertex;\}} and \tcode{value_type} is \tcode{void}.
 \begin{table}[h!]
 \begin{center}
 %\resizebox{\textwidth}{!}
@@ -100,32 +86,32 @@ has one member \tcode{\{vertex_type vertex;\}} and \tcode{value_type} is \tcode{
     \multicolumn{3}{c}{\textbf{Members}} \\
     %\textbf{Template Arguments} & id & vertex & value \\
 \hline
-    \tcode{vertex_info<VorVId, VV>} & \tcode{vertex} & \tcode{value} \\
-    \tcode{vertex_info<VorVId, void>} & \tcode{vertex} & \\
-    %\tcode{vertex_info<void, void>} & & & \\ % invalid
+    \tcode{vertex_data<VId, V, VV>} & \tcode{id} & \tcode{vertex} & \tcode{value} \\
+    \tcode{vertex_data<VId, V, void>} & \tcode{id} & \tcode{vertex} & \\
+    \tcode{vertex_data<VId, void, VV>} & \tcode{id} & & \tcode{value} \\
+    \tcode{vertex_data<VId, void, void>} & \tcode{id} & & \\
 \hline
 \end{tabular}}
-\caption{\tcode{vertex_info} Members}
+\caption{\tcode{vertex_data} Members}
 \label{tab:vertex-view}
 \end{center}
 \end{table}
 
-\subsection{\tcode{struct edge_info<VId, Sourced, E, EV>}}\label{edge-view}\mbox{} \\
+\subsection{\tcode{struct edge_data<VId, Sourced, E, EV>}}\label{edge-view}\mbox{} \\
 
-\tcode{edge_info} is used to return edge information. It is used by 
-\tcode{incidence(g,u), edgelist(g), edges_breadth_first_search(g,u), edges_dfs(g,u)} and others. \tcode{source} and \tcode{target} are
-typically vertex descriptors, but can also be vertex ids. If no specific mention of vertex ids are used, assume they are vertex descriptors.
-In this section, \tcode{source} and \tcode{target} can be either vertex descriptors or vertex ids.
+\tcode{edge_data} is used to return edge information. It is used by 
+\tcode{incidence(g,u), edgelist(g), edges_breadth_first_search(g,u), edges_dfs(g,u)} and others.
+\tcode{source_id} and \tcode{target_id} are vertex ids of type \tcode{vertex_id_t<G>}.
 
-When \tcode{Sourced=true}, the \tcode{source} member is included with type \tcode{V} or \tcode{VId}. The \tcode{target} member always exists.
+When \tcode{Sourced=true}, the \tcode{source_id} member is included. The \tcode{target_id} member always exists.
 
 {\small
-     \lstinputlisting{D3129_Views/src/edge_info.hpp}
+     \lstinputlisting{D3129_Views/src/edge_data.hpp}
 }
 
 Specializations are defined with \tcode{Sourced=true|false}, \tcode{E=void} or \tcode{EV=void} to suppress the existence of the associated 
 member variables, giving the following valid combinations in Table \ref{tab:edge-view} . For instance, the second entry, 
-\tcode{edge_info<VId,true,E>} has three members \tcode{\{source_id_type source_id; target_id_type target_id; edge_type edge;\}} 
+\tcode{edge_data<VId,true,E,void>} has three members \tcode{\{source_id_type source_id; target_id_type target_id; edge_type edge;\}} 
 and \tcode{value_type} is \tcode{void}.
 \begin{table}[h!]
 \begin{center}
@@ -135,35 +121,35 @@ and \tcode{value_type} is \tcode{void}.
     \multicolumn{1}{l}{\textbf{Template Arguments}}
     &
     \multicolumn{4}{c}{\textbf{Members}} \\
-    %\textbf{Template Arguments} & id & edge & value \\
 \hline
-    \tcode{edge_info<VorVId, true, E, EV>} & \tcode{source} & \tcode{target} & \tcode{edge} & \tcode{value} \\
-    \tcode{edge_info<VorVId, true, E, void>} & \tcode{source} & \tcode{target} & \tcode{edge} & \\
-    \tcode{edge_info<VorVId, true, void, EV>} & \tcode{source} & \tcode{target} & & \tcode{value} \\
-    \tcode{edge_info<VorVId, true, void, void>} & \tcode{source} & \tcode{target} & & \\
-    \tcode{edge_info<VorVId, false, E, EV>} & & \tcode{target} & \tcode{edge} & \tcode{value} \\
-    \tcode{edge_info<VorVId, false, E, void>} & & \tcode{target} & \tcode{edge} & \\
-    \tcode{edge_info<VorVId, false, void, EV>} & & \tcode{target} & & \tcode{value} \\
-    \tcode{edge_info<VorVId, false, void, void>} & & \tcode{target} & & \\
+    \tcode{edge_data<VId, true, E, EV>} & \tcode{source_id} & \tcode{target_id} & \tcode{edge} & \tcode{value} \\
+    \tcode{edge_data<VId, true, E, void>} & \tcode{source_id} & \tcode{target_id} & \tcode{edge} & \\
+    \tcode{edge_data<VId, true, void, EV>} & \tcode{source_id} & \tcode{target_id} & & \tcode{value} \\
+    \tcode{edge_data<VId, true, void, void>} & \tcode{source_id} & \tcode{target_id} & & \\
+    \tcode{edge_data<VId, false, E, EV>} & & \tcode{target_id} & \tcode{edge} & \tcode{value} \\
+    \tcode{edge_data<VId, false, E, void>} & & \tcode{target_id} & \tcode{edge} & \\
+    \tcode{edge_data<VId, false, void, EV>} & & \tcode{target_id} & & \tcode{value} \\
+    \tcode{edge_data<VId, false, void, void>} & & \tcode{target_id} & & \\
 \hline
 \end{tabular}}
-\caption{\tcode{edge_info} Members}
+\caption{\tcode{edge_data} Members}
 \label{tab:edge-view}
 \end{center}
 \end{table}
 
-\subsection{\tcode{struct neighbor_info<VId, Sourced, V, VV>}}\label{neighbor-view}\mbox{}
+\subsection{\tcode{struct neighbor_data<VId, Sourced, V, VV>}}\label{neighbor-view}\mbox{}
 
-\tcode{neighbor_info} is used to return information for a neighbor vertex, through an edge. It is used by \tcode{neighbors(g,u)}. 
-When \tcode{Sourced=true}, the \tcode{source} member is included with type \tcode{source_type}. The \tcode{target} member always exists.
+\tcode{neighbor_data} is used to return information for a neighbor vertex, through an edge. It is used by \tcode{neighbors(g,u)}. 
+When \tcode{Sourced=true}, the \tcode{source_id} member is included. The \tcode{target_id} member always exists.
+The \tcode{target} member holds the neighbor's vertex descriptor when \tcode{V} is not \tcode{void}.
 
 {\small
-     \lstinputlisting{D3129_Views/src/neighbor_info.hpp}
+     \lstinputlisting{D3129_Views/src/neighbor_data.hpp}
 }
 
-Specializations are defined with \tcode{Sourced=true|false} or \tcode{EV}=void to suppress the existence of the 
+Specializations are defined with \tcode{Sourced=true|false}, \tcode{V=void} or \tcode{VV=void} to suppress the existence of the 
 associated member variables, giving the following valid combinations in Table \ref{tab:neighbor-view} . For instance, the second entry, 
-\tcode{neighbor_info<V,true>} has two members \tcode{\{source_type source; target_type target;\}} 
+\tcode{neighbor_data<VId,false,V,void>} has two members \tcode{\{target_id_type target_id; vertex_type target;\}} 
 and \tcode{value_type} is \tcode{void}.
 
 \begin{table}[h!]
@@ -175,79 +161,30 @@ and \tcode{value_type} is \tcode{void}.
     &
     \multicolumn{4}{c}{\textbf{Members}} \\
 \hline
-    \tcode{neighbor_info<VorVId, true, EV>} & \tcode{source} & \tcode{target} & \tcode{value} \\
-    \tcode{neighbor_info<VorVId, true, void>} & \tcode{source} & \tcode{target} & \\
-    \tcode{neighbor_info<VorVId, false, EV>} & & \tcode{target} & \tcode{value} \\
-    \tcode{neighbor_info<VorVId, false, void>} & & \tcode{target} & \\
+    \tcode{neighbor_data<VId, true, V, VV>} & \tcode{source_id} & \tcode{target_id} & \tcode{target} & \tcode{value} \\
+    \tcode{neighbor_data<VId, true, V, void>} & \tcode{source_id} & \tcode{target_id} & \tcode{target} & \\
+    \tcode{neighbor_data<VId, true, void, void>} & \tcode{source_id} & \tcode{target_id} & & \\
+    \tcode{neighbor_data<VId, false, V, VV>} & & \tcode{target_id} & \tcode{target} & \tcode{value} \\
+    \tcode{neighbor_data<VId, false, V, void>} & & \tcode{target_id} & \tcode{target} & \\
+    \tcode{neighbor_data<VId, false, void, void>} & & \tcode{target_id} & & \\
 \hline
 \end{tabular}}
-\caption{\tcode{neighbor_info} Members}
+\caption{\tcode{neighbor_data} Members}
 \label{tab:neighbor-view}
 \end{center}
 \end{table}
 
 
-\begin{comment}
-\phil{Do we really needs these, since VorVId can be either a descriptor or id.}
-
-\subsection{Copyable Info Structs}
-
-\subsubsection{Copyable Info Struct Types}
-Copyable info structs are specializations of the info structs that can be copied. More specifically, they don't include
-a vertex or edge reference. \tcode{copyable_vertex_t<G>} shows the simple definition.
-
-\begin{lstlisting}
-template <class VId, class VV=void>
-using copyable_vertex_t = vertex_info<VId, void, VV>; // {id, value}
-\end{lstlisting}
-
-\begin{table}[h!]
-\begin{center}
-%\resizebox{\textwidth}{!}
-{\begin{tabular}{l L{12.0cm}}
-\hline
-    \textbf{Type} & \textbf{Definition} \\
-\hline
-    \tcode{copyable_vertex_t<V,VId,VV=void>} & \tcode{vertex_info<VId, void, VV>} \\
-    \tcode{copyable_edge_t<V,Vid,EV=void>} & \tcode{edge_info<VId, true, void, EV>>} \\
-    \tcode{copyable_neighbor_t<Vid,VV=void>} & \tcode{neighbor_info<VId, true, void, VV>} \\
-\hline
-\end{tabular}}
-\caption{Info Struct Concepts}
-\label{tab:info_struct_concepts}
-\end{center}
-\end{table}
-
-\subsubsection{Copyable Info Struct Concepts (For Exposition Only)}
-
-Given the copyable types, it's useful to have concepts to determine if a type is a desired copyable type.
-\begin{table}[h!]
-\begin{center}
-%\resizebox{\textwidth}{!}
-{\begin{tabular}{l L{12.0cm}}
-\hline
-    \textbf{Concept} & \textbf{Definition} \\
-\hline
-    \tcode{copyable_vertex<T,VId,VV=void>} & \tcode{convertible_to<T, copyable_vertex_t<VId, VV>>} \\
-    \tcode{copyable_edge<T,Vid,EV=void>} & \tcode{convertible_to<T, copyable_edge_t<VId, EV>>} \\
-    \tcode{copyable_neighbor<T,Vid,VV=void>} & \tcode{convertible_to<T, copyable_neighbor_t<VId, VV>>} \\
-\hline
-\end{tabular}}
-\caption{Info Struct Concepts}
-\label{tab:info_struct_concepts}
-\end{center}
-\end{table}
-
-\end{comment}
+% Copyable Data Structs section removed — basic_ view variants (G.1) supersede this.
 
 
 \section{Graph Views}
 
 \subsection{vertexlist Views}
 
-\tcode{vertexlist} views iterate over a range of vertices, returning a \tcode{vertex_info} on each iteration. 
-Table \ref{tab:vertexlist} shows the vertexlist functions overloads and their return values. \tcode{u} is a vertex
-descriptor. \tcode{first} and \tcode{last} are vertex iterators.
+\tcode{vertexlist} views iterate over a range of vertices, returning a \tcode{vertex_data} on each iteration. 
+Table \ref{tab:vertexlist} shows the vertexlist functions overloads and their return values. \tcode{uid} is a vertex
+id and \tcode{u} is a vertex descriptor. \tcode{first} and \tcode{last} are vertex iterators.
 
 The \tcode{vertexlist} view without the value function is of limited value, since \tcode{vertices(g)} does the
 same thing, without using a structured binding. However, it is included for consistency with the overload that 
@@ -255,17 +192,20 @@ uses a value function.
 
 \begin{table}[h!]
 \begin{center}
-%\resizebox{\textwidth}{!}
+\resizebox{\textwidth}{!}
 {\begin{tabular}{l l}
 \hline
     \textbf{Example} & \textbf{Return} \\
 \hline
-    \tcode{for(auto\&\& [u] : vertexlist(g))} & \tcode{vertex_info<void,V,void>} \\
-    \tcode{for(auto\&\& [u,val] : vertexlist(g,vvf))} & \tcode{vertex_info<void,V,VV>} \\
-    \tcode{for(auto\&\& [u] : vertexlist(g,first,last))} & \tcode{vertex_info<void,V,void>} \\
-    \tcode{for(auto\&\& [u,val] : vertexlist(g,first,last,vvf))} & \tcode{vertex_info<void,V,VV>} \\
-    \tcode{for(auto\&\& [u] : vertexlist(g,vr))} & \tcode{vertex_info<void,V,void>} \\
-    \tcode{for(auto\&\& [u,val] : vertexlist(g,vr,vvf))} & \tcode{vertex_info<void,V,VV>} \\
+    \tcode{for(auto\&\& [uid, u] : vertexlist(g))} & \tcode{vertex_data<VId,V,void>} \\
+    \tcode{for(auto\&\& [uid, u, val] : vertexlist(g,vvf))} & \tcode{vertex_data<VId,V,VV>} \\
+    \tcode{for(auto\&\& [uid, u] : vertexlist(g,first,last))} & \tcode{vertex_data<VId,V,void>} \\
+    \tcode{for(auto\&\& [uid, u, val] : vertexlist(g,first,last,vvf))} & \tcode{vertex_data<VId,V,VV>} \\
+    \tcode{for(auto\&\& [uid, u] : vertexlist(g,vr))} & \tcode{vertex_data<VId,V,void>} \\
+    \tcode{for(auto\&\& [uid, u, val] : vertexlist(g,vr,vvf))} & \tcode{vertex_data<VId,V,VV>} \\
+\hdashline
+    \tcode{for(auto\&\& [uid] : basic_vertexlist(g))} & \tcode{vertex_data<VId,void,void>} \\
+    \tcode{for(auto\&\& [uid, val] : basic_vertexlist(g,vvf))} & \tcode{vertex_data<VId,void,VV>} \\
 \hline
 \end{tabular}}
 \caption{\tcode{vertexlist} View Functions}
@@ -273,12 +213,14 @@ uses a value function.
 \end{center}
 \end{table}
 
+The \tcode{basic_vertexlist} variants omit the vertex descriptor and yield only vertex IDs. They are useful when algorithms need only the vertex identity, not a reference to the vertex object.
+
 \subsection{incidence Views}
-\tcode{incidence} views iterate over a range of adjacent edges of a vertex, returning a \tcode{edge_info} on each iteration. 
+\tcode{incidence} views iterate over a range of adjacent edges of a vertex, returning a \tcode{edge_data} on each iteration. 
 Table \ref{tab:incidence} shows the \tcode{incidence} function overloads and their return values. 
 
 Since the source vertex \tcode{u} is available when calling an \tcode{incidence} function, there's no need to include sourced 
-versions of the function to include the \tcode{source} vertex in the output.
+versions of the function to include the \tcode{source_id} in the output.
 
 The \tcode{incidence} view without the value function is of limited value, since \tcode{edges(g,u)} does the
 same thing, without using a structured binding. However, it is included for consistency with the overload that 
@@ -291,8 +233,11 @@ uses a value function.
 \hline
     \textbf{Example} & \textbf{Return} \\
 \hline
-    \tcode{for(auto\&\& [uv] : incidence(g,u))} & \tcode{edge_info<void,false,E,void>} \\
-    \tcode{for(auto\&\& [uv,val] : incidence(g,u,evf))} & \tcode{edge_info<void,false,E,EV>} \\
+    \tcode{for(auto\&\& [vid, uv] : incidence(g,u))} & \tcode{edge_data<VId,false,E,void>} \\
+    \tcode{for(auto\&\& [vid, uv, val] : incidence(g,u,evf))} & \tcode{edge_data<VId,false,E,EV>} \\
+\hdashline
+    \tcode{for(auto\&\& [vid] : basic_incidence(g,uid))} & \tcode{edge_data<VId,false,void,void>} \\
+    \tcode{for(auto\&\& [vid, val] : basic_incidence(g,uid,evf))} & \tcode{edge_data<VId,false,void,EV>} \\
 \hline
 \end{tabular}}
 \caption{\tcode{incidence} View Functions}
@@ -300,12 +245,11 @@ uses a value function.
 \end{center}
 \end{table}
 
-\subsection{neighbors Views}
-\tcode{neighbors} views iterate over a range of edges for a vertex, returning a \tcode{vertex_info} of each neighboring target vertex on each iteration. 
-Table \ref{tab:neighbors} shows the \tcode{neighbors} function overloads and their return values. 
-
-Since the source vertex \tcode{u} is available when calling a \tcode{neighbors} function, there's no need to include sourced versions of the function 
-to include \tcode{source} vertex in the output.
+\subsection{in\_incidence Views}
+\tcode{in_incidence} views iterate over the incoming edges of a vertex, returning an \tcode{edge_data} on each iteration.
+They mirror the \tcode{incidence} views but traverse edges whose target is the given vertex rather than edges whose source is the given vertex.
+These views require the graph to model \tcode{bidirectional_adjacency_list}.
+Table \ref{tab:in_incidence} shows the \tcode{in\_incidence} function overloads and their return values.
 
 \begin{table}[h!]
 \begin{center}
@@ -314,8 +258,39 @@ to include \tcode{source} vertex in the output.
 \hline
     \textbf{Example} & \textbf{Return} \\
 \hline
-    \tcode{for(auto\&\& [v] : neighbors(g,uid))} & \tcode{neighbor_info<void,false,V,void>} \\
-    \tcode{for(auto\&\& [v,val] : neighbors(g,uid,vvf))} & \tcode{neighbor_info<void,false,V,VV>} \\
+    \tcode{for(auto\&\& [vid, uv] : in_incidence(g,u))} & \tcode{edge_data<VId,false,E,void>} \\
+    \tcode{for(auto\&\& [vid, uv, val] : in_incidence(g,u,evf))} & \tcode{edge_data<VId,false,E,EV>} \\
+\hdashline
+    \tcode{for(auto\&\& [vid] : basic_in_incidence(g,uid))} & \tcode{edge_data<VId,false,void,void>} \\
+    \tcode{for(auto\&\& [vid, val] : basic_in_incidence(g,uid,evf))} & \tcode{edge_data<VId,false,void,EV>} \\
+\hline
+\end{tabular}}
+\caption{\tcode{in\_incidence} View Functions}
+\label{tab:in_incidence}
+\end{center}
+\end{table}
+
+For incoming edges the returned \tcode{id} member is the source vertex id of the incoming edge (i.e.\ the ``other'' end). The data structs are identical to those used by \tcode{incidence}; only the direction of traversal changes.
+
+\subsection{neighbors Views}
+\tcode{neighbors} views iterate over a range of edges for a vertex, returning a \tcode{neighbor_data} of each neighboring target vertex on each iteration. 
+Table \ref{tab:neighbors} shows the \tcode{neighbors} function overloads and their return values. 
+
+Since the source vertex \tcode{u} is available when calling a \tcode{neighbors} function, there's no need to include sourced versions of the function 
+to include \tcode{source_id} in the output.
+
+\begin{table}[h!]
+\begin{center}
+%\resizebox{\textwidth}{!}
+{\begin{tabular}{l l}
+\hline
+    \textbf{Example} & \textbf{Return} \\
+\hline
+    \tcode{for(auto\&\& [vid, v] : neighbors(g,uid))} & \tcode{neighbor_data<VId,false,V,void>} \\
+    \tcode{for(auto\&\& [vid, v, val] : neighbors(g,uid,vvf))} & \tcode{neighbor_data<VId,false,V,VV>} \\
+\hdashline
+    \tcode{for(auto\&\& [vid] : basic_neighbors(g,uid))} & \tcode{neighbor_data<VId,false,void,void>} \\
+    \tcode{for(auto\&\& [vid, val] : basic_neighbors(g,uid,vvf))} & \tcode{neighbor_data<VId,false,void,VV>} \\
 \hline
 \end{tabular}}
 \caption{\tcode{neighbors} View Functions}
@@ -323,12 +298,11 @@ to include \tcode{source} vertex in the output.
 \end{center}
 \end{table}
 
-\subsection{edgelist Views}
-\tcode{edgelist} views iterate over all edges for all vertices, returning a \tcode{edge_info} on each iteration. 
-Table \ref{tab:edgelist} shows the \tcode{edgelist} function overloads and their return values. 
-
-The range returned by \tcode{edgelist} adheres to the  \tcode{basic_sourced_index_edgelist} concept (future proposals may only
-adhere to \tcode{basic_sourced_edgelist}). If a \tcode{evf(uv)} function is passed, it adheres to the \tcode{has_edge_value} concept.
+\subsection{in\_neighbors Views}
+\tcode{in_neighbors} views iterate over the incoming neighbors of a vertex, returning a \tcode{neighbor_data} for each source vertex of an incoming edge.
+They mirror the \tcode{neighbors} views but traverse incoming rather than outgoing edges.
+These views require the graph to model \tcode{bidirectional_adjacency_list}.
+Table \ref{tab:in_neighbors} shows the \tcode{in\_neighbors} function overloads and their return values.
 
 \begin{table}[h!]
 \begin{center}
@@ -337,8 +311,42 @@ adhere to \tcode{basic_sourced_edgelist}). If a \tcode{evf(uv)} function is pass
 \hline
     \textbf{Example} & \textbf{Return} \\
 \hline
-    \tcode{for(auto\&\& [u,v,uv] : edgelist(g))} & \tcode{edge_info<V,true,E,void>} \\
-    \tcode{for(auto\&\& [u,v,uv,val] : edgelist(g,evf))} & \tcode{edge_info<V,true,E,EV>} \\
+    \tcode{for(auto\&\& [vid, v] : in_neighbors(g,uid))} & \tcode{neighbor_data<VId,false,V,void>} \\
+    \tcode{for(auto\&\& [vid, v, val] : in_neighbors(g,uid,vvf))} & \tcode{neighbor_data<VId,false,V,VV>} \\
+\hdashline
+    \tcode{for(auto\&\& [vid] : basic_in_neighbors(g,uid))} & \tcode{neighbor_data<VId,false,void,void>} \\
+    \tcode{for(auto\&\& [vid, val] : basic_in_neighbors(g,uid,vvf))} & \tcode{neighbor_data<VId,false,void,VV>} \\
+\hline
+\end{tabular}}
+\caption{\tcode{in\_neighbors} View Functions}
+\label{tab:in_neighbors}
+\end{center}
+\end{table}
+
+As with \tcode{in_incidence}, the returned \tcode{id} member is the source vertex id of the incoming edge.
+
+\paragraph{Edge Accessor Mechanism (Exposition Only).}
+Internally, the outgoing and incoming view variants share the same view class templates. An \emph{edge accessor} policy selects the traversal direction: \tcode{out_edge_accessor} (the default) uses \tcode{edges(g,u)} and \tcode{target_id(g,uv)}, while \tcode{in_edge_accessor} uses \tcode{in_edges(g,u)} and \tcode{source_id(g,uv)}. This mechanism is exposition-only and not part of the public interface.
+
+\subsection{edgelist Views}
+\tcode{edgelist} views iterate over all edges for all vertices, returning a \tcode{edge_data} on each iteration. 
+Table \ref{tab:edgelist} shows the \tcode{edgelist} function overloads and their return values. 
+
+The range returned by \tcode{edgelist} adheres to the  \tcode{basic_sourced_index_edgelist} concept (future proposals may only
+adhere to \tcode{basic_sourced_edgelist}). If a \tcode{evf(g,uv)} function is passed, it adheres to the \tcode{has_edge_value} concept.
+
+\begin{table}[h!]
+\begin{center}
+%\resizebox{\textwidth}{!}
+{\begin{tabular}{l l}
+\hline
+    \textbf{Example} & \textbf{Return} \\
+\hline
+    \tcode{for(auto\&\& [uid, vid, uv] : edgelist(g))} & \tcode{edge_data<VId,true,E,void>} \\
+    \tcode{for(auto\&\& [uid, vid, uv, val] : edgelist(g,evf))} & \tcode{edge_data<VId,true,E,EV>} \\
+\hdashline
+    \tcode{for(auto\&\& [uid, vid] : basic_edgelist(g))} & \tcode{edge_data<VId,true,void,void>} \\
+    \tcode{for(auto\&\& [uid, vid, val] : basic_edgelist(g,evf))} & \tcode{edge_data<VId,true,void,EV>} \\
 \hline
 \end{tabular}}
 \caption{\tcode{edgelist} View Functions}
@@ -346,76 +354,79 @@ adhere to \tcode{basic_sourced_edgelist}). If a \tcode{evf(uv)} function is pass
 \end{center}
 \end{table}
 
+\subsection{transpose View}
+The \tcode{transpose} view provides a zero-cost wrapper around a bidirectional graph that swaps the direction of edge traversal. Outgoing edges become incoming and vice versa. It is not a range itself but a graph adaptor: the result models the same graph concepts as the underlying graph with directions reversed.
+
+\tcode{transpose_view<G>} requires the graph to model \tcode{bidirectional_adjacency_list<G>}. When the underlying graph also models \tcode{index_bidirectional_adjacency_list}, the transposed view does too.
+
+\begin{lstlisting}
+auto gt = transpose(g);  // gt is a transpose\_view<G>
+for(auto&& [vid, uv] : incidence(gt, u)) {
+  // iterates what were incoming edges of u in g
+}
+\end{lstlisting}
+
+Because \tcode{transpose} is a graph wrapper rather than an edge-level view, it composes with all other views: \tcode{incidence(transpose(g), u)} traverses incoming edges, \tcode{vertexlist(transpose(g))} is unchanged, and algorithm templates work transparently on the transposed graph.
+
 \section{"Search" Views}
 
 \subsection{Common Types and Functions for ``Search'' }
-\phil{Do these apply to all "search" functions?}
 
-The Depth First, Breadth First, and Topological Sort searches share a number of common types and functions. 
+The Depth First, Breadth First, and Topological Sort searches share a number of common types and member functions.
 
-Here are the types and functions for cancelling a search, getting the current depth of the search, and active elements in the search (e.g. number of vertices in a stack or queue).
+Search views provide member functions for cancelling a search, querying the current depth, and the number of vertices or edges visited so far. The \tcode{cancel_search} enumeration controls search cancellation:
 \begin{lstlisting}
-// enum used to define how to cancel a search
-enum struct cancel_search : int8_t { 
-  continue_search, // no change (ignored)
-  cancel_branch,   // stops searching from current vertex
-  cancel_all       // stops searching and dfs will be at end()
+enum class cancel_search {
+  continue_search, // continue normal traversal
+  cancel_branch,   // skip current subtree/branch, continue with siblings
+  cancel_all       // stop entire search immediately
 };
-
-// stop searching from current vertex
-template<class S>
-void cancel(S search, cancel_search);
-
-// Returns distance from the source vertex to the current vertex, 
-// or to the target vertex for edge views
-template<class S>
-auto depth(S search) -> integral;
-
-// Returns number of pending vertices to process
-template<class S>
-auto size(S search) -> integral; 
 \end{lstlisting}
 
-Of particular note, \tcode{size(dfs)} is typically the same as \tcode{depth(dfs)} and is simple to calculate. breadth\_first\_search requires extra bookkeeping to evaluate \tcode{depth(bfs)} and returns a different value than \tcode{size(bfs)}.
+Each search view exposes the following member functions:
+\begin{lstlisting}
+cancel_search cancel() const noexcept;  // get current cancel state
+void cancel(cancel_search c) noexcept;  // set cancel state
+std::size_t depth() const noexcept;     // distance from seed to current vertex
+std::size_t num_visited() const noexcept; // total vertices/edges visited so far
+\end{lstlisting}
 
-The following example shows how the functions  could be used, using \tcode{dfs} for one of the depth\_first\_search views. The same functions can be used for all all search views.
+The \tcode{search_view} concept captures these requirements:
+\begin{lstlisting}
+template <class V>
+concept search_view = requires(V& v, const V& cv) {
+  { v.cancel() } -> std::convertible_to<cancel_search>;
+  { cv.depth() } -> std::convertible_to<std::size_t>;
+  { cv.num_visited() } -> std::convertible_to<std::size_t>;
+};
+\end{lstlisting}
+
+Topological sort views support \tcode{cancel()} and \tcode{num_visited()} but not \tcode{depth()} (flat ordering has no tree structure), so they do not satisfy \tcode{search_view}.
+
+For DFS, \tcode{dfs.num_visited()} is typically close to \tcode{dfs.depth()} and is simple to calculate. Breadth-first search requires extra bookkeeping to evaluate \tcode{bfs.depth()}, which returns a different value than \tcode{bfs.num_visited()}.
+
+The following example shows how the member functions could be used, using \tcode{dfs} for one of the depth-first search views. The same members are available on all search views that satisfy \tcode{search_view}.
 \begin{lstlisting}
 auto&& g = ...; // graph
-auto&& dfs = vertices_dfs(g,0); // start with vertex\_id=0
-for(auto&& [vid,v] : dfs) {
+auto&& dfs = vertices_dfs(g,0); // start with seed vertex\_id=0
+for(auto&& [uid,u] : dfs) {
   // No need to search deeper?
-  if(depth(dfs) > 3) {
-    cancel(dfs,cancel_search::cancel_branch);
+  if(dfs.depth() > 3) {
+    dfs.cancel(cancel_search::cancel_branch);
     continue;
   }
-  
-  if(size(dfs) > 1000) {
-    std::cout << "Big depth of " << size(dfs) << '\n';
+
+  if(dfs.num_visited() > 1000) {
+    std::cout << "Many visited: " << dfs.num_visited() << '\n';
   }
-  
+
   // do useful things
 }
 \end{lstlisting}
 
-The range returned by \textit{sourced} views (includes source\_id) adheres to the  \tcode{basic_sourced_index_edgelist} concept. If a 
-\tcode{evf(uv)} function is passed, it also adheres to the \tcode{has_edge_value} concept.
-
 \subsection{Depth First Search Views}
 
-Depth First Search views iterate over the vertices and edges from a given source vertex, returning a \tcode{vertex_info} or \tcode{edge_info} on each iteration when it is first encountered, depending on the function used. 
-Table \ref{tab:dfs} shows the functions and their return values.
-
-%The \tcode{alloc} parameter shown in the following examples is optional and defaults to \tcode{std::allocator<bool>}. It is used for containers 
-%that are internal to the view. The \tcode{bool} argument has no particular meaning.
-
-% basic_edges_dfs(g,source,evf) implies the use of Sourced type internally to have source_id in the call call to evf(eid)
-
-\phil{Consider adding an enum bitset of events matching the visitor events, and creating Overloads
-      that accept the bitset. The returned type would be a subclass of \tcode{vertex_info} or \tcode{edge_info}
-      and would add the event bitset as a final member value, with the bit set for the event . This could offer a similar benefit as
-      coroutines.}
-
-\phil{sourced\_edges\_dfs introduces the idea that we can have source, target and edge descriptors. Make sure edge\_info can handle that.}
+Depth First Search views iterate over vertices and edges reachable from a seed vertex, yielding a \tcode{vertex_data} or \tcode{edge_data} for each element when it is first encountered. Table \ref{tab:dfs} shows the factory functions and their return types.
 
 \begin{table}[h!]
 \begin{center}
@@ -424,14 +435,11 @@ Table \ref{tab:dfs} shows the functions and their return values.
 \hline
     \textbf{Example} & \textbf{Return} \\
 \hline
-    \tcode{for(auto\&\& [v] : vertices_dfs(g,source))} & \tcode{vertex_info<void,V,void>} \\
-    \tcode{for(auto\&\& [v,val] : vertices_dfs(g,source,vvf))} & \tcode{vertex_info<void,V,VV>} \\
+    \tcode{for(auto\&\& [u] : vertices_dfs(g,seed))} & \tcode{vertex_data<void,V,void>} \\
+    \tcode{for(auto\&\& [u,val] : vertices_dfs(g,seed,vvf))} & \tcode{vertex_data<void,V,VV>} \\
 \hdashline
-    \tcode{for(auto\&\& [v,uv] : edges_dfs(g,source))} & \tcode{edge_info<V,false,E,void>} \\
-    \tcode{for(auto\&\& [v,uv,val] : edges_dfs(g,source,evf))} & \tcode{edge_info<V,false,E,EV>} \\
-\hdashline
-    \tcode{for(auto\&\& [u,v,uv] : sourced_edges_dfs(g,source))} & \tcode{edge_info<V,true,E,void>} \\
-    \tcode{for(auto\&\& [u,v,uv,val] : sourced_edges_dfs(g,source,evf))} & \tcode{edge_info<V,true,E,EV>} \\
+    \tcode{for(auto\&\& [uv] : edges_dfs(g,seed))} & \tcode{edge_data<void,false,E,void>} \\
+    \tcode{for(auto\&\& [uv,val] : edges_dfs(g,seed,evf))} & \tcode{edge_data<void,false,E,EV>} \\
 \hline
 \end{tabular}}
 \caption{depth\_first\_search View Functions}
@@ -440,23 +448,8 @@ Table \ref{tab:dfs} shows the functions and their return values.
 \end{table}
 
 \subsection{Breadth First Search Views}
-\phil{NetworkX provides an optional depth\_limit parameter for bfs. Add? }
 
-Breadth First Search views iterate over the vertices and edges from a given source vertex, returning a \tcode{vertex_info} 
-or \tcode{edge_info} on each iteration when it is first encountered, depending on the function used. 
-Table \ref{tab:bfs} shows the functions and their return values.
-
-%The \tcode{alloc} parameter shown in the following examples is optional and defaults to \tcode{std::allocator<bool>}. It is used for containers 
-%that are internal to the view. The \tcode{bool} argument has no particular meaning.
-
-% basic_edges_bfs(g,source,evf) implies the use of Sourced type internally to have source_id in the call call to evf(eid)
-
-\phil{Consider adding an enum bitset of events matching the visitor events, and creating Overloads
-      that accept the bitset. The returned type would be a subclass of \tcode{vertex_info} or \tcode{edge_info}
-      and would add the event bitset as a final member value, with the bit set for the event . This could offer a similar benefit as
-      coroutines.}
-
-\phil{sourced\_edges\_bfs introduces the idea that we can have source, target and edge descriptors. Make sure edge\_info can handle that.}
+Breadth First Search views iterate over vertices and edges reachable from a seed vertex, yielding a \tcode{vertex_data} or \tcode{edge_data} for each element when it is first encountered. Table \ref{tab:bfs} shows the factory functions and their return types.
 
 \begin{table}[h!]
 \begin{center}
@@ -465,15 +458,11 @@ Table \ref{tab:bfs} shows the functions and their return values.
 \hline
     \textbf{Example} & \textbf{Return} \\
 \hline
+    \tcode{for(auto\&\& [u] : vertices_bfs(g,seed))} & \tcode{vertex_data<void,V,void>} \\
+    \tcode{for(auto\&\& [u,val] : vertices_bfs(g,seed,vvf))} & \tcode{vertex_data<void,V,VV>} \\
 \hdashline
-    \tcode{for(auto\&\& [v] : vertices_bfs(g,source))} & \tcode{vertex_info<void,V,void>} \\
-    \tcode{for(auto\&\& [v,val] : vertices_bfs(g,source,vvf))} & \tcode{vertex_info<void,V,VV>} \\
-\hdashline
-    \tcode{for(auto\&\& [v,uv] : edges_bfs(g,source))} & \tcode{edge_info<V,false,E,void>} \\
-    \tcode{for(auto\&\& [v,uv,val] : edges_bfs(g,source,evf))} & \tcode{edge_info<V,false,E,EV>} \\
-\hdashline
-    \tcode{for(auto\&\& [u,v,uv] : sourced_edges_bfs(g,source))} & \tcode{edge_info<V,true,E,void>} \\
-    \tcode{for(auto\&\& [u,v,uv,val] : sourced_edges_bfs(g,source,evf))} & \tcode{edge_info<V,true,E,EV>} \\
+    \tcode{for(auto\&\& [uv] : edges_bfs(g,seed))} & \tcode{edge_data<void,false,E,void>} \\
+    \tcode{for(auto\&\& [uv,val] : edges_bfs(g,seed,evf))} & \tcode{edge_data<void,false,E,EV>} \\
 \hline
 \end{tabular}}
 \caption{breadth\_first\_search View Functions}
@@ -481,22 +470,20 @@ Table \ref{tab:bfs} shows the functions and their return values.
 \end{center}
 \end{table}
 
+\paragraph{Design Note.}
+Search views yield vertex and edge \emph{descriptors} rather than vertex IDs (\tcode{VId} is \tcode{void} in the returned data structs). A vertex ID can always be obtained from a descriptor via \tcode{vertex_id(g, u)}. Descriptors provide richer access to vertex and edge properties through CPOs such as \tcode{vertex_value(g, u)} and \tcode{edge_value(g, uv)}.
+
+\paragraph{Allocator Support.}
+All DFS and BFS factory functions accept an optional trailing allocator parameter for their internal data structures. When a value function is also provided, the allocator is disambiguated via a \tcode{requires(!vertex_value_function<Alloc,...>)} constraint. For example:
+\begin{lstlisting}
+vertices_dfs(g, seed, alloc)       // allocator, no value function
+vertices_dfs(g, seed, vvf, alloc)  // value function + allocator
+\end{lstlisting}
+
 \subsection{Topological Sort Views}
-Topological Sort views iterate over the vertices and edges from a given source vertex, returning a \tcode{vertex_info} or 
-\tcode{edge_info} on each iteration when it is first encountered, depending on the function used. 
-Table \ref{tab:topo_sort} shows the functions and their return values.
+Topological Sort views iterate over all vertices and edges in the graph in topological order, yielding a \tcode{vertex_data} or \tcode{edge_data} for each element when it is first encountered. Table \ref{tab:topo_sort} shows the factory functions and their return types.
 
-%The \tcode{alloc} parameter shown in the following examples is optional and defaults to \tcode{std::allocator<bool>}. It is used for containers 
-%that are internal to the view. The \tcode{bool} argument has no particular meaning.
-
-% basic_edges_topological_sort(g,source,evf) implies the use of Sourced type internally to have source_id in the call call to evf(eid)
-
-\phil{Consider adding an enum bitset of events matching the visitor events, and creating Overloads
-      that accept the bitset. The returned type would be a subclass of \tcode{vertex_info} or \tcode{edge_info}
-      and would add the event bitset as a final member value, with the bit set for the event . This could offer a similar benefit as
-      coroutines.}
-
-\phil{topological\_sort introduces the idea that we can have source, target and edge descriptors. Make sure edge\_info can handle that.}
+Topological sort views support \tcode{cancel()} and \tcode{num_visited()} but not \tcode{depth()}, because the flat topological ordering has no tree structure. As a consequence, they do not satisfy the \tcode{search_view} concept. Note that \tcode{cancel_branch} behaves the same as \tcode{cancel_all} for topological sort, since there is no branch to skip in a flat ordering.
 
 \begin{table}[h!]
 \begin{center}
@@ -505,18 +492,119 @@ Table \ref{tab:topo_sort} shows the functions and their return values.
 \hline
     \textbf{Example} & \textbf{Return} \\
 \hline
-    \tcode{for(auto\&\& [v] : vertices_topological_sort(g,source))} & \tcode{vertex_info<void,V,void>} \\
-    \tcode{for(auto\&\& [v,val] : vertices_topological_sort(g,source,vvf))} & \tcode{vertex_info<void,V,VV>} \\
+    \tcode{for(auto\&\& [u] : vertices_topological_sort(g))} & \tcode{vertex_data<void,V,void>} \\
+    \tcode{for(auto\&\& [u,val] : vertices_topological_sort(g,vvf))} & \tcode{vertex_data<void,V,VV>} \\
 \hdashline
-    \tcode{for(auto\&\& [v,uv] : edges_topological_sort(g,source))} & \tcode{edge_info<V,false,E,void>} \\
-    \tcode{for(auto\&\& [v,uv,val] : edges_topological_sort(g,source,evf))} & \tcode{edge_info<V,false,E,EV>} \\
-\hdashline
-    \tcode{for(auto\&\& [u,v,uv] : sourced_edges_topological_sort(g,source))} & \tcode{edge_info<V,true,E,void>} \\
-    \tcode{for(auto\&\& [u,v,uv,val] : sourced_edges_topological_sort(g,source,evf))} & \tcode{edge_info<V,true,E,EV>} \\
+    \tcode{for(auto\&\& [uv] : edges_topological_sort(g))} & \tcode{edge_data<void,false,E,void>} \\
+    \tcode{for(auto\&\& [uv,val] : edges_topological_sort(g,evf))} & \tcode{edge_data<void,false,E,EV>} \\
 \hline
 \end{tabular}}
 \caption{topological\_sort View Functions}
 \label{tab:topo_sort}
 \end{center}
 \end{table}
+
+\paragraph{Cycle-detecting factories.}
+The \tcode{_safe} factory variants detect cycles during construction and return a \tcode{std::expected}. On success the expected value is the topological sort view; on failure the unexpected value is the \tcode{vertex_t<G>} where the cycle was detected. Table \ref{tab:topo_sort_safe} shows these factories.
+
+\begin{table}[h!]
+\begin{center}
+\resizebox{\textwidth}{!}
+{\begin{tabular}{l l}
+\hline
+    \textbf{Factory} & \textbf{Return} \\
+\hline
+    \tcode{vertices_topological_sort_safe(g)} & \tcode{std::expected<}\textit{view}\tcode{, vertex_t<G>>} \\
+    \tcode{vertices_topological_sort_safe(g,vvf)} & \tcode{std::expected<}\textit{view}\tcode{, vertex_t<G>>} \\
+\hdashline
+    \tcode{edges_topological_sort_safe(g)} & \tcode{std::expected<}\textit{view}\tcode{, vertex_t<G>>} \\
+    \tcode{edges_topological_sort_safe(g,evf)} & \tcode{std::expected<}\textit{view}\tcode{, vertex_t<G>>} \\
+\hline
+\end{tabular}}
+\caption{topological\_sort Safe Factory Functions}
+\label{tab:topo_sort_safe}
+\end{center}
+\end{table}
+
+The paper specifies \tcode{std::expected} (C++23). The reference implementation provides backward compatibility to C++20 via an external expected library (e.g., \tcode{tl::expected}), switching to \tcode{std::expected} when C++23 or later is available.
+
+\paragraph{Allocator Support.}
+Topological sort factory functions also accept an optional trailing allocator parameter, following the same pattern as DFS and BFS.
+
+\section{Range Adaptors (Pipe Syntax)}
+
+All view factory functions described in this paper are also available as range adaptor closure objects, enabling pipe syntax. The adaptor objects live in \tcode{namespace graph::views} and forward to the corresponding factory function. Table \ref{tab:adaptors_graph} shows the graph view adaptors and Table \ref{tab:adaptors_search} shows the search view adaptors.
+
+\begin{table}[h!]
+\begin{center}
+\resizebox{\textwidth}{!}
+{\begin{tabular}{l l}
+\hline
+    \textbf{Pipe Expression} & \textbf{Equivalent Factory Call} \\
+\hline
+    \tcode{g | vertexlist()} & \tcode{vertexlist(g)} \\
+    \tcode{g | vertexlist(vvf)} & \tcode{vertexlist(g,vvf)} \\
+    \tcode{g | basic_vertexlist()} & \tcode{basic_vertexlist(g)} \\
+    \tcode{g | basic_vertexlist(vvf)} & \tcode{basic_vertexlist(g,vvf)} \\
+\hdashline
+    \tcode{g | incidence(uid)} & \tcode{incidence(g,uid)} \\
+    \tcode{g | incidence(uid, evf)} & \tcode{incidence(g,uid,evf)} \\
+    \tcode{g | basic_incidence(uid)} & \tcode{basic_incidence(g,uid)} \\
+    \tcode{g | basic_incidence(uid, evf)} & \tcode{basic_incidence(g,uid,evf)} \\
+\hdashline
+    \tcode{g | in_incidence(uid)} & \tcode{in_incidence(g,uid)} \\
+    \tcode{g | in_incidence(uid, evf)} & \tcode{in_incidence(g,uid,evf)} \\
+    \tcode{g | basic_in_incidence(uid)} & \tcode{basic_in_incidence(g,uid)} \\
+    \tcode{g | basic_in_incidence(uid, evf)} & \tcode{basic_in_incidence(g,uid,evf)} \\
+\hdashline
+    \tcode{g | neighbors(uid)} & \tcode{neighbors(g,uid)} \\
+    \tcode{g | neighbors(uid, vvf)} & \tcode{neighbors(g,uid,vvf)} \\
+    \tcode{g | basic_neighbors(uid)} & \tcode{basic_neighbors(g,uid)} \\
+    \tcode{g | basic_neighbors(uid, vvf)} & \tcode{basic_neighbors(g,uid,vvf)} \\
+\hdashline
+    \tcode{g | in_neighbors(uid)} & \tcode{in_neighbors(g,uid)} \\
+    \tcode{g | in_neighbors(uid, vvf)} & \tcode{in_neighbors(g,uid,vvf)} \\
+    \tcode{g | basic_in_neighbors(uid)} & \tcode{basic_in_neighbors(g,uid)} \\
+    \tcode{g | basic_in_neighbors(uid, vvf)} & \tcode{basic_in_neighbors(g,uid,vvf)} \\
+\hdashline
+    \tcode{g | edgelist()} & \tcode{edgelist(g)} \\
+    \tcode{g | edgelist(evf)} & \tcode{edgelist(g,evf)} \\
+    \tcode{g | basic_edgelist()} & \tcode{basic_edgelist(g)} \\
+    \tcode{g | basic_edgelist(evf)} & \tcode{basic_edgelist(g,evf)} \\
+\hline
+\end{tabular}}
+\caption{Graph View Range Adaptors}
+\label{tab:adaptors_graph}
+\end{center}
+\end{table}
+
+\begin{table}[h!]
+\begin{center}
+\resizebox{\textwidth}{!}
+{\begin{tabular}{l l}
+\hline
+    \textbf{Pipe Expression} & \textbf{Equivalent Factory Call} \\
+\hline
+    \tcode{g | vertices_dfs(seed)} & \tcode{vertices_dfs(g,seed)} \\
+    \tcode{g | vertices_dfs(seed, vvf)} & \tcode{vertices_dfs(g,seed,vvf)} \\
+    \tcode{g | edges_dfs(seed)} & \tcode{edges_dfs(g,seed)} \\
+    \tcode{g | edges_dfs(seed, evf)} & \tcode{edges_dfs(g,seed,evf)} \\
+\hdashline
+    \tcode{g | vertices_bfs(seed)} & \tcode{vertices_bfs(g,seed)} \\
+    \tcode{g | vertices_bfs(seed, vvf)} & \tcode{vertices_bfs(g,seed,vvf)} \\
+    \tcode{g | edges_bfs(seed)} & \tcode{edges_bfs(g,seed)} \\
+    \tcode{g | edges_bfs(seed, evf)} & \tcode{edges_bfs(g,seed,evf)} \\
+\hdashline
+    \tcode{g | vertices_topological_sort()} & \tcode{vertices_topological_sort(g)} \\
+    \tcode{g | vertices_topological_sort(vvf)} & \tcode{vertices_topological_sort(g,vvf)} \\
+    \tcode{g | edges_topological_sort()} & \tcode{edges_topological_sort(g)} \\
+    \tcode{g | edges_topological_sort(evf)} & \tcode{edges_topological_sort(g,evf)} \\
+\hline
+\end{tabular}}
+\caption{Search View Range Adaptors}
+\label{tab:adaptors_search}
+\end{center}
+\end{table}
+
+The \tcode{in_incidence}, \tcode{in_neighbors}, and their \tcode{basic_} variants require the graph to model \tcode{index_bidirectional_adjacency_list} when used as pipe adaptors (vertex-id overloads).
 

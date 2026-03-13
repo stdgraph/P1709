@@ -21,23 +21,23 @@ auto inplace_kruskal(IELR&& e, OELR&& t, CompareOp compare);
 /*
  * Prim's Algorithm
  */
-template <index_adjacency_list G, random_access_range Predecessor, random_access_range Weight>
+template <adjacency_list G, class Predecessor, class Weight>
 auto prim(G&& g, Predecessor& predecessor, Weight& weight, const vertex_id_t<G>& seed = 0);
 
-template <index_adjacency_list G,
-          random_access_range  Predecessor,
-          random_access_range  Weight,
+template <adjacency_list G,
+          class          Predecessor,
+          class          Weight,
           class CompareOp,
           class WF>
 requires basic_edge_weight_function<G,
                                     WF,
-                                    range_value_t<Weight>,
+                                    vertex_property_map_value_t<Weight>,
                                     CompareOp,
-                                    plus<range_value_t<Weight>>>
-auto prim(G&&                   g,
-          Predecessor&          predecessor,
-          Weight&               weight,
-          CompareOp             compare,
-          range_value_t<Weight> init_dist,
-          WF&&                  weight_fn,
-          vertex_id_t<G>        seed = 0);
+                                    plus<vertex_property_map_value_t<Weight>>>
+auto prim(G&&                                 g,
+          Predecessor&                        predecessor,
+          Weight&                             weight,
+          CompareOp                           compare,
+          vertex_property_map_value_t<Weight> init_dist,
+          WF&&                                weight_fn,
+          vertex_id_t<G>                      seed = 0);
