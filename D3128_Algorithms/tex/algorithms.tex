@@ -625,28 +625,25 @@ instead of a binary heap implemented with \tcode{std::priority_queue}.
 \begin{itemdescr}
       \pnum\hardprecond
             \begin{itemize}
-                  \item \lstinline{0 <= source < num_vertices(graph)} for the single-source version.
-                  \item \lstinline{size(distances) >= size(vertices(g))}
-                  \item \lstinline{size(predecessor) >= size(vertices(g))}
+                  \item \lstinline{source} is a valid vertex ID in \lstinline{g} for the single-source version.
+                  \item \lstinline{distances} contains an entry for each vertex of \lstinline{g}.
+                  \item \lstinline{predecessor} contains an entry for each vertex of \lstinline{g}.
             \end{itemize}
       \pnum\throws
             \begin{itemize}
-                  \item \lstinline{std::out_of_range} if any source vertex ID is not in
-                        \lstinline{[0, num_vertices(g))}.
-                  \item \lstinline{std::out_of_range} if \lstinline{size(distances) < num_vertices(g)}.
-                  \item \lstinline{std::out_of_range} if \lstinline{size(predecessor) < num_vertices(g)}.
+                  \item \lstinline{std::out_of_range} if any source vertex ID is not in \lstinline{vertices(g)}.
                   \item \lstinline{std::out_of_range} if a negative edge weight is encountered
                         (for signed weight types).
             \end{itemize}
       \pnum\preconditions
             \begin{itemize}
                   \item
-                        \lstinline{0 <= source < num_vertices(graph)}, for each \lstinline{source} in \lstinline{sources}, 
-                                   for the multi-source version.
+                        Each \lstinline{source} in \lstinline{sources} is a valid vertex ID in \lstinline{g},
+                        for the multi-source version.
                   \item
-                        \lstinline{distances[i] = shortest_path_infinite_distance()} for \lstinline{0 <= i < num_vertices(g)}.
+                        \lstinline{distances[vid] = shortest_path_infinite_distance()} for every vertex \lstinline{vid} in \lstinline{g}.
                   \item
-                        \lstinline{predecessors[i] = i} for \lstinline{0 <= i < num_vertices(g)}.
+                        \lstinline{predecessors[vid] = vid} for every vertex \lstinline{vid} in \lstinline{g}.
                   \item
                         The weight function \lstinline{weight} must return a non-negative value.
             \end{itemize}
@@ -681,9 +678,25 @@ instead of a binary heap implemented with \tcode{std::priority_queue}.
             \begin{itemize}
                   \item Duplicate sources do not affect the algorithm's complexity or correctness.
                   \item Bellman-Ford Shortest Paths allows negative weights with the consequence of greater complexity.
+                  \item \lstinline{distances} and \lstinline{predecessor} must satisfy
+                        \lstinline{vertex_property_map_for<M,G>} (see §\textit{Vertex Property Map Concept}).
+                        For index graphs, \lstinline{std::vector<T>} with \lstinline{size() >= num_vertices(g)}
+                        satisfies this requirement.
+                        For mapped graphs, use \lstinline{make_vertex_property_map<G,T>(g, init)}.
             \end{itemize}
       %\pnum\errors
 \end{itemdescr}
+
+\paragraph{Example: Dijkstra on a Mapped Graph}
+The following example demonstrates \tcode{dijkstra_shortest_paths} on a graph whose
+vertex IDs are \tcode{std::string} values.  Because the graph satisfies
+\tcode{mapped_adjacency_list}, \tcode{make_vertex_property_map} allocates
+\tcode{std::unordered_map} instead of \tcode{std::vector} for the \tcode{distances}
+and \tcode{predecessor} maps.  All other algorithm code is identical to the
+index-graph case.
+{\small
+      \lstinputlisting{D3128_Algorithms/src/dijkstra_example_mapped.hpp}
+}
 
 \subsubsection{Dijkstra Shortest Distances}
 This is the same as \textit{Shortest Paths} except that it excludes the predecessors,
@@ -702,24 +715,22 @@ giving a small performance improvement with lower memory overhead.
 \begin{itemdescr}
       \pnum\hardprecond
             \begin{itemize}
-                  \item \lstinline{0 <= source < num_vertices(graph)} for the single-source version. 
-                  \item \lstinline{size(distances) >= size(vertices(g))}
+                  \item \lstinline{source} is a valid vertex ID in \lstinline{g} for the single-source version.
+                  \item \lstinline{distances} contains an entry for each vertex of \lstinline{g}.
             \end{itemize}
       \pnum\throws
             \begin{itemize}
-                  \item \lstinline{std::out_of_range} if any source vertex ID is not in
-                        \lstinline{[0, num_vertices(g))}.
-                  \item \lstinline{std::out_of_range} if \lstinline{size(distances) < num_vertices(g)}.
+                  \item \lstinline{std::out_of_range} if any source vertex ID is not in \lstinline{vertices(g)}.
                   \item \lstinline{std::out_of_range} if a negative edge weight is encountered
                         (for signed weight types).
             \end{itemize}
       \pnum\preconditions
             \begin{itemize}
                   \item
-                        \lstinline{0 <= source < num_vertices(graph)}, for each \lstinline{source} in \lstinline{sources}, 
+                        Each \lstinline{source} in \lstinline{sources} is a valid vertex ID in \lstinline{g},
                         for the multi-source version.
                   \item
-                        \lstinline{distances[i] = shortest_path_infinite_distance()} for \lstinline{0 <= i < num_vertices(g)}.
+                        \lstinline{distances[vid] = shortest_path_infinite_distance()} for every vertex \lstinline{vid} in \lstinline{g}.
                   \item
                         The weight function \lstinline{weight} must return a non-negative value.
             \end{itemize}
@@ -749,6 +760,11 @@ giving a small performance improvement with lower memory overhead.
             \begin{itemize}
                   \item Duplicate sources do not affect the algorithm's complexity or correctness.
                   \item Bellman-Ford Shortest Distances allows negative weights with the consequence of greater complexity.
+                  \item \lstinline{distances} must satisfy \lstinline{vertex_property_map_for<M,G>}
+                        (see §\textit{Vertex Property Map Concept}).
+                        For index graphs, \lstinline{std::vector<T>} with \lstinline{size() >= num_vertices(g)}
+                        satisfies this requirement.
+                        For mapped graphs, use \lstinline{make_vertex_property_map<G,T>(g, init)}.
             \end{itemize}
       %\pnum\errors
 \end{itemdescr}
@@ -805,26 +821,23 @@ get the vertex ids of the negative weight cycle.
 \begin{itemdescr}
       \pnum\hardprecond
             \begin{itemize}
-                  \item \lstinline{0 <= source < num_vertices(graph)} for the single-source version. 
-                  \item \lstinline{size(distances) >= size(vertices(g))}
-                  \item \lstinline{size(predecessor) >= size(vertices(g))}
+                  \item \lstinline{source} is a valid vertex ID in \lstinline{g} for the single-source version.
+                  \item \lstinline{distances} contains an entry for each vertex of \lstinline{g}.
+                  \item \lstinline{predecessor} contains an entry for each vertex of \lstinline{g}.
             \end{itemize}
       \pnum\throws
             \begin{itemize}
-                  \item \lstinline{std::out_of_range} if any source vertex ID is not in
-                        \lstinline{[0, num_vertices(g))}.
-                  \item \lstinline{std::out_of_range} if \lstinline{size(distances) < num_vertices(g)}.
-                  \item \lstinline{std::out_of_range} if \lstinline{size(predecessor) < num_vertices(g)}.
+                  \item \lstinline{std::out_of_range} if any source vertex ID is not in \lstinline{vertices(g)}.
             \end{itemize}
       \pnum\preconditions
             \begin{itemize}
                   \item
-                        \lstinline{0 <= source < num_vertices(graph)}, for each \lstinline{source} in \lstinline{sources}, 
+                        Each \lstinline{source} in \lstinline{sources} is a valid vertex ID in \lstinline{g},
                         for the multi-source version.
                   \item
-                        \lstinline{distances[i] = shortest_path_infinite_distance()} for \lstinline{0 <= i < num_vertices(g)}.
+                        \lstinline{distances[vid] = shortest_path_infinite_distance()} for every vertex \lstinline{vid} in \lstinline{g}.
                   \item
-                        \lstinline{predecessors[i] = i} for \lstinline{0 <= i < num_vertices(g)}.
+                        \lstinline{predecessors[vid] = vid} for every vertex \lstinline{vid} in \lstinline{g}.
             \end{itemize}
       \pnum\effects
             \begin{itemize}
@@ -860,8 +873,13 @@ get the vertex ids of the negative weight cycle.
       \pnum\remarks 
             \begin{itemize}
                   \item Duplicate sources do not affect the algorithm's complexity or correctness.
-                  \item Unlike Dijkstra's algorithm, Bellman-Ford allows negative edge weights. 
+                  \item Unlike Dijkstra's algorithm, Bellman-Ford allows negative edge weights.
                         Performance constraints limit this to smaller graphs.
+                  \item \lstinline{distances} and \lstinline{predecessor} must satisfy
+                        \lstinline{vertex_property_map_for<M,G>} (see §\textit{Vertex Property Map Concept}).
+                        For index graphs, \lstinline{std::vector<T>} with \lstinline{size() >= num_vertices(g)}
+                        satisfies this requirement.
+                        For mapped graphs, use \lstinline{make_vertex_property_map<G,T>(g, init)}.
             \end{itemize}
       %\pnum\errors
 \end{itemdescr}
@@ -885,23 +903,21 @@ giving a small performance improvement with lower memory overhead.
       \pnum\hardprecond
             \begin{itemize}
                   \item
-                        \lstinline{0 <= source < num_vertices(graph)} for the single-source version. 
-                  \item 
-                        \lstinline{size(distances) >= size(vertices(g))}
+                        \lstinline{source} is a valid vertex ID in \lstinline{g} for the single-source version.
+                  \item
+                        \lstinline{distances} contains an entry for each vertex of \lstinline{g}.
             \end{itemize}
       \pnum\throws
             \begin{itemize}
-                  \item \lstinline{std::out_of_range} if any source vertex ID is not in
-                        \lstinline{[0, num_vertices(g))}.
-                  \item \lstinline{std::out_of_range} if \lstinline{size(distances) < num_vertices(g)}.
+                  \item \lstinline{std::out_of_range} if any source vertex ID is not in \lstinline{vertices(g)}.
             \end{itemize}
       \pnum\preconditions
             \begin{itemize}
                   \item
-                        \lstinline{0 <= source < num_vertices(graph)}, for each \lstinline{source} in \lstinline{sources}, 
-                                   for the multi-source version.
+                        Each \lstinline{source} in \lstinline{sources} is a valid vertex ID in \lstinline{g},
+                        for the multi-source version.
                   \item
-                        \lstinline{distances[i] = shortest_path_infinite_distance()} for \lstinline{0 <= i < num_vertices(g)}.
+                        \lstinline{distances[vid] = shortest_path_infinite_distance()} for every vertex \lstinline{vid} in \lstinline{g}.
             \end{itemize}
       \pnum\effects
             \begin{itemize}
@@ -933,8 +949,13 @@ giving a small performance improvement with lower memory overhead.
             \pnum\remarks 
                   \begin{itemize}
                         \item Duplicate sources do not affect the algorithm's complexity or correctness.
-                        \item Unlike Dijkstra's algorithm, Bellman-Ford allows negative edge weights. 
+                        \item Unlike Dijkstra's algorithm, Bellman-Ford allows negative edge weights.
                               Performance constraints limit this to smaller graphs.
+                        \item \lstinline{distances} must satisfy \lstinline{vertex_property_map_for<M,G>}
+                              (see §\textit{Vertex Property Map Concept}).
+                              For index graphs, \lstinline{std::vector<T>} with \lstinline{size() >= num_vertices(g)}
+                              satisfies this requirement.
+                              For mapped graphs, use \lstinline{make_vertex_property_map<G,T>(g, init)}.
                   \end{itemize}
       %\pnum\errors
 \end{itemdescr}
@@ -1273,7 +1294,7 @@ Find weakly connected components of a graph. Weakly connected components are sub
       \pnum\preconditions
             \begin{itemize}
                   \item
-                        \lstinline{size(component) >= num_vertices(g)}.
+                        \lstinline{component} contains an entry for each vertex of \lstinline{g}.
             \end{itemize}
       \pnum\effects
             \begin{itemize}
@@ -1333,7 +1354,7 @@ parallel execution.
       \pnum\hardprecond
             \begin{itemize}
                   \item
-                        \lstinline{size(component) >= num_vertices(g)}.
+                        \lstinline{component} contains an entry for each vertex of \lstinline{g}.
                   \item
                         \lstinline{num_vertices(g) == num_vertices(g_t)} for the two-graph overload.
             \end{itemize}
@@ -1404,7 +1425,7 @@ Find strongly connected components of a graph using Kosaraju's algorithm. Strong
                   \item
                         \lstinline{num_vertices(g) == num_vertices(g_t)} for the two-graph overload.
                   \item
-                        \lstinline{size(component) >= num_vertices(g)}.
+                        \lstinline{component} contains an entry for each vertex of \lstinline{g}.
             \end{itemize}
       \pnum\preconditions
             \begin{itemize}
@@ -1440,7 +1461,7 @@ Find strongly connected components of a graph using Kosaraju's algorithm. Strong
 \subsubsection{Tarjan's SCC}
 Tarjan's strongly-connected-components algorithm is planned for a future revision.
 For current use, see \tcode{kosaraju} above, which provides both a two-graph overload and a
-single-graph overload for \lstinline{index_bidirectional_adjacency_list} graphs.
+single-graph overload for \lstinline{bidirectional_adjacency_list} graphs.
 
 \section{Maximal Independent Set}
 \subsection{Maximal Independent Set}
@@ -1703,16 +1724,17 @@ Find the minimum weight spanning tree of a graph using Prim's algorithm.
       \pnum\hardprecond
             \begin{itemize}
                   \item
-                        \lstinline{0 <= seed < num_vertices(g)}.
+                        \lstinline{seed} is a valid vertex ID in \lstinline{g}.
                   \item
-                        \lstinline{size(weight) >= num_vertices(g)}.
+                        \lstinline{weight} contains an entry for each vertex of \lstinline{g}.
                   \item
-                        \lstinline{size(predecessor) >= num_vertices(g)}.
+                        \lstinline{predecessor} contains an entry for each vertex of \lstinline{g}.
             \end{itemize}
       \pnum\preconditions
             \begin{itemize}
                   \item
-                        \lstinline{weight_fn}, when provided, must satisfy \lstinline{basic_edge_weight_function<G, WF, range_value_t<Weight>, CompareOp>}.
+                        \lstinline{weight_fn}, when provided, must satisfy
+                        \lstinline{basic_edge_weight_function<G, WF, vertex_property_map_value_t<Weight>, CompareOp>}.
                         When omitted, the default is \lstinline{edge_value(g, uv)}.
             \end{itemize}
       \pnum\effects

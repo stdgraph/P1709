@@ -36,6 +36,6 @@ template <adjacency_list G, adjacency_list GT, class Component>
 requires vertex_property_map_for<Component, G>
 void kosaraju(G&& g, GT&& g_t, Component& component);
 
-template <index_bidirectional_adjacency_list G, class Component>
+template <bidirectional_adjacency_list G, class Component>
 requires vertex_property_map_for<Component, G>
 void kosaraju(G&& g, Component& component);
