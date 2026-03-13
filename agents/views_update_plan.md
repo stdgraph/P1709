@@ -59,13 +59,13 @@ All structured bindings and prose must follow this convention consistently:
 | A | Source file rewrite (data structs) | — | Low — 3 small `.hpp` files | Done (ac5abdd) |
 | B | Data structs section rewrite | A | Medium — largest prose rewrite, tables | Done (1152806) |
 | C | Graph views update (vertexlist, incidence, neighbors, edgelist) | B | Medium — table + prose changes | Done (6f50537) |
-| D | Search common types update | B | Low — enum + member functions | Not started |
-| E | DFS / BFS views update | C, D | Medium — removals + binding changes | Not started |
-| F | Topological sort views update | C, D | Medium — signature changes + new `_safe` factories | Not started |
-| G | New content (basic variants, in_ variants, transpose, pipe syntax) | C, D, E, F | Medium — additive | Not started |
-| H | Introduction, prose audit & cleanup | A–G | Low — mechanical | Not started |
-| I | Revision history & config | H | Low — additive | Not started |
-| J | Cross-paper fixups (conventions.tex, D3126 C++23 note) | I | Low — mechanical | Not started |
+| D | Search common types update | B | Low — enum + member functions | Done (ce8f76a) |
+| E | DFS / BFS views update | C, D | Medium — removals + binding changes | Done (4ee7cc1) |
+| F | Topological sort views update | C, D | Medium — signature changes + new `_safe` factories | Done (8552f76) |
+| G | New content (basic variants, in_ variants, transpose, pipe syntax) | C, D, E, F | Medium — additive | Done (`fb01712`) |
+| H | Introduction, prose audit & cleanup | A–G | Low — mechanical | Done (`51b85b0`) |
+| I | Revision history & config | H | Low — additive | Done (`81cb596`) |
+| J | Cross-paper fixups (conventions.tex, D3126 C++23 note) | I | Low — mechanical | Done (`a3430a4`) |
 
 Phases A–I are sequential within P1709 (each committed separately).
 Phase J is last because it touches shared files and should only run once D3129 is stable.
