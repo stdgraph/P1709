@@ -408,20 +408,7 @@ for(auto&& [uid,u] : dfs) {
 
 \subsection{Depth First Search Views}
 
-Depth First Search views iterate over the vertices and edges from a given source vertex, returning a \tcode{vertex_info} or \tcode{edge_info} on each iteration when it is first encountered, depending on the function used. 
-Table \ref{tab:dfs} shows the functions and their return values.
-
-%The \tcode{alloc} parameter shown in the following examples is optional and defaults to \tcode{std::allocator<bool>}. It is used for containers 
-%that are internal to the view. The \tcode{bool} argument has no particular meaning.
-
-% basic_edges_dfs(g,source,evf) implies the use of Sourced type internally to have source_id in the call call to evf(eid)
-
-\phil{Consider adding an enum bitset of events matching the visitor events, and creating Overloads
-      that accept the bitset. The returned type would be a subclass of \tcode{vertex_info} or \tcode{edge_info}
-      and would add the event bitset as a final member value, with the bit set for the event . This could offer a similar benefit as
-      coroutines.}
-
-\phil{sourced\_edges\_dfs introduces the idea that we can have source, target and edge descriptors. Make sure edge\_info can handle that.}
+Depth First Search views iterate over vertices and edges reachable from a seed vertex, yielding a \tcode{vertex_data} or \tcode{edge_data} for each element when it is first encountered. Table \ref{tab:dfs} shows the factory functions and their return types.
 
 \begin{table}[h!]
 \begin{center}
@@ -430,14 +417,11 @@ Table \ref{tab:dfs} shows the functions and their return values.
 \hline
     \textbf{Example} & \textbf{Return} \\
 \hline
-    \tcode{for(auto\&\& [v] : vertices_dfs(g,source))} & \tcode{vertex_info<void,V,void>} \\
-    \tcode{for(auto\&\& [v,val] : vertices_dfs(g,source,vvf))} & \tcode{vertex_info<void,V,VV>} \\
+    \tcode{for(auto\&\& [u] : vertices_dfs(g,seed))} & \tcode{vertex_data<void,V,void>} \\
+    \tcode{for(auto\&\& [u,val] : vertices_dfs(g,seed,vvf))} & \tcode{vertex_data<void,V,VV>} \\
 \hdashline
-    \tcode{for(auto\&\& [v,uv] : edges_dfs(g,source))} & \tcode{edge_info<V,false,E,void>} \\
-    \tcode{for(auto\&\& [v,uv,val] : edges_dfs(g,source,evf))} & \tcode{edge_info<V,false,E,EV>} \\
-\hdashline
-    \tcode{for(auto\&\& [u,v,uv] : sourced_edges_dfs(g,source))} & \tcode{edge_info<V,true,E,void>} \\
-    \tcode{for(auto\&\& [u,v,uv,val] : sourced_edges_dfs(g,source,evf))} & \tcode{edge_info<V,true,E,EV>} \\
+    \tcode{for(auto\&\& [uv] : edges_dfs(g,seed))} & \tcode{edge_data<void,false,E,void>} \\
+    \tcode{for(auto\&\& [uv,val] : edges_dfs(g,seed,evf))} & \tcode{edge_data<void,false,E,EV>} \\
 \hline
 \end{tabular}}
 \caption{depth\_first\_search View Functions}
@@ -446,23 +430,8 @@ Table \ref{tab:dfs} shows the functions and their return values.
 \end{table}
 
 \subsection{Breadth First Search Views}
-\phil{NetworkX provides an optional depth\_limit parameter for bfs. Add? }
 
-Breadth First Search views iterate over the vertices and edges from a given source vertex, returning a \tcode{vertex_info} 
-or \tcode{edge_info} on each iteration when it is first encountered, depending on the function used. 
-Table \ref{tab:bfs} shows the functions and their return values.
-
-%The \tcode{alloc} parameter shown in the following examples is optional and defaults to \tcode{std::allocator<bool>}. It is used for containers 
-%that are internal to the view. The \tcode{bool} argument has no particular meaning.
-
-% basic_edges_bfs(g,source,evf) implies the use of Sourced type internally to have source_id in the call call to evf(eid)
-
-\phil{Consider adding an enum bitset of events matching the visitor events, and creating Overloads
-      that accept the bitset. The returned type would be a subclass of \tcode{vertex_info} or \tcode{edge_info}
-      and would add the event bitset as a final member value, with the bit set for the event . This could offer a similar benefit as
-      coroutines.}
-
-\phil{sourced\_edges\_bfs introduces the idea that we can have source, target and edge descriptors. Make sure edge\_info can handle that.}
+Breadth First Search views iterate over vertices and edges reachable from a seed vertex, yielding a \tcode{vertex_data} or \tcode{edge_data} for each element when it is first encountered. Table \ref{tab:bfs} shows the factory functions and their return types.
 
 \begin{table}[h!]
 \begin{center}
@@ -471,21 +440,20 @@ Table \ref{tab:bfs} shows the functions and their return values.
 \hline
     \textbf{Example} & \textbf{Return} \\
 \hline
+    \tcode{for(auto\&\& [u] : vertices_bfs(g,seed))} & \tcode{vertex_data<void,V,void>} \\
+    \tcode{for(auto\&\& [u,val] : vertices_bfs(g,seed,vvf))} & \tcode{vertex_data<void,V,VV>} \\
 \hdashline
-    \tcode{for(auto\&\& [v] : vertices_bfs(g,source))} & \tcode{vertex_info<void,V,void>} \\
-    \tcode{for(auto\&\& [v,val] : vertices_bfs(g,source,vvf))} & \tcode{vertex_info<void,V,VV>} \\
-\hdashline
-    \tcode{for(auto\&\& [v,uv] : edges_bfs(g,source))} & \tcode{edge_info<V,false,E,void>} \\
-    \tcode{for(auto\&\& [v,uv,val] : edges_bfs(g,source,evf))} & \tcode{edge_info<V,false,E,EV>} \\
-\hdashline
-    \tcode{for(auto\&\& [u,v,uv] : sourced_edges_bfs(g,source))} & \tcode{edge_info<V,true,E,void>} \\
-    \tcode{for(auto\&\& [u,v,uv,val] : sourced_edges_bfs(g,source,evf))} & \tcode{edge_info<V,true,E,EV>} \\
+    \tcode{for(auto\&\& [uv] : edges_bfs(g,seed))} & \tcode{edge_data<void,false,E,void>} \\
+    \tcode{for(auto\&\& [uv,val] : edges_bfs(g,seed,evf))} & \tcode{edge_data<void,false,E,EV>} \\
 \hline
 \end{tabular}}
 \caption{breadth\_first\_search View Functions}
 \label{tab:bfs}
 \end{center}
 \end{table}
+
+\paragraph{Design Note.}
+Search views yield vertex and edge \emph{descriptors} rather than vertex IDs (\tcode{VId} is \tcode{void} in the returned data structs). A vertex ID can always be obtained from a descriptor via \tcode{vertex_id(g, u)}. Descriptors provide richer access to vertex and edge properties through CPOs such as \tcode{vertex_value(g, u)} and \tcode{edge_value(g, uv)}.
 
 \subsection{Topological Sort Views}
 Topological Sort views iterate over the vertices and edges from a given source vertex, returning a \tcode{vertex_info} or 
