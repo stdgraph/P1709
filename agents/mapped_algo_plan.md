@@ -311,9 +311,9 @@ used in the existing test suite (check `graph-v3/tests/` for usage).
 | — | D-MA-3: mapped graph concepts → D3130, cross-ref in D3128 | confirmed |
 | — | D-MA-4: Kosaraju bidir — investigate in Phase 4C | confirmed |
 | — | D-MA-5: retain `Predecessors` as separate param | confirmed |
-| 1 | Revise stale editorial note (line 12) | not started |
-| 1 | Add `\subsection{Vertex Property Map}` to algorithms.tex | not started |
-| 1 | Build check | not started |
+| 1 | Revise stale editorial note (line 12) | completed |
+| 1 | Add `\subsection{Vertex Property Map}` to algorithms.tex | completed |
+| 1 | Build check | completed |
 | 2 | BFS concept change | not started |
 | 2 | DFS concept change | not started |
 | 2 | Topological Sort concept change | not started |
