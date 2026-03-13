@@ -249,9 +249,9 @@ Given the copyable types, it's useful to have concepts to determine if a type is
 
 \subsection{vertexlist Views}
 
-\tcode{vertexlist} views iterate over a range of vertices, returning a \tcode{vertex_info} on each iteration. 
-Table \ref{tab:vertexlist} shows the vertexlist functions overloads and their return values. \tcode{u} is a vertex
-descriptor. \tcode{first} and \tcode{last} are vertex iterators.
+\tcode{vertexlist} views iterate over a range of vertices, returning a \tcode{vertex_data} on each iteration. 
+Table \ref{tab:vertexlist} shows the vertexlist functions overloads and their return values. \tcode{uid} is a vertex
+id and \tcode{u} is a vertex descriptor. \tcode{first} and \tcode{last} are vertex iterators.
 
 The \tcode{vertexlist} view without the value function is of limited value, since \tcode{vertices(g)} does the
 same thing, without using a structured binding. However, it is included for consistency with the overload that 
@@ -264,12 +264,12 @@ uses a value function.
 \hline
     \textbf{Example} & \textbf{Return} \\
 \hline
-    \tcode{for(auto\&\& [u] : vertexlist(g))} & \tcode{vertex_info<void,V,void>} \\
-    \tcode{for(auto\&\& [u,val] : vertexlist(g,vvf))} & \tcode{vertex_info<void,V,VV>} \\
-    \tcode{for(auto\&\& [u] : vertexlist(g,first,last))} & \tcode{vertex_info<void,V,void>} \\
-    \tcode{for(auto\&\& [u,val] : vertexlist(g,first,last,vvf))} & \tcode{vertex_info<void,V,VV>} \\
-    \tcode{for(auto\&\& [u] : vertexlist(g,vr))} & \tcode{vertex_info<void,V,void>} \\
-    \tcode{for(auto\&\& [u,val] : vertexlist(g,vr,vvf))} & \tcode{vertex_info<void,V,VV>} \\
+    \tcode{for(auto\&\& [uid, u] : vertexlist(g))} & \tcode{vertex_data<VId,V,void>} \\
+    \tcode{for(auto\&\& [uid, u, val] : vertexlist(g,vvf))} & \tcode{vertex_data<VId,V,VV>} \\
+    \tcode{for(auto\&\& [uid, u] : vertexlist(g,first,last))} & \tcode{vertex_data<VId,V,void>} \\
+    \tcode{for(auto\&\& [uid, u, val] : vertexlist(g,first,last,vvf))} & \tcode{vertex_data<VId,V,VV>} \\
+    \tcode{for(auto\&\& [uid, u] : vertexlist(g,vr))} & \tcode{vertex_data<VId,V,void>} \\
+    \tcode{for(auto\&\& [uid, u, val] : vertexlist(g,vr,vvf))} & \tcode{vertex_data<VId,V,VV>} \\
 \hline
 \end{tabular}}
 \caption{\tcode{vertexlist} View Functions}
@@ -278,11 +278,11 @@ uses a value function.
 \end{table}
 
 \subsection{incidence Views}
-\tcode{incidence} views iterate over a range of adjacent edges of a vertex, returning a \tcode{edge_info} on each iteration. 
+\tcode{incidence} views iterate over a range of adjacent edges of a vertex, returning a \tcode{edge_data} on each iteration. 
 Table \ref{tab:incidence} shows the \tcode{incidence} function overloads and their return values. 
 
 Since the source vertex \tcode{u} is available when calling an \tcode{incidence} function, there's no need to include sourced 
-versions of the function to include the \tcode{source} vertex in the output.
+versions of the function to include the \tcode{source_id} in the output.
 
 The \tcode{incidence} view without the value function is of limited value, since \tcode{edges(g,u)} does the
 same thing, without using a structured binding. However, it is included for consistency with the overload that 
@@ -295,8 +295,8 @@ uses a value function.
 \hline
     \textbf{Example} & \textbf{Return} \\
 \hline
-    \tcode{for(auto\&\& [uv] : incidence(g,u))} & \tcode{edge_info<void,false,E,void>} \\
-    \tcode{for(auto\&\& [uv,val] : incidence(g,u,evf))} & \tcode{edge_info<void,false,E,EV>} \\
+    \tcode{for(auto\&\& [tid, uv] : incidence(g,u))} & \tcode{edge_data<VId,false,E,void>} \\
+    \tcode{for(auto\&\& [tid, uv, val] : incidence(g,u,evf))} & \tcode{edge_data<VId,false,E,EV>} \\
 \hline
 \end{tabular}}
 \caption{\tcode{incidence} View Functions}
@@ -305,11 +305,11 @@ uses a value function.
 \end{table}
 
 \subsection{neighbors Views}
-\tcode{neighbors} views iterate over a range of edges for a vertex, returning a \tcode{vertex_info} of each neighboring target vertex on each iteration. 
+\tcode{neighbors} views iterate over a range of edges for a vertex, returning a \tcode{neighbor_data} of each neighboring target vertex on each iteration. 
 Table \ref{tab:neighbors} shows the \tcode{neighbors} function overloads and their return values. 
 
 Since the source vertex \tcode{u} is available when calling a \tcode{neighbors} function, there's no need to include sourced versions of the function 
-to include \tcode{source} vertex in the output.
+to include \tcode{source_id} in the output.
 
 \begin{table}[h!]
 \begin{center}
@@ -318,8 +318,8 @@ to include \tcode{source} vertex in the output.
 \hline
     \textbf{Example} & \textbf{Return} \\
 \hline
-    \tcode{for(auto\&\& [v] : neighbors(g,uid))} & \tcode{neighbor_info<void,false,V,void>} \\
-    \tcode{for(auto\&\& [v,val] : neighbors(g,uid,vvf))} & \tcode{neighbor_info<void,false,V,VV>} \\
+    \tcode{for(auto\&\& [tid, n] : neighbors(g,uid))} & \tcode{neighbor_data<VId,false,V,void>} \\
+    \tcode{for(auto\&\& [tid, n, val] : neighbors(g,uid,vvf))} & \tcode{neighbor_data<VId,false,V,VV>} \\
 \hline
 \end{tabular}}
 \caption{\tcode{neighbors} View Functions}
@@ -328,11 +328,11 @@ to include \tcode{source} vertex in the output.
 \end{table}
 
 \subsection{edgelist Views}
-\tcode{edgelist} views iterate over all edges for all vertices, returning a \tcode{edge_info} on each iteration. 
+\tcode{edgelist} views iterate over all edges for all vertices, returning a \tcode{edge_data} on each iteration. 
 Table \ref{tab:edgelist} shows the \tcode{edgelist} function overloads and their return values. 
 
 The range returned by \tcode{edgelist} adheres to the  \tcode{basic_sourced_index_edgelist} concept (future proposals may only
-adhere to \tcode{basic_sourced_edgelist}). If a \tcode{evf(uv)} function is passed, it adheres to the \tcode{has_edge_value} concept.
+adhere to \tcode{basic_sourced_edgelist}). If a \tcode{evf(g,uv)} function is passed, it adheres to the \tcode{has_edge_value} concept.
 
 \begin{table}[h!]
 \begin{center}
@@ -341,8 +341,8 @@ adhere to \tcode{basic_sourced_edgelist}). If a \tcode{evf(uv)} function is pass
 \hline
     \textbf{Example} & \textbf{Return} \\
 \hline
-    \tcode{for(auto\&\& [u,v,uv] : edgelist(g))} & \tcode{edge_info<V,true,E,void>} \\
-    \tcode{for(auto\&\& [u,v,uv,val] : edgelist(g,evf))} & \tcode{edge_info<V,true,E,EV>} \\
+    \tcode{for(auto\&\& [sid, tid, uv] : edgelist(g))} & \tcode{edge_data<VId,true,E,void>} \\
+    \tcode{for(auto\&\& [sid, tid, uv, val] : edgelist(g,evf))} & \tcode{edge_data<VId,true,E,EV>} \\
 \hline
 \end{tabular}}
 \caption{\tcode{edgelist} View Functions}
