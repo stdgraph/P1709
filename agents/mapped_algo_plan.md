@@ -314,14 +314,14 @@ used in the existing test suite (check `graph-v3/tests/` for usage).
 | 1 | Revise stale editorial note (line 12) | completed |
 | 1 | Add `\subsection{Vertex Property Map}` to algorithms.tex | completed |
 | 1 | Build check | completed |
-| 2 | BFS concept change | not started |
-| 2 | DFS concept change | not started |
-| 2 | Topological Sort concept change | not started |
-| 2 | Triangle Counting concept + `ordered_vertex_edges` | not started |
-| 2 | Jaccard concept change | not started |
-| 2 | MIS concept change | not started |
-| 2 | Find Negative Cycle concept change | not started |
-| 2 | Build check | not started |
+| 2 | BFS concept change | completed |
+| 2 | DFS concept change | completed |
+| 2 | Topological Sort concept change | completed |
+| 2 | Triangle Counting concept + `ordered_vertex_edges` | completed |
+| 2 | Jaccard concept change | completed |
+| 2 | MIS concept change | completed |
+| 2 | Find Negative Cycle concept change | completed |
+| 2 | Build check | completed |
 | 3 | Dijkstra — concept + requires + value_t (4 files) | not started |
 | 3 | Bellman-Ford — concept + requires + value_t (4 files) | not started |
 | 3 | Prim/MST — concept + requires (2 files) | not started |
