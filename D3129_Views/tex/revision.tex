@@ -21,6 +21,38 @@
       \item Rename \tcode{descriptor} structs to \tcode{info} structs in preparation for new BGL-like descriptors.
 \end{itemize}
 
+\subsection*{\paperno r3}
+\begin{itemize}
+    \item Renamed \tcode{vertex_info}, \tcode{edge_info}, and \tcode{neighbor_info} to
+          \tcode{vertex_data}, \tcode{edge_data}, and \tcode{neighbor_data} respectively,
+          with the addition of separate vertex ID and vertex descriptor template parameters.
+    \item Updated all value functions from 1-arg \tcode{vvf(u)}/\tcode{evf(uv)} form to
+          2-arg \tcode{vvf(g,u)}/\tcode{evf(g,uv)} form, taking the graph as the first
+          parameter.
+    \item Added \tcode{basic\_} view variants (\tcode{basic\_vertexlist},
+          \tcode{basic\_incidence}, \tcode{basic\_neighbors}, \tcode{basic\_edgelist}) that
+          yield only vertex/edge IDs without descriptors.
+    \item Added incoming-edge view variants (\tcode{in\_incidence},
+          \tcode{in\_neighbors}) for bidirectional graphs.
+    \item Added \tcode{transpose} view for direction-swapping graph adaption.
+    \item Added pipe syntax support via range adaptors for all view functions.
+    \item Added \tcode{\_safe} topological sort factories with cycle detection
+          via \tcode{std::expected} (C++23; backward compatible to C++20 via external
+          \tcode{expected} library).
+    \item Changed topological sort from seeded (single source) to all-vertex traversal.
+    \item Removed \tcode{sourced\_edges\_dfs}, \tcode{sourced\_edges\_bfs}, and
+          \tcode{sourced\_edges\_topological\_sort} --- sourced search variants are no longer
+          in the implementation.
+    \item Changed search view control from free functions (\tcode{cancel()}, \tcode{depth()},
+          \tcode{size()}) to member functions (\tcode{.cancel()}, \tcode{.depth()},
+          \tcode{.num\_visited()}).
+    \item Added \tcode{search\_view} concept.
+    \item Replaced all uses of \tcode{vertex\_reference\_t<G>} with \tcode{vertex\_t<G>}
+          and \tcode{edge\_reference\_t<G>} with \tcode{edge\_t<G>}, consistent with the
+          descriptor-based architecture defined in D3130.
+    \item Documented allocator parameters for search views (DFS, BFS, topological sort).
+\end{itemize}
+
 \subsection*{\paperno r2}
 \begin{itemize}
       \item Replace the use of \textit{id} and \textit{reference} with \textit{descriptor}, leading to a simpler
