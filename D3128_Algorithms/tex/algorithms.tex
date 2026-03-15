@@ -146,7 +146,7 @@ Edge weights are intrinsic numeric type for the current proposal, but could be a
 // For exposition only
 template <class G, class WF, class DistanceValue, class Compare, class Combine>
 concept basic_edge_weight_function = // e.g. weight(uv)
-      is_arithmetic_v<DistanceValue> && 
+      edge_value_function<WF, std::remove_reference_t<G>, edge_t<G>> && 
       strict_weak_order<Compare, DistanceValue, DistanceValue> &&
       assignable_from<add_lvalue_reference_t<DistanceValue>,
             invoke_result_t<Combine, DistanceValue, invoke_result_t<WF, edge_t<G>>>>;
@@ -154,6 +154,8 @@ concept basic_edge_weight_function = // e.g. weight(uv)
 // For exposition only
 template <class G, class WF, class DistanceValue>
 concept edge_weight_function = // e.g. weight(uv)
+      is_arithmetic_v<edge_value_function<WF, std::remove_reference_t<G>, edge_t<G>>> && 
+      is_arithmetic_v<DistanceValue> && 
       is_arithmetic_v<invoke_result_t<WF, edge_t<G>>> &&
       basic_edge_weight_function<G,
                                   WF,
@@ -185,6 +187,8 @@ concept edge_weight_function = // e.g. weight(uv)
 The \lstinline{ordered_vertex_edges} concept requires that the outgoing edges of each vertex
 are sorted in ascending order of \lstinline{target_id}. This is needed by algorithms such as
 \lstinline{triangle_count} that rely on sorted adjacency lists for efficient intersection.
+This is a semantic requirement that is not enforced by the graph container interface, but it 
+is documented as a requirement for algorithms that need it.
 
 \begin{lstlisting}
 // For exposition only
@@ -996,10 +1000,19 @@ not evaluate predecessors.
 
 \section{Clustering}
 \subsection{Triangle Counting}
-Compute the number of triangles in a graph.
+Compute the number of triangles in a graph. A triangle is a set of three vertices $\{u, v, w\}$
+where each pair is connected by an edge. Two functions are provided:
+\tcode{triangle_count} counts triangles (3-cliques) in undirected graphs, and
+\tcode{directed_triangle_count} counts directed 3-cycles in directed graphs.
 
-\andrew{The literature for triangle counting is typically for undirected graphs. Directed graphs
-      can also be evaluated by disabling the checks that limit it to the 2nd half of the graph.}
+Both algorithms use a merge-based set intersection approach on sorted adjacency lists,
+which is more efficient than nested-loop or hash-based methods for sparse graphs.
+The algorithms require the graph to satisfy both \tcode{adjacency_list<G>} and
+\tcode{ordered_vertex_edges<G>}.
+
+\subsubsection{Triangle Count (Undirected)}
+
+Count the number of triangles (3-cliques) in an undirected graph with sorted adjacency lists.
 
 \begin{table}[ht]
 \setcellgapes{3pt}
@@ -1009,9 +1022,9 @@ Compute the number of triangles in a graph.
 \hline
       \multirowcell{2}{
             \textbf{Complexity} \\
-                  $\mathcal{O}(N^3)$ \\
+                  $\mathcal{O}(m^{3/2})$ \\
             }
-      & \textbf{Directed?} Yes & \textbf{Cycles?} No & \textbf{Throws?} No \\
+      & \textbf{Directed?} No & \textbf{Cycles?} Yes & \textbf{Throws?} No \\
       & \textbf{Multi-edge?} No & \textbf{Self-loops} No & \\
 \hline
 \end{tabular}
@@ -1022,28 +1035,131 @@ Compute the number of triangles in a graph.
       \lstinputlisting[firstline=4,lastline=6]{D3128_Algorithms/src/tc.hpp}
 }
 \begin{itemdescr}
-      %\pnum\mandates
+      \pnum\mandates
+            \begin{itemize}
+                  \item \tcode{G} satisfies \tcode{adjacency_list<G>}.
+                  \item \tcode{G} satisfies \tcode{ordered_vertex_edges<G>}: the outgoing edges of each vertex
+                        must be sorted in ascending order of \tcode{target_id}.
+            \end{itemize}
       \pnum\preconditions
             \begin{itemize}
-                  \item The outgoing edges of a vertex are ordered by target\_id.
+                  \item The graph represents an undirected graph, with edges stored bidirectionally
+                        (both $(u,v)$ and $(v,u)$).
+                  \item Adjacency lists are sorted by \tcode{target_id} in ascending order.
             \end{itemize}
-      %\pnum\effects
+      \pnum\effects
+            \begin{itemize}
+                  \item For each edge $(u,v)$ where \tcode{vertex_id(g, u)} $<$ \tcode{vertex_id(g, v)}:
+                  \begin{enumerate}
+                        \item Get the sorted adjacency lists for $u$ and $v$.
+                        \item Perform a merge-based intersection of the two lists
+                              (analogous to \tcode{std::set_intersection}).
+                        \item For each common neighbor $w$ where \tcode{vertex_id(g, w)} $>$ \tcode{vertex_id(g, v)},
+                              increment the triangle count.
+                  \end{enumerate}
+                  \item The ordering constraint
+                        \tcode{vertex_id(g, u)} $<$ \tcode{vertex_id(g, v)} $<$ \tcode{vertex_id(g, w)}
+                        guarantees each triangle is counted exactly once.
+            \end{itemize}
       %\pnum\result
       \pnum\returns 
             \begin{itemize}
-                  \item Number of triangles
+                  \item The total number of triangles in the graph.
+                  \item Returns 0 for empty graphs or graphs with fewer than 3 vertices.
             \end{itemize}
+      %\pnum\throws
       \pnum\complexity
             \begin{itemize}
-                  \item \textbf{Time:} $\mathcal{O}(m^{3/2})$ average, where $m = |E|$.
-                  \item \textbf{Space:} $\mathcal{O}(1)$ auxiliary.
+                  \item \textbf{Time:} $\mathcal{O}(m^{3/2})$ average, where $m = |E|$. Best case
+                        $\mathcal{O}(|V|+|E|)$ for triangle-free graphs. Worst case
+                        $\mathcal{O}(|V| \cdot d_{\max}^2)$ where $d_{\max}$ is the maximum vertex degree.
+                  \item \textbf{Space:} $\mathcal{O}(1)$ auxiliary (excluding graph storage).
             \end{itemize}
       \pnum\remarks 
             \begin{itemize}
-                  \item To avoid duplicate counting, only directed triangles of a certain orientation will be detected. 
-                        If \tcode{vertex_id(u) < vertex_id(v) < vertex_id(w)}, count triangle if graph contains edges \tcode{uv, vw, uw}.
-                  \item The graph must satisfy \lstinline{ordered_vertex_edges<G>}: the outgoing
-                        edges of each vertex must be sorted in ascending order of \lstinline{target_id}.
+                  \item Edge weights, if present, are ignored.
+                  \item Self-loops are ignored (a vertex cannot form a triangle with itself).
+                  \item Multi-edges: each parallel edge contributes to the triangle count separately.
+                  \item Works correctly on both connected and disconnected graphs.
+                  \item The \tcode{ordered_vertex_edges} requirement enables $\mathcal{O}(d)$ set intersection
+                        per edge rather than $\mathcal{O}(d^2)$ nested loops, which is critical for
+                        performance on high-degree vertices. Graph types using \tcode{std::set} or
+                        \tcode{std::map} edge containers (e.g.\ \tcode{vos}, \tcode{uos}, \tcode{dos},
+                        \tcode{mos}) naturally satisfy this requirement.
+            \end{itemize}
+      %\pnum\errors
+\end{itemdescr}
+
+\subsubsection{Directed Triangle Count}
+
+Count the number of directed 3-cycles in a directed graph with sorted adjacency lists.
+A directed 3-cycle is a set of three vertices $\{u, v, w\}$ where directed edges
+$u \rightarrow v$, $v \rightarrow w$, and $u \rightarrow w$ all exist.
+
+\begin{table}[ht]
+\setcellgapes{3pt}
+\makegapedcells
+\centering
+\begin{tabular}{|P{0.30\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|}
+\hline
+      \multirowcell{2}{
+            \textbf{Complexity} \\
+                  $\mathcal{O}(m^{3/2})$ \\
+            }
+      & \textbf{Directed?} Yes & \textbf{Cycles?} Yes & \textbf{Throws?} No \\
+      & \textbf{Multi-edge?} No & \textbf{Self-loops} No & \\
+\hline
+\end{tabular}
+%\caption{Algorithm Example}
+\end{table}
+
+{\small
+      \lstinputlisting[firstline=4,lastline=6]{D3128_Algorithms/src/directed_triangle_count.hpp}
+}
+\begin{itemdescr}
+      \pnum\mandates
+            \begin{itemize}
+                  \item \tcode{G} satisfies \tcode{adjacency_list<G>}.
+                  \item \tcode{G} satisfies \tcode{ordered_vertex_edges<G>}: the outgoing edges of each vertex
+                        must be sorted in ascending order of \tcode{target_id}.
+            \end{itemize}
+      \pnum\preconditions
+            \begin{itemize}
+                  \item Adjacency lists (out-neighbor lists) are sorted by \tcode{target_id} in ascending order.
+            \end{itemize}
+      \pnum\effects
+            \begin{itemize}
+                  \item For each vertex $u$, for each out-neighbor $v$ ($v \neq u$):
+                  \begin{enumerate}
+                        \item Get the sorted out-neighbor lists for $u$ and $v$.
+                        \item Perform a merge-based intersection of the two lists.
+                        \item For each common out-neighbor $w$ ($w \neq u$ and $w \neq v$),
+                              increment the count.
+                  \end{enumerate}
+                  \item Each directed 3-cycle $(u \rightarrow v, v \rightarrow w, u \rightarrow w)$
+                        is counted exactly once.
+                  \item Self-loops are skipped.
+            \end{itemize}
+      %\pnum\result
+      \pnum\returns 
+            \begin{itemize}
+                  \item The total number of directed 3-cycles in the graph.
+            \end{itemize}
+      %\pnum\throws
+      \pnum\complexity
+            \begin{itemize}
+                  \item \textbf{Time:} $\mathcal{O}(m^{3/2})$ average, where $m = |E|$. Worst case
+                        $\mathcal{O}(|V| \cdot d_{\max}^2)$ where $d_{\max}$ is the maximum out-degree.
+                  \item \textbf{Space:} $\mathcal{O}(1)$ auxiliary (excluding graph storage).
+            \end{itemize}
+      \pnum\remarks 
+            \begin{itemize}
+                  \item For an undirected graph stored with bidirectional edges, this function
+                        counts each undirected triangle 6 times (once per permutation of the 3
+                        vertices). Use \tcode{triangle_count} instead for undirected graphs.
+                  \item Unlike \tcode{triangle_count}, this function does not impose vertex ID
+                        ordering constraints on the counted cycles.
+                  \item Edge weights, if present, are ignored.
             \end{itemize}
       %\pnum\errors
 \end{itemdescr}
@@ -1051,9 +1167,18 @@ Compute the number of triangles in a graph.
 
 \section{Communities}
 \subsection{Label Propagation}
-Propagate vertex labels by setting each vertex's label to the most popular label of its neighboring vertices. Every vertex voting on its new label represents one iteration of label propagation. Vertex voting order is randomized every iteration. The algorithm will iterate until label convergence, or optionally for a user specified number of iterations. Convergence occurs when no vertex label changes from the previous iteration. $\mathcal{O}(M)$ complexity is based on the complexity of one iteration, with number of iterations required for convergence considered small relative to graph size.
+Propagate vertex labels for community detection by majority voting among neighbours.
+Each iteration shuffles the vertex processing order, then sets every vertex's label to the most
+popular label among its neighbours. Ties are broken randomly using the supplied random-number
+generator. The algorithm iterates until no label changes (convergence) or until \tcode{max_iters}
+iterations have been performed. $\mathcal{O}(M)$ complexity, where $M = |E|$, is based on one
+iteration (each edge is examined once); the number of iterations required for convergence is
+typically small relative to graph size.
 
-Some label propagation implementations use vertex ids as an initial labeling. This is not supported here because the label type can be more generic than the vertex id type. User is responsible for meaningful initial labeling.
+A second overload accepts an \tcode{empty_label} sentinel for semi-supervised propagation:
+vertices whose label equals \tcode{empty_label} are treated as unlabelled --- they do not vote
+and are not counted in neighbour tallies, but can acquire a label from a labelled neighbour.
+Vertices in components with no labelled vertex retain \tcode{empty_label} after convergence.
 
 \begin{table}[ht]
 \setcellgapes{3pt}
@@ -1065,102 +1190,98 @@ Some label propagation implementations use vertex ids as an initial labeling. Th
             \textbf{Complexity} \\
                   $\mathcal{O}(M)$ \\
             }
-      & \textbf{Directed?} Yes & \textbf{Cycles?} Yes & \textbf{Throws?} No \\
+      & \textbf{Directed?} Yes & \textbf{Cycles?} Yes & \textbf{Throws?} Yes \\
       & \textbf{Multi-edge?} Yes & \textbf{Self-loops} Yes & \\
 \hline
 \end{tabular}
 %\caption{Algorithm Example}
 \end{table}
 
-\phil{What is M?}
-
+\paragraph{Basic Label Propagation}
 {\small
       \lstinputlisting[firstline=4,lastline=11]{D3128_Algorithms/src/lp.hpp}
 }
-\begin{itemdescr}
-      %\pnum\mandates
-      \pnum\preconditions
-            \begin{itemize}
-                  \item
-                        \lstinline{label} contains initial vertex labels.
-                  \item
-                        \lstinline{rng} is a random number generator for vertex voting order.
-                  \item
-                        \lstinline{max_iters} is the maximum number of iterations of the label propagation, or equivalently 
-                        the maximum distance a label will propagate from its starting vertex.
-            \end{itemize}
-      \pnum\effects \lstinline{label[uid]} is the label assignments of vertex id \lstinline{uid} discovered by label propagation. \\
-      %\pnum\result
-      %\pnum\returns
-      %\pnum\throws
-      \pnum\complexity
-            \begin{itemize}
-                  \item \textbf{Time:} $\mathcal{O}(M)$ per iteration, with convergence typically in few iterations relative to graph size.
-                  \item \textbf{Space:} $\mathcal{O}(|V|)$ auxiliary --- shuffled vertex IDs and frequency map.
-            \end{itemize}
-      \pnum\remarks
-            \begin{itemize}
-                  \item User is responsible for initial vertex labels.
-            \end{itemize}
-      %\pnum\errors
-\end{itemdescr}
 
-\begin{table}[ht]
-\setcellgapes{3pt}
-\makegapedcells
-\centering
-\begin{tabular}{|P{0.30\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|}
-\hline
-      \multirowcell{2}{
-            \textbf{Complexity} \\
-                  $\mathcal{O}(M)$ \\
-            }
-      & \textbf{Directed?} Yes & \textbf{Cycles?} Yes & \textbf{Throws?} No \\
-      & \textbf{Multi-edge?} Yes & \textbf{Self-loops} Yes & \\
-\hline
-\end{tabular}
-%\caption{Algorithm Example}
-\end{table}
-
+\paragraph{Label Propagation with Empty-Label Sentinel}
 {\small
       \lstinputlisting[firstline=13,lastline=21]{D3128_Algorithms/src/lp.hpp}
 }
+
 \begin{itemdescr}
-      %\pnum\mandates
+      \pnum\mandates
+            \begin{itemize}
+                  \item \tcode{G} satisfies \tcode{adjacency_list<G>}.
+                  \item \tcode{Label} satisfies \tcode{vertex_property_map_for<Label, G>}
+                        (subscriptable by \tcode{vertex_id_t<G>}).
+                  \item \tcode{vertex_property_map_value_t<Label>} satisfies
+                        \tcode{std::equality_comparable}.
+                  \item \tcode{Gen} satisfies \tcode{std::uniform_random_bit_generator}.
+            \end{itemize}
       \pnum\preconditions
             \begin{itemize}
-                  \item
-                        \lstinline{label} contains initial vertex labels.
-                  \item
-                        \lstinline{empty_label} defines a label that is considered empty and will not be propagated.
-                  \item
-                        \lstinline{rng} is a random number generator for vertex voting order.
-                  \item
-                        \lstinline{max_iters} is the maximum number of iterations of the label propagation, or equivalently 
-                        the maximum distance a label will propagate from its starting vertex.
+                  \item \lstinline{label} contains a meaningful initial label for every vertex in \lstinline{g}.
+                  \item For index graphs: \lstinline{label.size() >= num_vertices(g)}.
+                  \item For the sentinel overload, vertices to be treated as unlabelled must have
+                        their label initialised to \lstinline{empty_label}.
             \end{itemize}
-      \pnum\effects 
+      \pnum\effects
             \begin{itemize}
-                  \item \lstinline{label[uid]} is the label assignments of vertex id \lstinline{uid} discovered by label propagation.
+                  \item Each iteration: shuffles the vertex processing order using \lstinline{rng},
+                        then for each vertex $u$ in that order:
+                  \begin{enumerate}
+                        \item Tallies the labels of all neighbours of $u$ (skipping neighbours
+                              with \lstinline{empty_label} in the sentinel overload).
+                        \item Assigns \lstinline{label[u]} to the most frequent neighbour label,
+                              breaking ties randomly via \lstinline{rng}.
+                        \item Isolated vertices (no neighbours, or all neighbours unlabelled)
+                              retain their current label.
+                  \end{enumerate}
+                  \item Iteration stops when no label changes in a full pass (convergence) or
+                        \lstinline{max_iters} is reached.
+                  \item The graph \lstinline{g} is not modified.
             \end{itemize}
       %\pnum\result
       %\pnum\returns
-      %\pnum\throws
+      \pnum\throws
+            \begin{itemize}
+                  \item \lstinline{std::bad_alloc} from internal frequency map and candidate vector allocations.
+                  \item \textbf{Exception guarantee:} Basic --- \lstinline{g} remains unchanged;
+                        \lstinline{label} may be partially modified.
+            \end{itemize}
       \pnum\complexity
             \begin{itemize}
-                  \item \textbf{Time:} $\mathcal{O}(M)$ per iteration, with convergence typically in few iterations relative to graph size.
-                  \item \textbf{Space:} $\mathcal{O}(|V|)$ auxiliary --- shuffled vertex IDs and frequency map.
+                  \item \textbf{Time:} $\mathcal{O}(|E|)$ per iteration; convergence typically
+                        requires few iterations relative to graph size.
+                  \item \textbf{Space:} $\mathcal{O}(|V|)$ auxiliary --- shuffled vertex-ID vector and
+                        per-vertex frequency map.
             \end{itemize}
-      \pnum\remarks     
+      \pnum\remarks
             \begin{itemize}
-                  \item User is responsible for initial vertex labels.
+                  \item User is responsible for providing meaningful initial vertex labels.
+                  \item Some label propagation implementations use vertex IDs as initial labels;
+                        this is not done here because the label type can be more general than the 
+                        vertex ID type.
+                  \item Directed edges are followed as-is; for undirected semantics the graph
+                        should store both $(u,v)$ and $(v,u)$.
+                  \item Multi-edges and self-loops are counted in the neighbour tally and may
+                        bias the label assignment.
+                  \item When \lstinline{empty_label} is not present in \lstinline{label}, the
+                        sentinel overload behaves identically to the basic overload.
             \end{itemize}
       %\pnum\errors
 \end{itemdescr}
 
 \section{Components}
 \subsection{Articulation Points}
-Find articulation points, or cut vertices, which when removed disconnect the graph into multiple components. Time complexity based on Hopcroft-Tarjan algorithm.
+Find articulation points (cut vertices) of a graph. An articulation point is a vertex whose removal,
+along with its incident edges, disconnects the graph into two or more connected components.
+The algorithm uses an iterative Hopcroft-Tarjan DFS, tracking discovery times (\tcode{disc[v]}) and
+low-link values (\tcode{low[v]}), defined as the minimum discovery time reachable from the subtree
+rooted at $v$ via back-edges. A vertex $u$ is an articulation point under one of two rules:
+\begin{itemize}
+      \item \textbf{Root rule:} $u$ is the root of a DFS tree and has two or more DFS children.
+      \item \textbf{Non-root rule:} $u$ is not a root and has a child $v$ with \tcode{low[v]} $\geq$ \tcode{disc[u]}.
+\end{itemize}
 
 \begin{table}[ht]
 \setcellgapes{3pt}
@@ -1172,8 +1293,8 @@ Find articulation points, or cut vertices, which when removed disconnect the gra
             \textbf{Complexity} \\
                   $\mathcal{O}(|E|+|V|)$
             }
-      & \textbf{Directed?} Yes & \textbf{Cycles?} Yes & \textbf{Throws?} No \\
-      & \textbf{Multi-edge?} No & \textbf{Self-loops} Yes & \\
+      & \textbf{Directed?} Yes & \textbf{Cycles?} Yes & \textbf{Throws?} Yes \\
+      & \textbf{Multi-edge?} Yes & \textbf{Self-loops} Yes & \\
 \hline
 \end{tabular}
 %\caption{Algorithm Example}
@@ -1183,31 +1304,48 @@ Find articulation points, or cut vertices, which when removed disconnect the gra
      \lstinputlisting[firstline=4,lastline=6]{D3128_Algorithms/src/connected_components.hpp}
 }
 
-\phil{Should target of output iterator be convertible to vertex\_id, not same\_as vertex\_id?}
-
 \begin{itemdescr}
-      %\pnum\mandates
+      \pnum\mandates
+            \begin{itemize}
+                  \item \tcode{G} satisfies \tcode{adjacency_list<G>}.
+                  \item \tcode{Iter} satisfies \tcode{std::output\_iterator<Iter, vertex\_id\_t<G>>}.
+            \end{itemize}
       \pnum\preconditions
             \begin{itemize}
-                  \item
-                        Output iterator \lstinline{cut_vertices} can be assigned vertices of type 
-                        \lstinline{vertex_id_t<G>} when dereferenced.
+                  \item For undirected graph semantics, each edge $\{u,v\}$ must be stored as
+                        both $(u,v)$ and $(v,u)$ in \lstinline{g}.
             \end{itemize}
       \pnum\effects
             \begin{itemize}
-                  \item
-                        Output iterator \lstinline{cut_vertices} contains articulation point 
-                        vertices, those which removed increase the number of components of \lstinline{g}.
+                  \item Performs an iterative DFS over all vertices (including disconnected components).
+                  \item Writes each articulation point vertex ID to \lstinline{cut_vertices} exactly once.
+                  \item \lstinline{g} is not modified.
+                  \item Self-loops are ignored and do not affect articulation point detection.
+                  \item Multi-edges: only the first reverse edge to the DFS parent is treated as the
+                        tree edge; additional parallel edges are treated as back-edges that update
+                        low-link values.
             \end{itemize}
       %\pnum\result
       %\pnum\returns
-      %\pnum\throws
+      \pnum\throws
+            \begin{itemize}
+                  \item \lstinline{std::bad_alloc} if internal vector allocation fails.
+                  \item \textbf{Exception guarantee:} Basic --- \lstinline{g} remains unchanged;
+                        the output iterator may be partially written.
+            \end{itemize}
       \pnum\complexity
             \begin{itemize}
-                  \item \textbf{Time:} $\mathcal{O}(|E|+|V|)$.
-                  \item \textbf{Space:} $\mathcal{O}(|V|)$ auxiliary --- DFS stack and bookkeeping arrays.
+                  \item \textbf{Time:} $\mathcal{O}(|V|+|E|)$ --- each vertex and edge is visited exactly once.
+                  \item \textbf{Space:} $\mathcal{O}(|V|)$ auxiliary --- discovery time, low-link, parent,
+                        child-count, and emitted arrays, plus DFS stack.
             \end{itemize}
-      %\pnum\remarks 
+      \pnum\remarks
+            \begin{itemize}
+                  \item There is no ordering guarantee on the articulation points written to
+                        \lstinline{cut_vertices}.
+                  \item Disconnected graphs are handled correctly; the outer loop restarts DFS
+                        from each unvisited vertex.
+            \end{itemize}
       %\pnum\errors
 \end{itemdescr}
 
