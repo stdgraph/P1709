@@ -1691,8 +1691,7 @@ rather than making a copy.  The input range must satisfy \lstinline{permutable<i
 
 \subsection{Prim Minimum Spanning Tree}
 Find the minimum weight spanning tree of a graph using Prim's algorithm.
-
-\phil{Use general form of dijkstra's shortest path?}
+Delegates to \lstinline{dijkstra_shortest_paths} with a projecting combine function that uses the edge weight directly rather than accumulating path distance.
 
 \begin{table}[ht]
 \setcellgapes{3pt}
@@ -1712,14 +1711,14 @@ Find the minimum weight spanning tree of a graph using Prim's algorithm.
 \end{table}
 
 {\small
-      \lstinputlisting[firstline=24,lastline=43]{D3128_Algorithms/src/mst.hpp}
+      \lstinputlisting[firstline=24,lastline=39]{D3128_Algorithms/src/mst.hpp}
 }
 
 \begin{itemdescr}
       \pnum\mandates
             \begin{itemize}
                   \item
-                        \lstinline{compare} operator is a valid comparison operation on two edge values of type \lstinline{edge_value_t<G>} which returns a bool.
+                        \lstinline{compare} is a valid strict weak ordering on values of type \lstinline{vertex_property_map_value_t<Weight>}.
             \end{itemize}
       \pnum\hardprecond
             \begin{itemize}
@@ -1729,30 +1728,45 @@ Find the minimum weight spanning tree of a graph using Prim's algorithm.
                         \lstinline{weight} contains an entry for each vertex of \lstinline{g}.
                   \item
                         \lstinline{predecessor} contains an entry for each vertex of \lstinline{g}.
+                  \item
+                        \lstinline{weight} and \lstinline{predecessor} have been initialized before calling
+                        (e.g.\ via \lstinline{init_shortest_paths(g, weight, predecessor)}).
             \end{itemize}
       \pnum\preconditions
             \begin{itemize}
                   \item
-                        \lstinline{weight_fn}, when provided, must satisfy
-                        \lstinline{basic_edge_weight_function<G, WF, vertex_property_map_value_t<Weight>, CompareOp>}.
+                        \lstinline{weight_fn} must satisfy
+                        \lstinline{basic_edge_weight_function<G, WF, vertex_property_map_value_t<Weight>, CompareOp,}
+                        \lstinline{plus<vertex_property_map_value_t<Weight>>>}.
                         When omitted, the default is \lstinline{edge_value(g, uv)}.
             \end{itemize}
       \pnum\effects
             \begin{itemize}
                   \item
-                        \lstinline{predecessor[v]} is the parent vertex of \lstinline{v} in a tree rooted at \lstinline{seed} and \lstinline{weight[v]} is the value of the edge between \lstinline{v} and \lstinline{predecessor[v]} in the tree. When \lstinline{compare} is \lstinline{<} and \lstinline{init_dist==+inf}, \lstinline{predecessor} represents a minimum weight spanning tree.
+                        \lstinline{predecessor[v]} is the parent vertex of \lstinline{v} in a tree rooted at \lstinline{seed}
+                        and \lstinline{weight[v]} is the value of the edge between \lstinline{v} and \lstinline{predecessor[v]}
+                        in the tree.  \lstinline{predecessor[seed] == seed}.
+                        When \lstinline{compare} is \lstinline{<}, \lstinline{predecessor} represents a minimum weight spanning tree.
                   \item
-                        If \lstinline{predecessor} and \lstinline{weight} are not initialized by the user, and the graph is not fully connected, \lstinline{predecessor[v]} and \lstinline{weight[v]} will be undefined for vertices not in the same connected component as \lstinline{seed}.
+                        For vertices not reachable from \lstinline{seed}, \lstinline{predecessor[v]} and \lstinline{weight[v]}
+                        retain their initialized values (as set by \lstinline{init_shortest_paths}).
             \end{itemize}
       %\pnum\result
       \pnum\returns The total weight of the minimum spanning tree rooted at \lstinline{seed}.
-      %\pnum\throws
+      \pnum\throws
+            \begin{itemize}
+                  \item \lstinline{std::out_of_range} if \lstinline{seed} is not a valid vertex ID in \lstinline{g}.
+                  \item \lstinline{std::out_of_range} if \lstinline{predecessor} or \lstinline{weight} are undersized for the graph.
+                  \item \lstinline{std::out_of_range} if a negative edge weight is encountered (for signed weight types).
+                  \item \lstinline{std::logic_error} if an internal invariant violation is detected.
+            \end{itemize}
       \pnum\complexity
             \begin{itemize}
                   \item \textbf{Time:} $\mathcal{O}(|E|\log{|V|})$.
                   \item \textbf{Space:} $\mathcal{O}(|V|)$ auxiliary --- priority queue and bookkeeping arrays.
             \end{itemize}
-      %\pnum\remarks 
+      \pnum\remarks Only produces a spanning tree for the connected component containing \lstinline{seed}.
+            For disconnected graphs, call \lstinline{prim} once per component with a seed vertex from each component.
       %\pnum\errors
 \end{itemdescr}
 
