@@ -353,36 +353,52 @@ Compute the breadth-first path from one or more \tcode{source} vertices to all r
 }
 
 \begin{itemdescr}
-      %\pnum\mandates
-      % \pnum
-      \hardprecond
+      \pnum\mandates
+            \begin{itemize}
+                  \item \tcode{G} satisfies \tcode{adjacency_list<G>}.
+                  \item For the multi-source version, \tcode{Sources} satisfies \tcode{input_range}
+                        with \tcode{range_value_t<Sources>} convertible to \tcode{vertex_id_t<G>}.
+            \end{itemize}
+      \pnum\preconditions
+            \begin{itemize}
+                  \item
+                        \lstinline{0 <= source < num_vertices(graph)}, for each \lstinline{source} in \lstinline{sources},
+                                   for the multi-source version.
+            \end{itemize}
+      \pnum\hardprecond
             \begin{itemize}
                   \item
                         \lstinline{0 <= source < num_vertices(graph)} for the single-source version.
             \end{itemize}
-      \preconditions
-            \begin{itemize}
-                  \item
-                        \lstinline{0 <= source < num_vertices(graph)}, for each \lstinline{source} in \lstinline{sources}, 
-                                   for the multi-source version.
-            \end{itemize}
       \pnum\effects
             \begin{itemize}
+                  \item Does not modify the graph \lstinline{g}.
                   \item Member functions on the \lstinline{visitor} parameter are called during the algorithm's execution.
                         The functions are optional and, when included, must follow the visitor concepts for the events.
                         No overhead is incurred if the functions are not included.
                         The events supported are \lstinline{on_initialize_vertex}, \lstinline{on_discover_vertex},
-                        \lstinline{on_examine_vertex}, \lstinline{on_finish_vertex}, \lstinline{on_examine_edge},
-                        \lstinline{on_edge_relaxed}, and \lstinline{on_edge_not_relaxed}.
+                        \lstinline{on_examine_vertex}, \lstinline{on_finish_vertex}, and \lstinline{on_examine_edge}.
             \end{itemize}
-      %\pnum\result
+      \pnum\postconditions
+            \begin{itemize}
+                  \item All vertices reachable from any source are visited exactly once.
+                  \item Visitor callbacks are invoked in BFS (level-order) traversal order.
+                  \item The graph \lstinline{g} is unchanged.
+            \end{itemize}
       %\pnum\returns \lstinline{void} \\
+      \pnum\throws
+            \begin{itemize}
+                  \item \lstinline{std::bad_alloc} if the visited array or queue cannot be allocated.
+                  \item Any exception thrown by \lstinline{visitor} callbacks is propagated.
+                  \item \textbf{Exception guarantee:} Basic --- \lstinline{g} remains unchanged;
+                        partial traversal may have occurred.
+            \end{itemize}
       \pnum\complexity
             \begin{itemize}
                   \item \textbf{Time:} $\mathcal{O}(|V| + |E|)$ --- BFS uses a FIFO queue; each vertex and edge is visited at most once.
                   \item \textbf{Space:} $\mathcal{O}(|V|)$ auxiliary --- visited array and queue.
             \end{itemize}
-      \pnum\remarks 
+      \pnum\remarks
             \begin{itemize}
                   \item \tcode{dijkstra_shortest_paths} provides extended functionality if \tcode{breadth_first_search} doesn't have
                          enough capability.
@@ -427,36 +443,56 @@ Traverse the depth-first path from one or more \tcode{source} vertices to all re
 % }
 
 \begin{itemdescr}
-      %\pnum\mandates
-      % \pnum
-      \hardprecond
+      \pnum\mandates
+            \begin{itemize}
+                  \item \tcode{G} satisfies \tcode{adjacency_list<G>}.
+            \end{itemize}
+      \pnum\preconditions
+            \begin{itemize}
+                  \item \lstinline{source} is a valid vertex ID in \lstinline{g}.
+                  \item The graph \lstinline{g} is not modified during traversal.
+            \end{itemize}
+      \pnum\hardprecond
             \begin{itemize}
                   \item
                         \lstinline{0 <= source < num_vertices(graph)}.
-                  % \item
-                  %       \lstinline{0 <= source < num_vertices(graph)} for the single-source version.
-                  % \item
-                  %       \lstinline{0 <= source < num_vertices(graph)}, for each \lstinline{source} in \lstinline{sources}, 
-                  %                  for the multi-source version.
             \end{itemize}
       \pnum\effects
             \begin{itemize}
+                  \item Does not modify the graph \lstinline{g}.
+                  \item Classifies every edge reachable from \lstinline{source} as tree, back, or forward/cross.
                   \item Member functions on the \lstinline{visitor} parameter are called during the algorithm's execution.
                         The functions are optional and, when included, must follow the visitor concepts for the events.
                         No overhead is incurred if the functions are not included.
                         The events supported are \lstinline{on_initialize_vertex}, \lstinline{on_start_vertex},
-                        \lstinline{on_discover_vertex}, \lstinline{on_finish_vertex}, 
+                        \lstinline{on_discover_vertex}, \lstinline{on_finish_vertex},
                         \lstinline{on_examine_edge}, \lstinline{on_tree_edge}, \lstinline{on_back_edge},
                         \lstinline{on_forward_or_cross_edge}, and \lstinline{on_finish_edge}.
             \end{itemize}
-      %\pnum\result
+      \pnum\postconditions
+            \begin{itemize}
+                  \item All vertices reachable from \lstinline{source} are visited exactly once.
+                  \item \lstinline{on_finish_vertex} is called in reverse topological order for DAGs.
+                  \item The graph \lstinline{g} is unchanged.
+            \end{itemize}
       %\pnum\returns \lstinline{void} \\
+      \pnum\throws
+            \begin{itemize}
+                  \item \lstinline{std::bad_alloc} if the color array or stack cannot be allocated.
+                  \item Any exception thrown by \lstinline{visitor} callbacks is propagated.
+                  \item \textbf{Exception guarantee:} Basic --- \lstinline{g} remains unchanged;
+                        partial traversal may have occurred.
+            \end{itemize}
       \pnum\complexity
             \begin{itemize}
                   \item \textbf{Time:} $\mathcal{O}(|V| + |E|)$ --- each vertex and edge is visited at most once.
                   \item \textbf{Space:} $\mathcal{O}(|V|)$ auxiliary --- color array and DFS stack.
             \end{itemize}
-      %\pnum\remarks 
+      \pnum\remarks
+            \begin{itemize}
+                  \item Uses iterative DFS with explicit stack to avoid recursion-depth limits.
+                  \item Edge iterators are stored on the stack for $\mathcal{O}(1)$ resume after backtracking.
+            \end{itemize}
       %\pnum\errors
 \end{itemdescr}
 
@@ -499,8 +535,12 @@ A linear ordering of vertices such that for every directed edge (u,v) from verte
 }
 
 \begin{itemdescr}
-      %\pnum\mandates
-      \pnum\hardprecond
+      \pnum\mandates
+            \begin{itemize}
+                  \item \tcode{G} satisfies \tcode{adjacency_list<G>}.
+                  \item \tcode{OutputIterator} satisfies \tcode{output_iterator<OutputIterator, vertex_id_t<G>>}.
+            \end{itemize}
+      \pnum\preconditions
             \begin{itemize}
                   \item
                         \lstinline{0 <= source < num_vertices(graph)} for the single-source version.
@@ -513,11 +553,14 @@ A linear ordering of vertices such that for every directed edge (u,v) from verte
                   \item
                         Vertices reachable from the source(s) are written to the output iterator in reverse
                         topological (finish-time) order.
+                  \item
+                        The full-graph overload visits all vertices regardless of reachability from a single source.
             \end{itemize}
       \pnum\returns
             \begin{itemize}
                   \item \lstinline{true} if the topological ordering succeeded.
                   \item \lstinline{false} if a cycle was detected in the (sub)graph reachable from the source(s).
+                  \item Attribute: \lstinline{[[nodiscard]]}.
             \end{itemize}
       \pnum\complexity
             \begin{itemize}
@@ -627,17 +670,18 @@ instead of a binary heap implemented with \tcode{std::priority_queue}.
 %      non-standard version.}
 
 \begin{itemdescr}
-      \pnum\hardprecond
+      \pnum\mandates
             \begin{itemize}
-                  \item \lstinline{source} is a valid vertex ID in \lstinline{g} for the single-source version.
-                  \item \lstinline{distances} contains an entry for each vertex of \lstinline{g}.
-                  \item \lstinline{predecessor} contains an entry for each vertex of \lstinline{g}.
+                  \item \tcode{G} satisfies \tcode{adjacency_list<G>}.
+                  \item \tcode{Distances} satisfies \tcode{vertex_property_map_for<Distances, G>}
+                        with \tcode{is_arithmetic_v<vertex_property_map_value_t<Distances>>}.
+                  \item \tcode{Predecessors} satisfies \tcode{vertex_property_map_for<Predecessors, G>}.
+                  \item \tcode{WF} satisfies \tcode{basic_edge_weight_function<G, WF, vertex_property_map_value_t<Distances>, Compare, Combine>}.
             \end{itemize}
-      \pnum\throws
+      \pnum\constantwhen
             \begin{itemize}
-                  \item \lstinline{std::out_of_range} if any source vertex ID is not in \lstinline{vertices(g)}.
-                  \item \lstinline{std::out_of_range} if a negative edge weight is encountered
-                        (for signed weight types).
+                  \item All operations on the distance, predecessor, and weight types
+                        are constant subexpressions, and no visitor callback throws.
             \end{itemize}
       \pnum\preconditions
             \begin{itemize}
@@ -651,6 +695,12 @@ instead of a binary heap implemented with \tcode{std::priority_queue}.
                   \item
                         The weight function \lstinline{weight} must return a non-negative value.
             \end{itemize}
+      \pnum\hardprecond
+            \begin{itemize}
+                  \item \lstinline{source} is a valid vertex ID in \lstinline{g} for the single-source version.
+                  \item \lstinline{distances} contains an entry for each vertex of \lstinline{g}.
+                  \item \lstinline{predecessor} contains an entry for each vertex of \lstinline{g}.
+            \end{itemize}
       \pnum\effects
             \begin{itemize}
                   \item
@@ -663,6 +713,7 @@ instead of a binary heap implemented with \tcode{std::priority_queue}.
                         from vertex \lstinline{source}, then \lstinline{predecessors[i]} will contain the
                         predecessor vertex of vertex \lstinline{i}. Otherwise \lstinline{predecessors[i]} will contain
                         \lstinline{i}.
+                  \item Does not modify the graph \lstinline{g}.
                   \item Member functions on the \lstinline{visitor} parameter are called during the algorithm's execution.
                         The functions are optional and, when included, must follow the visitor concepts for the events.
                         No overhead is incurred if the functions are not included.
@@ -670,8 +721,26 @@ instead of a binary heap implemented with \tcode{std::priority_queue}.
                         \lstinline{on_examine_vertex}, \lstinline{on_finish_vertex}, \lstinline{on_examine_edge},
                         \lstinline{on_edge_relaxed}, and \lstinline{on_edge_not_relaxed}.
             \end{itemize}
-      %\pnum\result
+      \pnum\postconditions
+            \begin{itemize}
+                  \item \lstinline{distances[s] == 0} for all sources \lstinline{s}.
+                  \item For every reachable vertex \lstinline{v}, \lstinline{distances[v]} contains the
+                        shortest distance from the nearest source.
+                  \item For every reachable vertex \lstinline{v}, \lstinline{predecessor[v]} contains the
+                        predecessor on a shortest path tree.
+                  \item For every unreachable vertex \lstinline{v},
+                        \lstinline{distances[v] == numeric_limits<vertex_property_map_value_t<Distances>>::max()}.
+            \end{itemize}
       %\pnum\returns \lstinline{void} \\
+      \pnum\throws
+            \begin{itemize}
+                  \item \lstinline{std::out_of_range} if any source vertex ID is not in \lstinline{vertices(g)}.
+                  \item \lstinline{std::out_of_range} if a negative edge weight is encountered
+                        (for signed weight types).
+                  \item Any exception thrown by \lstinline{visitor} callbacks is propagated.
+                  \item \textbf{Exception guarantee:} Basic --- \lstinline{g} remains unchanged;
+                        \lstinline{distances} and \lstinline{predecessor} may be partially modified.
+            \end{itemize}
       \pnum\complexity
             \begin{itemize}
                   \item \textbf{Time:} $\mathcal{O}((|E| + |V|)\log{|V|})$ based on using the binary heap in \tcode{std::priority_queue}.
@@ -717,16 +786,17 @@ giving a small performance improvement with lower memory overhead.
 }
 
 \begin{itemdescr}
-      \pnum\hardprecond
+      \pnum\mandates
             \begin{itemize}
-                  \item \lstinline{source} is a valid vertex ID in \lstinline{g} for the single-source version.
-                  \item \lstinline{distances} contains an entry for each vertex of \lstinline{g}.
+                  \item \tcode{G} satisfies \tcode{adjacency_list<G>}.
+                  \item \tcode{Distances} satisfies \tcode{vertex_property_map_for<Distances, G>}
+                        with \tcode{is_arithmetic_v<vertex_property_map_value_t<Distances>>}.
+                  \item \tcode{WF} satisfies \tcode{basic_edge_weight_function<G, WF, vertex_property_map_value_t<Distances>, Compare, Combine>}.
             \end{itemize}
-      \pnum\throws
+      \pnum\constantwhen
             \begin{itemize}
-                  \item \lstinline{std::out_of_range} if any source vertex ID is not in \lstinline{vertices(g)}.
-                  \item \lstinline{std::out_of_range} if a negative edge weight is encountered
-                        (for signed weight types).
+                  \item All operations on the distance and weight types
+                        are constant subexpressions, and no visitor callback throws.
             \end{itemize}
       \pnum\preconditions
             \begin{itemize}
@@ -738,6 +808,11 @@ giving a small performance improvement with lower memory overhead.
                   \item
                         The weight function \lstinline{weight} must return a non-negative value.
             \end{itemize}
+      \pnum\hardprecond
+            \begin{itemize}
+                  \item \lstinline{source} is a valid vertex ID in \lstinline{g} for the single-source version.
+                  \item \lstinline{distances} contains an entry for each vertex of \lstinline{g}.
+            \end{itemize}
       \pnum\effects
             \begin{itemize}
                   \item
@@ -745,12 +820,31 @@ giving a small performance improvement with lower memory overhead.
                         \lstinline{distances[i]} will contain the distance from \lstinline{source} to vertex
                         \lstinline{i}.  Otherwise \lstinline{distances[i]} will contain
                         \lstinline{shortest_path_infinite_distance()}.
+                  \item Does not modify the graph \lstinline{g}.
                   \item Member functions on the \lstinline{visitor} parameter are called during the algorithm's execution.
                         The functions are optional and, when included, must follow the visitor concepts for the events.
                         No overhead is incurred if the functions are not included.
                         The events supported are \lstinline{on_initialize_vertex}, \lstinline{on_discover_vertex},
                         \lstinline{on_examine_vertex}, \lstinline{on_finish_vertex}, \lstinline{on_examine_edge},
                         \lstinline{on_edge_relaxed}, and \lstinline{on_edge_not_relaxed}.
+            \end{itemize}
+      \pnum\postconditions
+            \begin{itemize}
+                  \item \lstinline{distances[s] == 0} for all sources \lstinline{s}.
+                  \item For every reachable vertex \lstinline{v}, \lstinline{distances[v]} contains the
+                        shortest distance from the nearest source.
+                  \item For every unreachable vertex \lstinline{v},
+                        \lstinline{distances[v] == numeric_limits<vertex_property_map_value_t<Distances>>::max()}.
+            \end{itemize}
+      %\pnum\returns \lstinline{void} \\
+      \pnum\throws
+            \begin{itemize}
+                  \item \lstinline{std::out_of_range} if any source vertex ID is not in \lstinline{vertices(g)}.
+                  \item \lstinline{std::out_of_range} if a negative edge weight is encountered
+                        (for signed weight types).
+                  \item Any exception thrown by \lstinline{visitor} callbacks is propagated.
+                  \item \textbf{Exception guarantee:} Basic --- \lstinline{g} remains unchanged;
+                        \lstinline{distances} may be partially modified.
             \end{itemize}
       %\pnum\result
       %\pnum\returns \lstinline{void} \\
@@ -823,15 +917,18 @@ get the vertex ids of the negative weight cycle.
 }
 
 \begin{itemdescr}
-      \pnum\hardprecond
+      \pnum\mandates
             \begin{itemize}
-                  \item \lstinline{source} is a valid vertex ID in \lstinline{g} for the single-source version.
-                  \item \lstinline{distances} contains an entry for each vertex of \lstinline{g}.
-                  \item \lstinline{predecessor} contains an entry for each vertex of \lstinline{g}.
+                  \item \tcode{G} satisfies \tcode{adjacency_list<G>}.
+                  \item \tcode{Distances} satisfies \tcode{vertex_property_map_for<Distances, G>}
+                        with \tcode{is_arithmetic_v<vertex_property_map_value_t<Distances>>}.
+                  \item \tcode{Predecessors} satisfies \tcode{vertex_property_map_for<Predecessors, G>}.
+                  \item \tcode{WF} satisfies \tcode{basic_edge_weight_function<G, WF, vertex_property_map_value_t<Distances>, Compare, Combine>}.
             \end{itemize}
-      \pnum\throws
+      \pnum\constantwhen
             \begin{itemize}
-                  \item \lstinline{std::out_of_range} if any source vertex ID is not in \lstinline{vertices(g)}.
+                  \item All operations on the distance, predecessor, and weight types
+                        are constant subexpressions, and no visitor callback throws.
             \end{itemize}
       \pnum\preconditions
             \begin{itemize}
@@ -842,6 +939,12 @@ get the vertex ids of the negative weight cycle.
                         \lstinline{distances[vid] = shortest_path_infinite_distance()} for every vertex \lstinline{vid} in \lstinline{g}.
                   \item
                         \lstinline{predecessors[vid] = vid} for every vertex \lstinline{vid} in \lstinline{g}.
+            \end{itemize}
+      \pnum\hardprecond
+            \begin{itemize}
+                  \item \lstinline{source} is a valid vertex ID in \lstinline{g} for the single-source version.
+                  \item \lstinline{distances} contains an entry for each vertex of \lstinline{g}.
+                  \item \lstinline{predecessor} contains an entry for each vertex of \lstinline{g}.
             \end{itemize}
       \pnum\effects
             \begin{itemize}
@@ -855,19 +958,36 @@ get the vertex ids of the negative weight cycle.
                         from vertex \lstinline{source}, then \lstinline{predecessors[i]} will contain the
                         predecessor vertex of vertex \lstinline{i}. Otherwise \lstinline{predecessors[i]} will contain
                         \lstinline{i}.
+                  \item Does not modify the graph \lstinline{g}.
                   \item Member functions on the \lstinline{visitor} parameter are called during the algorithm's execution.
                         The functions are optional and, when included, must follow the visitor concepts for the events.
                         No overhead is incurred if the functions are not included.
                         The events supported are \lstinline{on_examine_edge}, \lstinline{on_edge_relaxed}, \lstinline{on_edge_not_relaxed},
                         \lstinline{on_edge_minimized}, and \lstinline{on_edge_not_minimized}.
             \end{itemize}
-      %\pnum\result
+      \pnum\postconditions
+            \begin{itemize}
+                  \item \lstinline{distances[s] == 0} for all sources \lstinline{s}.
+                  \item If no negative cycle is detected: for every reachable vertex \lstinline{v},
+                        \lstinline{distances[v]} contains the shortest distance from the nearest source.
+                  \item If a negative cycle is detected, \lstinline{distances} and \lstinline{predecessors}
+                        may contain intermediate values.
+                  \item For every unreachable vertex \lstinline{v},
+                        \lstinline{distances[v] == numeric_limits<vertex_property_map_value_t<Distances>>::max()}.
+            \end{itemize}
       \pnum\returns 
             \begin{itemize}
                   \item \lstinline{optional<vertex_id_t<G>>} If no negative weight cycle is found, 
                         there is no associated vertex id. If a negative weight cycle is found, a
                         vertex id in the cycle is returned. \lstinline{find_negative_cycle}
                         can be called to get the vertex ids of the cycle.
+                  \item Attribute: \lstinline{[[nodiscard]]}.
+            \end{itemize}
+      \pnum\throws
+            \begin{itemize}
+                  \item \lstinline{std::out_of_range} if any source vertex ID is not in \lstinline{vertices(g)}.
+                  \item \textbf{Exception guarantee:} Basic --- \lstinline{g} remains unchanged;
+                        \lstinline{distances} and \lstinline{predecessors} may be partially modified.
             \end{itemize}
       \pnum\complexity
             \begin{itemize}
@@ -904,16 +1024,17 @@ giving a small performance improvement with lower memory overhead.
 }
 
 \begin{itemdescr}
-      \pnum\hardprecond
+      \pnum\mandates
             \begin{itemize}
-                  \item
-                        \lstinline{source} is a valid vertex ID in \lstinline{g} for the single-source version.
-                  \item
-                        \lstinline{distances} contains an entry for each vertex of \lstinline{g}.
+                  \item \tcode{G} satisfies \tcode{adjacency_list<G>}.
+                  \item \tcode{Distances} satisfies \tcode{vertex_property_map_for<Distances, G>}
+                        with \tcode{is_arithmetic_v<vertex_property_map_value_t<Distances>>}.
+                  \item \tcode{WF} satisfies \tcode{basic_edge_weight_function<G, WF, vertex_property_map_value_t<Distances>, Compare, Combine>}.
             \end{itemize}
-      \pnum\throws
+      \pnum\constantwhen
             \begin{itemize}
-                  \item \lstinline{std::out_of_range} if any source vertex ID is not in \lstinline{vertices(g)}.
+                  \item All operations on the distance and weight types
+                        are constant subexpressions, and no visitor callback throws.
             \end{itemize}
       \pnum\preconditions
             \begin{itemize}
@@ -923,6 +1044,13 @@ giving a small performance improvement with lower memory overhead.
                   \item
                         \lstinline{distances[vid] = shortest_path_infinite_distance()} for every vertex \lstinline{vid} in \lstinline{g}.
             \end{itemize}
+      \pnum\hardprecond
+            \begin{itemize}
+                  \item
+                        \lstinline{source} is a valid vertex ID in \lstinline{g} for the single-source version.
+                  \item
+                        \lstinline{distances} contains an entry for each vertex of \lstinline{g}.
+            \end{itemize}
       \pnum\effects
             \begin{itemize}
                   \item
@@ -930,13 +1058,21 @@ giving a small performance improvement with lower memory overhead.
                         \lstinline{distances[i]} will contain the distance from \lstinline{source} to vertex
                         \lstinline{i}.  Otherwise \lstinline{distances[i]} will contain
                         \lstinline{shortest_path_infinite_distance()}.
+                  \item Does not modify the graph \lstinline{g}.
                   \item Member functions on the \lstinline{visitor} parameter are called during the algorithm's execution.
                         The functions are optional and, when included, must follow the visitor concepts for the events.
                         No overhead is incurred if the functions are not included.
                         The events supported are \lstinline{on_examine_edge}, \lstinline{on_edge_relaxed}, \lstinline{on_edge_not_relaxed},
                         \lstinline{on_edge_minimized}, and \lstinline{on_edge_not_minimized}.
             \end{itemize}
-      %\pnum\result
+      \pnum\postconditions
+            \begin{itemize}
+                  \item \lstinline{distances[s] == 0} for all sources \lstinline{s}.
+                  \item If no negative cycle is detected: for every reachable vertex \lstinline{v},
+                        \lstinline{distances[v]} contains the shortest distance from the nearest source.
+                  \item For every unreachable vertex \lstinline{v},
+                        \lstinline{distances[v] == numeric_limits<vertex_property_map_value_t<Distances>>::max()}.
+            \end{itemize}
       \pnum\returns 
             \begin{itemize}
                   \item \lstinline{optional<vertex_id_t<G>>} If no negative weight cycle is found, 
@@ -944,23 +1080,30 @@ giving a small performance improvement with lower memory overhead.
                         vertex id in the cycle is returned. \lstinline{bellman_ford_shortest_paths} must be used
                         to get the predecessors if it is important to get the vertex ids of the cycle
                         using \lstinline{find_negative_cycle}.
+                  \item Attribute: \lstinline{[[nodiscard]]}.
+            \end{itemize}
+      \pnum\throws
+            \begin{itemize}
+                  \item \lstinline{std::out_of_range} if any source vertex ID is not in \lstinline{vertices(g)}.
+                  \item \textbf{Exception guarantee:} Basic --- \lstinline{g} remains unchanged;
+                        \lstinline{distances} may be partially modified.
             \end{itemize}
       \pnum\complexity
             \begin{itemize}
                   \item \textbf{Time:} $\mathcal{O}(|E| \cdot |V|)$. Complexity may also be affected when visitor events are called.
                   \item \textbf{Space:} $\mathcal{O}(1)$ auxiliary beyond caller-provided arrays.
             \end{itemize}
-            \pnum\remarks 
-                  \begin{itemize}
-                        \item Duplicate sources do not affect the algorithm's complexity or correctness.
-                        \item Unlike Dijkstra's algorithm, Bellman-Ford allows negative edge weights.
-                              Performance constraints limit this to smaller graphs.
-                        \item \lstinline{distances} must satisfy \lstinline{vertex_property_map_for<M,G>}
-                              (see §\textit{Vertex Property Map Concept}).
-                              For index graphs, \lstinline{std::vector<T>} with \lstinline{size() >= num_vertices(g)}
-                              satisfies this requirement.
-                              For mapped graphs, use \lstinline{make_vertex_property_map<G,T>(g, init)}.
-                  \end{itemize}
+      \pnum\remarks 
+            \begin{itemize}
+                  \item Duplicate sources do not affect the algorithm's complexity or correctness.
+                  \item Unlike Dijkstra's algorithm, Bellman-Ford allows negative edge weights.
+                        Performance constraints limit this to smaller graphs.
+                  \item \lstinline{distances} must satisfy \lstinline{vertex_property_map_for<M,G>}
+                        (see §\textit{Vertex Property Map Concept}).
+                        For index graphs, \lstinline{std::vector<T>} with \lstinline{size() >= num_vertices(g)}
+                        satisfies this requirement.
+                        For mapped graphs, use \lstinline{make_vertex_property_map<G,T>(g, init)}.
+            \end{itemize}
       %\pnum\errors
 \end{itemdescr}
 
@@ -974,7 +1117,12 @@ not evaluate predecessors.
       \lstinputlisting{D3128_Algorithms/src/find_negative_cycle.hpp}
 }
 \begin{itemdescr}
-      %\pnum\mandates
+      \pnum\mandates
+            \begin{itemize}
+                  \item \tcode{G} satisfies \tcode{adjacency_list<G>}.
+                  \item \tcode{Predecessors} satisfies \tcode{forward_range}.
+                  \item \tcode{OutputIterator} satisfies \tcode{output_iterator<OutputIterator, vertex_id_t<G>>}.
+            \end{itemize}
       \pnum\preconditions
             \begin{itemize}
                   \item \lstinline{predecessors} must be evaluated by \lstinline{bellman_ford_shortest_paths}.
@@ -1064,10 +1212,10 @@ Count the number of triangles (3-cliques) in an undirected graph with sorted adj
       %\pnum\result
       \pnum\returns 
             \begin{itemize}
-                  \item The total number of triangles in the graph.
+                  \item \lstinline{[[nodiscard]]}. The total number of triangles in the graph.
                   \item Returns 0 for empty graphs or graphs with fewer than 3 vertices.
             \end{itemize}
-      %\pnum\throws
+      \pnum\throws This function is \tcode{noexcept}.
       \pnum\complexity
             \begin{itemize}
                   \item \textbf{Time:} $\mathcal{O}(m^{3/2})$ average, where $m = |E|$. Best case
@@ -1143,9 +1291,9 @@ $u \rightarrow v$, $v \rightarrow w$, and $u \rightarrow w$ all exist.
       %\pnum\result
       \pnum\returns 
             \begin{itemize}
-                  \item The total number of directed 3-cycles in the graph.
+                  \item \lstinline{[[nodiscard]]}. The total number of directed 3-cycles in the graph.
             \end{itemize}
-      %\pnum\throws
+      \pnum\throws This function is \tcode{noexcept}.
       \pnum\complexity
             \begin{itemize}
                   \item \textbf{Time:} $\mathcal{O}(m^{3/2})$ average, where $m = |E|$. Worst case
@@ -1350,8 +1498,17 @@ rooted at $v$ via back-edges. A vertex $u$ is an articulation point under one of
 \end{itemdescr}
 
 \subsection{BiConnected Components}
-Find the biconnected components, or maximal biconnected subgraphs of a graph, which are components that 
-will remain connected if a vertex is removed. Time complexity based on Hopcroft-Tarjan algorithm.
+Find the biconnected components of a graph. A biconnected component (also called a
+2-connected component) is a maximal biconnected subgraph --- one that is connected and has
+no articulation points. Equivalently, any two vertices in a biconnected component lie on a
+common simple cycle.
+
+The algorithm extends the Hopcroft-Tarjan DFS with an explicit edge stack. During the DFS,
+each tree edge and back edge is pushed onto the edge stack. When a biconnected-component
+boundary is detected on backtrack (i.e., \tcode{low[v]} $\geq$ \tcode{disc[u]} for child $v$
+and parent $u$), the edge stack is popped down to and including edge $(u,v)$ and the unique
+vertex IDs from those edges form one biconnected component. Isolated vertices are emitted as
+trivial single-vertex components. Articulation-point vertices appear in more than one component.
 
 \begin{table}[ht]
 \setcellgapes{3pt}
@@ -1363,42 +1520,66 @@ will remain connected if a vertex is removed. Time complexity based on Hopcroft-
             \textbf{Complexity} \\
                   $\mathcal{O}(|E|+|V|)$
             }
-      & \textbf{Directed?} Yes & \textbf{Cycles?} Yes & \textbf{Throws?} No \\
-      & \textbf{Multi-edge?} No & \textbf{Self-loops} Yes & \\
+      & \textbf{Directed?} Yes & \textbf{Cycles?} Yes & \textbf{Throws?} Yes \\
+      & \textbf{Multi-edge?} Yes & \textbf{Self-loops} Yes & \\
 \hline
 \end{tabular}
 %\caption{Algorithm Example}
 \end{table}
 
 {\small
-     \lstinputlisting[firstline=11,lastline=16]{D3128_Algorithms/src/connected_components.hpp}
+     \lstinputlisting[firstline=11,lastline=12]{D3128_Algorithms/src/connected_components.hpp}
 }
 
-\phil{\tcode{push_back}, \tcode{push_front} and \tcode{insert} are all valid ways to add to containers that support forward\_range,
-      depending on the specific container type. Are all supported?}
-
-\phil{I think \tcode{convertible_to<...,vertex_id<G>>} would be better than \tcode{integral<...>} because it will catch truncation when 
-      assigning vertex\_id to smaller ints in the inner container.}
-
 \begin{itemdescr}
-      %\pnum\mandates
+      \pnum\mandates
+            \begin{itemize}
+                  \item \tcode{G} satisfies \tcode{adjacency_list<G>}.
+                  \item \tcode{OuterContainer} supports \tcode{push_back} with an inner container
+                        type constructible from a pair of iterators over \tcode{vertex_id_t<G>}.
+            \end{itemize}
       \pnum\preconditions
             \begin{itemize}
-                  \item \lstinline{components} is a container of containers. The inner container stores vertex ids.
+                  \item For undirected semantics, each edge $\{u,v\}$ must be stored as both $(u,v)$
+                        and $(v,u)$ in \lstinline{g}.
             \end{itemize}
       \pnum\effects
             \begin{itemize}
-                  \item \lstinline{components} contains groups of biconnected components.
+                  \item Performs an iterative Hopcroft-Tarjan DFS over all vertices.
+                  \item For each biconnected component detected, one inner container of vertex IDs
+                        is \tcode{push_back}'d into \tcode{components}.
+                  \item Isolated vertices (degree~0) are emitted as trivial single-vertex components.
+                  \item Every vertex appears in at least one component; articulation-point vertices
+                        appear in more than one component.
+                  \item Self-loops are ignored and do not affect component detection.
+                  \item Multi-edges: only the first reverse edge to the DFS parent is treated as
+                        the tree edge; additional parallel edges are treated as back-edges.
+                  \item \lstinline{g} is not modified.
             \end{itemize}
       %\pnum\result
       %\pnum\returns
-      %\pnum\throws
+      \pnum\throws
+            \begin{itemize}
+                  \item \lstinline{std::bad_alloc} from internal vector, set, or stack allocations.
+                  \item \textbf{Exception guarantee:} Basic --- \lstinline{g} remains unchanged;
+                        \lstinline{components} may be partially written.
+            \end{itemize}
       \pnum\complexity
             \begin{itemize}
-                  \item \textbf{Time:} $\mathcal{O}(|E|+|V|)$.
-                  \item \textbf{Space:} $\mathcal{O}(|V|)$ auxiliary --- DFS stack and bookkeeping arrays.
+                  \item \textbf{Time:} $\mathcal{O}(|V|+|E|)$ --- each vertex and edge is visited exactly once.
+                  \item \textbf{Space:} $\mathcal{O}(|V|+|E|)$ auxiliary --- discovery/low-link arrays
+                        and parent map ($\mathcal{O}(|V|)$), DFS frame stack ($\mathcal{O}(|V|)$),
+                        and edge stack ($\mathcal{O}(|E|)$).
             \end{itemize}
-      %\pnum\remarks 
+      \pnum\remarks
+            \begin{itemize}
+                  \item There is no ordering guarantee on the components or on vertex IDs within
+                        a component.
+                  \item Disconnected graphs are handled correctly; the outer loop restarts DFS
+                        from each unvisited vertex.
+                  \item The implementation uses iterative DFS with stored edge iterators to avoid
+                        recursion-depth limits and $\mathcal{O}(\text{degree})$ re-scans on resume.
+            \end{itemize}
       %\pnum\errors
 \end{itemdescr}
 
@@ -1428,7 +1609,11 @@ Find weakly connected components of a graph. Weakly connected components are sub
 }
 
 \begin{itemdescr}
-      %\pnum\mandates
+      \pnum\mandates
+            \begin{itemize}
+                  \item \tcode{G} satisfies \tcode{adjacency_list<G>}.
+                  \item \tcode{Component} satisfies \tcode{vertex_property_map_for<Component, G>}.
+            \end{itemize}
       \pnum\preconditions
             \begin{itemize}
                   \item
@@ -1488,19 +1673,24 @@ parallel execution.
 }
 
 \begin{itemdescr}
-      %\pnum\mandates
-      \pnum\hardprecond
+      \pnum\mandates
             \begin{itemize}
-                  \item
-                        \lstinline{component} contains an entry for each vertex of \lstinline{g}.
-                  \item
-                        \lstinline{num_vertices(g) == num_vertices(g_t)} for the two-graph overload.
+                  \item \tcode{G} satisfies \tcode{adjacency_list<G>}.
+                  \item \tcode{Component} satisfies \tcode{vertex_property_map_for<Component, G>}.
+                  \item \tcode{vertex_property_map_value_t<Component>} is convertible to and from \tcode{vertex_id_t<G>}.
             \end{itemize}
       \pnum\preconditions
             \begin{itemize}
                   \item
                         For the two-graph overload, \lstinline{g_t} is the transpose of \lstinline{g},
                         where edge \lstinline{uv} in \lstinline{g} implies edge \lstinline{vu} in \lstinline{g_t}.
+            \end{itemize}
+      \pnum\hardprecond
+            \begin{itemize}
+                  \item
+                        \lstinline{component} contains an entry for each vertex of \lstinline{g}.
+                  \item
+                        \lstinline{num_vertices(g) == num_vertices(g_t)} for the two-graph overload.
             \end{itemize}
       \pnum\effects
             \begin{itemize}
@@ -1557,18 +1747,22 @@ Find strongly connected components of a graph using Kosaraju's algorithm. Strong
 }
 
 \begin{itemdescr}
-      %\pnum\mandates
+      \pnum\mandates
+            \begin{itemize}
+                  \item \tcode{G} satisfies \tcode{adjacency_list<G>}.
+                  \item \tcode{Component} satisfies \tcode{vertex_property_map_for<Component, G>}.
+            \end{itemize}
+      \pnum\preconditions
+            \begin{itemize}
+                  \item
+                        For the two-graph overload, \lstinline{g_t} is the transpose of \lstinline{g}, where edge \lstinline{uv} in \lstinline{g} implies edge \lstinline{vu} in \lstinline{g_t}.
+            \end{itemize}
       \pnum\hardprecond
             \begin{itemize}
                   \item
                         \lstinline{num_vertices(g) == num_vertices(g_t)} for the two-graph overload.
                   \item
                         \lstinline{component} contains an entry for each vertex of \lstinline{g}.
-            \end{itemize}
-      \pnum\preconditions
-            \begin{itemize}
-                  \item
-                        For the two-graph overload, \lstinline{g_t} is the transpose of \lstinline{g}, where edge \lstinline{uv} in \lstinline{g} implies edge \lstinline{vu} in \lstinline{g_t}.
             \end{itemize}
       \pnum\effects
             \begin{itemize}
@@ -1626,23 +1820,22 @@ Find a maximally independent set of vertices in a graph starting from a source v
       \lstinputlisting{D3128_Algorithms/src/mis.hpp}
 }
 \begin{itemdescr}
-      %\pnum\mandates
       \pnum\mandates
             \begin{itemize}
-                  \item
-                        The \tcode{value_type} for the \lstinline{mis} output iterator is convertible to \lstinline{vertex_id_t<G>}.
-      \end{itemize}
+                  \item \tcode{G} satisfies \tcode{adjacency_list<G>}.
+                  \item \tcode{Iter} satisfies \tcode{output_iterator<Iter, vertex_id_t<G>>}.
+            \end{itemize}
       \pnum\hardprecond
             \begin{itemize}
                   \item
                         \lstinline{0 <= seed < num_vertices(graph)}.
-      \end{itemize}
+            \end{itemize}
       \pnum\effects
             \begin{itemize}
                   \item
                         Output iterator \lstinline{mis} contains the maximal independent set of vertices that
                         includes \lstinline{seed}, which is a subset of \lstinline{vertices(graph)}.
-      \end{itemize}
+            \end{itemize}
       %\pnum\result
       \pnum\returns The number of vertices in the maximal independent set.
       %\pnum\throws
@@ -1686,7 +1879,11 @@ Calculate the Jaccard coefficient of a graph
 as to whether the edge reference is useful by the consumer or not (e.g. basic\_ vs. regular versions).}
 
 \begin{itemdescr}
-      %\pnum\mandates
+      \pnum\mandates
+            \begin{itemize}
+                  \item \tcode{G} satisfies \tcode{adjacency_list<G>}.
+                  \item \tcode{OutOp} satisfies \tcode{invocable<OutOp, vertex_id_t<G>, vertex_id_t<G>, edge_t<G>\&, T>}.
+            \end{itemize}
       \pnum\preconditions
             \begin{itemize}
                   \item 
@@ -1738,7 +1935,11 @@ Find the minimum weight spanning tree of a graph using Kruskal's algorithm.
       \lstinputlisting[firstline=4,lastline=8]{D3128_Algorithms/src/mst.hpp}
 }
 \begin{itemdescr}
-      %\pnum\mandates
+      \pnum\mandates
+            \begin{itemize}
+                  \item \tcode{IELR} satisfies \tcode{x_index_edgelist_range}.
+                  \item \tcode{OELR} satisfies \tcode{x_index_edgelist_range}.
+            \end{itemize}
       \pnum\preconditions
             \begin{itemize}
                   %\item
@@ -1791,11 +1992,11 @@ rather than making a copy.  The input range must satisfy \lstinline{permutable<i
       \lstinputlisting[firstline=13,lastline=19]{D3128_Algorithms/src/mst.hpp}
 }
 \begin{itemdescr}
-      %\pnum\mandates
-      \pnum\hardprecond
+      \pnum\mandates
             \begin{itemize}
-                  \item
-                        \lstinline{e} must be a mutable range whose iterators satisfy \lstinline{permutable}.
+                  \item \tcode{IELR} satisfies \tcode{x_index_edgelist_range}.
+                  \item \tcode{OELR} satisfies \tcode{x_index_edgelist_range}.
+                  \item \tcode{iterator_t<IELR>} satisfies \tcode{permutable}.
             \end{itemize}
       \pnum\preconditions
             \begin{itemize}
@@ -1855,8 +2056,18 @@ Delegates to \lstinline{dijkstra_shortest_paths} with a projecting combine funct
 \begin{itemdescr}
       \pnum\mandates
             \begin{itemize}
+                  \item \tcode{G} satisfies \tcode{adjacency_list<G>}.
+                  \item \tcode{Predecessor} satisfies \tcode{vertex_property_map_for<Predecessor, G>}.
+                  \item \tcode{Weight} satisfies \tcode{vertex_property_map_for<Weight, G>}.
+                  \item \tcode{WF} satisfies
+                        \tcode{basic_edge_weight_function<G, WF, vertex_property_map_value_t<Weight>, CompareOp,}
+                        \tcode{plus<vertex_property_map_value_t<Weight>>>}.
+                  \item \lstinline{compare} is a valid strict weak ordering on values of type \lstinline{vertex_property_map_value_t<Weight>}.
+            \end{itemize}
+      \pnum\preconditions
+            \begin{itemize}
                   \item
-                        \lstinline{compare} is a valid strict weak ordering on values of type \lstinline{vertex_property_map_value_t<Weight>}.
+                        When \lstinline{weight_fn} is omitted, the default is \lstinline{edge_value(g, uv)}.
             \end{itemize}
       \pnum\hardprecond
             \begin{itemize}
@@ -1869,14 +2080,6 @@ Delegates to \lstinline{dijkstra_shortest_paths} with a projecting combine funct
                   \item
                         \lstinline{weight} and \lstinline{predecessor} have been initialized before calling
                         (e.g.\ via \lstinline{init_shortest_paths(g, weight, predecessor)}).
-            \end{itemize}
-      \pnum\preconditions
-            \begin{itemize}
-                  \item
-                        \lstinline{weight_fn} must satisfy
-                        \lstinline{basic_edge_weight_function<G, WF, vertex_property_map_value_t<Weight>, CompareOp,}
-                        \lstinline{plus<vertex_property_map_value_t<Weight>>>}.
-                        When omitted, the default is \lstinline{edge_value(g, uv)}.
             \end{itemize}
       \pnum\effects
             \begin{itemize}
