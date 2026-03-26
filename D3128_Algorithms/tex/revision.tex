@@ -80,4 +80,8 @@
                   \item Link Analysis: Jaccard Coefficient.
                   \item Minimum Spanning Tree: Kruskal, Inplace Kruskal, and Prim.
             \end{itemize}
+      \item Replace raw container (range) predecessor and distance parameters with function objects
+            (\tcode{PredecessorFn}, \tcode{DistanceFn}) constrained by new \tcode{predecessor_fn_for} and
+            \tcode{distance_fn_for} concepts, enabling flexible storage strategies for per-vertex properties.
+            Add \tcode{container_value_fn} adaptor and \tcode{_null_predecessor} sentinel for convenience.
 \end{itemize}
