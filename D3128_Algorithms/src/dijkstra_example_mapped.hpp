@@ -16,14 +16,18 @@ G g({{"a", "b", 4.0}, {"a", "c", 2.0},
 
 constexpr double inf = std::numeric_limits<double>::max();
 
-auto dist = make_vertex_property_map<G, double>(g, inf);
-auto pred = make_vertex_property_map<G, vertex_id_t<G>>(g, vertex_id_t<G>{});
-for (auto&& [uid, u] : views::vertexlist(g))
-    pred[uid] = uid;
+std::unordered_map<std::string, double>      dist_map;
+std::unordered_map<std::string, std::string> pred_map;
+for (auto&& [uid, u] : views::vertexlist(g)) {
+    dist_map[uid] = inf;
+    pred_map[uid] = uid;
+}
 
-dijkstra_shortest_paths(g, std::string{"a"}, dist, pred,
+dijkstra_shortest_paths(g, std::string{"a"},
+    [&dist_map](const auto&, const auto& uid) -> double& { return dist_map[uid]; },
+    [&pred_map](const auto&, const auto& uid) -> std::string& { return pred_map[uid]; },
     [](const auto& g, const edge_t<G>& e) { return edge_value(g, e); });
 
 // Shortest a to d: a to c (2) to b (1) to d (5) = 8
-// dist["d"] == 8
+// dist\_map["d"] == 8
 

@@ -14,9 +14,9 @@ void biconnected_components(G&& g, OuterContainer& components);
 /*
  * Connected Components
  */
-template <adjacency_list G, class Component>
-requires vertex_property_map_for<Component, G>
-size_t connected_components(G&& g, Component& component);
+template <adjacency_list G, class ComponentFn>
+requires vertex_property_fn_for<ComponentFn, G>
+size_t connected_components(G&& g, ComponentFn&& component);
 
 /*
  * Afforest Connected Components
@@ -32,10 +32,10 @@ void afforest(G&& g, GT&& g_t, Component& component, const size_t neighbor_round
 /*
  * Kosaraju Strongly Connected Components
  */
-template <adjacency_list G, adjacency_list GT, class Component>
-requires vertex_property_map_for<Component, G>
-void kosaraju(G&& g, GT&& g_t, Component& component);
+template <adjacency_list G, adjacency_list GT, class ComponentFn>
+requires vertex_property_fn_for<ComponentFn, G>
+void kosaraju(G&& g, GT&& g_t, ComponentFn&& component);
 
-template <bidirectional_adjacency_list G, class Component>
-requires vertex_property_map_for<Component, G>
-void kosaraju(G&& g, Component& component);
+template <bidirectional_adjacency_list G, class ComponentFn>
+requires vertex_property_fn_for<ComponentFn, G>
+void kosaraju(G&& g, ComponentFn&& component);

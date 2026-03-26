@@ -145,23 +145,19 @@ Edge weights are intrinsic numeric type for the current proposal, but could be a
 \begin{lstlisting}
 // For exposition only
 template <class G, class WF, class DistanceValue, class Compare, class Combine>
-concept basic_edge_weight_function = // e.g. weight(uv)
-      edge_value_function<WF, std::remove_reference_t<G>, edge_t<G>> && 
+concept basic_edge_weight_function = // e.g. weight(g, uv)
+      edge_value_function<WF, std::remove_reference_t<G>, edge_t<G>> &&
       strict_weak_order<Compare, DistanceValue, DistanceValue> &&
       assignable_from<add_lvalue_reference_t<DistanceValue>,
-            invoke_result_t<Combine, DistanceValue, invoke_result_t<WF, edge_t<G>>>>;
+            invoke_result_t<Combine, DistanceValue,
+                  invoke_result_t<WF, const std::remove_reference_t<G>&, edge_t<G>>>>;
 
 // For exposition only
 template <class G, class WF, class DistanceValue>
-concept edge_weight_function = // e.g. weight(uv)
-      is_arithmetic_v<edge_value_function<WF, std::remove_reference_t<G>, edge_t<G>>> && 
-      is_arithmetic_v<DistanceValue> && 
-      is_arithmetic_v<invoke_result_t<WF, edge_t<G>>> &&
-      basic_edge_weight_function<G,
-                                  WF,
-                                  DistanceValue,
-                                  less<DistanceValue>,
-                                  plus<DistanceValue>>;
+concept edge_weight_function = // e.g. weight(g, uv)
+      is_arithmetic_v<DistanceValue> &&
+      is_arithmetic_v<invoke_result_t<WF, const std::remove_reference_t<G>&, edge_t<G>>> &&
+      basic_edge_weight_function<G, WF, DistanceValue, less<DistanceValue>, plus<DistanceValue>>;
 \end{lstlisting}
 
 \begin{comment}
@@ -199,55 +195,44 @@ concept ordered_vertex_edges = adjacency_list<G> &&
   };
 \end{lstlisting}
 
-\subsection{Vertex Property Map Concept}
-Algorithms that maintain per-vertex state (distances, predecessors, component labels, etc.)
-require a container indexed by vertex ID.  For index-based graphs a \tcode{vector} is natural;
-for mapped (key-based) graphs an \tcode{unordered_map} is required.
-The \tcode{vertex_property_map<G,T>} type alias (defined in [D3130]) selects the appropriate
-container automatically.
+\subsection{Vertex Property Function Concepts}
+Most algorithms maintain per-vertex state (distances, predecessors, component labels, etc.)
+through callable \emph{function objects} of the form
+\tcode{(const G\&, vertex\_id\_t<G>) -> value\&}.
+This function-first design is more flexible than direct container access: property values may
+reside in vertex properties, in external containers, or in any custom storage.
 
-Two additional utilities are defined here for use in algorithm \tcode{requires} clauses
-and algorithm bodies.
+The full definitions of all function concepts and helper types appear in the listing produced by
+the \emph{Initialization} section below (from \tcode{shortest\_paths\_helpers.hpp}).
 
-\subsubsection{\tcode{vertex_property_map_value_t}}
-\tcode{vertex_property_map_value_t<C>} extracts the stored value type from any vertex
-property map container:
-\begin{itemize}
-  \item \tcode{vector<T>} $\Rightarrow$ \tcode{T} (via \tcode{value_type})
-  \item \tcode{unordered_map<K,T>} $\Rightarrow$ \tcode{T} (via \tcode{mapped_type})
-\end{itemize}
+\subsubsection{\tcode{distance_fn_for} and \tcode{predecessor_fn_for}}
+\tcode{distance_fn_for<DF,G>} constrains the \tcode{DistanceFn} parameter passed to
+\tcode{dijkstra\_shortest\_paths}, \tcode{bellman\_ford\_shortest\_paths}, and \tcode{prim}.
+\tcode{predecessor_fn_for<PF,G>} constrains the corresponding \tcode{PredecessorFn} parameter.
+Both require the callable to return a mutable lvalue reference to the stored value.
+\tcode{distance_fn_value_t<DF,G>} extracts the distance scalar type from the function's return
+type.
 
-\begin{lstlisting}
-// For exposition only
-template <class Container>
-using vertex_property_map_value_t = /* value_type or mapped_type of Container */;
+\subsubsection{\tcode{vertex_property_fn_for} and \tcode{vertex_fn_value_t}}
+\tcode{vertex_property_fn_for<VF,G>} is the more general form used by
+\tcode{connected\_components}, \tcode{kosaraju}, and \tcode{label\_propagation}.
+\tcode{vertex_fn_value_t<VF,G>} extracts the corresponding value type.
+
+\subsubsection{\tcode{container_value_fn} Adaptor}
+\tcode{container_value_fn<Container>} adapts any subscriptable container into a property
+function, making it straightforward to reuse a \tcode{std::vector} or
+\tcode{std::unordered\_map}:
+\begin{lstlisting}[texcl=false]
+std::vector<double> dist_vec(num_vertices(g), infinite_distance<double>());
+auto dist_fn = container_value_fn{dist_vec}; // dist_fn(g, uid) -> dist_vec[uid] (by ref)
+dijkstra_shortest_paths(g, source, dist_fn, _null_predecessor, weight_fn);
 \end{lstlisting}
 
-\subsubsection{\tcode{vertex_property_map_for} Concept}
-\tcode{vertex_property_map_for<M,G>} constrains algorithm parameters such as
-\tcode{Distances} and \tcode{Predecessors}.  It requires subscript access by
-\tcode{vertex_id_t<G>}:
-
-\begin{lstlisting}
-// For exposition only
-template <class M, class G>
-concept vertex_property_map_for =
-    requires(M& m, const vertex_id_t<G>& uid) {
-      { m[uid] } -> convertible_to<vertex_property_map_value_t<M>>;
-    };
-\end{lstlisting}
-
-This concept is satisfied by:
-\begin{itemize}
-  \item \tcode{vector<T>} for index graphs (\tcode{vertex_id_t<G>} is integral)
-  \item \tcode{unordered_map<vertex_id_t<G>,T>} for mapped graphs
-  \item Any other subscriptable container keyed on \tcode{vertex_id_t<G>}
-\end{itemize}
-
-See [D3130] for the definitions of \tcode{vertex_property_map<G,T>},
-\tcode{make_vertex_property_map}, \tcode{vertex_property_map_contains},
-\tcode{vertex_property_map_get}, and the concepts \tcode{mapped_adjacency_list<G>},
-\tcode{hashable_vertex_id<G>}, and \tcode{mapped_vertex_range<G>}.
+\subsubsection{Legacy: \tcode{vertex_property_map_for} Concept}
+The container-subscript concept \tcode{vertex_property_map_for<M,G>} is retained for
+\tcode{afforest} and the \tcode{init\_shortest\_paths} helper functions, both of which take
+subscriptable containers directly.  It is satisfied by \tcode{std::vector<T>} for index graphs
+and \tcode{std::unordered\_map<vertex\_id\_t<G>,T>} for mapped graphs.
 
 \subsection{Visitor Concepts and Classes}
 Visitors are optional member functions on a user-defined class that are called during the execution of an algorithm. 
@@ -609,17 +594,18 @@ A linear ordering of vertices such that for every directed edge (u,v) from verte
       \pnum\effects
             \begin{itemize}
                   \item
-                        \lstinline{init_shortest_paths(distances)} sets all elements in \lstinline{distance} to \lstinline{shortest_path_infinite_distance()}
+                        \lstinline{init_shortest_paths(g, distances)} sets \lstinline{distances[v] = infinite_distance()}
+                        for each vertex \lstinline{v} in \lstinline{g}.
                   \item
-                        \lstinline{init_shortest_paths(distances,predecessors)} does the same as \lstinline{shortest_path_infinite_distance(distances)}
-                        and sets \lstinline{predecessors[i] = i} for \lstinline{i < size(predecessors)}.
+                        \lstinline{init_shortest_paths(g, distances, predecessors)} does the same and additionally
+                        sets \lstinline{predecessors[v] = v} for each vertex \lstinline{v} in \lstinline{g}.
             \end{itemize}
       \pnum\returns 
             \begin{itemize}
-                  \item \lstinline{shortest_path_infinite_distance()} returns the largest distance value,
-                        typically \lstinline{numeric_limits<DistanceValue>::max()} for numeric types.
-                  \item \lstinline{shortest_path_zero()} returns a value for a zero-length path,
-                        typically \lstinline{0} for numeric types.
+                  \item \lstinline{infinite_distance<T>()} returns the largest value of type \lstinline{T},
+                        typically \lstinline{numeric_limits<T>::max()} for numeric types.
+                  \item \lstinline{zero_distance<T>()} returns a zero-valued instance of type \lstinline{T},
+                        typically \lstinline{T()} for numeric types.
             \end{itemize}
 \end{itemdescr}
 
@@ -673,10 +659,10 @@ instead of a binary heap implemented with \tcode{std::priority_queue}.
       \pnum\mandates
             \begin{itemize}
                   \item \tcode{G} satisfies \tcode{adjacency_list<G>}.
-                  \item \tcode{Distances} satisfies \tcode{vertex_property_map_for<Distances, G>}
-                        with \tcode{is_arithmetic_v<vertex_property_map_value_t<Distances>>}.
-                  \item \tcode{Predecessors} satisfies \tcode{vertex_property_map_for<Predecessors, G>}.
-                  \item \tcode{WF} satisfies \tcode{basic_edge_weight_function<G, WF, vertex_property_map_value_t<Distances>, Compare, Combine>}.
+                  \item \tcode{DistanceFn} satisfies \tcode{distance_fn_for<DistanceFn, G>}
+                        with \tcode{is_arithmetic_v<distance_fn_value_t<DistanceFn, G>>}.
+                  \item \tcode{PredecessorFn} satisfies \tcode{predecessor_fn_for<PredecessorFn, G>}.
+                  \item \tcode{WF} satisfies \tcode{basic_edge_weight_function<G, WF, distance_fn_value_t<DistanceFn, G>, Compare, Combine>}.
             \end{itemize}
       \pnum\constantwhen
             \begin{itemize}
@@ -689,29 +675,27 @@ instead of a binary heap implemented with \tcode{std::priority_queue}.
                         Each \lstinline{source} in \lstinline{sources} is a valid vertex ID in \lstinline{g},
                         for the multi-source version.
                   \item
-                        \lstinline{distances[vid] = shortest_path_infinite_distance()} for every vertex \lstinline{vid} in \lstinline{g}.
+                        \lstinline{distance(g, vid) = infinite_distance()} for every vertex \lstinline{vid} in \lstinline{g}.
                   \item
-                        \lstinline{predecessors[vid] = vid} for every vertex \lstinline{vid} in \lstinline{g}.
+                        \lstinline{predecessor(g, vid) = vid} for every vertex \lstinline{vid} in \lstinline{g}.
                   \item
                         The weight function \lstinline{weight} must return a non-negative value.
             \end{itemize}
       \pnum\hardprecond
             \begin{itemize}
                   \item \lstinline{source} is a valid vertex ID in \lstinline{g} for the single-source version.
-                  \item \lstinline{distances} contains an entry for each vertex of \lstinline{g}.
-                  \item \lstinline{predecessor} contains an entry for each vertex of \lstinline{g}.
             \end{itemize}
       \pnum\effects
             \begin{itemize}
                   \item
                         If vertex with index \lstinline{i} is reachable from vertex \lstinline{source}, then
-                        \lstinline{distances[i]} will contain the distance from \lstinline{source} to vertex
-                        \lstinline{i}.  Otherwise \lstinline{distances[i]} will contain
-                        \lstinline{shortest_path_infinite_distance()}.
+                        \lstinline{distance(g, i)} will contain the distance from \lstinline{source} to vertex
+                        \lstinline{i}.  Otherwise \lstinline{distance(g, i)} will contain
+                        \lstinline{infinite_distance()}.
                   \item
                         If vertex with index \lstinline{i} is reachable
-                        from vertex \lstinline{source}, then \lstinline{predecessors[i]} will contain the
-                        predecessor vertex of vertex \lstinline{i}. Otherwise \lstinline{predecessors[i]} will contain
+                        from vertex \lstinline{source}, then \lstinline{predecessor(g, i)} will contain the
+                        predecessor vertex of vertex \lstinline{i}. Otherwise \lstinline{predecessor(g, i)} will contain
                         \lstinline{i}.
                   \item Does not modify the graph \lstinline{g}.
                   \item Member functions on the \lstinline{visitor} parameter are called during the algorithm's execution.
@@ -723,13 +707,13 @@ instead of a binary heap implemented with \tcode{std::priority_queue}.
             \end{itemize}
       \pnum\postconditions
             \begin{itemize}
-                  \item \lstinline{distances[s] == 0} for all sources \lstinline{s}.
-                  \item For every reachable vertex \lstinline{v}, \lstinline{distances[v]} contains the
+                  \item \lstinline{distance(g, s) == 0} for all sources \lstinline{s}.
+                  \item For every reachable vertex \lstinline{v}, \lstinline{distance(g, v)} contains the
                         shortest distance from the nearest source.
-                  \item For every reachable vertex \lstinline{v}, \lstinline{predecessor[v]} contains the
+                  \item For every reachable vertex \lstinline{v}, \lstinline{predecessor(g, v)} contains the
                         predecessor on a shortest path tree.
                   \item For every unreachable vertex \lstinline{v},
-                        \lstinline{distances[v] == numeric_limits<vertex_property_map_value_t<Distances>>::max()}.
+                        \lstinline{distance(g, v) == infinite_distance<distance_fn_value_t<DistanceFn,G>>()}.
             \end{itemize}
       %\pnum\returns \lstinline{void} \\
       \pnum\throws
@@ -751,22 +735,21 @@ instead of a binary heap implemented with \tcode{std::priority_queue}.
             \begin{itemize}
                   \item Duplicate sources do not affect the algorithm's complexity or correctness.
                   \item Bellman-Ford Shortest Paths allows negative weights with the consequence of greater complexity.
-                  \item \lstinline{distances} and \lstinline{predecessor} must satisfy
-                        \lstinline{vertex_property_map_for<M,G>} (see §\textit{Vertex Property Map Concept}).
-                        For index graphs, \lstinline{std::vector<T>} with \lstinline{size() >= num_vertices(g)}
-                        satisfies this requirement.
-                        For mapped graphs, use \lstinline{make_vertex_property_map<G,T>(g, init)}.
+                  \item \tcode{DistanceFn} and \tcode{PredecessorFn} must satisfy \tcode{distance_fn_for}
+                        and \tcode{predecessor_fn_for} respectively.  For index graphs, wrap a \tcode{std::vector}
+                        using \tcode{container_value_fn}; for mapped graphs, wrap a \tcode{std::unordered_map}
+                        the same way (see §\textit{Vertex Property Function Concepts}).
+                  \item Pass \lstinline{_null_predecessor} as \lstinline{predecessor} when predecessor tracking
+                        is not needed (avoids storing results).
             \end{itemize}
       %\pnum\errors
 \end{itemdescr}
 
 \paragraph{Example: Dijkstra on a Mapped Graph}
 The following example demonstrates \tcode{dijkstra_shortest_paths} on a graph whose
-vertex IDs are \tcode{std::string} values.  Because the graph satisfies
-\tcode{mapped_adjacency_list}, \tcode{make_vertex_property_map} allocates
-\tcode{std::unordered_map} instead of \tcode{std::vector} for the \tcode{distances}
-and \tcode{predecessor} maps.  All other algorithm code is identical to the
-index-graph case.
+vertex IDs are \tcode{std::string} values.  Lambda closures over \tcode{std::unordered_map}
+instances serve as the \tcode{DistanceFn} and \tcode{PredecessorFn} arguments.  All other
+algorithm code is identical to the index-graph case.
 {\small
       \lstinputlisting{D3128_Algorithms/src/dijkstra_example_mapped.hpp}
 }
@@ -789,9 +772,9 @@ giving a small performance improvement with lower memory overhead.
       \pnum\mandates
             \begin{itemize}
                   \item \tcode{G} satisfies \tcode{adjacency_list<G>}.
-                  \item \tcode{Distances} satisfies \tcode{vertex_property_map_for<Distances, G>}
-                        with \tcode{is_arithmetic_v<vertex_property_map_value_t<Distances>>}.
-                  \item \tcode{WF} satisfies \tcode{basic_edge_weight_function<G, WF, vertex_property_map_value_t<Distances>, Compare, Combine>}.
+                  \item \tcode{DistanceFn} satisfies \tcode{distance_fn_for<DistanceFn, G>}
+                        with \tcode{is_arithmetic_v<distance_fn_value_t<DistanceFn, G>>}.
+                  \item \tcode{WF} satisfies \tcode{basic_edge_weight_function<G, WF, distance_fn_value_t<DistanceFn, G>, Compare, Combine>}.
             \end{itemize}
       \pnum\constantwhen
             \begin{itemize}
@@ -804,22 +787,21 @@ giving a small performance improvement with lower memory overhead.
                         Each \lstinline{source} in \lstinline{sources} is a valid vertex ID in \lstinline{g},
                         for the multi-source version.
                   \item
-                        \lstinline{distances[vid] = shortest_path_infinite_distance()} for every vertex \lstinline{vid} in \lstinline{g}.
+                        \lstinline{distance(g, vid) = infinite_distance()} for every vertex \lstinline{vid} in \lstinline{g}.
                   \item
                         The weight function \lstinline{weight} must return a non-negative value.
             \end{itemize}
       \pnum\hardprecond
             \begin{itemize}
                   \item \lstinline{source} is a valid vertex ID in \lstinline{g} for the single-source version.
-                  \item \lstinline{distances} contains an entry for each vertex of \lstinline{g}.
             \end{itemize}
       \pnum\effects
             \begin{itemize}
                   \item
                         If vertex with index \lstinline{i} is reachable from vertex \lstinline{source}, then
-                        \lstinline{distances[i]} will contain the distance from \lstinline{source} to vertex
-                        \lstinline{i}.  Otherwise \lstinline{distances[i]} will contain
-                        \lstinline{shortest_path_infinite_distance()}.
+                        \lstinline{distance(g, i)} will contain the distance from \lstinline{source} to vertex
+                        \lstinline{i}.  Otherwise \lstinline{distance(g, i)} will contain
+                        \lstinline{infinite_distance()}.
                   \item Does not modify the graph \lstinline{g}.
                   \item Member functions on the \lstinline{visitor} parameter are called during the algorithm's execution.
                         The functions are optional and, when included, must follow the visitor concepts for the events.
@@ -830,11 +812,11 @@ giving a small performance improvement with lower memory overhead.
             \end{itemize}
       \pnum\postconditions
             \begin{itemize}
-                  \item \lstinline{distances[s] == 0} for all sources \lstinline{s}.
-                  \item For every reachable vertex \lstinline{v}, \lstinline{distances[v]} contains the
+                  \item \lstinline{distance(g, s) == 0} for all sources \lstinline{s}.
+                  \item For every reachable vertex \lstinline{v}, \lstinline{distance(g, v)} contains the
                         shortest distance from the nearest source.
                   \item For every unreachable vertex \lstinline{v},
-                        \lstinline{distances[v] == numeric_limits<vertex_property_map_value_t<Distances>>::max()}.
+                        \lstinline{distance(g, v) == infinite_distance<distance_fn_value_t<DistanceFn,G>>()}.
             \end{itemize}
       %\pnum\returns \lstinline{void} \\
       \pnum\throws
@@ -858,11 +840,9 @@ giving a small performance improvement with lower memory overhead.
             \begin{itemize}
                   \item Duplicate sources do not affect the algorithm's complexity or correctness.
                   \item Bellman-Ford Shortest Distances allows negative weights with the consequence of greater complexity.
-                  \item \lstinline{distances} must satisfy \lstinline{vertex_property_map_for<M,G>}
-                        (see §\textit{Vertex Property Map Concept}).
-                        For index graphs, \lstinline{std::vector<T>} with \lstinline{size() >= num_vertices(g)}
-                        satisfies this requirement.
-                        For mapped graphs, use \lstinline{make_vertex_property_map<G,T>(g, init)}.
+                  \item \tcode{DistanceFn} must satisfy \tcode{distance_fn_for<DistanceFn,G>}.  Wrap a
+                        \tcode{std::vector} or \tcode{std::unordered_map} with \tcode{container_value_fn}
+                        (see §\textit{Vertex Property Function Concepts}).
             \end{itemize}
       %\pnum\errors
 \end{itemdescr}
@@ -920,10 +900,10 @@ get the vertex ids of the negative weight cycle.
       \pnum\mandates
             \begin{itemize}
                   \item \tcode{G} satisfies \tcode{adjacency_list<G>}.
-                  \item \tcode{Distances} satisfies \tcode{vertex_property_map_for<Distances, G>}
-                        with \tcode{is_arithmetic_v<vertex_property_map_value_t<Distances>>}.
-                  \item \tcode{Predecessors} satisfies \tcode{vertex_property_map_for<Predecessors, G>}.
-                  \item \tcode{WF} satisfies \tcode{basic_edge_weight_function<G, WF, vertex_property_map_value_t<Distances>, Compare, Combine>}.
+                  \item \tcode{DistanceFn} satisfies \tcode{distance_fn_for<DistanceFn, G>}
+                        with \tcode{is_arithmetic_v<distance_fn_value_t<DistanceFn, G>>}.
+                  \item \tcode{PredecessorFn} satisfies \tcode{predecessor_fn_for<PredecessorFn, G>}.
+                  \item \tcode{WF} satisfies \tcode{basic_edge_weight_function<G, WF, distance_fn_value_t<DistanceFn, G>, Compare, Combine>}.
             \end{itemize}
       \pnum\constantwhen
             \begin{itemize}
@@ -936,27 +916,25 @@ get the vertex ids of the negative weight cycle.
                         Each \lstinline{source} in \lstinline{sources} is a valid vertex ID in \lstinline{g},
                         for the multi-source version.
                   \item
-                        \lstinline{distances[vid] = shortest_path_infinite_distance()} for every vertex \lstinline{vid} in \lstinline{g}.
+                        \lstinline{distance(g, vid) = infinite_distance()} for every vertex \lstinline{vid} in \lstinline{g}.
                   \item
-                        \lstinline{predecessors[vid] = vid} for every vertex \lstinline{vid} in \lstinline{g}.
+                        \lstinline{predecessor(g, vid) = vid} for every vertex \lstinline{vid} in \lstinline{g}.
             \end{itemize}
       \pnum\hardprecond
             \begin{itemize}
                   \item \lstinline{source} is a valid vertex ID in \lstinline{g} for the single-source version.
-                  \item \lstinline{distances} contains an entry for each vertex of \lstinline{g}.
-                  \item \lstinline{predecessor} contains an entry for each vertex of \lstinline{g}.
             \end{itemize}
       \pnum\effects
             \begin{itemize}
                   \item
                         If vertex with index \lstinline{i} is reachable from vertex \lstinline{source}, then
-                        \lstinline{distances[i]} will contain the distance from \lstinline{source} to vertex
-                        \lstinline{i}.  Otherwise \lstinline{distances[i]} will contain
-                        \lstinline{shortest_path_infinite_distance()}.
+                        \lstinline{distance(g, i)} will contain the distance from \lstinline{source} to vertex
+                        \lstinline{i}.  Otherwise \lstinline{distance(g, i)} will contain
+                        \lstinline{infinite_distance()}.
                   \item
                         If vertex with index \lstinline{i} is reachable
-                        from vertex \lstinline{source}, then \lstinline{predecessors[i]} will contain the
-                        predecessor vertex of vertex \lstinline{i}. Otherwise \lstinline{predecessors[i]} will contain
+                        from vertex \lstinline{source}, then \lstinline{predecessor(g, i)} will contain the
+                        predecessor vertex of vertex \lstinline{i}. Otherwise \lstinline{predecessor(g, i)} will contain
                         \lstinline{i}.
                   \item Does not modify the graph \lstinline{g}.
                   \item Member functions on the \lstinline{visitor} parameter are called during the algorithm's execution.
@@ -967,13 +945,13 @@ get the vertex ids of the negative weight cycle.
             \end{itemize}
       \pnum\postconditions
             \begin{itemize}
-                  \item \lstinline{distances[s] == 0} for all sources \lstinline{s}.
+                  \item \lstinline{distance(g, s) == 0} for all sources \lstinline{s}.
                   \item If no negative cycle is detected: for every reachable vertex \lstinline{v},
-                        \lstinline{distances[v]} contains the shortest distance from the nearest source.
-                  \item If a negative cycle is detected, \lstinline{distances} and \lstinline{predecessors}
+                        \lstinline{distance(g, v)} contains the shortest distance from the nearest source.
+                  \item If a negative cycle is detected, \lstinline{distance} and \lstinline{predecessor}
                         may contain intermediate values.
                   \item For every unreachable vertex \lstinline{v},
-                        \lstinline{distances[v] == numeric_limits<vertex_property_map_value_t<Distances>>::max()}.
+                        \lstinline{distance(g, v) == infinite_distance<distance_fn_value_t<DistanceFn,G>>()}.
             \end{itemize}
       \pnum\returns 
             \begin{itemize}
@@ -999,11 +977,9 @@ get the vertex ids of the negative weight cycle.
                   \item Duplicate sources do not affect the algorithm's complexity or correctness.
                   \item Unlike Dijkstra's algorithm, Bellman-Ford allows negative edge weights.
                         Performance constraints limit this to smaller graphs.
-                  \item \lstinline{distances} and \lstinline{predecessor} must satisfy
-                        \lstinline{vertex_property_map_for<M,G>} (see §\textit{Vertex Property Map Concept}).
-                        For index graphs, \lstinline{std::vector<T>} with \lstinline{size() >= num_vertices(g)}
-                        satisfies this requirement.
-                        For mapped graphs, use \lstinline{make_vertex_property_map<G,T>(g, init)}.
+                  \item \tcode{DistanceFn} and \tcode{PredecessorFn} must satisfy \tcode{distance_fn_for}
+                        and \tcode{predecessor_fn_for} respectively.  Wrap containers with
+                        \tcode{container_value_fn} (see §\textit{Vertex Property Function Concepts}).
             \end{itemize}
       %\pnum\errors
 \end{itemdescr}
@@ -1027,9 +1003,9 @@ giving a small performance improvement with lower memory overhead.
       \pnum\mandates
             \begin{itemize}
                   \item \tcode{G} satisfies \tcode{adjacency_list<G>}.
-                  \item \tcode{Distances} satisfies \tcode{vertex_property_map_for<Distances, G>}
-                        with \tcode{is_arithmetic_v<vertex_property_map_value_t<Distances>>}.
-                  \item \tcode{WF} satisfies \tcode{basic_edge_weight_function<G, WF, vertex_property_map_value_t<Distances>, Compare, Combine>}.
+                  \item \tcode{DistanceFn} satisfies \tcode{distance_fn_for<DistanceFn, G>}
+                        with \tcode{is_arithmetic_v<distance_fn_value_t<DistanceFn, G>>}.
+                  \item \tcode{WF} satisfies \tcode{basic_edge_weight_function<G, WF, distance_fn_value_t<DistanceFn, G>, Compare, Combine>}.
             \end{itemize}
       \pnum\constantwhen
             \begin{itemize}
@@ -1042,22 +1018,20 @@ giving a small performance improvement with lower memory overhead.
                         Each \lstinline{source} in \lstinline{sources} is a valid vertex ID in \lstinline{g},
                         for the multi-source version.
                   \item
-                        \lstinline{distances[vid] = shortest_path_infinite_distance()} for every vertex \lstinline{vid} in \lstinline{g}.
+                        \lstinline{distance(g, vid) = infinite_distance()} for every vertex \lstinline{vid} in \lstinline{g}.
             \end{itemize}
       \pnum\hardprecond
             \begin{itemize}
                   \item
                         \lstinline{source} is a valid vertex ID in \lstinline{g} for the single-source version.
-                  \item
-                        \lstinline{distances} contains an entry for each vertex of \lstinline{g}.
             \end{itemize}
       \pnum\effects
             \begin{itemize}
                   \item
                         If vertex with index \lstinline{i} is reachable from vertex \lstinline{source}, then
-                        \lstinline{distances[i]} will contain the distance from \lstinline{source} to vertex
-                        \lstinline{i}.  Otherwise \lstinline{distances[i]} will contain
-                        \lstinline{shortest_path_infinite_distance()}.
+                        \lstinline{distance(g, i)} will contain the distance from \lstinline{source} to vertex
+                        \lstinline{i}.  Otherwise \lstinline{distance(g, i)} will contain
+                        \lstinline{infinite_distance()}.
                   \item Does not modify the graph \lstinline{g}.
                   \item Member functions on the \lstinline{visitor} parameter are called during the algorithm's execution.
                         The functions are optional and, when included, must follow the visitor concepts for the events.
@@ -1067,11 +1041,11 @@ giving a small performance improvement with lower memory overhead.
             \end{itemize}
       \pnum\postconditions
             \begin{itemize}
-                  \item \lstinline{distances[s] == 0} for all sources \lstinline{s}.
+                  \item \lstinline{distance(g, s) == 0} for all sources \lstinline{s}.
                   \item If no negative cycle is detected: for every reachable vertex \lstinline{v},
-                        \lstinline{distances[v]} contains the shortest distance from the nearest source.
+                        \lstinline{distance(g, v)} contains the shortest distance from the nearest source.
                   \item For every unreachable vertex \lstinline{v},
-                        \lstinline{distances[v] == numeric_limits<vertex_property_map_value_t<Distances>>::max()}.
+                        \lstinline{distance(g, v) == infinite_distance<distance_fn_value_t<DistanceFn,G>>()}.
             \end{itemize}
       \pnum\returns 
             \begin{itemize}
@@ -1098,11 +1072,9 @@ giving a small performance improvement with lower memory overhead.
                   \item Duplicate sources do not affect the algorithm's complexity or correctness.
                   \item Unlike Dijkstra's algorithm, Bellman-Ford allows negative edge weights.
                         Performance constraints limit this to smaller graphs.
-                  \item \lstinline{distances} must satisfy \lstinline{vertex_property_map_for<M,G>}
-                        (see §\textit{Vertex Property Map Concept}).
-                        For index graphs, \lstinline{std::vector<T>} with \lstinline{size() >= num_vertices(g)}
-                        satisfies this requirement.
-                        For mapped graphs, use \lstinline{make_vertex_property_map<G,T>(g, init)}.
+                  \item \tcode{DistanceFn} must satisfy \tcode{distance_fn_for<DistanceFn,G>}.  Wrap a
+                        container with \tcode{container_value_fn}
+                        (see §\textit{Vertex Property Function Concepts}).
             \end{itemize}
       %\pnum\errors
 \end{itemdescr}
@@ -1347,28 +1319,26 @@ Vertices in components with no labelled vertex retain \tcode{empty_label} after 
 
 \paragraph{Basic Label Propagation}
 {\small
-      \lstinputlisting[firstline=4,lastline=11]{D3128_Algorithms/src/lp.hpp}
+      \lstinputlisting[firstline=4,lastline=14]{D3128_Algorithms/src/lp.hpp}
 }
 
 \paragraph{Label Propagation with Empty-Label Sentinel}
 {\small
-      \lstinputlisting[firstline=13,lastline=21]{D3128_Algorithms/src/lp.hpp}
+      \lstinputlisting[firstline=16,lastline=27]{D3128_Algorithms/src/lp.hpp}
 }
 
 \begin{itemdescr}
       \pnum\mandates
             \begin{itemize}
                   \item \tcode{G} satisfies \tcode{adjacency_list<G>}.
-                  \item \tcode{Label} satisfies \tcode{vertex_property_map_for<Label, G>}
-                        (subscriptable by \tcode{vertex_id_t<G>}).
-                  \item \tcode{vertex_property_map_value_t<Label>} satisfies
+                  \item \tcode{LabelFn} satisfies \tcode{vertex_property_fn_for<LabelFn, G>}.
+                  \item \tcode{vertex_fn_value_t<LabelFn, G>} satisfies
                         \tcode{std::equality_comparable}.
                   \item \tcode{Gen} satisfies \tcode{std::uniform_random_bit_generator}.
             \end{itemize}
       \pnum\preconditions
             \begin{itemize}
-                  \item \lstinline{label} contains a meaningful initial label for every vertex in \lstinline{g}.
-                  \item For index graphs: \lstinline{label.size() >= num_vertices(g)}.
+                  \item \lstinline{label(g, v)} returns a meaningful initial label for every vertex \lstinline{v} in \lstinline{g}.
                   \item For the sentinel overload, vertices to be treated as unlabelled must have
                         their label initialised to \lstinline{empty_label}.
             \end{itemize}
@@ -1379,7 +1349,7 @@ Vertices in components with no labelled vertex retain \tcode{empty_label} after 
                   \begin{enumerate}
                         \item Tallies the labels of all neighbours of $u$ (skipping neighbours
                               with \lstinline{empty_label} in the sentinel overload).
-                        \item Assigns \lstinline{label[u]} to the most frequent neighbour label,
+                        \item Assigns \lstinline{label(g, u)} to the most frequent neighbour label,
                               breaking ties randomly via \lstinline{rng}.
                         \item Isolated vertices (no neighbours, or all neighbours unlabelled)
                               retain their current label.
@@ -1605,24 +1575,24 @@ Find weakly connected components of a graph. Weakly connected components are sub
 
 {
 \small
-     \lstinputlisting[firstline=14,lastline=18]{D3128_Algorithms/src/connected_components.hpp}
+     \lstinputlisting[firstline=14,lastline=19]{D3128_Algorithms/src/connected_components.hpp}
 }
 
 \begin{itemdescr}
       \pnum\mandates
             \begin{itemize}
                   \item \tcode{G} satisfies \tcode{adjacency_list<G>}.
-                  \item \tcode{Component} satisfies \tcode{vertex_property_map_for<Component, G>}.
+                  \item \tcode{ComponentFn} satisfies \tcode{vertex_property_fn_for<ComponentFn, G>}.
             \end{itemize}
       \pnum\preconditions
             \begin{itemize}
                   \item
-                        \lstinline{component} contains an entry for each vertex of \lstinline{g}.
+                        \lstinline{component(g, v)} is callable for each vertex \lstinline{v} in \lstinline{g}.
             \end{itemize}
       \pnum\effects
             \begin{itemize}
                   \item
-                        \lstinline{component[v]} is the connected component id of vertex \lstinline{v}.
+                        \lstinline{component(g, v)} is set to the connected component id of vertex \lstinline{v}.
                   \item
                         There is at least one Connected Component, with component id of \lstinline{0}, for \lstinline{num_vertices(g) > 0}.
             \end{itemize}
@@ -1669,7 +1639,7 @@ parallel execution.
 \end{table}
 
 {\small
-      \lstinputlisting[firstline=20, lastline=27]{D3128_Algorithms/src/connected_components.hpp}
+      \lstinputlisting[firstline=21, lastline=30]{D3128_Algorithms/src/connected_components.hpp}
 }
 
 \begin{itemdescr}
@@ -1743,14 +1713,14 @@ Find strongly connected components of a graph using Kosaraju's algorithm. Strong
 \end{table}
 
 {\small
-      \lstinputlisting[firstline=29, lastline=36]{D3128_Algorithms/src/connected_components.hpp}
+      \lstinputlisting[firstline=32, lastline=41]{D3128_Algorithms/src/connected_components.hpp}
 }
 
 \begin{itemdescr}
       \pnum\mandates
             \begin{itemize}
                   \item \tcode{G} satisfies \tcode{adjacency_list<G>}.
-                  \item \tcode{Component} satisfies \tcode{vertex_property_map_for<Component, G>}.
+                  \item \tcode{ComponentFn} satisfies \tcode{vertex_property_fn_for<ComponentFn, G>}.
             \end{itemize}
       \pnum\preconditions
             \begin{itemize}
@@ -1761,15 +1731,13 @@ Find strongly connected components of a graph using Kosaraju's algorithm. Strong
             \begin{itemize}
                   \item
                         \lstinline{num_vertices(g) == num_vertices(g_t)} for the two-graph overload.
-                  \item
-                        \lstinline{component} contains an entry for each vertex of \lstinline{g}.
             \end{itemize}
       \pnum\effects
             \begin{itemize}
                   \item
-                        \lstinline{component[v]} is the strongly connected component id of vertex \lstinline{v}.
+                        \lstinline{component(g, v)} is set to the strongly connected component id of vertex \lstinline{v}.
                   \item
-                        The component id {component[v]} is in the range \lstinline{0 <= {component[v] < num_vertices(g)}.
+                        The component id is in the range \lstinline{0 <= component(g, v) < num_vertices(g)}.
             \end{itemize}
       %\pnum\result
       %\pnum\returns
@@ -2050,19 +2018,20 @@ Delegates to \lstinline{dijkstra_shortest_paths} with a projecting combine funct
 \end{table}
 
 {\small
-      \lstinputlisting[firstline=24,lastline=39]{D3128_Algorithms/src/mst.hpp}
+      \lstinputlisting[firstline=24,lastline=40]{D3128_Algorithms/src/mst.hpp}
 }
 
 \begin{itemdescr}
       \pnum\mandates
             \begin{itemize}
                   \item \tcode{G} satisfies \tcode{adjacency_list<G>}.
-                  \item \tcode{Predecessor} satisfies \tcode{vertex_property_map_for<Predecessor, G>}.
-                  \item \tcode{Weight} satisfies \tcode{vertex_property_map_for<Weight, G>}.
+                  \item \tcode{WeightFn} satisfies \tcode{distance_fn_for<WeightFn, G>}
+                        with \tcode{is_arithmetic_v<distance_fn_value_t<WeightFn, G>>}.
+                  \item \tcode{PredecessorFn} satisfies \tcode{predecessor_fn_for<PredecessorFn, G>}.
                   \item \tcode{WF} satisfies
-                        \tcode{basic_edge_weight_function<G, WF, vertex_property_map_value_t<Weight>, CompareOp,}
-                        \tcode{plus<vertex_property_map_value_t<Weight>>>}.
-                  \item \lstinline{compare} is a valid strict weak ordering on values of type \lstinline{vertex_property_map_value_t<Weight>}.
+                        \tcode{basic_edge_weight_function<G, WF, distance_fn_value_t<WeightFn, G>, CompareOp,}
+                        \tcode{plus<distance_fn_value_t<WeightFn, G>>>}.
+                  \item \lstinline{compare} is a valid strict weak ordering on values of type \lstinline{distance_fn_value_t<WeightFn, G>}.
             \end{itemize}
       \pnum\preconditions
             \begin{itemize}
@@ -2074,23 +2043,21 @@ Delegates to \lstinline{dijkstra_shortest_paths} with a projecting combine funct
                   \item
                         \lstinline{seed} is a valid vertex ID in \lstinline{g}.
                   \item
-                        \lstinline{weight} contains an entry for each vertex of \lstinline{g}.
-                  \item
-                        \lstinline{predecessor} contains an entry for each vertex of \lstinline{g}.
-                  \item
-                        \lstinline{weight} and \lstinline{predecessor} have been initialized before calling
-                        (e.g.\ via \lstinline{init_shortest_paths(g, weight, predecessor)}).
+                        \lstinline{weight(g, v)} and \lstinline{predecessor(g, v)} have been initialized for
+                        each vertex \lstinline{v} in \lstinline{g} before calling
+                        (e.g.~via \lstinline{init_shortest_paths(g, weight_cont, pred_cont)} on the
+                        underlying containers, then wrapping with \lstinline{container_value_fn}).
             \end{itemize}
       \pnum\effects
             \begin{itemize}
                   \item
-                        \lstinline{predecessor[v]} is the parent vertex of \lstinline{v} in a tree rooted at \lstinline{seed}
-                        and \lstinline{weight[v]} is the value of the edge between \lstinline{v} and \lstinline{predecessor[v]}
-                        in the tree.  \lstinline{predecessor[seed] == seed}.
+                        \lstinline{predecessor(g, v)} is the parent vertex of \lstinline{v} in a tree rooted at \lstinline{seed}
+                        and \lstinline{weight(g, v)} is the value of the edge between \lstinline{v} and \lstinline{predecessor(g, v)}
+                        in the tree.  \lstinline{predecessor(g, seed) == seed}.
                         When \lstinline{compare} is \lstinline{<}, \lstinline{predecessor} represents a minimum weight spanning tree.
                   \item
-                        For vertices not reachable from \lstinline{seed}, \lstinline{predecessor[v]} and \lstinline{weight[v]}
-                        retain their initialized values (as set by \lstinline{init_shortest_paths}).
+                        For vertices not reachable from \lstinline{seed}, \lstinline{predecessor(g, v)} and \lstinline{weight(g, v)}
+                        retain their initialized values.
             \end{itemize}
       %\pnum\result
       \pnum\returns The total weight of the minimum spanning tree rooted at \lstinline{seed}.
