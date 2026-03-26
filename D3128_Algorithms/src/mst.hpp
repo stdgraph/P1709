@@ -22,18 +22,19 @@ auto inplace_kruskal(IELR&& e, OELR&& t, CompareOp compare);
  * Prim's Algorithm
  */
 template <adjacency_list G,
-          class          Predecessor,
-          class          Weight,
-          class WF      = function<vertex_property_map_value_t<Weight>(const remove_reference_t<G>&,
-                                                                        const edge_t<G>&)>,
-          class CompareOp = less<vertex_property_map_value_t<Weight>>>
-requires vertex_property_map_for<Predecessor, G> &&
-         vertex_property_map_for<Weight, G> &&
-         basic_edge_weight_function<G, WF, vertex_property_map_value_t<Weight>, CompareOp,
-                                    plus<vertex_property_map_value_t<Weight>>>
+          class          WeightFn,
+          class          PredecessorFn,
+          class WF      = function<distance_fn_value_t<WeightFn, G>(const remove_reference_t<G>&,
+                                                                      const edge_t<G>&)>,
+          class CompareOp = less<distance_fn_value_t<WeightFn, G>>>
+requires distance_fn_for<WeightFn, G> &&
+         is_arithmetic_v<distance_fn_value_t<WeightFn, G>> &&
+         predecessor_fn_for<PredecessorFn, G> &&
+         basic_edge_weight_function<G, WF, distance_fn_value_t<WeightFn, G>, CompareOp,
+                                    plus<distance_fn_value_t<WeightFn, G>>>
 auto prim(G&&                   g,
           const vertex_id_t<G>& seed,
-          Predecessor&          predecessor,
-          Weight&               weight,
-          WF&&                  weight_fn = [](const auto&, const edge_t<G>& uv) { return edge_value(g, uv); },
-          CompareOp             compare   = less<vertex_property_map_value_t<Weight>>());
+          WeightFn&&            weight,
+          PredecessorFn&&       predecessor,
+          WF&&                  weight_fn = [](const auto& gr, const edge_t<G>& uv) { return edge_value(gr, uv); },
+          CompareOp             compare   = less<distance_fn_value_t<WeightFn, G>>());

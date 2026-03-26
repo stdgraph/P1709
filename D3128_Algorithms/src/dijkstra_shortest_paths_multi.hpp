@@ -1,25 +1,23 @@
 template <adjacency_list G,
           input_range    Sources,
-          class          Distances,
-          class          Predecessors,
-          class WF      = function<vertex_property_map_value_t<Distances>(const remove_reference_t<G>&,
-                                                                          const edge_t<G>&)>,
+          class          DistanceFn,
+          class          PredecessorFn,
+          class WF      = function<distance_fn_value_t<DistanceFn, G>(const remove_reference_t<G>&,
+                                                                       const edge_t<G>&)>,
           class Visitor = empty_visitor,
-          class Compare = less<vertex_property_map_value_t<Distances>>,
-          class Combine = plus<vertex_property_map_value_t<Distances>>>
-requires vertex_property_map_for<Distances, G> &&
-         vertex_property_map_for<Predecessors, G> &&
+          class Compare = less<distance_fn_value_t<DistanceFn, G>>,
+          class Combine = plus<distance_fn_value_t<DistanceFn, G>>>
+requires distance_fn_for<DistanceFn, G> &&
+         predecessor_fn_for<PredecessorFn, G> &&
          convertible_to<range_value_t<Sources>, vertex_id_t<G>> &&
-         is_arithmetic_v<vertex_property_map_value_t<Distances>> &&
-         convertible_to<vertex_id_t<G>, vertex_property_map_value_t<Predecessors>> &&
-         basic_edge_weight_function<G, WF, vertex_property_map_value_t<Distances>, Compare, Combine>
+         basic_edge_weight_function<G, WF, distance_fn_value_t<DistanceFn, G>, Compare, Combine>
 constexpr void dijkstra_shortest_paths(
       G&&            g,
       const Sources& sources,
-      Distances&     distances,
-      Predecessors&  predecessor,
+      DistanceFn&&   distance,
+      PredecessorFn&& predecessor,
       WF&&           weight  = [](const auto&,
-                       const edge_t<G>& uv) { return vertex_property_map_value_t<Distances>(1); },
+                       const edge_t<G>& uv) { return distance_fn_value_t<DistanceFn, G>(1); },
       Visitor&&      visitor = empty_visitor(),
-      Compare&&      compare = less<vertex_property_map_value_t<Distances>>(),
-      Combine&&      combine = plus<vertex_property_map_value_t<Distances>>());
+      Compare&&      compare = less<distance_fn_value_t<DistanceFn, G>>(),
+      Combine&&      combine = plus<distance_fn_value_t<DistanceFn, G>>());
