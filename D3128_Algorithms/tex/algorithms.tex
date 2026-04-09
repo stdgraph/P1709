@@ -234,6 +234,68 @@ The container-subscript concept \tcode{vertex_property_map_for<M,G>} is retained
 subscriptable containers directly.  It is satisfied by \tcode{std::vector<T>} for index graphs
 and \tcode{std::unordered\_map<vertex\_id\_t<G>,T>} for mapped graphs.
 
+\subsection{Vertex Property Map}
+Algorithms frequently need per-vertex storage for quantities such as distances, predecessor
+IDs, component labels, and visited flags.  Because the graph library supports both
+\emph{index-based} vertex containers (\tcode{std::vector}, \tcode{std::deque}) and
+\emph{key-based} vertex containers (\tcode{std::map}, \tcode{std::unordered\_map}), the
+appropriate external container differs:
+\begin{itemize}
+      \item For index graphs, a \tcode{std::vector<T>} addressed by \tcode{vertex\_id\_t<G>} provides $\mathcal{O}(1)$ access.
+      \item For mapped graphs, a \tcode{std::unordered\_map<vertex\_id\_t<G>, T>} is required
+            because vertex IDs are non-contiguous keys.
+\end{itemize}
+
+The \tcode{vertex\_property\_map} facility provides a uniform abstraction that selects the
+correct container automatically and offers factory functions and access helpers so that
+algorithms and users need not distinguish between the two cases.
+
+\subsubsection{Synopsis}
+{\small
+      \lstinputlisting{D3128_Algorithms/src/vertex_property_map.hpp}
+}
+
+\subsubsection{\tcode{vertex\_property\_map<G, T>} Type Alias}
+A conditional type alias that resolves to \tcode{std::vector<T>} when the graph \tcode{G}
+satisfies \tcode{index\_vertex\_range<G>}, and to
+\tcode{std::unordered\_map<vertex\_id\_t<G>, T>} otherwise.
+
+\subsubsection{\tcode{make\_vertex\_property\_map} Factory Functions}
+Two overloads create a \tcode{vertex\_property\_map}:
+\begin{itemize}
+      \item \textbf{Eager initialization} ---
+            \tcode{make\_vertex\_property\_map(g, init\_value)} pre-populates every vertex with
+            \tcode{init\_value}.  Useful when an algorithm reads all entries before writing
+            (e.g.\ component labels).  $\mathcal{O}(|V|)$.
+      \item \textbf{Lazy initialization} ---
+            \tcode{make\_vertex\_property\_map<G, T>(g)} creates a default-constructed
+            (index graphs) or empty-but-reserved (mapped graphs) container.
+            Useful with \tcode{vertex\_property\_map\_get} when absence has a semantic meaning
+            (e.g.\ infinity for distances, \tcode{false} for visited flags).
+\end{itemize}
+
+\subsubsection{Access Helpers}
+\begin{itemize}
+      \item \tcode{vertex\_property\_map\_contains(m, uid)} ---
+            Tests whether vertex~\tcode{uid} has an entry.
+            For \tcode{vector}: \tcode{uid < size(m)}.
+            For \tcode{unordered\_map}: \tcode{m.contains(uid)}.
+      \item \tcode{vertex\_property\_map\_get(m, uid, default\_val)} ---
+            Returns the stored value if present, otherwise returns \tcode{default\_val}
+            \emph{without insertion}.  This avoids accidentally growing an
+            \tcode{unordered\_map} through \tcode{operator[]}.
+\end{itemize}
+
+\subsubsection{\tcode{vertex\_property\_map\_value\_t<Container>}}
+A trait that extracts the per-vertex value type from a \tcode{vertex\_property\_map} container:
+\tcode{T} for \tcode{vector<T>}, \tcode{V} for \tcode{unordered\_map<K,V>}.
+
+\subsubsection{\tcode{vertex\_property\_map\_for<M, G>} Concept}
+Requires that \tcode{m[uid]} is valid for \tcode{uid} of type \tcode{vertex\_id\_t<G>} and
+the result is convertible to \tcode{vertex\_property\_map\_value\_t<M>}.
+This concept constrains algorithm parameters that accept subscriptable containers directly,
+such as \tcode{afforest} and the \tcode{init\_shortest\_paths} helpers.
+
 \subsection{Visitor Concepts and Classes}
 Visitors are optional member functions on a user-defined class that are called during the execution of an algorithm. 
 Each algorithm has its own set of visitor events that it supports, and each event function must match the visitor concepts 
