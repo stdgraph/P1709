@@ -405,7 +405,8 @@ implementation. Specific graph implementations may have different characteristic
     \tcode{out_edges(g,uid)} & \tcode{out_edge_range_t<G>} & constant & \tcode{out\_edges(g,*find\_vertex(g,uid))} \\
     \tcode{out_degree(g,u)} & \tcode{integral} & constant & \tcode{size(out\_edges(g,u))} if \tcode{sized_range<out_edge_range_t<G>>} \\
     \tcode{out_degree(g,uid)} & \tcode{integral} & constant & \tcode{size(out\_edges(g,uid))} if \tcode{sized_range<out_edge_range_t<G>>} \\
-    (\tcode{edges}, \tcode{degree} are backward-compatible aliases for \tcode{out\_edges}, \tcode{out\_degree}) & & & \\
+    (\tcode{edges(g,u), edges(g,uid)} & & & aliases for \tcode{out\_edges}) \\
+    (\tcode{degree(g,u), degree(g,uid)} & & & aliases for \tcode{out\_degree}) \\
 \hdashline
     \tcode{in_edges(g,u)} & \tcode{in_edge_range_t<G>} & constant & n/a (requires bidirectional graph) \\
     \tcode{in_edges(g,uid)} & \tcode{in_edge_range_t<G>} & constant & \tcode{in\_edges(g,*find\_vertex(g,uid))} \\
@@ -443,13 +444,14 @@ also be non-linear. This is expected to be an uncommon case.
                                    &                      &        & \tcode{[](uv) \{ return target\_id(g,uv)==vid; \})} \\
     \tcode{find_out_edge(g,uid,vid)} & \tcode{out_edge_t<G>} & linear & \tcode{find\_out\_edge(} \\
                                      &                      &        & \hspace{8mm}\tcode{g, *find\_vertex(g,uid), vid)} \\
-    (\tcode{find\_vertex\_edge} is a backward-compatible alias for \tcode{find\_out\_edge}) & & & \\
     \tcode{contains_out_edge(g,uid,vid)} & \tcode{bool} & constant & \tcode{uid < size(vertices(g))} \\
                                          &              &          & \tcode{\&\& vid < size(vertices(g))} \\
                                          &              &          & \hspace{3mm}if \tcode{is_adjacency_matrix_v<G>}.\\
                                          &              & linear   & \tcode{find\_out\_edge(g,uid,vid)} \\
                                          &              &          & \tcode{!= end(out\_edges(g,uid))} otherwise. \\
-    (\tcode{contains\_edge} is a backward-compatible alias for \tcode{contains\_out\_edge}) & & & \\
+    (\tcode{find\_vertex\_edge(g,u,vid)} & & & alias for \tcode{find\_out\_edge}) \\
+    (\tcode{find\_vertex\_edge(g,uid,vid)} & & & alias for \tcode{find\_out\_edge}) \\
+    (\tcode{contains\_edge(g,uid,vid)} & & & alias for \tcode{contains\_out\_edge}) \\
 \hdashline
     \tcode{source_id(g,uv)} & \tcode{vertex_id_t<G>} & constant & mandatory for descriptor-based edges \\
     \tcode{source(g,uv)} & \tcode{vertex_t<G>} & constant & \tcode{*(begin(vertices(g)) + source\_id(g,uv))} \\
