@@ -1821,9 +1821,87 @@ Find strongly connected components of a graph using Kosaraju's algorithm. Strong
 \end{itemdescr}
 
 \subsubsection{Tarjan's SCC}
-Tarjan's strongly-connected-components algorithm is planned for a future revision.
-For current use, see \tcode{kosaraju} above, which provides both a two-graph overload and a
-single-graph overload for \lstinline{bidirectional_adjacency_list} graphs.
+Find strongly connected components of a directed graph using Tarjan's algorithm.
+A strongly connected component (SCC) is a maximal set of vertices such that there is a
+directed path from every vertex in the set to every other vertex in the set.
+
+\begin{table}[ht]
+\setcellgapes{3pt}
+\makegapedcells
+\centering
+\begin{tabular}{|P{0.30\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|}
+\hline
+      \multirowcell{2}{
+            \textbf{Complexity} \\
+                  $\mathcal{O}(|E|+|V|)$
+            }
+      & \textbf{Directed?} Yes & \textbf{Cycles?} Yes & \textbf{Throws?} Yes \\
+      & \textbf{Multi-edge?} Yes & \textbf{Self-loops} Yes & \\
+\hline
+\end{tabular}
+\end{table}
+
+{\small
+      \lstinputlisting{D3128_Algorithms/src/tarjan_scc.hpp}
+}
+
+\begin{itemdescr}
+      \pnum\mandates
+            \begin{itemize}
+                  \item \tcode{G} satisfies \tcode{adjacency_list<G>}.
+                  \item \tcode{ComponentFn} satisfies \tcode{vertex_property_fn_for<ComponentFn, G>}.
+            \end{itemize}
+      \pnum\preconditions
+            \begin{itemize}
+                  \item \tcode{component} must be callable for each vertex of \tcode{g}.
+            \end{itemize}
+      \pnum\hardprecond
+            \begin{itemize}
+                  \item \tcode{g} must be a directed graph.
+            \end{itemize}
+      \pnum\effects
+            \begin{itemize}
+                  \item \lstinline{component(g, uid)} is set to the SCC id of vertex \lstinline{uid}
+                        for every vertex in \lstinline{g}.
+                  \item Component ids are assigned in the range
+                        \lstinline{0 <= component(g, uid) < num_vertices(g)}, numbered in
+                        reverse topological order of the condensed SCC DAG.
+                  \item Does not modify the graph \lstinline{g}.
+            \end{itemize}
+      \pnum\returns The number of strongly connected components found.
+      \pnum\throws
+            \begin{itemize}
+                  \item \lstinline{std::bad_alloc} if internal allocations (discovery time, low-link,
+                        on-stack flag, DFS stack, or SCC stack) fail.
+                  \item \textbf{Exception guarantee:} Basic --- \lstinline{g} is unchanged;
+                        partial component assignments may have occurred.
+            \end{itemize}
+      \pnum\complexity
+            \begin{itemize}
+                  \item \textbf{Time:} $\mathcal{O}(|V|+|E|)$ --- single DFS pass, each vertex
+                        and edge visited at most once.
+                  \item \textbf{Space:} $\mathcal{O}(|V|)$ auxiliary --- discovery time, low-link,
+                        on-stack flag arrays, DFS stack, and SCC stack.
+            \end{itemize}
+      \pnum\remarks
+            \begin{itemize}
+                  \item Compared to \tcode{kosaraju}, Tarjan's algorithm requires only a single
+                        DFS pass and does not require (or accept) a transpose graph. It therefore
+                        works on any \tcode{adjacency_list} graph, whereas the single-graph
+                        overload of \tcode{kosaraju} requires \tcode{bidirectional_adjacency_list}.
+                  \item Uses an iterative DFS with an explicit stack to avoid recursion-depth limits.
+                  \item A vertex \lstinline{u} is the root of an SCC when
+                        \lstinline{disc[u] == low[u]} after all of its outgoing edges have been
+                        processed.
+                  \item Low-link values track the earliest reachable discovery time in the
+                        current DFS subtree.  Back and cross edges to vertices already in a
+                        \emph{completed} SCC do not update low-link values.
+                  \item If the return value is \lstinline{1}, all vertices belong to a single
+                        strongly connected component (the graph is strongly connected).
+                  \item If the return value equals \lstinline{num_vertices(g)}, every vertex
+                        is its own SCC (a DAG).
+            \end{itemize}
+\end{itemdescr}
 
 \section{Maximal Independent Set}
 \subsection{Maximal Independent Set}
