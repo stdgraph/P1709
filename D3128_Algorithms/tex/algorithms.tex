@@ -139,10 +139,24 @@ and our experience with the current proposal.
 
 Common concepts used by algorithms are in this section, extending those in the Graph Container Interface.
 
-\subsection{Edge Weight Concepts}
-Edge weights are intrinsic numeric type for the current proposal, but could be any type in the future.
+\subsection{Value Function and Edge Weight Concepts}
+
+Value function concepts constrain callables that extract per-vertex or per-edge values.
+Edge weights are intrinsic numeric type (\lstinline{edge_weight_function}), but could be any type 
+for more general use (\lstinline{basic_edge_weight_function}).
 
 \begin{lstlisting}
+// For exposition only: base concept for any 2-arg vertex value function.
+template <class VVF, class Graph, class VertexDescriptor>
+concept vertex_value_function =
+    invocable<VVF, const Graph&, VertexDescriptor> &&
+    (!is_void_v<invoke_result_t<VVF, const Graph&, VertexDescriptor>>);
+
+// For exposition only: base concept for any 2-arg edge value function.
+template <class WF, class G, class E>
+concept edge_value_function = // For exposition only
+      std::invocable<WF, const G&, E> && !std::is_void_v<std::invoke_result_t<WF, const G&, E>>;
+
 // For exposition only
 template <class G, class WF, class DistanceValue, class Compare, class Combine>
 concept basic_edge_weight_function = // e.g. weight(g, uv)
@@ -202,21 +216,50 @@ through callable \emph{function objects} of the form
 This function-first design is more flexible than direct container access: property values may
 reside in vertex properties, in external containers, or in any custom storage.
 
-The full definitions of all function concepts and helper types appear in the listing produced by
-the \emph{Initialization} section below (from \tcode{shortest\_paths\_helpers.hpp}).
+\subsubsection{\tcode{vertex_property_fn_for} and \tcode{vertex_fn_value_t}}
+\tcode{vertex_property_fn_for<VF,G>} is the general concept for per-vertex property functions,
+requiring a callable that returns a mutable lvalue reference to the stored value.
+It is used directly by \tcode{connected\_components}, \tcode{kosaraju}, \tcode{tarjan\_scc},
+and \tcode{label\_propagation}.
+\tcode{vertex_fn_value_t<VF,G>} extracts the corresponding value type.
+
+\begin{lstlisting}
+// For exposition only
+template <class VF, class G>
+concept vertex_property_fn_for =
+      invocable<VF&, const remove_reference_t<G>&, const vertex_id_t<G>&> &&
+      is_lvalue_reference_v<invoke_result_t<VF&, const remove_reference_t<G>&, const vertex_id_t<G>&>>;
+
+// For exposition only
+template <class VF, class G>
+using vertex_fn_value_t = remove_cvref_t<
+    invoke_result_t<VF&, const remove_reference_t<G>&, const vertex_id_t<G>&>>;
+\end{lstlisting}
 
 \subsubsection{\tcode{distance_fn_for} and \tcode{predecessor_fn_for}}
-\tcode{distance_fn_for<DF,G>} constrains the \tcode{DistanceFn} parameter passed to
-\tcode{dijkstra\_shortest\_paths}, \tcode{bellman\_ford\_shortest\_paths}, and \tcode{prim}.
-\tcode{predecessor_fn_for<PF,G>} constrains the corresponding \tcode{PredecessorFn} parameter.
-Both require the callable to return a mutable lvalue reference to the stored value.
-\tcode{distance_fn_value_t<DF,G>} extracts the distance scalar type from the function's return
-type.
+\tcode{distance_fn_for} and \tcode{predecessor_fn_for} are concept aliases for
+\tcode{vertex_property_fn_for}, giving semantic names to the distance and predecessor
+function parameters of shortest-path and MST algorithms.
+\tcode{distance_fn_value_t} and \tcode{predecessor_fn_value_t} are corresponding
+type aliases for \tcode{vertex_fn_value_t}.
 
-\subsubsection{\tcode{vertex_property_fn_for} and \tcode{vertex_fn_value_t}}
-\tcode{vertex_property_fn_for<VF,G>} is the more general form used by
-\tcode{connected\_components}, \tcode{kosaraju}, and \tcode{label\_propagation}.
-\tcode{vertex_fn_value_t<VF,G>} extracts the corresponding value type.
+\begin{lstlisting}
+// For exposition only
+template <class DF, class G>
+concept distance_fn_for = vertex_property_fn_for<DF, G>;
+
+// For exposition only
+template <class DF, class G>
+using distance_fn_value_t = vertex_fn_value_t<DF, G>;
+
+// For exposition only
+template <class PF, class G>
+concept predecessor_fn_for = vertex_property_fn_for<PF, G>;
+
+// For exposition only
+template <class PF, class G>
+using predecessor_fn_value_t = vertex_fn_value_t<PF, G>;
+\end{lstlisting}
 
 \subsubsection{\tcode{container_value_fn} Adaptor}
 \tcode{container_value_fn<Container>} adapts any subscriptable container into a property
@@ -230,7 +273,7 @@ dijkstra_shortest_paths(g, source, dist_fn, _null_predecessor, weight_fn);
 
 \subsubsection{Legacy: \tcode{vertex_property_map_for} Concept}
 The container-subscript concept \tcode{vertex_property_map_for<M,G>} is retained for
-\tcode{afforest} and the \tcode{init\_shortest\_paths} helper functions, both of which take
+the \tcode{init\_shortest\_paths} helper functions, which take
 subscriptable containers directly.  It is satisfied by \tcode{std::vector<T>} for index graphs
 and \tcode{std::unordered\_map<vertex\_id\_t<G>,T>} for mapped graphs.
 
@@ -294,7 +337,7 @@ A trait that extracts the per-vertex value type from a \tcode{vertex\_property\_
 Requires that \tcode{m[uid]} is valid for \tcode{uid} of type \tcode{vertex\_id\_t<G>} and
 the result is convertible to \tcode{vertex\_property\_map\_value\_t<M>}.
 This concept constrains algorithm parameters that accept subscriptable containers directly,
-such as \tcode{afforest} and the \tcode{init\_shortest\_paths} helpers.
+such as the \tcode{init\_shortest\_paths} helpers.
 
 \subsection{Visitor Concepts and Classes}
 Visitors are optional member functions on a user-defined class that are called during the execution of an algorithm. 
@@ -1677,81 +1720,9 @@ Find weakly connected components of a graph. Weakly connected components are sub
       %\pnum\errors
 \end{itemdescr}
 
-\subsection{Afforest Connected Components}
-Find connected components of a graph using the Afforest algorithm.
-Afforest is a sampling-based algorithm that first links vertices through a small number of
-neighbor rounds before processing the remaining edges, making it well suited for
-parallel execution.
-
-\begin{table}[ht]
-\setcellgapes{3pt}
-\makegapedcells
-\centering
-\begin{tabular}{|P{0.30\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|}
-\hline
-      \multirowcell{2}{
-            \textbf{Complexity} \\
-                  $\mathcal{O}(|V| + |E| \cdot \alpha(|V|))$
-            }
-      & \textbf{Directed?} No & \textbf{Cycles?} Yes & \textbf{Throws?} No \\
-      & \textbf{Multi-edge?} No & \textbf{Self-loops} Yes & \\
-\hline
-\end{tabular}
-\label{tab:algo_afforest}
-\end{table}
-
-{\small
-      \lstinputlisting[firstline=21, lastline=30]{D3128_Algorithms/src/connected_components.hpp}
-}
-
-\begin{itemdescr}
-      \pnum\mandates
-            \begin{itemize}
-                  \item \tcode{G} satisfies \tcode{adjacency_list<G>}.
-                  \item \tcode{Component} satisfies \tcode{vertex_property_map_for<Component, G>}.
-                  \item \tcode{vertex_property_map_value_t<Component>} is convertible to and from \tcode{vertex_id_t<G>}.
-            \end{itemize}
-      \pnum\preconditions
-            \begin{itemize}
-                  \item
-                        For the two-graph overload, \lstinline{g_t} is the transpose of \lstinline{g},
-                        where edge \lstinline{uv} in \lstinline{g} implies edge \lstinline{vu} in \lstinline{g_t}.
-            \end{itemize}
-      \pnum\hardprecond
-            \begin{itemize}
-                  \item
-                        \lstinline{component} contains an entry for each vertex of \lstinline{g}.
-                  \item
-                        \lstinline{num_vertices(g) == num_vertices(g_t)} for the two-graph overload.
-            \end{itemize}
-      \pnum\effects
-            \begin{itemize}
-                  \item
-                        \lstinline{component[v]} is the connected component id of vertex \lstinline{v}.
-                  \item
-                        There is at least one connected component, with component id of \lstinline{0}, for \lstinline{num_vertices(g) > 0}.
-            \end{itemize}
-      %\pnum\result
-      %\pnum\returns
-      %\pnum\throws
-      \pnum\complexity
-            \begin{itemize}
-                  \item \textbf{Time:} $\mathcal{O}(|V| + |E| \cdot \alpha(|V|))$, where $\alpha$ is the inverse Ackermann function.
-                  \item \textbf{Space:} $\mathcal{O}(|V|)$ auxiliary --- component array only.
-            \end{itemize}
-      \pnum\remarks
-            \begin{itemize}
-                  \item
-                        \lstinline{neighbor_rounds} controls how many neighbors are sampled per vertex
-                        before the full-edge pass. The default of 2 provides a good balance for most graphs.
-                  \item
-                        Afforest (Sampling-based Connected Components) is described in
-                        Sutton, Sanders, Steil, \emph{An efficient parallel algorithm for graph
-                        connected components}, IEEE International Conference on Parallel Processing
-                        (ICPP), 2018.
-            \end{itemize}
-      %\pnum\errors
-\end{itemdescr}
+% Afforest Connected Components is intentionally excluded from this proposal.
+% It is a parallel sampling-based algorithm that belongs in a future parallel-algorithms paper.
+% Do not re-add it here.
 
 \subsection{Strongly Connected Components}
 \subsubsection{Kosaraju}
