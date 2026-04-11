@@ -1,45 +1,4 @@
-// For exposition only: base concept for any 2-arg edge value function.
-template <class WF, class G, class E>
-concept edge_value_function = // For exposition only
-      std::invocable<WF, const G&, E> && !std::is_void_v<std::invoke_result_t<WF, const G&, E>>;
-
-// For exposition only
-template <class G, class WF, class DistanceValue, class Compare, class Combine>
-concept basic_edge_weight_function = // e.g. weight(g, uv)
-      edge_value_function<WF, std::remove_reference_t<G>, edge_t<G>> &&
-      strict_weak_order<Compare, DistanceValue, DistanceValue> &&
-      assignable_from<add_lvalue_reference_t<DistanceValue>,
-            invoke_result_t<Combine, DistanceValue,
-                  invoke_result_t<WF, const std::remove_reference_t<G>&, edge_t<G>>>>;
-
-// For exposition only
-template <class G, class WF, class DistanceValue>
-concept edge_weight_function = // e.g. weight(g, uv)
-      is_arithmetic_v<DistanceValue> &&
-      is_arithmetic_v<invoke_result_t<WF, const std::remove_reference_t<G>&, edge_t<G>>> &&
-      basic_edge_weight_function<G, WF, DistanceValue, less<DistanceValue>, plus<DistanceValue>>;
-
-// Type alias: extracts the distance value type from a distance function's return type
-// For exposition only
-template <class DF, class G>
-using distance_fn_value_t = remove_cvref_t<
-    invoke_result_t<DF&, const remove_reference_t<G>&, const vertex_id_t<G>&>>;
-
-// Concept: a callable returning a mutable reference to a per-vertex distance value
-// For exposition only
-template <class DF, class G>
-concept distance_fn_for =
-      invocable<DF&, const remove_reference_t<G>&, const vertex_id_t<G>&> &&
-      is_lvalue_reference_v<invoke_result_t<DF&, const remove_reference_t<G>&, const vertex_id_t<G>&>>;
-
-// Concept: a callable returning a mutable reference to a per-vertex predecessor value
-// For exposition only
-template <class PF, class G>
-concept predecessor_fn_for =
-      invocable<PF&, const remove_reference_t<G>&, const vertex_id_t<G>&> &&
-      is_lvalue_reference_v<invoke_result_t<PF&, const remove_reference_t<G>&, const vertex_id_t<G>&>>;
-
-// Concept: a callable returning a mutable lvalue reference to any per-vertex property value
+// General concept: a callable returning a mutable lvalue reference to any per-vertex property value
 // For exposition only
 template <class VF, class G>
 concept vertex_property_fn_for =
@@ -51,6 +10,26 @@ concept vertex_property_fn_for =
 template <class VF, class G>
 using vertex_fn_value_t = remove_cvref_t<
     invoke_result_t<VF&, const remove_reference_t<G>&, const vertex_id_t<G>&>>;
+
+// Concept: a callable returning a mutable reference to a per-vertex distance value
+// For exposition only
+template <class DF, class G>
+concept distance_fn_for = vertex_property_fn_for<DF, G>;
+
+// Type alias: extracts the distance value type from a distance function's return type
+// For exposition only
+template <class DF, class G>
+using distance_fn_value_t = vertex_fn_value_t<DF, G>;
+
+// Concept: a callable returning a mutable reference to a per-vertex predecessor value
+// For exposition only
+template <class PF, class G>
+concept predecessor_fn_for = vertex_property_fn_for<PF, G>;
+
+// Type alias: extracts the predecessor value type from a predecessor function's return type
+// For exposition only
+template <class PF, class G>
+using predecessor_fn_value_t = vertex_fn_value_t<PF, G>;
 
 // Null predecessor function — used when predecessor tracking is not needed
 // For exposition only
