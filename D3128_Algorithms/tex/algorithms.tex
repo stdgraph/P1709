@@ -492,6 +492,10 @@ Compute the breadth-first path from one or more \tcode{source} vertices to all r
             \begin{itemize}
                   \item \tcode{dijkstra_shortest_paths} provides extended functionality if \tcode{breadth_first_search} doesn't have
                          enough capability.
+                  \item The optional \lstinline{alloc} parameter supplies an allocator used for
+                        the internal FIFO queue.  Defaults to \tcode{std::allocator<std::byte>}.
+                        Provide a custom allocator (e.g.~a pool allocator) to control the memory
+                        used by the traversal queue.
             \end{itemize}
       %\pnum\errors
 \end{itemdescr}
@@ -582,6 +586,10 @@ Traverse the depth-first path from one or more \tcode{source} vertices to all re
             \begin{itemize}
                   \item Uses iterative DFS with explicit stack to avoid recursion-depth limits.
                   \item Edge iterators are stored on the stack for $\mathcal{O}(1)$ resume after backtracking.
+                  \item The optional \lstinline{alloc} parameter supplies an allocator used for
+                        the internal DFS stack.  Defaults to \tcode{std::allocator<std::byte>}.
+                        Provide a custom allocator (e.g.~a pool allocator) to control the memory
+                        used by the traversal stack.
             \end{itemize}
       %\pnum\errors
 \end{itemdescr}
@@ -661,6 +669,10 @@ A linear ordering of vertices such that for every directed edge (u,v) from verte
             \begin{itemize}
                   \item Duplicate sources do not affect the algorithm's complexity or correctness.
                   \item The full-graph overload visits all vertices regardless of reachability from a single source.
+                  \item The optional \lstinline{alloc} parameter supplies an allocator used for
+                        the internal finish-order vector and DFS stack.  Defaults to
+                        \tcode{std::allocator<std::byte>}.  All three overloads (single-source,
+                        multi-source, full-graph) accept this parameter.
             \end{itemize}
       %\pnum\errors
 \end{itemdescr}
@@ -846,6 +858,10 @@ instead of a binary heap implemented with \tcode{std::priority_queue}.
                         the same way (see §\textit{Vertex Property Function Concepts}).
                   \item Pass \lstinline{_null_predecessor} as \lstinline{predecessor} when predecessor tracking
                         is not needed (avoids storing results).
+                  \item The optional \lstinline{alloc} parameter supplies an allocator used for
+                        the internal priority queue.  Defaults to \tcode{std::allocator<std::byte>}.
+                        Provide a custom allocator (e.g.~a pool allocator) to control the memory
+                        used by the priority queue during traversal.
             \end{itemize}
       %\pnum\errors
 \end{itemdescr}
@@ -948,6 +964,10 @@ giving a small performance improvement with lower memory overhead.
                   \item \tcode{DistanceFn} must satisfy \tcode{distance_fn_for<DistanceFn,G>}.  Wrap a
                         \tcode{std::vector} or \tcode{std::unordered_map} with \tcode{container_value_fn}
                         (see §\textit{Vertex Property Function Concepts}).
+                  \item The optional \lstinline{alloc} parameter supplies an allocator used for
+                        the internal priority queue.  Defaults to \tcode{std::allocator<std::byte>}.
+                        Provide a custom allocator (e.g.~a pool allocator) to control the memory
+                        used by the priority queue during traversal.
             \end{itemize}
       %\pnum\errors
 \end{itemdescr}
@@ -1568,6 +1588,9 @@ rooted at $v$ via back-edges. A vertex $u$ is an articulation point under one of
                         \lstinline{cut_vertices}.
                   \item Disconnected graphs are handled correctly; the outer loop restarts DFS
                         from each unvisited vertex.
+                  \item The optional \lstinline{alloc} parameter supplies an allocator used for
+                        the internal DFS stack and discovery/low-link arrays.  Defaults to
+                        \tcode{std::allocator<std::byte>}.
             \end{itemize}
       %\pnum\errors
 \end{itemdescr}
@@ -1654,6 +1677,9 @@ trivial single-vertex components. Articulation-point vertices appear in more tha
                         from each unvisited vertex.
                   \item The implementation uses iterative DFS with stored edge iterators to avoid
                         recursion-depth limits and $\mathcal{O}(\text{degree})$ re-scans on resume.
+                  \item The optional \lstinline{alloc} parameter supplies an allocator used for
+                        the internal DFS stack, edge stack, and discovery/low-link arrays.  Defaults
+                        to \tcode{std::allocator<std::byte>}.
             \end{itemize}
       %\pnum\errors
 \end{itemdescr}
@@ -1680,7 +1706,7 @@ Find weakly connected components of a graph. Weakly connected components are sub
 
 {
 \small
-     \lstinputlisting[firstline=14,lastline=19]{D3128_Algorithms/src/connected_components.hpp}
+     \lstinputlisting[firstline=17,lastline=19]{D3128_Algorithms/src/connected_components.hpp}
 }
 
 \begin{itemdescr}
@@ -1716,6 +1742,8 @@ Find weakly connected components of a graph. Weakly connected components are sub
                   \item
                         If the maximum component id is \lstinline{num_vertices(g)-1}, each vertex is the sole vertex in its 
                         own connected component.
+                  \item The optional \lstinline{alloc} parameter supplies an allocator used for
+                        the internal DFS stack.  Defaults to \tcode{std::allocator<std::byte>}.
             \end{itemize}
       %\pnum\errors
 \end{itemdescr}
@@ -1746,7 +1774,7 @@ Find strongly connected components of a graph using Kosaraju's algorithm. Strong
 \end{table}
 
 {\small
-      \lstinputlisting[firstline=32, lastline=41]{D3128_Algorithms/src/connected_components.hpp}
+      \lstinputlisting[firstline=35, lastline=43]{D3128_Algorithms/src/connected_components.hpp}
 }
 
 \begin{itemdescr}
@@ -1787,6 +1815,9 @@ Find strongly connected components of a graph using Kosaraju's algorithm. Strong
                   \item
                         If the maximum component id is \lstinline{num_vertices(g)-1}, each vertex is the sole vertex in its 
                         own strongly connected component.
+                  \item The optional \lstinline{alloc} parameter supplies an allocator used for
+                        the internal finish-order vector and DFS stacks.  Defaults to
+                        \tcode{std::allocator<std::byte>}.
             \end{itemize}
       %\pnum\errors
 \end{itemdescr}
@@ -1871,6 +1902,9 @@ directed path from every vertex in the set to every other vertex in the set.
                         strongly connected component (the graph is strongly connected).
                   \item If the return value equals \lstinline{num_vertices(g)}, every vertex
                         is its own SCC (a DAG).
+                  \item The optional \lstinline{alloc} parameter supplies an allocator used for
+                        the internal DFS stack, SCC stack, and discovery/low-link arrays.  Defaults
+                        to \tcode{std::allocator<std::byte>}.
             \end{itemize}
 \end{itemdescr}
 
@@ -2011,7 +2045,7 @@ Find the minimum weight spanning tree of a graph using Kruskal's algorithm.
 \end{table}
 
 {\small
-      \lstinputlisting[firstline=4,lastline=8]{D3128_Algorithms/src/mst.hpp}
+      \lstinputlisting[firstline=4,lastline=10]{D3128_Algorithms/src/mst.hpp}
 }
 \begin{itemdescr}
       \pnum\mandates
@@ -2042,7 +2076,9 @@ Find the minimum weight spanning tree of a graph using Kruskal's algorithm.
                   \item \textbf{Time:} $\mathcal{O}(|E|\log{|E|})$.
                   \item \textbf{Space:} $\mathcal{O}(|E|+|V|)$ auxiliary --- edge copy and union-find.
             \end{itemize}
-      %\pnum\remarks 
+      \pnum\remarks The optional \lstinline{alloc} parameter supplies an allocator used for
+            the internal disjoint-set (union-find) storage.  Defaults to
+            \tcode{std::allocator<std::byte>}.
       %\pnum\errors
 \end{itemdescr}
 
@@ -2068,7 +2104,7 @@ rather than making a copy.  The input range must satisfy \lstinline{permutable<i
 \end{table}
 
 {\small
-      \lstinputlisting[firstline=13,lastline=19]{D3128_Algorithms/src/mst.hpp}
+      \lstinputlisting[firstline=15,lastline=23]{D3128_Algorithms/src/mst.hpp}
 }
 \begin{itemdescr}
       \pnum\mandates
@@ -2104,6 +2140,9 @@ rather than making a copy.  The input range must satisfy \lstinline{permutable<i
             \end{itemize}
       \pnum\remarks The input edge list is modified (sorted).  If the caller needs to
             preserve the original order, use \lstinline{kruskal} instead.
+            The optional \lstinline{alloc} parameter supplies an allocator used for
+            the internal disjoint-set (union-find) storage.  Defaults to
+            \tcode{std::allocator<std::byte>}.
       %\pnum\errors
 \end{itemdescr}
 
@@ -2129,7 +2168,7 @@ Delegates to \lstinline{dijkstra_shortest_paths} with a projecting combine funct
 \end{table}
 
 {\small
-      \lstinputlisting[firstline=24,lastline=40]{D3128_Algorithms/src/mst.hpp}
+      \lstinputlisting[firstline=28,lastline=46]{D3128_Algorithms/src/mst.hpp}
 }
 
 \begin{itemdescr}
@@ -2186,6 +2225,9 @@ Delegates to \lstinline{dijkstra_shortest_paths} with a projecting combine funct
             \end{itemize}
       \pnum\remarks Only produces a spanning tree for the connected component containing \lstinline{seed}.
             For disconnected graphs, call \lstinline{prim} once per component with a seed vertex from each component.
+            The optional \lstinline{alloc} parameter supplies an allocator used for
+            the internal priority queue (forwarded to \lstinline{dijkstra_shortest_paths}).
+            Defaults to \tcode{std::allocator<std::byte>}.
       %\pnum\errors
 \end{itemdescr}
 
