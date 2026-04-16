@@ -1,5 +1,7 @@
-template <adjacency_list G, class Visitor = empty_visitor>
+template <adjacency_list G, class Visitor = empty_visitor,
+          class Alloc = allocator<byte>>
 void breadth_first_search(
-      G&&            g,            // graph
-      vertex_id_t<G> source,       // starting vertex\_id
-      Visitor&&      visitor = empty_visitor())
+      G&&             g,            // graph
+      vertex_id_t<G>  source,       // starting vertex\_id
+      Visitor&&       visitor = empty_visitor(),
+      const Alloc&    alloc   = Alloc())
