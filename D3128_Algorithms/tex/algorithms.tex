@@ -748,8 +748,24 @@ using non-negative weights.
 %\caption{Algorithm Example}
 \end{table}
 
-Note that complexity may be $\mathcal{O}(|E| + |V|\log{|V|)}$ for certain implementations that use a Fibonacci heap
-instead of a binary heap implemented with \tcode{std::priority_queue}.
+Two heap-selector tag types control the internal priority queue strategy and are passed as the
+\tcode{Heap} template argument:
+{\small
+      \lstinputlisting[texcl=false]{D3128_Algorithms/src/dijkstra_heap_tags.hpp}
+}
+
+The \tcode{Heap} template parameter selects the internal priority queue strategy at compile time.
+Two heap-selector tags are provided:
+\begin{itemize}
+      \item \tcode{use_default_heap} (default) --- uses \tcode{std::priority_queue} with lazy deletion.
+            Stale entries are skipped at pop time; the heap may grow to $\mathcal{O}(|E|)$ in the worst case.
+            Recommended for sparse graphs ($|E|/|V| \lesssim 4$), grid-like topologies, and path graphs.
+      \item \tcode{use_indexed_dary_heap<Arity>} --- uses an indexed $d$-ary heap with true decrease-key.
+            Heap size is bounded by $\mathcal{O}(|V|)$; no stale pops.
+            Recommended for dense or hub-heavy graphs ($|E|/|V| \gtrsim 8$).
+            \tcode{Arity=8} is the recommended setting on x86\_64 for high-$|E|/|V|$ workloads;
+            \tcode{Arity=4} matches Boost's \tcode{d_ary_heap_indirect}.
+\end{itemize}
 
 \subsubsection{Dijkstra Shortest Paths}
 
@@ -844,9 +860,12 @@ instead of a binary heap implemented with \tcode{std::priority_queue}.
             \end{itemize}
       \pnum\complexity
             \begin{itemize}
-                  \item \textbf{Time:} $\mathcal{O}((|E| + |V|)\log{|V|})$ based on using the binary heap in \tcode{std::priority_queue}.
-                  \item \textbf{Space:} $\mathcal{O}(|V|)$ auxiliary --- priority queue and bookkeeping arrays.
-                  \item An implementation may choose to use a Fibonacci heap for a time complexity of $\mathcal{O}(|E| + |V|\log{|V|})$.
+                  \item \textbf{Time:} $\mathcal{O}((|E| + |V|)\log{|V|})$ with \tcode{use_default_heap}
+                        (binary heap via \tcode{std::priority_queue}).
+                        With \tcode{use_indexed_dary_heap<d>} the heap size is bounded by $\mathcal{O}(|V|)$
+                        and each operation costs $\mathcal{O}(\log_{d}{|V|})$.
+                  \item \textbf{Space:} $\mathcal{O}(|V|)$ auxiliary for \tcode{use_indexed_dary_heap};
+                        up to $\mathcal{O}(|E|)$ for \tcode{use_default_heap} due to lazy deletion.
             \end{itemize}
       \pnum\remarks 
             \begin{itemize}
@@ -858,6 +877,11 @@ instead of a binary heap implemented with \tcode{std::priority_queue}.
                         the same way (see §\textit{Vertex Property Function Concepts}).
                   \item Pass \lstinline{_null_predecessor} as \lstinline{predecessor} when predecessor tracking
                         is not needed (avoids storing results).
+                  \item The \lstinline{Heap} template parameter selects the internal heap implementation.
+                        Pass \tcode{use_default_heap\{\}} (default) for sparse or grid-like graphs;
+                        pass \tcode{use_indexed_dary_heap<Arity>\{\}} for dense or hub-heavy graphs
+                        where many edges trigger distance relaxation.
+                        \tcode{use_indexed_dary_heap<8>} is recommended on x86\_64 for high-$|E|/|V|$ workloads.
                   \item The optional \lstinline{alloc} parameter supplies an allocator used for
                         the internal priority queue.  Defaults to \tcode{std::allocator<std::byte>}.
                         Provide a custom allocator (e.g.~a pool allocator) to control the memory
@@ -953,9 +977,12 @@ giving a small performance improvement with lower memory overhead.
       %\pnum\returns \lstinline{void} \\
       \pnum\complexity
             \begin{itemize}
-                  \item \textbf{Time:} $\mathcal{O}((|E| + |V|)\log{|V|})$ based on using the binary heap in \tcode{std::priority_queue}.
-                  \item \textbf{Space:} $\mathcal{O}(|V|)$ auxiliary --- priority queue and bookkeeping arrays.
-                  \item An implementation may choose to use a Fibonacci heap for a time complexity of $\mathcal{O}(|E| + |V|\log{|V|})$.
+                  \item \textbf{Time:} $\mathcal{O}((|E| + |V|)\log{|V|})$ with \tcode{use_default_heap}
+                        (binary heap via \tcode{std::priority_queue}).
+                        With \tcode{use_indexed_dary_heap<d>} the heap size is bounded by $\mathcal{O}(|V|)$
+                        and each operation costs $\mathcal{O}(\log_{d}{|V|})$.
+                  \item \textbf{Space:} $\mathcal{O}(|V|)$ auxiliary for \tcode{use_indexed_dary_heap};
+                        up to $\mathcal{O}(|E|)$ for \tcode{use_default_heap} due to lazy deletion.
             \end{itemize}
       \pnum\remarks 
             \begin{itemize}
@@ -964,6 +991,11 @@ giving a small performance improvement with lower memory overhead.
                   \item \tcode{DistanceFn} must satisfy \tcode{distance_fn_for<DistanceFn,G>}.  Wrap a
                         \tcode{std::vector} or \tcode{std::unordered_map} with \tcode{container_value_fn}
                         (see §\textit{Vertex Property Function Concepts}).
+                  \item The \lstinline{Heap} template parameter selects the internal heap implementation.
+                        Pass \tcode{use_default_heap\{\}} (default) for sparse or grid-like graphs;
+                        pass \tcode{use_indexed_dary_heap<Arity>\{\}} for dense or hub-heavy graphs
+                        where many edges trigger distance relaxation.
+                        \tcode{use_indexed_dary_heap<8>} is recommended on x86\_64 for high-$|E|/|V|$ workloads.
                   \item The optional \lstinline{alloc} parameter supplies an allocator used for
                         the internal priority queue.  Defaults to \tcode{std::allocator<std::byte>}.
                         Provide a custom allocator (e.g.~a pool allocator) to control the memory
@@ -2168,7 +2200,7 @@ Delegates to \lstinline{dijkstra_shortest_paths} with a projecting combine funct
 \end{table}
 
 {\small
-      \lstinputlisting[firstline=28,lastline=46]{D3128_Algorithms/src/mst.hpp}
+      \lstinputlisting[firstline=28,lastline=48]{D3128_Algorithms/src/mst.hpp}
 }
 
 \begin{itemdescr}
@@ -2220,14 +2252,25 @@ Delegates to \lstinline{dijkstra_shortest_paths} with a projecting combine funct
             \end{itemize}
       \pnum\complexity
             \begin{itemize}
-                  \item \textbf{Time:} $\mathcal{O}(|E|\log{|V|})$.
-                  \item \textbf{Space:} $\mathcal{O}(|V|)$ auxiliary --- priority queue and bookkeeping arrays.
+                  \item \textbf{Time:} $\mathcal{O}(|E|\log{|V|})$ with \tcode{use_default_heap}.
+                        With \tcode{use_indexed_dary_heap<d>} the heap size is bounded by $\mathcal{O}(|V|)$
+                        and each operation costs $\mathcal{O}(\log_{d}{|V|})$.
+                  \item \textbf{Space:} $\mathcal{O}(|V|)$ auxiliary for \tcode{use_indexed_dary_heap};
+                        up to $\mathcal{O}(|E|)$ for \tcode{use_default_heap} due to lazy deletion.
             \end{itemize}
-      \pnum\remarks Only produces a spanning tree for the connected component containing \lstinline{seed}.
-            For disconnected graphs, call \lstinline{prim} once per component with a seed vertex from each component.
-            The optional \lstinline{alloc} parameter supplies an allocator used for
-            the internal priority queue (forwarded to \lstinline{dijkstra_shortest_paths}).
-            Defaults to \tcode{std::allocator<std::byte>}.
+      \pnum\remarks
+            \begin{itemize}
+                  \item Only produces a spanning tree for the connected component containing \lstinline{seed}.
+                        For disconnected graphs, call \lstinline{prim} once per component with a seed vertex from each component.
+                  \item The \lstinline{Heap} template parameter selects the internal heap implementation
+                        (forwarded to \lstinline{dijkstra_shortest_paths}).
+                        Pass \tcode{use_default_heap\{\}} (default) for sparse or grid-like graphs;
+                        pass \tcode{use_indexed_dary_heap<Arity>\{\}} for dense or hub-heavy graphs.
+                        See the Dijkstra Shortest Paths section for guidance on arity selection.
+                  \item The optional \lstinline{alloc} parameter supplies an allocator used for
+                        the internal priority queue (forwarded to \lstinline{dijkstra_shortest_paths}).
+                        Defaults to \tcode{std::allocator<std::byte>}.
+            \end{itemize}
       %\pnum\errors
 \end{itemdescr}
 
