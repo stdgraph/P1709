@@ -65,7 +65,7 @@ for(auto&& [uid, u, value] : vertexlist(g, vvf)) {
 \end{lstlisting}
 
 \subsection{\tcode{struct vertex_data<VId, V, VV>}}\label{vertex-view}\mbox{} \\
-\tcode{vertex_data} is used to return vertex information. It is used by \tcode{vertexlist(g)}, \tcode{vertices_breadth_first_search(g,u)}, 
+\tcode{vertex_data} is used to return vertex information. It is used by \tcode{vertexlist(g)}, \tcode{vertices_bfs(g,u)}, 
 \tcode{vertices_dfs(g,u)} and others. The \tcode{id} member is the vertex id, the \tcode{vertex} member is the vertex descriptor,
 and \tcode{value} is the result of the value function, if provided.
 
@@ -100,7 +100,7 @@ has two members \tcode{\{id_type id; vertex_type vertex;\}} and \tcode{value_typ
 \subsection{\tcode{struct edge_data<VId, Sourced, E, EV>}}\label{edge-view}\mbox{} \\
 
 \tcode{edge_data} is used to return edge information. It is used by 
-\tcode{incidence(g,u), edgelist(g), edges_breadth_first_search(g,u), edges_dfs(g,u)} and others.
+\tcode{incidence(g,u), edgelist(g), edges_bfs(g,u), edges_dfs(g,u)} and others.
 \tcode{source_id} and \tcode{target_id} are vertex ids of type \tcode{vertex_id_t<G>}.
 
 When \tcode{Sourced=true}, the \tcode{source_id} member is included. The \tcode{target_id} member always exists.
@@ -163,9 +163,11 @@ and \tcode{value_type} is \tcode{void}.
 \hline
     \tcode{neighbor_data<VId, true, V, VV>} & \tcode{source_id} & \tcode{target_id} & \tcode{target} & \tcode{value} \\
     \tcode{neighbor_data<VId, true, V, void>} & \tcode{source_id} & \tcode{target_id} & \tcode{target} & \\
+    \tcode{neighbor_data<VId, true, void, VV>} & \tcode{source_id} & \tcode{target_id} & & \tcode{value} \\
     \tcode{neighbor_data<VId, true, void, void>} & \tcode{source_id} & \tcode{target_id} & & \\
     \tcode{neighbor_data<VId, false, V, VV>} & & \tcode{target_id} & \tcode{target} & \tcode{value} \\
     \tcode{neighbor_data<VId, false, V, void>} & & \tcode{target_id} & \tcode{target} & \\
+    \tcode{neighbor_data<VId, false, void, VV>} & & \tcode{target_id} & & \tcode{value} \\
     \tcode{neighbor_data<VId, false, void, void>} & & \tcode{target_id} & & \\
 \hline
 \end{tabular}}
@@ -387,8 +389,8 @@ Each search view exposes the following member functions:
 \begin{lstlisting}
 cancel_search cancel() const noexcept;  // get current cancel state
 void cancel(cancel_search c) noexcept;  // set cancel state
-std::size_t depth() const noexcept;     // distance from seed to current vertex
-std::size_t num_visited() const noexcept; // total vertices/edges visited so far
+std::size_t depth() const noexcept;     // depth of currently yielded element (seed is 0)
+std::size_t num_visited() const noexcept; // elements yielded so far, including the current element
 \end{lstlisting}
 
 The \tcode{search_view} concept captures these requirements:
@@ -403,12 +405,15 @@ concept search_view = requires(V& v, const V& cv) {
 
 Topological sort views support \tcode{cancel()} and \tcode{num_visited()} but not \tcode{depth()} (flat ordering has no tree structure), so they do not satisfy \tcode{search_view}.
 
-For DFS, \tcode{dfs.num_visited()} is typically close to \tcode{dfs.depth()} and is simple to calculate. Breadth-first search requires extra bookkeeping to evaluate \tcode{bfs.depth()}, which returns a different value than \tcode{bfs.num_visited()}.
+For views that satisfy \tcode{search_view} (DFS and BFS), \tcode{depth()} denotes the depth of the currently yielded element measured from the seed. The seed has depth 0, and each traversed edge increases depth by 1.
+
+\tcode{num_visited()} returns the number of elements yielded so far, \emph{including the element currently held by the loop variable}. On the first iteration it equals 1 (the seed for vertex views, the first tree edge for edge views). This makes threshold checks inside the loop body intuitive: when the loop body executes, \tcode{num_visited()} reflects the current position rather than the previous one.
 
 The following example shows how the member functions could be used, using \tcode{dfs} for one of the depth-first search views. The same members are available on all search views that satisfy \tcode{search_view}.
 \begin{lstlisting}
 auto&& g = ...; // graph
 auto&& dfs = vertices_dfs(g,0); // start with seed vertex\_id=0
+// On first iteration: dfs.depth()==0, dfs.num\_visited()==1
 for(auto&& [uid,u] : dfs) {
   // No need to search deeper?
   if(dfs.depth() > 3) {
@@ -533,7 +538,7 @@ Topological sort factory functions also accept an optional trailing allocator pa
 
 \section{Range Adaptors (Pipe Syntax)}
 
-All view factory functions described in this paper are also available as range adaptor closure objects, enabling pipe syntax. The adaptor objects live in \tcode{namespace graph::views} and forward to the corresponding factory function. Table \ref{tab:adaptors_graph} shows the graph view adaptors and Table \ref{tab:adaptors_search} shows the search view adaptors.
+All range-returning, non-\tcode{_safe} view factories listed in Tables \ref{tab:adaptors_graph} and \ref{tab:adaptors_search} are also available as range adaptor closure objects, enabling pipe syntax. The adaptor objects live in \tcode{namespace graph::views} and forward to the corresponding factory function. The \tcode{_safe} topological-sort factories return \tcode{std::expected} and are not adaptor closures. \tcode{transpose} is a graph adaptor (not a range adaptor) and remains documented separately.
 
 \begin{table}[h!]
 \begin{center}
