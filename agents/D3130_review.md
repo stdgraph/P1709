@@ -91,12 +91,16 @@ wording/snippet polish.
   implementation while the id/value CPOs are available now. Kept as documented
   target interface per author direction.
 
-### 1.8 [LOW] `vertex_value(g,uid)` convenience overload missing in code
-- Paper: vertex-functions table lists `vertex_value(g,uid)` with default
-  `vertex_value(g,*find_vertex(g,uid))`.
-- Code: `_vertex_value` CPO provides only `operator()(g, u)` (descriptor form);
-  no `uid` overload.
-- Action: either add the overload to the impl or footnote it as not-yet-provided.
+### 1.8 [LOW] `vertex_value(g,uid)` convenience overload — RESOLVED (added to code)
+- Original mismatch: paper's vertex-functions table documented
+  `vertex_value(g,uid)` (default `vertex_value(g,*find_vertex(g,uid))`); the
+  `_vertex_value` CPO provided only the descriptor form `operator()(g, u)`.
+- Resolution (code updated to match paper): added a `uid` convenience overload
+  to the `_vertex_value` CPO that resolves to
+  `(*this)(g, *find_vertex(g, uid))`, gated by a `_has_uid` constraint (uid is
+  not a vertex descriptor, `find_vertex(g,uid)` is valid, and `vertex_value` is
+  available on the resulting descriptor). Added a focused uid-overload test;
+  adj_list (now 26 vertex_value cases) and container suites pass.
 
 ### 1.9 [LOW] `mapped_vertex_range` snippet omits the `hashable_vertex_id` requirement
 - Paper: `src/concepts_vertex_range.hpp` shows `mapped_vertex_range` as
