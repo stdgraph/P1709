@@ -57,8 +57,18 @@ This section describes the concepts used for adjacency lists in the Graph Librar
 until we have consensus of whether they belong in the standard or not.}
 
 \subsubsection{Edge Concepts}
-The \tcode{edge<G,E>} concept unifies all edge types in a single concept: an edge must provide \tcode{source_id},
-\tcode{source}, \tcode{target_id}, and \tcode{target} access given the graph.
+Two layered edge concepts are defined. \tcode{basic_edge<G,E>} is the shared floor: an edge must
+provide \tcode{source_id(g,e)} and \tcode{target_id(g,e)}. It lives in \tcode{std::graph} and depends only
+on the shared id CPOs, so it ties an edge to both the adjacency list and the edge list (it is the concept
+required by \tcode{basic_sourced_edgelist}, below).
+
+The adjacency-list \tcode{edge<G,E>} concept refines \tcode{basic_edge} by additionally requiring the
+\tcode{source(g,e)} and \tcode{target(g,e)} vertex descriptors. Within an \tcode{adjacency_list} these are
+always available: \tcode{out_edges(g,u)} and \tcode{in_edges(g,u)} always yield edge descriptors, and
+\tcode{adjacency_list} implies a \tcode{vertex_range} (hence \tcode{find_vertex}), so the default
+\tcode{source}/\tcode{target} resolve to \tcode{*find_vertex(g, source_id/target_id(g,e))}. The descriptor
+requirement is therefore free for conforming graphs while keeping edge-list elements --- which have no
+vertex container --- out of the adjacency-list \tcode{edge} concept; those satisfy only \tcode{basic_edge}.
 {\small
      \lstinputlisting{D3130_Container_Interface/src/concepts_edges.hpp}
 }
@@ -83,14 +93,20 @@ satisfies \tcode{edge<G, range_value_t<R>>}.
 }
 
 \subsubsection{Vertex Concepts}
-The \tcode{vertex<G,V>} concept requires that a vertex supports \tcode{vertex_id(g,u)} and \tcode{find_vertex(g,uid)}.
+The \tcode{vertex<G,V>} concept requires that \tcode{V} is a vertex descriptor (\tcode{is_vertex_descriptor_v<V>})
+that supports \tcode{vertex_id(g,u)} and \tcode{find_vertex(g,uid)}. The descriptor guard distinguishes a
+vertex descriptor from a raw vertex value, so the concept does not accidentally match unrelated types.
 Building on it, \tcode{vertex_range<R,G>} requires a \tcode{forward_range} and \tcode{sized_range} whose
 value type satisfies \tcode{vertex<G,...>}.
+
+The \tcode{hashable_vertex_id<G>} concept holds when \tcode{vertex_id_t<G>} is usable as a key in a
+\tcode{std::unordered_map} (i.e.\ it is hashable). It is used by \tcode{mapped_vertex_range} and by the
+\tcode{vertex_property_map} utilities, which back per-vertex state with an \tcode{unordered_map} for mapped graphs.
 
 Two specializations of vertex range are provided:
 \begin{itemize}
     \item \tcode{index_vertex_range<G>} — vertex id is integral and the vertex range is random-access with an integral \tcode{storage_type}. Used for high-performance graphs such as \tcode{index_adjacency_list}.
-    \item \tcode{mapped_vertex_range<G>} — vertex id is non-integral and vertices are found via \tcode{find_vertex(g, uid)}. Used for graphs whose vertices are stored in associative containers.
+    \item \tcode{mapped_vertex_range<G>} — not an \tcode{index_vertex_range}, the vertex id is \tcode{hashable_vertex_id}, and vertices are found via \tcode{find_vertex(g, uid)}. Used for graphs whose vertices are stored in associative containers.
 \end{itemize}
 {\small
      \lstinputlisting{D3130_Container_Interface/src/concepts_vertex_range.hpp}
@@ -136,10 +152,11 @@ Table \ref{tab:graph_traits} summarizes the type traits in the Graph Container I
     \tcode{has_basic_queries<G>} & concept & \tcode{has_degree<G> \&\& has_find_vertex<G> \&\& has_find_vertex_edge<G>} \\
     \tcode{has_full_queries<G>} & concept & \tcode{has_basic_queries<G> \&\& has_contains_edge<G, vertex_t<G>>} \\
 \hline
-    \tcode{define_adjacency_matrix<G> : false_type} & struct & Specialize for graph implementation to derive from \tcode{true_type} for edges stored as a square 2-dimensional array. Not yet in reference implementation. \\
+    \tcode{define_adjacency_matrix<G> : false_type} & struct & Specialize for graph implementation to derive from \tcode{true_type} for edges stored as a square 2-dimensional array. \\
     \tcode{is_adjacency_matrix<G>} & struct & \\
     \tcode{is_adjacency_matrix_v<G>} & type alias & \\
     \tcode{adjacency_matrix<G>} & concept & \\
+    \multicolumn{3}{l}{\emph{The adjacency\_matrix trait family is not yet in the reference implementation.}} \\
 \hline
 \end{tabular}}
 \caption{Graph Container Interface Type Traits}
@@ -170,7 +187,6 @@ The type aliases are defined by either a function specialization for the underly
     \tcode{vertex_iterator_t<G>} & \tcode{iterator_t<vertex_range_t<G>>} & \\    
     \tcode{vertex_t<G>} & \tcode{range_value_t<vertex_range_t<G>>} & descriptor \\    
     \tcode{vertex_id_t<G>} & \tcode{remove_cvref_t<decltype(vertex_id(g,vertex_t<G>))>} & \\
-    \tcode{vertex_id_store_t<G>} & (see below) & normative \\
     \textit{\tcode{raw-vertex-id-type}} & \tcode{decltype(vertex_id(g,vertex_t<G>))} & exposition only \\
     \tcode{vertex_value_t<G>} & \tcode{decltype(vertex_value(g,u))} & optional \\
 \hline
@@ -368,8 +384,8 @@ to be able to reflect all forms of adjacency graphs including a vector of lists,
     \tcode{has_edges(g)} & \tcode{bool} & |V| & \tcode{for(u: vertices(g)) if !empty(out\_edges(g,u)) return true; return false;} \\
 \hdashline
     \tcode{num_partitions(g)} & \tcode{integral} & constant & 1 \\
-    \tcode{vertices(g,pid)} & \tcode{partition_vertex_range_t<G>} & constant & \tcode{vertices(g)} \\
-    \tcode{num_vertices(g,pid)} & \tcode{integral} & constant & \tcode{size(vertices(g))}  \\
+    \tcode{vertices(g,pid)} & \tcode{partition_vertex_range_t<G>} & constant & \tcode{vertices(g)} if \tcode{pid==0}, else empty range \\
+    \tcode{num_vertices(g,pid)} & \tcode{integral} & constant & \tcode{size(vertices(g))} if \tcode{pid==0}, else 0  \\
 \hline
 \end{tabular}}
 \caption{Graph Functions}
@@ -407,6 +423,7 @@ implementation. Specific graph implementations may have different characteristic
     \tcode{out_degree(g,uid)} & \tcode{integral} & constant & \tcode{size(out\_edges(g,uid))} if \tcode{sized_range<out_edge_range_t<G>>} \\
     (\tcode{edges(g,u), edges(g,uid)} & & & aliases for \tcode{out\_edges}) \\
     (\tcode{degree(g,u), degree(g,uid)} & & & aliases for \tcode{out\_degree}) \\
+    (\tcode{num\_edges(g,u), num\_edges(g,uid)} & & & aliases for \tcode{out\_degree}) \\
 \hdashline
     \tcode{in_edges(g,u)} & \tcode{in_edge_range_t<G>} & constant & n/a (requires bidirectional graph) \\
     \tcode{in_edges(g,uid)} & \tcode{in_edge_range_t<G>} & constant & \tcode{in\_edges(g,*find\_vertex(g,uid))} \\
@@ -476,6 +493,10 @@ the default implementation for \tcode{target_id(g,uv)} will return the \tcode{in
 
 Functions that have n/a for their Default Implementation must be defined by the author of a Graph Container implementation. 
 
+The constant-time \tcode{contains_out_edge(g,uid,vid)} branch guarded by \tcode{is_adjacency_matrix_v<G>} depends on the
+adjacency\_matrix trait family, which is not yet in the reference implementation; until then the linear \tcode{find_out_edge}-based
+default is always used.
+
 Value functions (\tcode{graph_value(g)}, \tcode{vertex_value(g,u)} and \tcode{edge_value(g,uv)}) can be optionally implemented, 
 depending on whether the graph container supports values on the graph, vertex and edge types. They return a single value and can 
 be scalar, struct, class, union, or tuple. These are abstract types used by the GVF, VVF and EVF function objects to retrieve
@@ -527,7 +548,7 @@ iterators with descriptors.
     Overload reduction & Separate overloads for index vs.\ iterator & A single overload accepts the descriptor \\
     Invalidation & Invalidated by container mutation & Can be re-resolved via \tcode{find_vertex} \\
     Copyability & Varies (e.g.\ \tcode{forward_list::iterator}) & Always trivially copyable or cheap \\
-    Size & May be pointer-sized or larger & Index-based: one integer \\
+    Size & May be pointer-sized or larger & Index-based vertex: one integer; edge: an iterator plus the source vertex descriptor \\
 \hline
 \hline
 \end{tabular}}
@@ -556,7 +577,9 @@ The vertex and edge descriptors are defined as the \tcode{vertex_t<G>} and
 \tcode{edge_t<G>} types, respectively. \tcode{vertex_descriptor<VertexIter>} stores
 either a \tcode{size_t} index (for random-access containers) or an iterator (for
 associative containers) as an exposition-only private member.
-\tcode{edge_descriptor<EdgeIter,VertexIter,EdgeDirection>} additionally stores the
+\tcode{edge_descriptor<EdgeIter,VertexIter,EdgeDirection>} always stores the edge
+as its iterator (\tcode{EdgeIter}) --- unlike a vertex, an edge is always backed by a
+physical container element, so there is no index-only edge path. It additionally stores the
 source \tcode{vertex_descriptor} and an \tcode{EdgeDirection} tag (\tcode{out_edge_tag}
 or \tcode{in_edge_tag}) that controls source/target semantics, allowing bidirectional
 graphs to use the same edge type for both outgoing and incoming edges.
@@ -570,7 +593,7 @@ when overriding CPOs to adapt an external graph container to the GCI.
 
 Because descriptors are small and trivially copyable, CPO signatures accept them by
 value. A \tcode{vertex_descriptor} is at most pointer-sized (one index or iterator).
-An \tcode{edge_descriptor} is larger because it also carries the source
+An \tcode{edge_descriptor} is larger because it carries an edge iterator plus the source
 \tcode{vertex_descriptor}, but is still cheap to copy. The \tcode{const\&} form appears
 only in \tcode{requires} clauses of concepts where value copies are not permitted.
 {\small
@@ -615,7 +638,7 @@ determine how to get the appropriate value.
 \end{itemize}
 
 \tcode{out_edges(g,uid,pid)} and \tcode{out_edges(g,u,pid)} filter the edges where the target is in the partition \tcode{pid} passed.
-This isn't needed for bipartite graphs.
+This isn't needed for bipartite graphs. These partition-filtered \tcode{out_edges} overloads are not yet in the reference implementation.
 
 \section{Edgelist Interface}
 An edgelist is a range of values where we can get the source\_id and target\_id, and an optional edge\_value. It is similar to edges in an
@@ -629,7 +652,7 @@ It's also able to easily adapt to externally defined edge types by overriding th
 Edge list concepts, type aliases and CPOs are defined in the \tcode{std::graph::edge\_list} namespace.
 Unlike the adjacency list, these symbols are \emph{not} re-exported into \tcode{std::graph} because
 certain names have distinct meanings in each context --- most notably \tcode{vertex\_id\_t<G>} is derived
-from \tcode{vertex\_id(g,u)} for an adjacency list but from \tcode{target\_id(el,uv)} for an edge list.
+from \tcode{vertex\_id(g,u)} for an adjacency list but from \tcode{source\_id(el,uv)} for an edge list.
 Bringing both into the root namespace would create an irresolvable ambiguity.
 
 \tcode{graph::adj\_list} and \tcode{graph::edge\_list} are \emph{peer} namespaces: neither is a
@@ -637,7 +660,8 @@ subset or refinement of the other. An adjacency list provides per-vertex edge ra
 neighbour traversal; an edge list is a flat range of \tcode{(source, target [, value])} tuples suited to
 edge-centric algorithms such as Kruskal's MST or bulk construction. CPOs that operate directly on
 edge data --- \tcode{source\_id}, \tcode{target\_id} and \tcode{edge\_value} --- are shared and
-live in \tcode{std::graph}.
+live in \tcode{std::graph}, as is the \tcode{basic\_edge} concept built on them, which both the
+adjacency-list \tcode{edge} concept and the edge-list \tcode{basic\_sourced\_edgelist} concept refine.
 
 
 \subsection{Concepts}
@@ -645,8 +669,10 @@ The edgelist concepts use a 2-argument form \tcode{f(el, uv)} where \tcode{el} i
 matching the adjacency list CPO convention. All edgelist CPOs require both the container and the element to allow for
 container-specific dispatch.
 
-\tcode{basic_sourced_edgelist<EL>} is the base concept: an input range whose element type is not itself a range, supporting
-\tcode{source_id(el,uv)} and \tcode{target_id(el,uv)} with compatible types. \tcode{basic_sourced_index_edgelist<EL>} additionally
+\tcode{basic_sourced_edgelist<EL>} is the base concept: an input range whose element type is not itself a range, whose element
+satisfies the shared \tcode{basic_edge} concept (\tcode{source_id(el,uv)} and \tcode{target_id(el,uv)}).
+This is the same \tcode{basic_edge} floor required by the adjacency-list \tcode{edge} concept, tying the two abstract data types
+together at the edge level. \tcode{basic_sourced_index_edgelist<EL>} additionally
 requires both ids to be integral. \tcode{has_edge_value<EL>} refines \tcode{basic_sourced_edgelist} to also provide \tcode{edge_value(el,uv)}.
 {\small
      \lstinputlisting{D3130_Container_Interface/src/edgelist_concepts.hpp}
@@ -694,8 +720,8 @@ those types (e.g. an iterator of a range). Table \ref{tab:edgelist_func} describ
     \tcode{edge_t<EL>} & \tcode{range_value_t<edge_range_t<EL>>} & \\       
     \tcode{edge_value_t<EL>} & \tcode{decltype(edge_value(el,uv))} & optional \\
 \hline
-    \tcode{vertex_id_t<EL>} & \tcode{remove_cvref_t<decltype(target_id(el,uv))>} & \\
-    \textit{\tcode{raw-vertex-id-type}} & \tcode{decltype(target_id(el,uv))} & exposition only \\
+    \tcode{vertex_id_t<EL>} & \tcode{remove_cvref_t<decltype(source_id(el,uv))>} & \\
+    \textit{\tcode{raw-vertex-id-type}} & \tcode{decltype(source_id(el,uv))} & exposition only \\
 \hline
 \end{tabular}}
 \caption{Edgelist Interface Type Aliases}
@@ -733,6 +759,9 @@ is always available.
     \label{tab:edgelist_func}
     \end{center}
 \end{table}
+
+The \tcode{contains_edge(el,uid,vid)}, \tcode{num_edges(el)} and \tcode{has_edges(el)} functions are not yet in the reference
+implementation; the \tcode{source_id}, \tcode{target_id} and \tcode{edge_value} CPOs are available now.
 
 % \tcode{find_if(el, )}
 % [](edge_reference_t<EL>) \{return source_id(e)==uid && target_id(e)==vid\}
