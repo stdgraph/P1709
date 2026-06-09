@@ -29,17 +29,18 @@ wording/snippet polish.
   descriptors). Verified: adj_list / container / views / edge_list suites pass;
   edge_list interop test updated to assert the new contract.
 
-### 1.2 [HIGH] `edge_descriptor::edge_storage_type` differs from the implementation
-- Paper: `src/descriptor.hpp` shows
-  `edge_storage_type = conditional_t<random_access_iterator<EdgeIter>, size_t, EdgeIter>`,
-  and the surrounding prose ("Index-based: one integer") implies an index is
-  stored for random-access edge containers.
-- Code: `adj_list/edge_descriptor.hpp` — `using edge_storage_type = EdgeIter;`
-  (always the iterator; no index specialization). The `vertex_descriptor`
-  *does* use the `size_t`/iterator conditional, but the `edge_descriptor` does
-  not.
-- Action: fix the `edge_descriptor` snippet to store `EdgeIter`, and adjust the
-  copy-size discussion so the index claim applies to `vertex_descriptor` only.
+### 1.2 [HIGH] `edge_descriptor::edge_storage_type` — RESOLVED (paper now matches code)
+- Original mismatch: paper showed
+  `edge_storage_type = conditional_t<random_access_iterator<EdgeIter>, size_t, EdgeIter>`
+  with prose implying an index for random-access edges; code always uses
+  `using edge_storage_type = EdgeIter;` (no index-only edge path, since edges
+  are always backed by a physical container element).
+- Resolution (paper updated): `src/descriptor.hpp` snippet now shows
+  `edge_storage_type = EdgeIter`; the descriptor-storage prose states the edge
+  is always stored as its iterator; the comparison-table size row and the
+  copy-size paragraph now scope the "one integer" claim to the index-based
+  `vertex_descriptor` and describe an `edge_descriptor` as an iterator plus the
+  source `vertex_descriptor`. PDF rebuilds cleanly.
 
 ### 1.3 [MED] Edgelist `vertex_id_t<EL>`: paper says `target_id`, code uses `source_id`
 - Paper: Table "Edgelist Interface Type Aliases" defines

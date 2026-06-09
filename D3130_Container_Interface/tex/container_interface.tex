@@ -537,7 +537,7 @@ iterators with descriptors.
     Overload reduction & Separate overloads for index vs.\ iterator & A single overload accepts the descriptor \\
     Invalidation & Invalidated by container mutation & Can be re-resolved via \tcode{find_vertex} \\
     Copyability & Varies (e.g.\ \tcode{forward_list::iterator}) & Always trivially copyable or cheap \\
-    Size & May be pointer-sized or larger & Index-based: one integer \\
+    Size & May be pointer-sized or larger & Index-based vertex: one integer; edge: an iterator plus the source vertex descriptor \\
 \hline
 \hline
 \end{tabular}}
@@ -566,7 +566,9 @@ The vertex and edge descriptors are defined as the \tcode{vertex_t<G>} and
 \tcode{edge_t<G>} types, respectively. \tcode{vertex_descriptor<VertexIter>} stores
 either a \tcode{size_t} index (for random-access containers) or an iterator (for
 associative containers) as an exposition-only private member.
-\tcode{edge_descriptor<EdgeIter,VertexIter,EdgeDirection>} additionally stores the
+\tcode{edge_descriptor<EdgeIter,VertexIter,EdgeDirection>} always stores the edge
+as its iterator (\tcode{EdgeIter}) --- unlike a vertex, an edge is always backed by a
+physical container element, so there is no index-only edge path. It additionally stores the
 source \tcode{vertex_descriptor} and an \tcode{EdgeDirection} tag (\tcode{out_edge_tag}
 or \tcode{in_edge_tag}) that controls source/target semantics, allowing bidirectional
 graphs to use the same edge type for both outgoing and incoming edges.
@@ -580,7 +582,7 @@ when overriding CPOs to adapt an external graph container to the GCI.
 
 Because descriptors are small and trivially copyable, CPO signatures accept them by
 value. A \tcode{vertex_descriptor} is at most pointer-sized (one index or iterator).
-An \tcode{edge_descriptor} is larger because it also carries the source
+An \tcode{edge_descriptor} is larger because it carries an edge iterator plus the source
 \tcode{vertex_descriptor}, but is still cheap to copy. The \tcode{const\&} form appears
 only in \tcode{requires} clauses of concepts where value copies are not permitted.
 {\small

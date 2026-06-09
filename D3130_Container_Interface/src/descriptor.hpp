@@ -52,9 +52,9 @@ public:
   static constexpr bool is_in_edge  = is_same_v<EdgeDirection, in_edge_tag>;
   static constexpr bool is_out_edge = is_same_v<EdgeDirection, out_edge_tag>;
 
-  // index for random-access, iterator for forward (for exposition only)
-  using edge_storage_type =
-      conditional_t<random_access_iterator<EdgeIter>, size_t, EdgeIter>;
+  // Edges are always backed by a physical container, so the edge is
+  // stored as its iterator directly (no index-only path). (for exposition only)
+  using edge_storage_type = EdgeIter;
 
   constexpr edge_descriptor() = default;
   constexpr edge_descriptor(edge_storage_type edge_val,
