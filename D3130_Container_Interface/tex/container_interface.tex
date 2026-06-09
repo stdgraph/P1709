@@ -146,10 +146,11 @@ Table \ref{tab:graph_traits} summarizes the type traits in the Graph Container I
     \tcode{has_basic_queries<G>} & concept & \tcode{has_degree<G> \&\& has_find_vertex<G> \&\& has_find_vertex_edge<G>} \\
     \tcode{has_full_queries<G>} & concept & \tcode{has_basic_queries<G> \&\& has_contains_edge<G, vertex_t<G>>} \\
 \hline
-    \tcode{define_adjacency_matrix<G> : false_type} & struct & Specialize for graph implementation to derive from \tcode{true_type} for edges stored as a square 2-dimensional array. Not yet in reference implementation. \\
+    \tcode{define_adjacency_matrix<G> : false_type} & struct & Specialize for graph implementation to derive from \tcode{true_type} for edges stored as a square 2-dimensional array. \\
     \tcode{is_adjacency_matrix<G>} & struct & \\
     \tcode{is_adjacency_matrix_v<G>} & type alias & \\
     \tcode{adjacency_matrix<G>} & concept & \\
+    \multicolumn{3}{l}{\emph{The adjacency\_matrix trait family is not yet in the reference implementation.}} \\
 \hline
 \end{tabular}}
 \caption{Graph Container Interface Type Traits}
@@ -485,6 +486,10 @@ the default implementation for \tcode{target_id(g,uv)} will return the \tcode{in
 
 Functions that have n/a for their Default Implementation must be defined by the author of a Graph Container implementation. 
 
+The constant-time \tcode{contains_out_edge(g,uid,vid)} branch guarded by \tcode{is_adjacency_matrix_v<G>} depends on the
+adjacency\_matrix trait family, which is not yet in the reference implementation; until then the linear \tcode{find_out_edge}-based
+default is always used.
+
 Value functions (\tcode{graph_value(g)}, \tcode{vertex_value(g,u)} and \tcode{edge_value(g,uv)}) can be optionally implemented, 
 depending on whether the graph container supports values on the graph, vertex and edge types. They return a single value and can 
 be scalar, struct, class, union, or tuple. These are abstract types used by the GVF, VVF and EVF function objects to retrieve
@@ -626,7 +631,7 @@ determine how to get the appropriate value.
 \end{itemize}
 
 \tcode{out_edges(g,uid,pid)} and \tcode{out_edges(g,u,pid)} filter the edges where the target is in the partition \tcode{pid} passed.
-This isn't needed for bipartite graphs.
+This isn't needed for bipartite graphs. These partition-filtered \tcode{out_edges} overloads are not yet in the reference implementation.
 
 \section{Edgelist Interface}
 An edgelist is a range of values where we can get the source\_id and target\_id, and an optional edge\_value. It is similar to edges in an
@@ -747,6 +752,9 @@ is always available.
     \label{tab:edgelist_func}
     \end{center}
 \end{table}
+
+The \tcode{contains_edge(el,uid,vid)}, \tcode{num_edges(el)} and \tcode{has_edges(el)} functions are not yet in the reference
+implementation; the \tcode{source_id}, \tcode{target_id} and \tcode{edge_value} CPOs are available now.
 
 % \tcode{find_if(el, )}
 % [](edge_reference_t<EL>) \{return source_id(e)==uid && target_id(e)==vid\}

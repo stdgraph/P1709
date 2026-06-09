@@ -62,35 +62,34 @@ wording/snippet polish.
   `revision.tex`. The valid `raw-vertex-id-type` exposition-only alias (which
   maps to the code's `raw_vertex_id_t<G>`) is retained. PDF rebuilds cleanly.
 
-### 1.5 [MED] Adjacency-matrix trait family is undocumented-as-future and partly absent
-- Paper: traits table lists `define_adjacency_matrix` (flagged "Not yet in
-  reference implementation"), plus `is_adjacency_matrix`, `is_adjacency_matrix_v`,
-  and the `adjacency_matrix` concept (no flag). The `contains_out_edge` default
-  in Table "Edge Functions" describes a constant-time path guarded by
-  `is_adjacency_matrix_v<G>`.
-- Code: none of `define_adjacency_matrix`, `is_adjacency_matrix`,
-  `is_adjacency_matrix_v`, or `adjacency_matrix` exist. The actual
-  `contains_edge`/`contains_out_edge` default always does a linear `find_if` —
-  there is no adjacency-matrix O(1) shortcut.
-- Action: either (a) mark the whole family + the `contains_out_edge` constant
-  branch as "not yet in reference implementation", or (b) drop them. See Open
-  Question Q1.
+### 1.5 [MED] Adjacency-matrix trait family — RESOLVED (flagged not-yet-implemented)
+- Paper: traits table listed `define_adjacency_matrix`, `is_adjacency_matrix`,
+  `is_adjacency_matrix_v`, and the `adjacency_matrix` concept; the
+  `contains_out_edge` default described a constant-time path guarded by
+  `is_adjacency_matrix_v<G>`. None exist in the code; the actual default always
+  does a linear `find_if`.
+- Resolution (paper updated): added a group note to the traits table marking the
+  whole adjacency\_matrix family as "not yet in the reference implementation,"
+  and a note after the Edge Functions table that the constant-time
+  `contains_out_edge` branch is likewise future (the linear default is always
+  used until then). Kept as documented future design per author direction.
 
-### 1.6 [MED] Partition-filtered `out_edges(g,*,pid)` not implemented
-- Paper: the partitions section states `out_edges(g,uid,pid)` and
-  `out_edges(g,u,pid)` "filter the edges where the target is in the partition
-  `pid`."
-- Code: no `out_edges` overload takes a `pid`. Only `vertices(g,pid)`,
-  `num_vertices(g,pid)`, `num_partitions(g)`, and `partition_id(g,u)` exist.
-- Action: mark as future, or remove. See Open Question Q2.
+### 1.6 [MED] Partition-filtered `out_edges(g,*,pid)` — RESOLVED (flagged not-yet-implemented)
+- Paper stated `out_edges(g,uid,pid)` / `out_edges(g,u,pid)` filter edges by
+  target partition; no such overload exists in the code (only `vertices(g,pid)`,
+  `num_vertices(g,pid)`, `num_partitions(g)`, `partition_id(g,u)`).
+- Resolution (paper updated): the partitions section now states these
+  partition-filtered `out_edges` overloads are not yet in the reference
+  implementation. Kept as documented future API per author direction.
 
-### 1.7 [MED] Edgelist functions `num_edges/has_edges/contains_edge` are TODO in code
-- Paper: Table "Edgelist Interface Functions" lists `num_edges(el)`,
-  `has_edges(el)`, and `contains_edge(el,uid,vid)` with default implementations.
-- Code: `edge_list/edge_list.hpp` header marks these "(todo)"; only
-  `source_id`, `target_id`, `edge_value` CPOs are implemented in `edge_cpo.hpp`.
-- Action: confirm intent — keep documented as the target interface, or add a
-  "not yet implemented" note. See Open Question Q3.
+### 1.7 [MED] Edgelist functions `num_edges/has_edges/contains_edge` — RESOLVED (flagged not-yet-implemented)
+- Paper documented `num_edges(el)`, `has_edges(el)`, `contains_edge(el,uid,vid)`
+  with default implementations; the code marks these "(todo)" and implements
+  only `source_id`/`target_id`/`edge_value`.
+- Resolution (paper updated): added a note after the Edgelist Interface
+  Functions table that these three functions are not yet in the reference
+  implementation while the id/value CPOs are available now. Kept as documented
+  target interface per author direction.
 
 ### 1.8 [LOW] `vertex_value(g,uid)` convenience overload missing in code
 - Paper: vertex-functions table lists `vertex_value(g,uid)` with default
@@ -177,15 +176,13 @@ wording/snippet polish.
 
 ## 4. Open questions (scope / intent — need author input)
 
-- **Q1 (adjacency matrix):** Should the adjacency-matrix trait family
-  (`define_adjacency_matrix`, `is_adjacency_matrix`, `is_adjacency_matrix_v`,
-  `adjacency_matrix`) and the constant-time `contains_out_edge` branch stay in
-  this paper as *future design*, or be removed until implemented? (See 1.5.)
-- **Q2 (partition edge filtering):** Keep `out_edges(g,uid,pid)` /
-  `out_edges(g,u,pid)` as documented future API, or remove? (See 1.6.)
-- **Q3 (edgelist functions):** Are `num_edges(el)` / `has_edges(el)` /
-  `contains_edge(el,uid,vid)` part of the proposed interface (document as-is) or
-  should they be flagged "not yet implemented"? (See 1.7.)
+- **Q1 (adjacency matrix):** RESOLVED — kept as future design, flagged "not yet
+  in the reference implementation" in the traits table and Edge Functions note.
+  See 1.5.
+- **Q2 (partition edge filtering):** RESOLVED — kept as future API, flagged not
+  yet implemented in the partitions section. See 1.6.
+- **Q3 (edgelist functions):** RESOLVED — kept as target interface, flagged not
+  yet implemented after the Edgelist Functions table. See 1.7.
 - **Q4 (edgelist `vertex_id`):** RESOLVED — paper aligned to `source_id` (the
   code's choice). See 1.3.
 - **Q5 (`hashable_vertex_id`):** Does the `hashable_vertex_id` concept belong in
