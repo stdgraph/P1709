@@ -53,13 +53,14 @@ wording/snippet polish.
   ids represent vertices of the same set, so either is a valid representative;
   `source_id` is chosen to match the implementation.) PDF rebuilds cleanly.
 
-### 1.4 [MED] `vertex_id_store_t<G>` does not exist
-- Paper: Table "Graph Container Interface Type Aliases" lists
-  `vertex_id_store_t<G>` and labels it "normative".
-- Code: no such alias. The closest is `raw_vertex_id_t<G>` (the paper's
-  "*raw-vertex-id-type*", exposition only).
-- Action: remove `vertex_id_store_t<G>` or replace with the actual alias name
-  and definition.
+### 1.4 [MED] `vertex_id_store_t<G>` does not exist — RESOLVED (removed from paper)
+- Original mismatch: the type-alias table listed `vertex_id_store_t<G>` (labeled
+  "normative") with a "(see below)" definition that was never actually defined;
+  no such alias exists in the code.
+- Resolution (paper updated): removed the `vertex_id_store_t<G>` row from the
+  "Graph Container Interface Type Aliases" table and the stale mention in
+  `revision.tex`. The valid `raw-vertex-id-type` exposition-only alias (which
+  maps to the code's `raw_vertex_id_t<G>`) is retained. PDF rebuilds cleanly.
 
 ### 1.5 [MED] Adjacency-matrix trait family is undocumented-as-future and partly absent
 - Paper: traits table lists `define_adjacency_matrix` (flagged "Not yet in
