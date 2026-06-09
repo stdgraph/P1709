@@ -36,8 +36,27 @@
             Related changes that affect this paper include:
             \begin{itemize}
                   \item Rename \tcode{descriptor} structs to \tcode{info} structs for new boost::graph-like descriptors.
-                  \item Remove \tcode{copyable_vertex} and \tcode{copyable_edge} from the \tcode{compressed_graph} \tcode{requires} clause 
-                        because descriptors are always copyable.
+                  \item Retain \tcode{copyable_edge} and \tcode{copyable_vertex} in the \tcode{compressed_graph}
+                        \tcode{requires} clauses. These constrain the \emph{result} of the \tcode{EProj}/\tcode{VProj}
+                        projection to be convertible to \tcode{copyable_edge_t<VId,EV>} / \tcode{copyable_vertex_t<VId,VV>};
+                        they validate the projected value's type and are unrelated to descriptor copyability.
             \end{itemize}
       
+\end{itemize}
+
+\subsection*{\paperno r4}
+\begin{itemize}
+      \item Received the std-container catalog from the Graph Container Interface proposal: the concrete
+            container example lists, the edge-container trade-off table, and the combined examples now live
+            here; the normative recognition patterns remain in the GCI paper, which this paper references.
+      \item Consistency fixes against the reference implementation: \tcode{edge_info} renamed to
+            \tcode{edge_data}; edgelist CPOs shown in 2-argument form \tcode{source_id(el,e)} /
+            \tcode{target_id(el,e)} / \tcode{edge_value(el,e)}; edgelist namespace corrected to
+            \tcode{std::graph::edge_list}; \tcode{has_edge(g)} corrected to \tcode{has_edges(g)};
+            \tcode{partition_id(g,u)} (descriptor form); \tcode{vertices(g,pid)} override; and the
+            \tcode{copyable_edge_t<VId,EV>} / \tcode{copyable_vertex_t<VId,VV>} projection result types.
+      \item Corrected the \tcode{compressed_graph} partition preconditions: invalid
+            \tcode{partition_start_ids} (first element not 0, not strictly increasing, or exceeding the
+            vertex count) throw \tcode{graph_error} rather than being undefined behavior.
+      \item Updated the standard-container adjacency example and its type table to the descriptor model.
 \end{itemize}

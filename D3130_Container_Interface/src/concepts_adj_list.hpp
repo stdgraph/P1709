@@ -31,3 +31,13 @@ template <class G>
 concept mapped_bidirectional_adjacency_list =
     bidirectional_adjacency_list<G> &&
     mapped_vertex_range<G>;
+
+// Semantic refinement: each vertex's out-edges are sorted by ascending
+// target\_id. The structural check below only confirms a forward edge range;
+// the ascending-order property is a semantic requirement the author asserts.
+template <class G>
+concept ordered_vertex_edges =
+    adjacency_list<G> &&
+    requires(G& g, vertex_t<G> u) {
+      requires forward_iterator<decltype(begin(out_edges(g, u)))>;
+    };
