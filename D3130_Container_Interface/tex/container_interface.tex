@@ -93,14 +93,20 @@ satisfies \tcode{edge<G, range_value_t<R>>}.
 }
 
 \subsubsection{Vertex Concepts}
-The \tcode{vertex<G,V>} concept requires that a vertex supports \tcode{vertex_id(g,u)} and \tcode{find_vertex(g,uid)}.
+The \tcode{vertex<G,V>} concept requires that \tcode{V} is a vertex descriptor (\tcode{is_vertex_descriptor_v<V>})
+that supports \tcode{vertex_id(g,u)} and \tcode{find_vertex(g,uid)}. The descriptor guard distinguishes a
+vertex descriptor from a raw vertex value, so the concept does not accidentally match unrelated types.
 Building on it, \tcode{vertex_range<R,G>} requires a \tcode{forward_range} and \tcode{sized_range} whose
 value type satisfies \tcode{vertex<G,...>}.
+
+The \tcode{hashable_vertex_id<G>} concept holds when \tcode{vertex_id_t<G>} is usable as a key in a
+\tcode{std::unordered_map} (i.e.\ it is hashable). It is used by \tcode{mapped_vertex_range} and by the
+\tcode{vertex_property_map} utilities, which back per-vertex state with an \tcode{unordered_map} for mapped graphs.
 
 Two specializations of vertex range are provided:
 \begin{itemize}
     \item \tcode{index_vertex_range<G>} — vertex id is integral and the vertex range is random-access with an integral \tcode{storage_type}. Used for high-performance graphs such as \tcode{index_adjacency_list}.
-    \item \tcode{mapped_vertex_range<G>} — vertex id is non-integral and vertices are found via \tcode{find_vertex(g, uid)}. Used for graphs whose vertices are stored in associative containers.
+    \item \tcode{mapped_vertex_range<G>} — not an \tcode{index_vertex_range}, the vertex id is \tcode{hashable_vertex_id}, and vertices are found via \tcode{find_vertex(g, uid)}. Used for graphs whose vertices are stored in associative containers.
 \end{itemize}
 {\small
      \lstinputlisting{D3130_Container_Interface/src/concepts_vertex_range.hpp}
@@ -378,8 +384,8 @@ to be able to reflect all forms of adjacency graphs including a vector of lists,
     \tcode{has_edges(g)} & \tcode{bool} & |V| & \tcode{for(u: vertices(g)) if !empty(out\_edges(g,u)) return true; return false;} \\
 \hdashline
     \tcode{num_partitions(g)} & \tcode{integral} & constant & 1 \\
-    \tcode{vertices(g,pid)} & \tcode{partition_vertex_range_t<G>} & constant & \tcode{vertices(g)} \\
-    \tcode{num_vertices(g,pid)} & \tcode{integral} & constant & \tcode{size(vertices(g))}  \\
+    \tcode{vertices(g,pid)} & \tcode{partition_vertex_range_t<G>} & constant & \tcode{vertices(g)} if \tcode{pid==0}, else empty range \\
+    \tcode{num_vertices(g,pid)} & \tcode{integral} & constant & \tcode{size(vertices(g))} if \tcode{pid==0}, else 0  \\
 \hline
 \end{tabular}}
 \caption{Graph Functions}
@@ -417,6 +423,7 @@ implementation. Specific graph implementations may have different characteristic
     \tcode{out_degree(g,uid)} & \tcode{integral} & constant & \tcode{size(out\_edges(g,uid))} if \tcode{sized_range<out_edge_range_t<G>>} \\
     (\tcode{edges(g,u), edges(g,uid)} & & & aliases for \tcode{out\_edges}) \\
     (\tcode{degree(g,u), degree(g,uid)} & & & aliases for \tcode{out\_degree}) \\
+    (\tcode{num\_edges(g,u), num\_edges(g,uid)} & & & aliases for \tcode{out\_degree}) \\
 \hdashline
     \tcode{in_edges(g,u)} & \tcode{in_edge_range_t<G>} & constant & n/a (requires bidirectional graph) \\
     \tcode{in_edges(g,uid)} & \tcode{in_edge_range_t<G>} & constant & \tcode{in\_edges(g,*find\_vertex(g,uid))} \\

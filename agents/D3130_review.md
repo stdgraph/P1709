@@ -103,48 +103,49 @@ wording/snippet polish.
   the find_vertex fallback and for id-taking member priority; adj_list (27
   vertex_value cases) and container suites pass.
 
-### 1.9 [LOW] `mapped_vertex_range` snippet omits the `hashable_vertex_id` requirement
-- Paper: `src/concepts_vertex_range.hpp` shows `mapped_vertex_range` as
-  `!index_vertex_range<G> && requires { vertices(g) -> forward_range; find_vertex(g,uid); }`.
-- Code: also requires `hashable_vertex_id<G>` (vertex id must be usable as an
-  `unordered_map` key). The `hashable_vertex_id` concept is not mentioned in the
-  paper at all.
-- Action: add `hashable_vertex_id<G>` to the snippet and a one-line description,
-  or note why it is intentionally elided.
+### 1.9 [LOW] `mapped_vertex_range` missing `hashable_vertex_id` — RESOLVED (documented in paper)
+- Original gap: the paper's `mapped_vertex_range` snippet omitted the
+  `hashable_vertex_id<G>` requirement present in the code, and the
+  `hashable_vertex_id` concept was not mentioned at all.
+- Resolution (paper updated): `src/concepts_vertex_range.hpp` now defines
+  `hashable_vertex_id<G>` and includes it in `mapped_vertex_range`; the Vertex
+  Concepts prose introduces the concept (vertex id usable as an `unordered_map`
+  key, used by `mapped_vertex_range` and the `vertex_property_map` utilities) and
+  updates the `mapped_vertex_range` bullet to mention it. PDF rebuilds cleanly.
 
-### 1.10 [LOW] `vertex<G,V>` snippet omits the `is_vertex_descriptor_v` guard
-- Paper: `src/concepts_vertex_range.hpp` `vertex` concept requires
-  `vertex_id(g,u)` and `find_vertex(g,uid)`.
-- Code: additionally requires `is_vertex_descriptor_v<remove_cvref_t<V>>`.
-- Action: add the guard to the snippet (minor, but it is load-bearing for
-  disambiguating descriptors from raw values).
+### 1.10 [LOW] `vertex<G,V>` missing `is_vertex_descriptor_v` guard — RESOLVED (added to snippet)
+- Original gap: the paper's `vertex<G,V>` snippet omitted the
+  `is_vertex_descriptor_v<remove_cvref_t<V>>` guard present in the code.
+- Resolution (paper updated): the `vertex` concept snippet now leads with the
+  descriptor guard, and the Vertex Concepts prose explains it distinguishes a
+  vertex descriptor from a raw vertex value so the concept does not accidentally
+  match unrelated types. PDF rebuilds cleanly.
 
 ---
 
 ## 2. Clarity / completeness observations
 
-### 2.1 [LOW] Partition default-implementation semantics understated
-- Paper defaults: `vertices(g,pid)` → `vertices(g)`; `num_vertices(g,pid)` →
-  `size(vertices(g))`.
-- Code defaults: return the full range/count **only when `pid==0`**, otherwise
-  an empty range / `0`. This matches the "one partition holds everything" model
-  but the table omits the `pid==0` condition, which could mislead implementers.
-- Action: state the defaults as "for `pid==0`, returns all vertices; otherwise
-  empty / 0".
+### 2.1 [LOW] Partition default-implementation semantics — RESOLVED (paper clarified)
+- Original gap: the Graph Functions table gave the `vertices(g,pid)` /
+  `num_vertices(g,pid)` defaults as `vertices(g)` / `size(vertices(g))` without
+  the `pid==0` condition the code applies (empty range / 0 otherwise).
+- Resolution (paper updated): the table now reads `vertices(g)` if `pid==0`
+  else empty range, and `size(vertices(g))` if `pid==0` else 0. PDF rebuilds
+  cleanly.
 
-### 2.2 [LOW] Undocumented `num_edges(g,u)` overload
-- Code has a `num_edges(g, u)` (per-vertex) CPO in addition to `num_edges(g)`.
-  The paper documents only `num_edges(g)` (and `out_degree`). If `num_edges(g,u)`
-  is intended as public API, document it or alias it to `out_degree`; if it is
-  internal, no change needed.
+### 2.2 [LOW] Undocumented `num_edges(g,u)` overload — RESOLVED (documented as alias)
+- Original gap: the code has per-vertex `num_edges(g,u)` / `num_edges(g,uid)`
+  CPOs (same result as `out_degree`) that the paper did not document.
+- Resolution (paper updated): added an alias line to the Vertex Functions table
+  noting `num_edges(g,u), num_edges(g,uid)` are aliases for `out_degree`,
+  alongside the existing `edges`/`degree` alias rows. PDF rebuilds cleanly.
 
-### 2.3 Concept count wording
+### 2.3 Concept count wording — RESOLVED
 - Paper: "Six concepts are defined" for the adjacency list — accurate for the
   documented set. Code additionally defines `ordered_vertex_edges` (used by
   triangle-count in the algorithms paper) and `hashable_vertex_id` (used by
-  `mapped_vertex_range`). `ordered_vertex_edges` is reasonably left to the
-  algorithms paper; `hashable_vertex_id` is GCI-local and probably belongs here
-  (see 1.9).
+  `mapped_vertex_range`). `ordered_vertex_edges` is left to the algorithms paper;
+  `hashable_vertex_id` is now documented in this paper (see 1.9).
 
 ---
 
@@ -190,6 +191,6 @@ wording/snippet polish.
   yet implemented after the Edgelist Functions table. See 1.7.
 - **Q4 (edgelist `vertex_id`):** RESOLVED — paper aligned to `source_id` (the
   code's choice). See 1.3.
-- **Q5 (`hashable_vertex_id`):** Does the `hashable_vertex_id` concept belong in
-  this paper (it is GCI-local and underpins `mapped_vertex_range`), or is it
-  intentionally hidden? (See 1.9.)
+- **Q5 (`hashable_vertex_id`):** RESOLVED — documented in this paper; it is
+  GCI-local and underpins `mapped_vertex_range` and the `vertex_property_map`
+  utilities. See 1.9.
