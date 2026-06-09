@@ -5,10 +5,7 @@ template <class EL>
 concept basic_sourced_edgelist =
     ranges::input_range<EL> &&
     !ranges::range<ranges::range_value_t<EL>> &&
-    requires(EL& el, ranges::range_value_t<EL> uv) {
-      { source_id(el, uv) };
-      { target_id(el, uv) } -> convertible_to<decltype(source_id(el, uv))>;
-    };
+    basic_edge<EL, ranges::range_value_t<EL>>;   // shared edge floor: source\_id + target\_id
 
 template <class EL>
 concept basic_sourced_index_edgelist =
