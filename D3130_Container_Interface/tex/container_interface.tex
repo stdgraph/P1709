@@ -123,6 +123,11 @@ The adjacency list concepts combine the vertex and edge concepts. Six concepts a
     \item \tcode{mapped_bidirectional_adjacency_list<G>} — \tcode{bidirectional_adjacency_list} with \tcode{mapped_vertex_range}.
 \end{itemize}
 
+A seventh, orthogonal concept describes a graph whose adjacency lists are sorted:
+\begin{itemize}
+    \item \tcode{ordered_vertex_edges<G>} — an \tcode{adjacency_list} in which each vertex's out-edges are ordered by ascending \tcode{target_id}. This is primarily a \emph{semantic} property: the concept can only confirm structurally that \tcode{out_edges(g,u)} is a \tcode{forward_range}, while the ascending-order guarantee is asserted by the graph author. Graphs that store edges in ordered containers (e.g.\ \tcode{set} or \tcode{map} keyed by target id) satisfy it; unordered storage (e.g.\ \tcode{vector} appended in arbitrary order, or \tcode{unordered_set}) generally does not. It is used by algorithms that rely on a linear set-intersection merge, such as triangle counting (see the Algorithms proposal).
+\end{itemize}
+
 The previous interface defined \tcode{basic_*} and \tcode{sourced_*} variants to distinguish edges with or without a source id.
 The descriptor design makes this distinction unnecessary: all edge descriptors carry source information, so the \tcode{basic_*}
 and \tcode{sourced_*} concept families have been removed.
@@ -363,6 +368,33 @@ Four helper functions complete the interface:
 \end{center}
 \end{table}
 
+Two further utilities let algorithms accept a caller-supplied property map without
+caring which underlying container backs it:
+
+\begin{lstlisting}
+// Per-vertex value type of a property-map container:
+//   vector<T> yields T (value\_type); unordered\_map<K,V> yields V (mapped\_type)
+template <class Container>
+using vertex_property_map_value_t = /* see prose */;
+
+// A container usable as a per-vertex property map for graph G:
+// it can be subscripted by the graph's vertex id.
+template <class M, class G>
+concept vertex_property_map_for =
+    requires(M& m, const vertex_id_t<G>& uid) {
+      { m[uid] } -> convertible_to<vertex_property_map_value_t<M>>;
+    };
+\end{lstlisting}
+
+\tcode{vertex_property_map_value_t<Container>} extracts the stored value type from
+either container shape (the \tcode{mapped_type} of an \tcode{unordered_map}, or the
+\tcode{value_type} of a \tcode{vector}). \tcode{vertex_property_map_for<M,G>} is the
+precise constraint for algorithm parameters such as \emph{Distances} or
+\emph{Predecessors}: it requires only that \tcode{m[uid]} is valid for the graph's
+\tcode{vertex_id_t<G>}, since algorithms subscript such maps by vertex id rather than
+iterating them as a range. Both \tcode{vector<T>} (index graphs) and
+\tcode{unordered_map<vertex_id_t<G>,T>} (mapped graphs) satisfy it.
+
 \subsection{Functions}
 
 Tables \ref{tab:graph_func}, \ref{tab:vertex_func} and \ref{tab:edge_func} summarize the primitive functions in the Graph Container Interface.
@@ -430,8 +462,8 @@ implementation. Specific graph implementations may have different characteristic
     \tcode{in_degree(g,u)} & \tcode{integral} & constant & \tcode{size(in\_edges(g,u))} if \tcode{sized_range<in_edge_range_t<G>>} \\
     \tcode{in_degree(g,uid)} & \tcode{integral} & constant & \tcode{size(in\_edges(g,uid))} if \tcode{sized_range<in_edge_range_t<G>>} \\
 \hdashline
-    \tcode{partition_id(g,u)} & \tcode{partition_id_t<G>} & constant &  \\
-    \tcode{partition_id(g,uid)} & \tcode{partition_id_t<G>} & constant &  \\
+    \tcode{partition_id(g,u)} & \tcode{partition_id_t<G>} & constant & \tcode{0} (partition 0) \\
+    \tcode{partition_id(g,uid)} & \tcode{partition_id_t<G>} & constant & \tcode{partition_id(g,*find_vertex(g,uid))} \\
 \hline
 \hline
 \end{tabular}}
@@ -443,6 +475,11 @@ implementation. Specific graph implementations may have different characteristic
 The default implementation for the \tcode{out_degree} and \tcode{in_degree} functions assumes that \tcode{out_edge_range_t<G>} or \tcode{in_edge_range_t<G>} is a sized range
 to have constant complexity. If the underlying container has a non-linear \tcode{size(R)} function, the degree functions will
 also be non-linear. This is expected to be an uncommon case.
+
+The descriptor form \tcode{partition_id(g,u)} is always available, defaulting to \tcode{0}
+(all vertices in partition~0). The id form \tcode{partition_id(g,uid)} --- the convenience
+overload that would resolve to \tcode{partition_id(g,*find_vertex(g,uid))} --- is not yet in
+the reference implementation.
 
 \begin{table}[h!]
 \begin{center}
@@ -564,6 +601,15 @@ corresponding to each vertex. Because the vertex is identified purely by its ind
 GCI's algorithms and views work identically whether or not the container materialises
 explicit vertex storage. An iterator-based approach cannot offer this property --- an
 iterator must point to an actual object.
+
+For such index-only graphs the GCI provides a canonical descriptor specialization:
+\tcode{index_iterator} is the iterator type of an \tcode{iota_view<size_t,size_t>}
+(a random-access iterator that yields indices by value, with no backing element), and
+\tcode{index_vertex_descriptor} is \tcode{vertex_descriptor<index_iterator>}. Because
+\tcode{index_iterator} is random-access, the descriptor stores a \tcode{size_t} index
+and behaves like any other index-based \tcode{vertex_descriptor}, except that
+\tcode{underlying_value}/\tcode{inner_value} are not applicable (there is no physical
+element to dereference).
 
 CPOs automatically detect the storage pattern of an adjacency list and select the
 appropriate descriptor strategy: \textbf{random-access} containers (\tcode{vector},
@@ -795,14 +841,16 @@ In all other cases the functions will need to be overridden for the edge type.
 Reasonable defaults have been defined for the adjacency list and edgelist functions to minimize the amount of work
 needed to adapt existing data structures to be used by the views and algorithms.
 
-Useful defaults have been created using types and containers in the standard library, with the ability
-to override them for external data structures. This is described in more detail in the paper for Graph Library 
-Containers.
+This section specifies the structural patterns the GCI CPOs recognize automatically --- the
+\emph{normative trigger} that determines when no function overrides are required. The
+companion Graph Containers proposal catalogs the concrete standard containers that match these
+patterns, their performance trade-offs, and worked examples; see that paper for the catalog and
+usage.
 
 \subsection{Recognized Vertex Patterns}
 
 When a graph type \tcode{G} is itself a \tcode{forward_range} whose elements are also ranges, the
-GCI CPOs can detect and adapt to the storage strategy automatically. Two broad categories of vertex
+GCI CPOs detect and adapt to the storage strategy automatically. Two broad categories of vertex
 container are recognized, each producing a different descriptor and vertex-id strategy.
 
 \subsubsection{Random-Access Vertex Pattern}
@@ -815,13 +863,6 @@ the vertices are assumed to reside in a contiguous or random-access container su
     \item \tcode{find_vertex(g, uid)} uses indexed access: \tcode{begin(vertices(g)) + uid},
           giving $\mathcal{O}(1)$ lookup.
     \item \tcode{out_edges(g, u)} returns the inner range at that index.
-\end{itemize}
-
-Examples of standard containers matching this pattern:
-\begin{itemize}
-    \item \tcode{vector<vector<int>>} --- vertices in a \tcode{vector}, edges as \tcode{int} target ids.
-    \item \tcode{vector<list<pair<int,double>>>} --- vertices in a \tcode{vector}, edges as weighted pairs in a \tcode{list}.
-    \item \tcode{deque<forward_list<int>>} --- vertices in a \tcode{deque}, edges in a \tcode{forward_list}.
 \end{itemize}
 
 \subsubsection{Associative Vertex Pattern}
@@ -838,73 +879,18 @@ a dense index.
           range) from the key-value pair.
 \end{itemize}
 
-Examples of standard containers matching this pattern:
-\begin{itemize}
-    \item \tcode{map<int, vector<int>>} --- sparse vertex ids in a sorted \tcode{map}, edges as target ids.
-    \item \tcode{unordered_map<int, vector<pair<int,double>>>} --- hash-based vertex lookup, weighted edges.
-\end{itemize}
-
-\subsubsection{Edge Container Patterns}
+\subsection{Recognized Edge Patterns}
 The edge range returned by \tcode{out_edges(g, u)} is the inner range stored at (or
-referenced by) each vertex. Any standard container satisfying \tcode{forward_range}
-whose element type matches a recognized edge element pattern (described below) is
-accepted automatically. The library does \emph{not} maintain a fixed list of containers;
-it relies on concept-based detection.
+referenced by) each vertex. Any range satisfying \tcode{forward_range} whose element type matches
+a recognized edge element pattern (below) is accepted automatically. The library does \emph{not}
+maintain a fixed list of containers; it relies on concept-based detection, so non-standard
+containers (e.g.\ \tcode{boost} containers) work identically.
 
-Table~\ref{tab:edge_container_patterns} groups the standard containers by category and
-summarises their trade-offs when used as edge containers.
-
-\begin{table}[h!]
-\begin{center}
-\resizebox{\textwidth}{!}
-{\begin{tabular}{l l L{7.5cm}}
-\hline
-    \textbf{Category} & \textbf{Container} & \textbf{Characteristics} \\
-\hline
-    Sequence &
-    \tcode{vector<E>} &
-    Random-access, cache-friendly, amortized $\mathcal{O}(1)$ push-back. \\
-    &
-    \tcode{deque<E>} &
-    Random-access, stable references on push-back. \\
-    &
-    \tcode{list<E>} &
-    Bidirectional, $\mathcal{O}(1)$ splice, stable iterators. \\
-    &
-    \tcode{forward_list<E>} &
-    Forward-only, minimal overhead, $\mathcal{O}(1)$ push-front. \\
-\hdashline
-    Ordered associative &
-    \tcode{set<E>} &
-    Sorted, automatic deduplication, $\mathcal{O}(\log n)$ lookup; element is the edge itself. \\
-    &
-    \tcode{map<VId, EV>} &
-    Sorted by target id, $\mathcal{O}(\log n)$ lookup, no parallel edges; \tcode{.first} is
-    target id, \tcode{.second} is edge value. \\
-\hdashline
-    Unordered associative &
-    \tcode{unordered_set<E>} &
-    Hash-based deduplication, amortized $\mathcal{O}(1)$ insert/lookup. \\
-    &
-    \tcode{unordered_map<VId, EV>} &
-    Hash-based by target id, amortized $\mathcal{O}(1)$ lookup, no parallel edges;
-    \tcode{.first} is target id, \tcode{.second} is edge value. \\
-\hline
-\end{tabular}}
-\caption{Recognized Edge Container Patterns}
-\label{tab:edge_container_patterns}
-\end{center}
-\end{table}
-
-For associative containers whose \tcode{value_type} is a \tcode{pair<const Key, Mapped>}
-(i.e.\ \tcode{map} and \tcode{unordered_map}), the key is
-treated as the target vertex id and the mapped type as the edge value. This means that
-\tcode{target_id(g,uv)} returns \tcode{.first} and \tcode{edge_value(g,uv)} returns
-\tcode{.second}, following the same pair convention described below.
-
-For set-like containers (\tcode{set}, \tcode{unordered_set}), each element is the edge
-itself. If the element is integral it serves as the target id directly; if it is a
-\tcode{pair} or \tcode{tuple} the element-level rules below apply.
+For associative edge containers whose \tcode{value_type} is a \tcode{pair<const Key, Mapped>}
+(i.e.\ \tcode{map} and \tcode{unordered_map}), the key is treated as the target vertex id and the
+mapped type as the edge value: \tcode{target_id(g,uv)} returns \tcode{.first} and
+\tcode{edge_value(g,uv)} returns \tcode{.second}. For set-like containers (\tcode{set},
+\tcode{unordered_set}) each element is the edge itself, and the element-level rules below apply.
 
 \subsubsection{Edge Element Patterns}
 Within each vertex's edge range the GCI recognizes the following element forms and
@@ -934,12 +920,8 @@ automatically provides \tcode{target_id(g,uv)} and, where applicable,
 \end{table}
 
 \noindent
-These vertex and edge patterns combine freely: any recognized vertex container can hold
-any recognized edge container, and any recognized edge container can hold any recognized
-edge element type. For example,
-\tcode{vector<vector<pair<int,double>>>} is a random-access graph with weighted edges,
-\tcode{vector<set<int>>} is a random-access graph with sorted deduplicated unweighted edges,
-\tcode{vector<map<int,double>>} is a random-access graph with $\mathcal{O}(\log n)$ edge lookup by target,
-and \tcode{map<string, list<int>>} is an associative graph with unweighted edges.
-When the element type does not match a recognized pattern, the user must override the
-appropriate CPOs for the graph type.
+These vertex and edge patterns combine freely: any recognized vertex container can hold any
+recognized edge container, and any recognized edge container can hold any recognized edge element
+type. When the element type does not match a recognized pattern, the user must override the
+appropriate CPOs for the graph type. The Graph Containers proposal enumerates the standard
+containers in each category and their trade-offs.

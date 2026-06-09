@@ -3,6 +3,41 @@
 Review of `D3130_Container_Interface/tex/container_interface.tex` against the
 reference implementation in `/home/phil/dev_graph/graph-v3/include/graph/`.
 
+---
+
+## Fresh review pass (2026-06-08)
+
+Re-verified the entire paper against the current code. Concepts, traits, type
+aliases, descriptors, CPO defaults, value-function concepts, property map, data
+structs (`vertex_data`/`edge_data`/`neighbor_data` + `copyable_*` aliases), and the
+edgelist interface all match. Items resolved this pass (author-approved):
+
+- **[GAP] `ordered_vertex_edges<G>` now documented.** The concept lives in GCI code
+  (`adjacency_list_concepts.hpp`, `graph::adj_list`) but was undocumented (paper said
+  "Six concepts"). Added it to the snippet `concepts_adj_list.hpp` and to the
+  Adjacency List Concepts section as a seventh, orthogonal (semantic-ordering) concept,
+  cross-referencing triangle counting in the Algorithms paper.
+- **[GAP] `vertex_property_map_value_t` + `vertex_property_map_for` now documented.**
+  Both are public in `vertex_property_map.hpp` (re-exported into `graph`) but the paper
+  documented only the alias + 4 helpers. Added an `lstlisting` and prose to the Vertex
+  Property Map section.
+- **[GAP] Index-only descriptor types named.** The descriptor section described
+  index-only vertices (compressed_graph) in prose; now names `index_iterator`
+  (`iota_view<size_t,size_t>` iterator) and `index_vertex_descriptor`.
+- **[LOW] `partition_id` defaults documented.** Vertex Functions table left the default
+  column blank. Code: `partition_id(g,u)` defaults to `0` (partition 0); there is **no**
+  `partition_id(g,uid)` default in the reference impl. Filled `0 (partition 0)` for the
+  descriptor form and added a note that the id form is not yet implemented.
+- **[NOTE] `vertex_value(g,uid)` complexity left as "constant"** — consistent with the
+  other id-form convenience overloads in the same table under the stated index-graph
+  assumption (find_vertex is O(1)); changing only this row would create an inconsistency.
+
+PDF rebuilds cleanly (0 undefined refs). Build note: the `lstset` uses `texcl=true`, so
+`//` comments inside `lstlisting`/`lstinputlisting` are rendered as LaTeX — underscores
+in such comments must be escaped (`\_`).
+
+---
+
 Scope reviewed: full GCI paper text — adjacency-list concepts/traits/types/functions,
 descriptors, vertex property map, value-function concepts, partitions, and the
 edgelist interface. Focus is clarity, consistency (paper vs. code), and completeness.

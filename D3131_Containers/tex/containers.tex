@@ -33,9 +33,9 @@ are only accessible through the types and functions in the Graph Container Inter
     \centering
     \begin{tabular}{|P{0.38\textwidth}|P{0.35\textwidth}|P{0.25\textwidth}|}
     \hline
-    \textbf{vertex\_id assignment:} Contiguous & \textbf{\tcode{has_edge(g)}} $O(1)$ & \textbf{Append vertices?} No \\
+    \textbf{vertex\_id assignment:} Contiguous & \textbf{\tcode{has_edges(g)}} $O(1)$ & \textbf{Append vertices?} No \\
     \textbf{Vertices range:} Contiguous & \textbf{\tcode{num_edges(g)}} $O(1)$ & \textbf{Append edges?} No \\
-    \textbf{Edge range:} Contiguous & \textbf{\tcode{partition_id(g,uid)}} $O(log(P+1))$ & \textbf{Partitions?} Yes\\
+    \textbf{Edge range:} Contiguous & \textbf{\tcode{partition_id(g,u)}} $O(log(P+1))$ & \textbf{Partitions?} Yes\\
     & & \textbf{is\_directed?} No \\
     %O(log(P+1)) is the complexity of std::upper_bound; +1 is for the number of vertices added at the end of partition_start_ids
     \hline
@@ -49,7 +49,11 @@ multi-partite graphs.
 The \tcode{is_directed} trait is not supported. If \tcode{compressed_graph} is intended to be used for an undirected
 graph, then the edge pairs must be included for both directions, (uid,vid) and (vid,uid), when constructing the graph.
 
-\phil{Add \tcode{operator[](vertex_id_t<G>)}?}
+A public \tcode{operator[](vertex_id_t<G>)} is \emph{not} provided. The only value it could return is an
+internal CSR element that is not useful on its own, and exposing it would breach the rule that
+\tcode{compressed_graph} is accessed solely through the Graph Container Interface. The equivalent functionality
+is already available generically via \tcode{vertex_value(g,uid)} for the vertex value and
+\tcode{out_edges(g,*find_vertex(g,uid))} for the incident edges.
 
 \subsection{compressed\_graph when \tcode{GV} is not \tcode{void}} \label{compressed_full}
 {\small
@@ -65,7 +69,15 @@ When \tcode{GV} is void the number of constructors decreases significantly as sh
 
 \subsection{compressed\_graph description}
 
-\phil{Is it possible to support movable EV and VV types?}
+\tcode{EV} and \tcode{VV} are currently required to be copyable. Supporting move-only \tcode{EV}/\tcode{VV}
+is possible future work but is not proposed here, because it would: (1) disable the
+\tcode{initializer_list} constructor (an \tcode{initializer_list} exposes only \tcode{const} elements, so its
+values can only be copied); (2) restrict construction to the rvalue-range overloads that consume an owning
+input range (the \tcode{const}-lvalue-range overloads copy each value); and (3) make the whole
+\tcode{compressed_graph} move-only for those instantiations, since its defaulted copy constructor would be
+deleted once the internal value vectors are non-copyable. It would also require a corresponding relaxation of
+the \tcode{copyable_edge}/\tcode{copyable_vertex} requirements in the Graph Container Interface. A non-\tcode{void}
+\tcode{GV} is already permitted to be movable (which likewise makes the graph move-only).
 
 \begin{itemdescr}
     \pnum\mandates
@@ -74,11 +86,11 @@ When \tcode{GV} is void the number of constructors decreases significantly as sh
             \item The \tcode{VV} template argument for a vertex value must be a copyable type or \tcode{void}.
             \item When the \tcode{GV} template argument for a graph value is not \tcode{void} it can be movable or copyable. It must have a 
                   default constructor if it is not passed in a \tcode{compressed_graph} constructor.
-            \item The \tcode{EProj} template argument must be a projection that returns a value of \tcode{copyable_edge<VId, true, EV>} type
-                  given a value of \tcode{erng}. If the value type of \tcode{ERng} is already a \tcode{copyable_edge<VId, true, EV>} type, 
+            \item The \tcode{EProj} template argument must be a projection that returns a value of \tcode{copyable_edge_t<VId, EV>} type
+                  given a value of \tcode{erng}. If the value type of \tcode{ERng} is already a \tcode{copyable_edge_t<VId, EV>} type, 
                   then \tcode{EProj} can be \tcode{identity}.
-            \item The \tcode{VProj} template argument must be a projection that returns a value of \tcode{copyable_vertex<VId, VV>} type,
-                  given a value of \tcode{vrng}. If the value type of \tcode{Vrng} is already a \tcode{copyable_vertex<VId, VV>} type, 
+            \item The \tcode{VProj} template argument must be a projection that returns a value of \tcode{copyable_vertex_t<VId, VV>} type,
+                  given a value of \tcode{vrng}. If the value type of \tcode{Vrng} is already a \tcode{copyable_vertex_t<VId, VV>} type, 
                   then \tcode{VProj} can be \tcode{identity}.
         \end{itemize}
     \pnum\preconditions
@@ -90,10 +102,9 @@ When \tcode{GV} is void the number of constructors decreases significantly as sh
             \item The \tcode{EProj} and \tcode{VProj} template arguments must be valid projections.
             \item The \tcode{partition_start_ids} range includes the starting vertex id for each partition. If it is empty, then the graph is single-partite
                     and the number of partitions is 1. If it is not empty, then the number of partitions is the size of the range, where the first element
-                    must be 0 and all elements are in ascending order. A vertex id in the range must not exceed the number of 
-                    vertices in the graph. Any violation of these conditions results in undefined behavior.
+                    must be 0 and all elements are in strictly increasing order. A vertex id in the range must not exceed the number of 
+                    vertices in the graph. Any violation of these conditions throws \tcode{graph_error}.
         \end{itemize}
-\phil{If duplicate partition\_start\_ids exist they create an empty partition with no vertices.}
 
     \pnum\effects
         \begin{itemize}
@@ -134,23 +145,28 @@ can write loops to go through the vertices, and edges within each vertex, as fol
 
 \begin{lstlisting}
 using G = vector<forward_list<tuple<int,double>>>;
-auto weight = [&g](edge_t& uv) { return get<1>(uv); }
 
 G g;
-load_graph(g, ...); // load some data
+// ... populate g with vertices and weighted edges ...
+
+// A weight accessor following the f(const graph, descriptor) convention.
+// edge value is the second tuple element (the double).
+auto weight = [](const G& g, edge_t<G> uv) { return edge_value(g, uv); };
 
 // Using GCI functions
-for(auto&& [u] : vertices(g)) {
-  for(auto&& [vid, uv]: edges(g,u)) {
-    auto w = weight(uv);
+for (auto u : vertices(g)) {        // u is a vertex descriptor
+  for (auto uv : edges(g, u)) {      // uv is an edge descriptor
+    auto vid = target_id(g, uv);     // the target id (an int)
+    auto w   = weight(g, uv);        // the weight (a double)
     // do something...
   }
 }
 \end{lstlisting}
 
 \tcode{edge_t<G>} is defined as \tcode{tuple<int,double>} in the example; the only requirement is that the first element
-in the \tcode{tuple} is integral and is used as the target\_id. The \tcode{edge_value} function is not defined, as it is
-assumed that algorithms will take a lambda to extract the value from the edge, if needed.
+in the \tcode{tuple} is integral and is used as the target\_id. The \tcode{edge_value(g,uv)} function is automatically
+available for a recognized \tcode{tuple} edge and returns the remaining value (the \tcode{double} here); defining it
+explicitly is therefore optional, since algorithms typically accept a value lambda to extract the value from the edge.
 
 If all you need is the target\_id without any values, you can use \tcode{G = vector<forward_list<int>>}. The \tcode{int}
 is used as the target\_id. Again, the only requirement is that it be \tcode{integral}.
@@ -159,20 +175,23 @@ Note that no function override was required. More formally, the two patterns rec
 and \tcode{random_access_range<forward_range<tuple<integral,...>>>}. This extends to any range type. For instance, boost::containers can be used
 just as easily as std containers.
 
-Table \ref{tab:simple_graph} shows how the types are defined for the example above.
+Table \ref{tab:simple_graph} shows how the types are defined for the example above. Because this proposal uses
+boost-like descriptors, \tcode{vertices(g)} and \tcode{edges(g,u)} yield \emph{descriptors}; the standard-container
+elements (\tcode{forward_list<...>}, \tcode{tuple<int,double>}) are the \emph{underlying} values reached through those
+descriptors.
 \begin{table}[h!]
     \begin{center}
     \resizebox{\textwidth}{!}
-    {\begin{tabular}{l l p{1.5cm} L{7.0cm}}
+    {\begin{tabular}{l L{9.0cm}}
     \hline
         \textbf{Function or Value} & \textbf{Concrete Type} \\
     \hline
-        \tcode{vertices(g)} & \tcode{vector<forward_list<tuple<int,double>>>} (when \tcode{random_access_range<G>}) \\
-        \tcode{u} & \tcode{forward_list<tuple<int,double>>} & \\
-        \tcode{edges(g,u)} & \tcode{forward_list<tuple<int,double>>} (when \tcode{random_access_range<vertex_range_t<G>>}) \\
-        \tcode{uv} & \tcode{tuple<int,double>} & \\
-        \tcode{edge_value(g,uv)} & \tcode{tuple<int,double>} (when \tcode{random_access_range<vertex_range_t<G>>}) \\
-        \tcode{target_id(g,uv)} & \tcode{integral}, when \tcode{uv} is either \tcode{integral}  or \tcode{tuple<integral,...>} \\
+        \tcode{vertices(g)} & vertex range of descriptors over \tcode{vector<forward_list<tuple<int,double>>>} \\
+        \tcode{u} & a \tcode{vertex_t<G>} descriptor; underlying value \tcode{forward_list<tuple<int,double>>} \\
+        \tcode{edges(g,u)} & edge range of descriptors over the vertex's \tcode{forward_list<tuple<int,double>>} \\
+        \tcode{uv} & an \tcode{edge_t<G>} descriptor; underlying value \tcode{tuple<int,double>} \\
+        \tcode{target_id(g,uv)} & \tcode{int} --- \tcode{get<0>(uv)} (the integral target\_id) \\
+        \tcode{edge_value(g,uv)} & \tcode{double} --- \tcode{get<1>(uv)} (optional; the remaining tuple value) \\
     \hline
     \end{tabular}}
     \caption{Types When Using Standard Containers}
@@ -180,6 +199,114 @@ Table \ref{tab:simple_graph} shows how the types are defined for the example abo
     \end{center}
 \end{table}
 
+\paragraph{Catalog of recognized standard containers}
+The Graph Container Interface proposal specifies the normative patterns that trigger automatic
+recognition (the random-access and associative vertex patterns, and the integral/\tcode{pair}/\tcode{tuple}
+edge element patterns). This section catalogs the concrete standard containers that match those
+patterns and their trade-offs. Detection is concept-based, so non-standard containers (e.g.\
+\tcode{boost} containers) that satisfy the same patterns work identically.
+
+Vertex containers in the \textbf{random-access} pattern (\tcode{vertex_id_t<G>} is the integral index,
+$\mathcal{O}(1)$ \tcode{find_vertex}):
+\begin{itemize}
+    \item \tcode{vector<vector<int>>} --- vertices in a \tcode{vector}, edges as \tcode{int} target ids.
+    \item \tcode{vector<list<pair<int,double>>>} --- vertices in a \tcode{vector}, edges as weighted pairs in a \tcode{list}.
+    \item \tcode{deque<forward_list<int>>} --- vertices in a \tcode{deque}, edges in a \tcode{forward_list}.
+\end{itemize}
+
+Vertex containers in the \textbf{associative} pattern (\tcode{vertex_id_t<G>} is the \tcode{key_type},
+\tcode{find_vertex} via \tcode{g.find(uid)}):
+\begin{itemize}
+    \item \tcode{map<int, vector<int>>} --- sparse vertex ids in a sorted \tcode{map}, edges as target ids.
+    \item \tcode{unordered_map<int, vector<pair<int,double>>>} --- hash-based vertex lookup, weighted edges.
+\end{itemize}
+
+The associative pattern uses the same GCI functions as the random-access pattern, again with no overrides.
+The difference is that the vertex id is the map \emph{key} rather than a dense index, so it may be sparse (or a
+non-integral type such as \tcode{string}). For \tcode{G = map<int, vector<pair<int,double>>>} the inner
+\tcode{vector<pair<int,double>>} is the edge range reached through \tcode{edges(g,u)}, the \tcode{pair.first} is
+the target\_id and the \tcode{pair.second} is the edge value.
+
+\begin{lstlisting}
+using G = map<int, vector<pair<int,double>>>;  // sparse vertex ids, weighted edges
+
+G g;
+// ... populate g, keyed by vertex id ...
+
+// Same accessor convention as the random-access example.
+auto weight = [](const G& g, edge_t<G> uv) { return edge_value(g, uv); };
+
+// Using GCI functions -- identical loop shape to the vector-based example.
+for (auto u : vertices(g)) {          // u is a vertex descriptor
+  auto uid = vertex_id(g, u);          // the map key (a sparse int)
+  for (auto uv : edges(g, u)) {        // uv is an edge descriptor over the mapped value
+    auto vid = target_id(g, uv);       // the target id (pair.first)
+    auto w   = weight(g, uv);          // the weight (pair.second)
+    // do something...
+  }
+}
+\end{lstlisting}
+
+Such a graph models \tcode{adjacency_list} and (because the vertex id is hashable) \tcode{mapped_adjacency_list},
+but \emph{not} \tcode{index_adjacency_list}: \tcode{find_vertex(g,uid)} is $\mathcal{O}(\log |V|)$ for \tcode{map}
+or amortized $\mathcal{O}(1)$ for \tcode{unordered_map} rather than $\mathcal{O}(1)$ indexed access. Algorithms in
+this proposal that require \tcode{index_adjacency_list} therefore need an index-based container; the associative
+form is intended for adapting existing keyed data in place, as described in the Graph Container Interface proposal.
+
+The inner edge range returned by \tcode{edges(g,u)} may be any \tcode{forward_range} whose element matches a
+recognized edge element pattern. Table~\ref{tab:edge_container_patterns} groups the standard containers by
+category and summarises their trade-offs as edge containers.
+
+\begin{table}[h!]
+\begin{center}
+\resizebox{\textwidth}{!}
+{\begin{tabular}{l l L{7.5cm}}
+\hline
+    \textbf{Category} & \textbf{Container} & \textbf{Characteristics} \\
+\hline
+    Sequence &
+    \tcode{vector<E>} &
+    Random-access, cache-friendly, amortized $\mathcal{O}(1)$ push-back. \\
+    &
+    \tcode{deque<E>} &
+    Random-access, stable references on push-back. \\
+    &
+    \tcode{list<E>} &
+    Bidirectional, $\mathcal{O}(1)$ splice, stable iterators. \\
+    &
+    \tcode{forward_list<E>} &
+    Forward-only, minimal overhead, $\mathcal{O}(1)$ push-front. \\
+\hdashline
+    Ordered associative &
+    \tcode{set<E>} &
+    Sorted, automatic deduplication, $\mathcal{O}(\log n)$ lookup; element is the edge itself. \\
+    &
+    \tcode{map<VId, EV>} &
+    Sorted by target id, $\mathcal{O}(\log n)$ lookup, no parallel edges; \tcode{.first} is
+    target id, \tcode{.second} is edge value. \\
+\hdashline
+    Unordered associative &
+    \tcode{unordered_set<E>} &
+    Hash-based deduplication, amortized $\mathcal{O}(1)$ insert/lookup. \\
+    &
+    \tcode{unordered_map<VId, EV>} &
+    Hash-based by target id, amortized $\mathcal{O}(1)$ lookup, no parallel edges;
+    \tcode{.first} is target id, \tcode{.second} is edge value. \\
+\hline
+\end{tabular}}
+\caption{Recognized Edge Container Patterns}
+\label{tab:edge_container_patterns}
+\end{center}
+\end{table}
+
+These vertex and edge containers combine freely: any recognized vertex container can hold any recognized
+edge container, and any recognized edge container can hold any recognized edge element type. For example,
+\tcode{vector<vector<pair<int,double>>>} is a random-access graph with weighted edges,
+\tcode{vector<set<int>>} is a random-access graph with sorted deduplicated unweighted edges,
+\tcode{vector<map<int,double>>} is a random-access graph with $\mathcal{O}(\log n)$ edge lookup by target,
+and \tcode{map<string, list<int>>} is an associative graph with unweighted edges.
+When the element type does not match a recognized pattern, the user must override the appropriate CPOs for
+the graph type, as described next.
 
 \subsubsection{Using Other Graph Data Structures}
 For other graph data structures function overrides are required. Table \ref{tab:cmn_cpo_overrides} shows the 
@@ -209,7 +336,7 @@ When they are defined they must be in the same namespace as the data structures.
     \hdashline
         \tcode{num_partitions(g)} & \\
         \tcode{partition_id(g,u)} & \\
-        \tcode{vertices(g,u,pid)} & \\
+        \tcode{vertices(g,pid)} & \\
     \hline
     \end{tabular}}
     \caption{Common CPO Function Overrides}
@@ -227,35 +354,32 @@ requiring any function overrides.
     using E  = std::range_value_t<EL>;
     EL el{{1, 2, 11.1}, {1, 4, 22.2}, {2, 3, 3.33}, {2, 4, 4.44}};
     for (auto&& e : el) {
-      int    sid = source_id(e);
-      int    tid = target_id(e);
-      double val = edge_value(e);
+      int    sid = source_id(el, e);
+      int    tid = target_id(el, e);
+      double val = edge_value(el, e);
     }
 \end{lstlisting}
 
-An alternative is to use the \tcode{edge_info} used in this proposal. Notice that the only difference
+An alternative is to use the \tcode{edge_data} used in this proposal. Notice that the only difference
 is the definition of the edgelist type. All other code is identical to the previous example.
 \begin{lstlisting}
-    using EL = vector<edge_info<int, true, void, double>>;
+    using EL = vector<edge_data<int, true, void, double>>;
     using E  = std::range_value_t<EL>;
     EL el{{1, 2, 11.1}, {1, 4, 22.2}, {2, 3, 3.33}, {2, 4, 4.44}};
     for (auto&& e : el) {
-      int    sid = source_id(e);
-      int    tid = target_id(e);
-      double val = edge_value(e);
+      int    sid = source_id(el, e);
+      int    tid = target_id(el, e);
+      double val = edge_value(el, e);
     }
 \end{lstlisting}
 
 While these examples show the optional edge\_value that is a \tcode{double}, it can be omitted if the edges 
 do not have values.
 
-Type alias are in the namespace \tcode{std::graph::edgelist} to avoid conflicts with adjacency\_list
+Type alias are in the namespace \tcode{std::graph::edge_list} to avoid conflicts with adjacency\_list
 types.
 
 \subsubsection{Using Other Graph Data Structures}
 If you have different edge type not covered by the standard types, you can override the
 \tcode{source_id(e)}, \tcode{target_id(e)} and \tcode{edge_value(E)} functions for that type.
 The functions must be in the same namespace as the edge data structure you want to use.
-
-\phil{Add example(s) that demonstrate how to have mutable edge values for an undirected graph, where there 
-are duplicate edges (u,v) and (v,u).}
