@@ -96,11 +96,12 @@ wording/snippet polish.
   `vertex_value(g,uid)` (default `vertex_value(g,*find_vertex(g,uid))`); the
   `_vertex_value` CPO provided only the descriptor form `operator()(g, u)`.
 - Resolution (code updated to match paper): added a `uid` convenience overload
-  to the `_vertex_value` CPO that resolves to
-  `(*this)(g, *find_vertex(g, uid))`, gated by a `_has_uid` constraint (uid is
-  not a vertex descriptor, `find_vertex(g,uid)` is valid, and `vertex_value` is
-  available on the resulting descriptor). Added a focused uid-overload test;
-  adj_list (now 26 vertex_value cases) and container suites pass.
+  to the `_vertex_value` CPO. It mirrors the descriptor dispatch — preferring a
+  member `g.vertex_value(uid)` or ADL `vertex_value(g, uid)` that takes the id
+  directly, and only falling back to `vertex_value(g, *find_vertex(g, uid))`
+  when neither exists — via a dedicated `_Choose_uid` strategy. Added tests for
+  the find_vertex fallback and for id-taking member priority; adj_list (27
+  vertex_value cases) and container suites pass.
 
 ### 1.9 [LOW] `mapped_vertex_range` snippet omits the `hashable_vertex_id` requirement
 - Paper: `src/concepts_vertex_range.hpp` shows `mapped_vertex_range` as
