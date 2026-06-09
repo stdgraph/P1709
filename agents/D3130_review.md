@@ -42,16 +42,16 @@ wording/snippet polish.
   `vertex_descriptor` and describe an `edge_descriptor` as an iterator plus the
   source `vertex_descriptor`. PDF rebuilds cleanly.
 
-### 1.3 [MED] Edgelist `vertex_id_t<EL>`: paper says `target_id`, code uses `source_id`
-- Paper: Table "Edgelist Interface Type Aliases" defines
-  `vertex_id_t<EL> = remove_cvref_t<decltype(target_id(el,uv))>`, and the
-  Namespace section says the edgelist `vertex_id_t` "is derived ... from
-  `target_id(el,uv)`."
-- Code: `edge_list/edge_list.hpp` derives both `vertex_id_t` and
-  `raw_vertex_id_t` from **`source_id(el,uv)`**.
-- The two ids are constrained to be the same type, so this is harmless at
-  runtime, but the documentation should match the implementation (or vice
-  versa). Pick one consistently.
+### 1.3 [MED] Edgelist `vertex_id_t<EL>`: paper said `target_id` — RESOLVED (paper aligned to `source_id`)
+- Original mismatch: paper's type-alias table and namespace prose derived the
+  edgelist `vertex_id_t<EL>` from `target_id(el,uv)`; code derives both
+  `vertex_id_t` and `raw_vertex_id_t` from `source_id(el,uv)`.
+- Resolution (paper updated to match code): the "Edgelist Interface Type
+  Aliases" table now shows `vertex_id_t<EL> = remove_cvref_t<decltype(source_id(el,uv))>`
+  and `raw-vertex-id-type = decltype(source_id(el,uv))`; the namespace prose now
+  says the edgelist `vertex_id_t` is derived from `source_id(el,uv)`. (Both edge
+  ids represent vertices of the same set, so either is a valid representative;
+  `source_id` is chosen to match the implementation.) PDF rebuilds cleanly.
 
 ### 1.4 [MED] `vertex_id_store_t<G>` does not exist
 - Paper: Table "Graph Container Interface Type Aliases" lists
@@ -185,9 +185,8 @@ wording/snippet polish.
 - **Q3 (edgelist functions):** Are `num_edges(el)` / `has_edges(el)` /
   `contains_edge(el,uid,vid)` part of the proposed interface (document as-is) or
   should they be flagged "not yet implemented"? (See 1.7.)
-- **Q4 (edgelist `vertex_id`):** Should the edgelist `vertex_id_t` be derived
-  from `source_id` (as the code does) or `target_id` (as the paper says)? (See
-  1.3.)
+- **Q4 (edgelist `vertex_id`):** RESOLVED — paper aligned to `source_id` (the
+  code's choice). See 1.3.
 - **Q5 (`hashable_vertex_id`):** Does the `hashable_vertex_id` concept belong in
   this paper (it is GCI-local and underpins `mapped_vertex_range`), or is it
   intentionally hidden? (See 1.9.)

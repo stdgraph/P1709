@@ -641,7 +641,7 @@ It's also able to easily adapt to externally defined edge types by overriding th
 Edge list concepts, type aliases and CPOs are defined in the \tcode{std::graph::edge\_list} namespace.
 Unlike the adjacency list, these symbols are \emph{not} re-exported into \tcode{std::graph} because
 certain names have distinct meanings in each context --- most notably \tcode{vertex\_id\_t<G>} is derived
-from \tcode{vertex\_id(g,u)} for an adjacency list but from \tcode{target\_id(el,uv)} for an edge list.
+from \tcode{vertex\_id(g,u)} for an adjacency list but from \tcode{source\_id(el,uv)} for an edge list.
 Bringing both into the root namespace would create an irresolvable ambiguity.
 
 \tcode{graph::adj\_list} and \tcode{graph::edge\_list} are \emph{peer} namespaces: neither is a
@@ -709,8 +709,8 @@ those types (e.g. an iterator of a range). Table \ref{tab:edgelist_func} describ
     \tcode{edge_t<EL>} & \tcode{range_value_t<edge_range_t<EL>>} & \\       
     \tcode{edge_value_t<EL>} & \tcode{decltype(edge_value(el,uv))} & optional \\
 \hline
-    \tcode{vertex_id_t<EL>} & \tcode{remove_cvref_t<decltype(target_id(el,uv))>} & \\
-    \textit{\tcode{raw-vertex-id-type}} & \tcode{decltype(target_id(el,uv))} & exposition only \\
+    \tcode{vertex_id_t<EL>} & \tcode{remove_cvref_t<decltype(source_id(el,uv))>} & \\
+    \textit{\tcode{raw-vertex-id-type}} & \tcode{decltype(source_id(el,uv))} & exposition only \\
 \hline
 \end{tabular}}
 \caption{Edgelist Interface Type Aliases}
