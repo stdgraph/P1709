@@ -229,3 +229,43 @@ wording/snippet polish.
 - **Q5 (`hashable_vertex_id`):** RESOLVED — documented in this paper; it is
   GCI-local and underpins `mapped_vertex_range` and the `vertex_property_map`
   utilities. See 1.9.
+
+## 5. Architectural note — graph concept hierarchy and adjacency_matrix
+
+**Context (2026-06-15):** A graph library implementation is fundamentally
+centered on two representation types: the *adjacency list* and the
+*adjacency matrix*. The `adjacency_list<G>` concept (and its refinements)
+already captures the former. The `adjacency_matrix` concept is documented as
+future design in the paper (§1.5) but not yet in the reference implementation.
+
+**The role of "graph" as a mathematical concept.**  In mathematical terms,
+`graph` denotes the abstract entity $G = \{V, E\}$ — a vertex set and an edge
+set — that *defines* what an adjacency list or adjacency matrix represents.
+This meaning must not be lost in the C++ concept hierarchy.  Currently the
+concept names go directly to `adjacency_list` / `adjacency_matrix` with no
+base `graph<G>` concept in the library.  Two design options to consider:
+
+1. **Introduce a base `graph<G>` concept** (requiring only `vertices(g)`) that
+   both `adjacency_list<G>` and `adjacency_matrix<G>` refine.  This makes the
+   mathematical hierarchy explicit in code: `graph` → `adjacency_list` /
+   `adjacency_matrix` → more-refined variants.
+2. **Document the hierarchy in prose only** (D3127 + D3130 introductions)
+   without adding a bare `graph<G>` concept, since a concept that requires
+   only `vertices(g)` may be too weak to be useful on its own.
+
+**Adjacency-matrix concept shape (when implemented).** The concept should
+require at minimum:
+```cpp
+template <class G>
+concept adjacency_matrix = requires(const G& g, vertex_id_t<G> uid, vertex_id_t<G> vid) {
+  { vertices(g) } -> vertex_range<G>;
+  { adjacent(g, uid, vid) } -> convertible_to<bool>;  // O(1) adjacency test
+};
+```
+The constant-time `contains_out_edge` branch already planned in the Edge
+Functions default (§1.5) is exactly this adjacency-matrix semantic guarantee.
+
+**Cross-reference:** D3127 should acknowledge both representations as equally
+primary and should not leave `adjacency_matrix` as merely a theoretical tool
+(see note in `other/Directedness_D3127.md`, "Graph as mathematical
+foundation").

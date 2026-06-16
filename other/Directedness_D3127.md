@@ -50,6 +50,25 @@ Below, each of Andrew's points is mapped to a concrete recommendation for
 - *bidirectional incidence list* — additionally supports `in_edges`
 - *readable / writeable property map* — supports `get` / `put`
 
+> **Library decision (2026-06-15):** Andrew's `adjacent_vertices` operation comes
+> from the BGL `adjacency_graph` concept.  In this library it is **not** a separate
+> GCI CPO or concept — it is covered directly by the `neighbors` view
+> (`std::graph::views::neighbors(g, u)`), which yields the neighboring vertices of
+> `u` as a range.  No additional concept or function is needed; `adjacency_list<G>`
+> already implies everything required to implement that view.
+
+> **Library decision (2026-06-15):** The readable/writeable property map concept
+> comes from the BGL, whose property-map machinery is considered overly complex
+> for this library and is **not** adopted.  Instead, the library provides a single
+> value per graph element via three CPOs: `graph_value(g)`, `vertex_value(g,u)`,
+> and `edge_value(g,uv)` — analogous to `std::map::operator[]`.  The *existence*
+> of the CPO implies readability; returning a non-`const` reference implies
+> writability.  This covers the general property-access functionality without the
+> additional concept/type machinery that BGL's property maps require.  Recommendation
+> §6 (half-edge / symmetric property map) may still be relevant for *terminology*
+> around per-adjacency data, but the BGL `get`/`put` interface is explicitly out of
+> scope.
+
 ---
 
 ## Recommendations for D3127
@@ -138,3 +157,45 @@ the same sections:
   sequence, once in special cases requiring distinct vertices), and the **"cycle"** definition
   ("every vertex appears twice") is garbled. A self-loop is written `${v_i, v_i}$` (missing
   `\{ \}`). These are not directedness issues but sit in the same terminology section.
+
+---
+
+## Graph as mathematical foundation (2026-06-15)
+
+A graph library implementation is centered on two primary representation types:
+the **adjacency list** (compressed sparse adjacency matrix) and the
+**adjacency matrix** (dense).  The library already has a full
+`adjacency_list<G>` concept family; `adjacency_matrix<G>` is planned but not
+yet in the reference implementation.
+
+The term **"graph"** carries the mathematical meaning — an abstract entity
+$G = \{V, E\}$ — that *defines what these representations represent*.  This
+meaning must not be diluted or lost:
+
+- In **D3127**, the distinction between the graph $G$ and its representations
+  (adjacency list, adjacency matrix, edge list) is well established.  However,
+  the current text treats the adjacency matrix primarily as a theoretical
+  stepping stone toward the adjacency list.  The two representations are equally
+  primary in the library; D3127 should present them as parallel, co-equal
+  concrete forms of a graph, not as a hierarchy where the matrix is merely
+  motivation for the list.
+
+- In **D3130**, consider whether a base `graph<G>` concept (requiring only
+  `vertices(g)`) should appear at the top of the concept hierarchy so that both
+  `adjacency_list<G>` and `adjacency_matrix<G>` visibly refine it.  This would
+  preserve the mathematical meaning at the C++ concept level.  See the note in
+  `agents/D3130_review.md` §5 for the full discussion.
+
+### Recommendation for D3127 §"Adjacency-Based Representations"
+
+After introducing both the adjacency matrix and the adjacency list, add a
+summary paragraph along the lines of:
+
+> Both the (dense) adjacency matrix and the (sparse/compressed) adjacency list
+> are representations of the same abstract object — the graph $G = \{V, E\}$.
+> A graph library is fundamentally an implementation of algorithms and data
+> structures that operate on these two representations.  The word "graph" in
+> algorithm specifications, concept names, and library interfaces always refers
+> to this mathematical object; when we write `adjacency_list<G>` or
+> `adjacency_matrix<G>`, `G` is the type that *represents* a graph, not the
+> graph itself.

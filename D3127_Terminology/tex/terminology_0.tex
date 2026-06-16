@@ -98,7 +98,8 @@ If the edge set $E$ of a directed graph contains an edge $e_k = (v_i,v_j)$, then
   $e_k$ is said to be \emph{incident} on the vertices $v_i$ and $v_j$.
   Moreover, vertex $v_j$ is adjacent to vertex $v_i$
   \emph{and} vertex $v_i$ is adjacent to vertex $v_j$.
-  The edge $e_k$ is an out-edge of both $v_i$ and $v_j$ and it is an in-edge of both $v_i$ and $v_j$.
+  We reserve the terms \emph{out-edge} and \emph{in-edge} for incidence-list representations,
+  where these terms are associated with stored adjacency records.
 \item The \emph{neighbors} of a vertex $v_i$ are all the vertices $v_j$ that are adjacent to $v_i$.  The set of all the neighbors of $v_i$ is the \emph{neighborhood} of $v_i$.
 \item A \emph{path} is a sequence of vertices $v_0, v_1, \ldots, v_{k-1}$ such that
 there is an edge from $v_0$ to $v_1$, an edge from $v_1$ to $v_2$, and so on.
@@ -110,7 +111,7 @@ That is, a path is a set of edges $(v_i, v_{i+1}) \in E$ for  $i = 0, 1, \ldots,
 There are some special cases that deserve mention, as their presence or absence may determine algorithmic properties.
 \begin{itemize}
 %
-\item A \emph{self-loop} is an edge from a vertex $v_i$ to itself, that is, there is an edge ${v_i, v_i}$ in $E$.
+\item A \emph{self-loop} is an edge from a vertex $v_i$ to itself, that is, there is an edge $\{v_i, v_i\}$ in $E$.
 %
 \item An \emph{isolated vertex} $v_i$ is one that has no edge incident on it, that is, a vertex $v_i$ for which there is no edge $\{v_i, v_j\}$ nor $\{v_j, v_i\}$.
 %
@@ -121,13 +122,12 @@ There are some special cases that deserve mention, as their presence or absence 
   elements of $E$ may be $\{v_i, v_j, v_k, \ldots\}$.  Consideration of hypergraphs is outside the scope of this
   proposal.
 \item A \emph{hypersparse} graph is a graph for which the enumeration is not contiguous.  That is for $V = \{v_i, v_j, v_k, \ldots\}$, with $i < j < k < \ldots$ the set $\{i, j, k, \ldots\}$ may not be contiguous and may not start at $0$.
-\item A \emph{path} is sequence of edges $\{v_i, v_j\}, \{v_j, v_k\}, \{v_k, v_l\}, \ldots $ such that every $v_i$ is distinct.
+\item A \emph{simple path} is sequence of edges $\{v_i, v_j\}, \{v_j, v_k\}, \{v_k, v_l\}, \ldots $ such that every vertex in the sequence is distinct.
   That is,
 any $v_i$ appears once and only once in an edge $\{v_j, v_i\}$ and once and only once in an
 edge $\{v_i, v_k\}$.
-\item A \emph{cycle} is a path such that every vertex appears twice, that is, for every $v_i$ there is an edge
-  $\{v_j, v_i\}$ and an 
-edge $\{v_i, v_k\}$.  In terms of the sequence above, a path is a cycle if the second vertex of the last edge is the first vertex of the first edge.
+\item A \emph{cycle} is a path whose first and last vertices are the same, and whose intermediate vertices are distinct.
+  In terms of the sequence above, a path is a cycle if the second vertex of the last edge is the first vertex of the first edge.
 \item  A \emph{directed acyclic graph (DAG)} is a directed graph with no cycles.
 \item A \emph{tree} is a connected graph with no cycles.  Trees are a special case of graphs but are important enough that they have their own
   rich theory (and corresponding software).  As such, we omit trees from this proposal and look forward to
@@ -161,12 +161,12 @@ respectively for a directed or undirected graph
  a_{i j} = a_{ji} =
  \left\{
  \begin{array}{rl}
-  1 & \textrm{if } (v_i, v_j) \in E \\ 
+  1 & \textrm{if } \{v_i, v_j\} \in E \\ 
   0 & \textrm { otherwise }
  \end{array}
  \right.
 \]
-That is, $a_{ij} = 1$ if and only if $v_j$ is adjacent to $v_i$ in the original graph $G$ (hence the name ``adjacency matrix``).  We note that the difference between the adjacency matrices for a directed vs an undirected graph is that and the adjacency matrix for an undirected graph has $a_{ji} = 1$ whenever $a_ij$ is equal to one.  That is, it is symmetric.
+That is, $a_{ij} = 1$ if and only if $v_j$ is adjacent to $v_i$ in the original graph $G$ (hence the name ``adjacency matrix``).  We note that the difference between the adjacency matrices for a directed vs an undirected graph is that the adjacency matrix for an undirected graph has $a_{ji} = 1$ whenever $a_{ij}$ is equal to one.  That is, it is symmetric.
 
 Here we can see also why we said that the initial enumeration of $V$ is foundational to representations:  \emph{The adjacency matrix is based solely on the indices used in that enumeration}.  It does not contain the vertices or edges themselves.  The enumeration corresponding to vertices is implicit: the neighbor information for vertex $v_i$ is stored on row $i$ of the matrix.  Similarly, we don't store an edge $(v_i, v_j)$ explicitly, but rather an indicator as to whether $(v_i, v_j)$ exists in $E$ or not.
 
@@ -178,6 +178,7 @@ matrix} is a container $C$ of pairs $(i, j)$ for every $a_{ij}$ in $A$.
 
 \textbf{NB:} At first glance, it may seem that we have simply created a data structure $C$ that has a pair $(i,j)$ if $E$ in the
 original graph has an edge from $v_i$ to $v_j$.  This is true in the directed case.  However, in the undirected case, if there is an edge between $v_i$ and $v_j$, then $v_i$ is adjacent to $v_j$, and $v_j$ is adjacent to $v_i$.  In other words, if there is an edge between $v_i$ and  $v_j$ in an undirected graph, then both the entries $a_{ij}$ and $a_{ji}$ are equal to $1$\footnote{That is, the adjacency matrix is symmetric.} --- and therefore for a single edge between $v_i$ and $v_j$,  $C$ contains two index pairs: $(i, j)$  and $(j, i)$.   The sparse coordinate representation is commonly known as \emph{edge list}.  However, we caution the reader that $C$ does not store edges, but rather indices that represent adjacencies between vertices.  In the case that $C$ represents an undirected graph, there is not a 1-1 correspondence between the edges in $E$ and the contents of $C$.
+Indeed, the adjacency list of an undirected graph is indistinguishable from the adjacency list of a directed graph that has a reciprocal edge $(v_j, v_i)$ for every edge $(v_i, v_j)$.
 
 Although the sparse coordinate adjacency matrix is much more efficient in terms of storage than the original adjacency matrix, it isn't as efficient as it could be.  
 Much more importantly, it is not useful for the types of operations used by most graph algorithms, which need to be able to get the set of neighbors of a given vertex in constant time.  
@@ -187,6 +188,14 @@ We note that if $(v_i, v_j)$ is an edge in an undirected graph, $J[i]$ will cont
 The common name for this data structure is \emph{adjacency list}.  
 Although this name is problematic (for instance, it is not actually a list),  it is so widely used that we also use it here---but \emph{we mean specifically that an  ``adjacency list'' is the compressed sparse adjacency matrix representation of a graph}\footnote{We concede that ``adjacency list'' rolls off the tongue much more easily than ``compressed sparse adjacency matrix representation of a graph.''}.  
 Again we emphasize the distinction between a graph and its representation:  An adjacency list $J$ is not the same as the graph $G$---it is a representation of $G$, based on an enumeration of the vertices in $\{V\}$.
+In particular, an adjacency list representation is neither directed nor undirected in itself~\cite{CLRS2022}.  Directedness is a property of the values present in the representation (for example, whether reciprocal index pairs are present), not a property of the representation type.
+Both the dense adjacency matrix and the compressed adjacency list are representations of the same abstract object, namely $G = \{V, E\}$.
+
+\subsubsection{Directedness Is a Property of Values, Not Types}
+
+The distinction between directed and undirected is determined by the contents of the represented edge relation, not by whether a program uses an adjacency matrix, an adjacency list, or another storage scheme.
+In this sense, directedness is analogous to matrix symmetry in linear algebra, or sortedness in the standard library: it is a value-level condition that algorithms may require, but it is not generally enforceable by representation type alone.
+In practice, this means algorithms often require predicates over representation contents (for example, symmetry checks) rather than separate directed or undirected representation types.
 
 Illustrations of the adjacency-matrix representations of the airline route graph and the electronic instagram graph are shown in Figures~\ref{fig:airport-representation} and~\ref{fig:instagram}, respectively.
 
@@ -261,7 +270,7 @@ Illustrations of the adjacency-matrix representations of the airline route graph
 \end{figure}
 
 
-\subsection{Incident Matrices}
+\subsection{Incidence Matrices}
 
 An \emph{Incidence matrix} of a directed graph $G$ is a
 $|V|\times |E|$ matrix $B = (b_{ij})$ such that
@@ -275,8 +284,23 @@ $|V|\times |E|$ matrix $B = (b_{ij})$ such that
  \end{array}
  \right.
  \]
- We note that the product $BB^\top$ of an incident matrix $B$ is the adjacency matrix
+ We note that the product $BB^\top$ of an incidence matrix $B$ is the adjacency matrix
  of the graph $G$, i.e., $G=BB^\top$.
+
+\subsection{Incidence-List Representations}
+
+In addition to adjacency-based representations, many graph interfaces use an \emph{incidence list of a graph}, in which each vertex exposes the out-edges incident from that vertex.
+For directed graphs, an out-edge record identifies a source vertex and a target vertex.
+For undirected graphs, implementations may still store an edge as one or more oriented records, but this orientation is a representation choice rather than a statement about graph directedness.
+
+A \emph{bidirectional incidence list of a graph} additionally exposes in-edges for each vertex.
+As with adjacency lists, these structures do not by themselves enforce directedness or undirectedness; those properties remain conditions on stored values.
+ 
+The operation commonly called \lstinline{adjacent_vertices} in other libraries can be expressed directly as a neighbor projection of an adjacency list in this proposal, without introducing a separate concept solely for that operation.
+Likewise, this proposal does not adopt a separate readable/writeable property-map abstraction.
+Instead, graph-, vertex-, and edge-associated values are accessed directly through value operations (for example, \tcode{graph_value}, \tcode{vertex_value}, and \tcode{edge_value}); readability follows from availability of access and writability from non-\tcode{const} reference return.
+When an adjacency-list entry stores additional per-adjacency data (for example, tuples of target index and value), each stored adjacency record may be viewed as a \emph{half-edge}.
+For undirected data modeled this way, requiring the property on $(v_i, v_j)$ to match the property on $(v_j, v_i)$ is a symmetry condition on values, i.e., a run-time precondition rather than a type-level guarantee.
 
 
 \section{Direct Representations}
