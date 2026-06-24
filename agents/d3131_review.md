@@ -214,13 +214,6 @@ internal contradiction; **[LOW]** = wording/snippet polish.
   vertex/edge/graph mutable — matches (`csr_row_values`/`csr_col_values`,
   `graph_value()` accessor; no public add/remove vertex/edge).
 - `void` EV/VV/GV → no storage overhead: matches the empty specializations of
-  `csr_row_values`/`csr_col_values` and the `GV=void` class specialization.
-- Summary box: vertex_id contiguous, contiguous vertices/edges ranges,
-  `num_edges(g)` $O(1)$, `has_edges(g)` $O(1)$, `num_partitions` $O(1)$,
-  Append vertices/edges = No, Partitions = Yes — all consistent with the code.
-- `is_directed` not supported for `compressed_graph` (no specialization in
-  `compressed_graph.hpp`); undirected use requires inserting both `(u,v)` and
-  `(v,u)` — matches.
 - Memory-size formula
   $|V|(sizeof(EIndex)+sizeof(VV)) + |E|(sizeof(VId)+sizeof(EV)) + sizeof(GV)$ is
   consistent with the CSR layout (`row_index_`+row values sized to |V|, `col_index_`

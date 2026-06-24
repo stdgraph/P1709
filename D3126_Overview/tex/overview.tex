@@ -187,9 +187,15 @@ Performance analysis from those algorithms can be found in the peer-reviewed pap
 \section{Prior Art}
 
 \textbf{boost::graph} has been an important C++ graph implementation since 2001. It was developed with the goal of providing
-a modern (at the time) generic library that addressed all the needs of a graph library user. It is still a viable library used today, attesting to the value it brings.
+a modern (at the time) generic library that addressed all the needs of a graph library user. It is still a viable library used today, 
+attesting to the value it brings.
 
-However, boost::graph was written using C++98 in an ``expert-friendly'' style, adding many abstractions and using sophisticated template metaprogramming, making it difficult to use by a casual developer.  Particular pain-points described in ad-hoc discussions with users  include: property maps, parameter-passing, visitors.
+However, boost::graph was written using C++98 in an ``expert-friendly'' style, adding many abstractions and using sophisticated 
+template metaprogramming, making it difficult to use by a casual developer.  Particular pain-points described in ad-hoc discussions 
+with users  include: property maps, parameter-passing, visitors.
+
+This library draws on the experience gained from boost::graph to provide a more modern and accessible C++ graph library.
+The reference library has been extended to support many of the features and capabilities of \textbf{boost::graph}.
 
 \medskip
 

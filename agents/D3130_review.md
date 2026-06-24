@@ -211,7 +211,7 @@ wording/snippet polish.
   `num_vertices(g,pid)` — present.
 - `graph_error : runtime_error` — matches.
 - Edgelist concepts `basic_sourced_edgelist`, `basic_sourced_index_edgelist`,
-  `has_edge_value`, and the `is_directed`/`is_directed_v` trait — match.
+  `has_edge_value` — match.
 
 ---
 

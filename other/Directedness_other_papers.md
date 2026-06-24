@@ -27,19 +27,7 @@ directedness is a property of which edges the caller stores, not a type paramete
 
 ## D3131 — Containers (direct framing conflict)
 
-`containers.tex` says `is_directed` is **not supported** for `compressed_graph`, and
-that an undirected graph "must include edge pairs for both directions." The behavior
-is correct, but the *framing* conflicts with the email: the paper presents
-directedness as an absent type-level trait rather than as a value-level property of
-the stored edge set.
 
-**Recommended change:** Reframe the note: not *"the `is_directed` trait is
-unsupported"* but *"directedness is determined by which edges are stored, not by the
-type; callers treating the graph as undirected are responsible for storing symmetric
-edge pairs."* This aligns `compressed_graph`'s behavior with the principled
-terminology.
-
----
 
 ## D3128 — Algorithms (moderate relevance)
 

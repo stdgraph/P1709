@@ -350,27 +350,22 @@ The visitor events mimic those used in the Boost Graph Library.
 {\small
       \lstinputlisting{D3128_Algorithms/src/visitor_vertex.hpp}
 }
-Each vertex event concept exists in two variants.
-The \textit{descriptor} variant (e.g.\ \lstinline{has_on_initialize_vertex}) requires an event
-function whose second argument is \lstinline{const vertex_t<G>&}.
-The \textit{ID} variant (e.g.\ \lstinline{has_on_initialize_vertex_id}) requires an event
-function whose second argument is \lstinline{const vertex_id_t<G>&}.
-The ID variant is useful when the visitor only needs the vertex identifier rather than the full
-vertex descriptor.  In both variants the first argument is \lstinline{const G&}.
+Each vertex event concept requires an event function whose second argument is \lstinline{const vertex_t<G>&},
+with the first argument being \lstinline{const G&}.
 
 The vertex events are called under the following conditions.
 \begin{itemize}
-      \item \lstinline{on_initialize_vertex(g, vdesc)} (or \lstinline{on_initialize_vertex(g, uid)})
+      \item \lstinline{on_initialize_vertex(g, u)}
             is called once for each vertex before the algorithm is run.
-      \item \lstinline{on_discover_vertex(g, vdesc)} (or \lstinline{on_discover_vertex(g, uid)})
+      \item \lstinline{on_discover_vertex(g, u)}
             is called once for each source vertex passed to the algorithm.
-      \item \lstinline{on_examine_vertex(g, vdesc)} (or \lstinline{on_examine_vertex(g, uid)})
+      \item \lstinline{on_examine_vertex(g, u)}
             is called for a vertex before any of its outgoing edges are examined.  It is possible
             that it will be called multiple times for the same vertex if paths are found to it
             from other vertices with a shorter distance.
-      \item \lstinline{on_start_vertex(g, vdesc)} (or \lstinline{on_start_vertex(g, uid)})
+      \item \lstinline{on_start_vertex(g, u)}
             is called for a vertex that is being examined.
-      \item \lstinline{on_finish_vertex(g, vdesc)} (or \lstinline{on_finish_vertex(g, uid)})
+      \item \lstinline{on_finish_vertex(g, u)}
             is called for a vertex that is being examined, after all its outgoing edges have been
             examined.
 \end{itemize}

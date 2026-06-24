@@ -61,7 +61,6 @@
       \item Add \tcode{ordered_vertex_edges<G>} concept for algorithms requiring sorted adjacency.
       \item Rewrite vertex visitor concepts (\tcode{has_on_initialize_vertex}, etc.) to use
             2-argument descriptor form \tcode{(const G\&, const vertex_t<G>\&)}.
-            Add corresponding \tcode{_id} variants accepting \tcode{vertex_id_t<G>}.
       \item Rewrite edge visitor concepts (\tcode{has_on_examine_edge}, etc.) to use
             2-argument form \tcode{(const G\&, const edge_t<G>\&)}.
       \item Add hardened preconditions section to each algorithm for C++26.  Reword
