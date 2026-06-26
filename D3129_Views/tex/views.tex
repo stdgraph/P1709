@@ -197,7 +197,7 @@ uses a value function.
 
 \begin{table}[h!]
 \begin{center}
-\resizebox{\textwidth}{!}
+%\resizebox{\textwidth}{!}
 {\begin{tabular}{l l}
 \hline
     \textbf{Example} & \textbf{Return} \\
@@ -208,9 +208,9 @@ uses a value function.
     \tcode{for(auto\&\& [uid, u, val] : vertexlist(g,first,last,vvf))} & \tcode{vertex_data<VId,V,VV>} \\
     \tcode{for(auto\&\& [uid, u] : vertexlist(g,vr))} & \tcode{vertex_data<VId,V,void>} \\
     \tcode{for(auto\&\& [uid, u, val] : vertexlist(g,vr,vvf))} & \tcode{vertex_data<VId,V,VV>} \\
-\hdashline
-    \tcode{for(auto\&\& [uid] : basic_vertexlist(g))} & \tcode{vertex_data<VId,void,void>} \\
-    \tcode{for(auto\&\& [uid, val] : basic_vertexlist(g,vvf))} & \tcode{vertex_data<VId,void,VV>} \\
+%\hdashline
+%    \tcode{for(auto\&\& [uid] : basic_vertexlist(g))} & \tcode{vertex_data<VId,void,void>} \\
+%    \tcode{for(auto\&\& [uid, val] : basic_vertexlist(g,vvf))} & \tcode{vertex_data<VId,void,VV>} \\
 \hline
 \end{tabular}}
 \caption{\tcode{vertexlist} View Functions}
@@ -218,7 +218,7 @@ uses a value function.
 \end{center}
 \end{table}
 
-The \tcode{basic_vertexlist} variants omit the vertex descriptor and yield only vertex IDs. They are useful when algorithms need only the vertex identity, not a reference to the vertex object.
+%The \tcode{basic_vertexlist} variants omit the vertex descriptor and yield only vertex IDs. They are useful when algorithms need only the vertex identity, not a reference to the vertex object.
 
 \subsection{incidence Views}
 \tcode{incidence} views iterate over a range of adjacent edges of a vertex, returning a \tcode{edge_data} on each iteration. 
@@ -240,9 +240,9 @@ uses a value function.
 \hline
     \tcode{for(auto\&\& [vid, uv] : incidence(g,u))} & \tcode{edge_data<VId,false,E,void>} \\
     \tcode{for(auto\&\& [vid, uv, val] : incidence(g,u,evf))} & \tcode{edge_data<VId,false,E,EV>} \\
-\hdashline
-    \tcode{for(auto\&\& [vid] : basic_incidence(g,uid))} & \tcode{edge_data<VId,false,void,void>} \\
-    \tcode{for(auto\&\& [vid, val] : basic_incidence(g,uid,evf))} & \tcode{edge_data<VId,false,void,EV>} \\
+%\hdashline
+%    \tcode{for(auto\&\& [vid] : basic_incidence(g,uid))} & \tcode{edge_data<VId,false,void,void>} \\
+%    \tcode{for(auto\&\& [vid, val] : basic_incidence(g,uid,evf))} & \tcode{edge_data<VId,false,void,EV>} \\
 \hline
 \end{tabular}}
 \caption{\tcode{incidence} View Functions}
@@ -265,9 +265,9 @@ Table \ref{tab:in_incidence} shows the \tcode{in\_incidence} function overloads 
 \hline
     \tcode{for(auto\&\& [vid, uv] : in_incidence(g,u))} & \tcode{edge_data<VId,false,E,void>} \\
     \tcode{for(auto\&\& [vid, uv, val] : in_incidence(g,u,evf))} & \tcode{edge_data<VId,false,E,EV>} \\
-\hdashline
-    \tcode{for(auto\&\& [vid] : basic_in_incidence(g,uid))} & \tcode{edge_data<VId,false,void,void>} \\
-    \tcode{for(auto\&\& [vid, val] : basic_in_incidence(g,uid,evf))} & \tcode{edge_data<VId,false,void,EV>} \\
+%\hdashline
+%    \tcode{for(auto\&\& [vid] : basic_in_incidence(g,uid))} & \tcode{edge_data<VId,false,void,void>} \\
+%    \tcode{for(auto\&\& [vid, val] : basic_in_incidence(g,uid,evf))} & \tcode{edge_data<VId,false,void,EV>} \\
 \hline
 \end{tabular}}
 \caption{\tcode{in\_incidence} View Functions}
@@ -293,9 +293,9 @@ to include \tcode{source_id} in the output.
 \hline
     \tcode{for(auto\&\& [vid, v] : neighbors(g,uid))} & \tcode{neighbor_data<VId,false,V,void>} \\
     \tcode{for(auto\&\& [vid, v, val] : neighbors(g,uid,vvf))} & \tcode{neighbor_data<VId,false,V,VV>} \\
-\hdashline
-    \tcode{for(auto\&\& [vid] : basic_neighbors(g,uid))} & \tcode{neighbor_data<VId,false,void,void>} \\
-    \tcode{for(auto\&\& [vid, val] : basic_neighbors(g,uid,vvf))} & \tcode{neighbor_data<VId,false,void,VV>} \\
+%\hdashline
+%    \tcode{for(auto\&\& [vid] : basic_neighbors(g,uid))} & \tcode{neighbor_data<VId,false,void,void>} \\
+%    \tcode{for(auto\&\& [vid, val] : basic_neighbors(g,uid,vvf))} & \tcode{neighbor_data<VId,false,void,VV>} \\
 \hline
 \end{tabular}}
 \caption{\tcode{neighbors} View Functions}
@@ -318,9 +318,9 @@ Table \ref{tab:in_neighbors} shows the \tcode{in\_neighbors} function overloads 
 \hline
     \tcode{for(auto\&\& [vid, v] : in_neighbors(g,uid))} & \tcode{neighbor_data<VId,false,V,void>} \\
     \tcode{for(auto\&\& [vid, v, val] : in_neighbors(g,uid,vvf))} & \tcode{neighbor_data<VId,false,V,VV>} \\
-\hdashline
-    \tcode{for(auto\&\& [vid] : basic_in_neighbors(g,uid))} & \tcode{neighbor_data<VId,false,void,void>} \\
-    \tcode{for(auto\&\& [vid, val] : basic_in_neighbors(g,uid,vvf))} & \tcode{neighbor_data<VId,false,void,VV>} \\
+%\hdashline
+%    \tcode{for(auto\&\& [vid] : basic_in_neighbors(g,uid))} & \tcode{neighbor_data<VId,false,void,void>} \\
+%    \tcode{for(auto\&\& [vid, val] : basic_in_neighbors(g,uid,vvf))} & \tcode{neighbor_data<VId,false,void,VV>} \\
 \hline
 \end{tabular}}
 \caption{\tcode{in\_neighbors} View Functions}
@@ -349,9 +349,9 @@ adhere to \tcode{basic_sourced_edgelist}). If a \tcode{evf(g,uv)} function is pa
 \hline
     \tcode{for(auto\&\& [uid, vid, uv] : edgelist(g))} & \tcode{edge_data<VId,true,E,void>} \\
     \tcode{for(auto\&\& [uid, vid, uv, val] : edgelist(g,evf))} & \tcode{edge_data<VId,true,E,EV>} \\
-\hdashline
-    \tcode{for(auto\&\& [uid, vid] : basic_edgelist(g))} & \tcode{edge_data<VId,true,void,void>} \\
-    \tcode{for(auto\&\& [uid, vid, val] : basic_edgelist(g,evf))} & \tcode{edge_data<VId,true,void,EV>} \\
+%\hdashline
+%    \tcode{for(auto\&\& [uid, vid] : basic_edgelist(g))} & \tcode{edge_data<VId,true,void,void>} \\
+%    \tcode{for(auto\&\& [uid, vid, val] : basic_edgelist(g,evf))} & \tcode{edge_data<VId,true,void,EV>} \\
 \hline
 \end{tabular}}
 \caption{\tcode{edgelist} View Functions}
@@ -438,7 +438,7 @@ Depth First Search views iterate over vertices and edges reachable from a seed v
 
 \begin{table}[h!]
 \begin{center}
-\resizebox{\textwidth}{!}
+%\resizebox{\textwidth}{!}
 {\begin{tabular}{l l}
 \hline
     \textbf{Example} & \textbf{Return} \\
@@ -461,7 +461,7 @@ Breadth First Search views iterate over vertices and edges reachable from a seed
 
 \begin{table}[h!]
 \begin{center}
-\resizebox{\textwidth}{!}
+%\resizebox{\textwidth}{!}
 {\begin{tabular}{l l}
 \hline
     \textbf{Example} & \textbf{Return} \\
@@ -495,7 +495,7 @@ Topological sort views support \tcode{cancel()} and \tcode{num_visited()} but no
 
 \begin{table}[h!]
 \begin{center}
-\resizebox{\textwidth}{!}
+%\resizebox{\textwidth}{!}
 {\begin{tabular}{l l}
 \hline
     \textbf{Example} & \textbf{Return} \\
@@ -517,7 +517,7 @@ The \tcode{_safe} factory variants detect cycles during construction and return 
 
 \begin{table}[h!]
 \begin{center}
-\resizebox{\textwidth}{!}
+%\resizebox{\textwidth}{!}
 {\begin{tabular}{l l}
 \hline
     \textbf{Factory} & \textbf{Return} \\
@@ -545,40 +545,40 @@ All range-returning, non-\tcode{_safe} view factories listed in Tables \ref{tab:
 
 \begin{table}[h!]
 \begin{center}
-\resizebox{\textwidth}{!}
+%\resizebox{\textwidth}{!}
 {\begin{tabular}{l l}
 \hline
     \textbf{Pipe Expression} & \textbf{Equivalent Factory Call} \\
 \hline
     \tcode{g | vertexlist()} & \tcode{vertexlist(g)} \\
     \tcode{g | vertexlist(vvf)} & \tcode{vertexlist(g,vvf)} \\
-    \tcode{g | basic_vertexlist()} & \tcode{basic_vertexlist(g)} \\
-    \tcode{g | basic_vertexlist(vvf)} & \tcode{basic_vertexlist(g,vvf)} \\
+    %\tcode{g | basic_vertexlist()} & \tcode{basic_vertexlist(g)} \\
+    %\tcode{g | basic_vertexlist(vvf)} & \tcode{basic_vertexlist(g,vvf)} \\
 \hdashline
     \tcode{g | incidence(uid)} & \tcode{incidence(g,uid)} \\
     \tcode{g | incidence(uid, evf)} & \tcode{incidence(g,uid,evf)} \\
-    \tcode{g | basic_incidence(uid)} & \tcode{basic_incidence(g,uid)} \\
-    \tcode{g | basic_incidence(uid, evf)} & \tcode{basic_incidence(g,uid,evf)} \\
+    %\tcode{g | basic_incidence(uid)} & \tcode{basic_incidence(g,uid)} \\
+    %\tcode{g | basic_incidence(uid, evf)} & \tcode{basic_incidence(g,uid,evf)} \\
 \hdashline
     \tcode{g | in_incidence(uid)} & \tcode{in_incidence(g,uid)} \\
     \tcode{g | in_incidence(uid, evf)} & \tcode{in_incidence(g,uid,evf)} \\
-    \tcode{g | basic_in_incidence(uid)} & \tcode{basic_in_incidence(g,uid)} \\
-    \tcode{g | basic_in_incidence(uid, evf)} & \tcode{basic_in_incidence(g,uid,evf)} \\
+    %\tcode{g | basic_in_incidence(uid)} & \tcode{basic_in_incidence(g,uid)} \\
+    %\tcode{g | basic_in_incidence(uid, evf)} & \tcode{basic_in_incidence(g,uid,evf)} \\
 \hdashline
     \tcode{g | neighbors(uid)} & \tcode{neighbors(g,uid)} \\
     \tcode{g | neighbors(uid, vvf)} & \tcode{neighbors(g,uid,vvf)} \\
-    \tcode{g | basic_neighbors(uid)} & \tcode{basic_neighbors(g,uid)} \\
-    \tcode{g | basic_neighbors(uid, vvf)} & \tcode{basic_neighbors(g,uid,vvf)} \\
+    %\tcode{g | basic_neighbors(uid)} & \tcode{basic_neighbors(g,uid)} \\
+    %\tcode{g | basic_neighbors(uid, vvf)} & \tcode{basic_neighbors(g,uid,vvf)} \\
 \hdashline
     \tcode{g | in_neighbors(uid)} & \tcode{in_neighbors(g,uid)} \\
     \tcode{g | in_neighbors(uid, vvf)} & \tcode{in_neighbors(g,uid,vvf)} \\
-    \tcode{g | basic_in_neighbors(uid)} & \tcode{basic_in_neighbors(g,uid)} \\
-    \tcode{g | basic_in_neighbors(uid, vvf)} & \tcode{basic_in_neighbors(g,uid,vvf)} \\
+    %\tcode{g | basic_in_neighbors(uid)} & \tcode{basic_in_neighbors(g,uid)} \\
+    %\tcode{g | basic_in_neighbors(uid, vvf)} & \tcode{basic_in_neighbors(g,uid,vvf)} \\
 \hdashline
     \tcode{g | edgelist()} & \tcode{edgelist(g)} \\
     \tcode{g | edgelist(evf)} & \tcode{edgelist(g,evf)} \\
-    \tcode{g | basic_edgelist()} & \tcode{basic_edgelist(g)} \\
-    \tcode{g | basic_edgelist(evf)} & \tcode{basic_edgelist(g,evf)} \\
+    %\tcode{g | basic_edgelist()} & \tcode{basic_edgelist(g)} \\
+    %\tcode{g | basic_edgelist(evf)} & \tcode{basic_edgelist(g,evf)} \\
 \hline
 \end{tabular}}
 \caption{Graph View Range Adaptors}
@@ -588,7 +588,7 @@ All range-returning, non-\tcode{_safe} view factories listed in Tables \ref{tab:
 
 \begin{table}[h!]
 \begin{center}
-\resizebox{\textwidth}{!}
+%\resizebox{\textwidth}{!}
 {\begin{tabular}{l l}
 \hline
     \textbf{Pipe Expression} & \textbf{Equivalent Factory Call} \\
@@ -614,5 +614,7 @@ All range-returning, non-\tcode{_safe} view factories listed in Tables \ref{tab:
 \end{center}
 \end{table}
 
-The \tcode{in_incidence}, \tcode{in_neighbors}, and their \tcode{basic_} variants require the graph to model \tcode{index_bidirectional_adjacency_list} when used as pipe adaptors (vertex-id overloads).
+The \tcode{in_incidence} and \tcode{in_neighbors}
+%The \tcode{in_incidence}, \tcode{in_neighbors}, and their \tcode{basic_} variants 
+require the graph to model \tcode{index_bidirectional_adjacency_list} when used as pipe adaptors (vertex-id overloads).
 
