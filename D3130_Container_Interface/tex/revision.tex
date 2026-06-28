@@ -74,9 +74,10 @@
 \subsection*{\paperno r4}
 
 \begin{itemize}
-      \item \textbf{Associative-container support}: vertex and edge containers may now be
-            associative (e.g.\ \tcode{std::map}, \tcode{std::unordered_map}), enabling
-            graphs with non-integer or string vertex ids.  Related changes:
+      \item \textbf{Mapped vertices and edges}: vertex container may now be associative (e.g.\ \tcode{std::map}, 
+            \tcode{std::unordered_map}), enabling adjacency lists with non-integral vertex ids. Likewise,
+            an edge container/range may also be associative or include a key-only container such as \tcode{std::set}.
+            Related changes:
             \begin{itemize}
                   \item New concept \tcode{mapped_vertex_range} alongside \tcode{index_vertex_range}.
                   \item New \textit{raw-vertex-id-type} exposition-only type alias.
@@ -114,7 +115,8 @@
             \tcode{edge_reference_t}.
       \item New concepts: \tcode{vertex_value_function} and \tcode{edge_value_function} (value-function
             concepts for views and algorithms).
-      \item Edgelist namespace renamed from \tcode{std::graph::edgelist} to \tcode{std::graph::edge_list}.
+      \item Edgelist namespace renamed from \tcode{std::graph::edgelist} to \tcode{std::graph::edge_list}
+            to distinguish it from the edgelist view.
             Adjacency list symbols now formally reside in \tcode{std::graph::adj_list} and are re-exported
             to \tcode{std::graph}; the two sub-namespaces are peers.
       \item \tcode{vertex_data}, \tcode{edge_data} and \tcode{neighbor_data} aggregates

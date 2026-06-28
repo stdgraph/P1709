@@ -3,10 +3,10 @@
 %% \chapter{Graph Container Interface}
 \section{Graph Container Interface}
 
-The Graph Container Interface (GCI) defines the primitive concepts, traits, types and functions used to define and access adjacency lists (aka graphs)
-and edgelists, no matter their internal design and organization. For instance, an adjacency list can be a vector of lists from standard containers, 
-CSR-based graph and adjacency matrix. Likewise, an edgelist can be a range of edges from a standard container or externally defined edge types, 
-provided they have a source\_id, target\_id and optional edge\_value.
+The Graph Container Interface (GCI) defines the primitive concepts, traits, types and functions used to define and access adjacency lists
+and edge lists, no matter their internal design and organization. For instance, an adjacency list can be a vector of lists from standard containers, 
+CSR-based graph, or an adjacency matrix. Likewise, an edge list can be the edges from an adjacency list, or a range of edges from a standard container 
+or externally defined edge types, provided they have a source\_id, target\_id and optional edge\_value.
 
 The GCI covers two peer abstract data types, each with its own namespace:
 \begin{itemize}
@@ -17,27 +17,18 @@ All adjacency list symbols are additionally re-exported into \tcode{std::graph} 
 symbols are \emph{not} re-exported because several names (notably \tcode{vertex\_id\_t}) have different
 definitions in each namespace and cannot coexist at the root level.
 
-If there is a desire to use the algorithms against externally defined data structures, the GCI exposes its functions as customization points
-to be overridden as needed. Likewise, externally defined algorithms can be used to operate on other data structures that meet the GCI requirements.
-This achieves the same goals as the STL, where algorithms can be used on any container that meets the requirements of the algorithm.
+\phil{Consider not exporting the adjacency list symbols into \tcode{std::graph} and instead require users to explicitly use the \tcode{std::graph::adj\_list} namespace.}
 
-The GCI is designed to support a wider scope of graph containers than required by the views and algorithms in this 
-proposal. This enables for future growth of the graph data model (e.g. incoming edges on a vertex), or as a framework for graph implementations 
-outside of the standard. For instance, existing implementations may have requirements that cause them to define features with looser constraints, 
-such as sparse vertex\_ids, non-integral vertex\_ids, or storing vertices in associative bi-directional containers (e.g. std::map or std::unordered\_map). 
-
-Such features require specialized implementations for views and algorithms. The performance for such algorithms will be sub-optimal, but may be
-preferable to run them on the existing container rather than loading the graph into a high-performance graph container and then running the 
-algorithm on it, where the loading time can far outweigh the time to run the sub-optimal algorithm. To achieve this, care has been taken to 
-make sure that the use of concepts chosen is appropriate for algorithm, view and container.
-
-All algorithms in this and related proposals require that adjacency list vertices are stored in random access containers and that \tcode{vertex_id_t<G>} 
-is integral. Future designs may relax these requirements, but for now they are required.
+The GCI functions are customization point objects (CPOs) that provide access to adjacency lists and edge lists, providing
+a uniform interface for retrieving vertices, edges, and related properties regardless of the underlying container.
+They may be overridden for external adjacency list data structures to enable the use of algorithms on those data 
+structures. This achieves the same goals as the STL, where algorithms can be used on any container that meets 
+the requirements of the algorithm.
 
 \section{Adjacency List Interface}
 
 \subsection{Namespace}
-All adjacency list concepts, type aliases, CPOs and descriptors are defined in the \tcode{std::graph::adj\_list}
+All adjacency list concepts, types, CPOs, and functions are defined in the \tcode{std::graph::adj\_list}
 namespace. Every symbol is also re-exported into \tcode{std::graph} via \tcode{using} declarations so that
 callers who include \tcode{<graph>} can write \tcode{graph::vertices(g)} rather than
 \tcode{graph::adj\_list::vertices(g)}. Code that wishes to be explicit about the choice of abstract data
@@ -58,13 +49,16 @@ until we have consensus of whether they belong in the standard or not.}
 
 \subsubsection{Edge Concepts}
 Two layered edge concepts are defined. \tcode{basic_edge<G,E>} is the shared floor: an edge must
-provide \tcode{source_id(g,e)} and \tcode{target_id(g,e)}. It lives in \tcode{std::graph} and depends only
+provide \tcode{source_id(g,e)} and \tcode{target_id(g,e)}. It is defined in \tcode{std::graph} and depends only
 on the shared id CPOs, so it ties an edge to both the adjacency list and the edge list (it is the concept
 required by \tcode{basic_sourced_edgelist}, below).
 
-The adjacency-list \tcode{edge<G,E>} concept refines \tcode{basic_edge} by additionally requiring the
-\tcode{source(g,e)} and \tcode{target(g,e)} vertex descriptors. Within an \tcode{adjacency_list} these are
-always available: \tcode{out_edges(g,u)} and \tcode{in_edges(g,u)} always yield edge descriptors, and
+\phil{ The \tcode{basic_sourced_edgelist} uses a carry-over name from using "sourced" when source was optional, which no longer occurs. Consider renaming. }
+
+The \tcode{edge<G,E>} concept refines \tcode{basic_edge} by additionally requiring the \tcode{source(g,e)} 
+and \tcode{target(g,e)} that return vertex descriptors. Within an \tcode{adjacency_list}, \tcode{out_edges(g,u)} 
+for vertex \tcode{u} is always available and yields a range of edge descriptors, and \tcode{in_edges(g,u)} 
+additionally yields a range of edge descriptors when a \tcode{bidirectional_adjacency_list} is used.
 \tcode{adjacency_list} implies a \tcode{vertex_range} (hence \tcode{find_vertex}), so the default
 \tcode{source}/\tcode{target} resolve to \tcode{*find_vertex(g, source_id/target_id(g,e))}. The descriptor
 requirement is therefore free for conforming graphs while keeping edge-list elements --- which have no
@@ -73,20 +67,15 @@ vertex container --- out of the adjacency-list \tcode{edge} concept; those satis
      \lstinputlisting{D3130_Container_Interface/src/concepts_edges.hpp}
 }
 
-The previous version of this interface defined separate concepts for targeted edges (with only \tcode{target_id}) and sourced edges
-(with both \tcode{source_id} and \tcode{target_id}). The descriptor design makes this distinction
-unnecessary: every edge descriptor carries enough information to provide both ids, so the single \tcode{edge<G,E>} concept is sufficient.
-
-Return types are not validated in order to provide flexibility. Constraining the return type of \tcode{target_id(g,uv)} to \tcode{integral}
-would exclude graphs whose vertex id is a non-integral key (e.g.\ a \tcode{string} for a \tcode{map}-based graph). Constraining to
-\tcode{vertex_id_t<G>} gives obscure error messages on failure. Leaving the return type unconstrained allows the compiler to
+Return types are not validated for better error reporting. Constraining the return type to
+\tcode{vertex_id_t<G>} often results in obscure error messages on failure. Leaving the return type unconstrained allows the compiler to
 report the actual type mismatch at the point of use, which is easier to diagnose. There is precedent for this choice in the
 \href{https://en.cppreference.com/w/cpp/ranges/sized_range}{\tcode{sized_range}} concept.
 
 \paragraph{Edge Range Concepts}
 
 \tcode{out_edge_range<R,G>} constrains the range returned by \tcode{out_edges(g,u)}, and \tcode{in_edge_range<R,G>} constrains
-the range returned by \tcode{in_edges(g,u)} for bidirectional graphs. Both require a \tcode{forward_range} whose value type
+the range returned by \tcode{in_edges(g,u)}. Both require a \tcode{forward_range} whose value type
 satisfies \tcode{edge<G, range_value_t<R>>}.
 {\small
      \lstinputlisting{D3130_Container_Interface/src/concepts_target_edge_range.hpp}
@@ -108,29 +97,36 @@ Two specializations of vertex range are provided:
     \item \tcode{index_vertex_range<G>} — vertex id is integral and the vertex range is random-access with an integral \tcode{storage_type}. Used for high-performance graphs such as \tcode{index_adjacency_list}.
     \item \tcode{mapped_vertex_range<G>} — not an \tcode{index_vertex_range}, the vertex id is \tcode{hashable_vertex_id}, and vertices are found via \tcode{find_vertex(g, uid)}. Used for graphs whose vertices are stored in associative containers.
 \end{itemize}
+
+\phil{ \tcode{integral<typenamevertex_range_t<G>::storage_type>} is an obscure way to express that the storage type of the \tcode{index_vertex_range} is an integral vs. iterator/mapped type.}
+
 {\small
      \lstinputlisting{D3130_Container_Interface/src/concepts_vertex_range.hpp}
 }
 
 \subsubsection{Adjacency List Concepts}
-The adjacency list concepts combine the vertex and edge concepts. Six concepts are defined, covering three axes:
-\begin{itemize}
-    \item \tcode{adjacency_list<G>} — base concept: \tcode{vertices(g)} returns a \tcode{vertex_range<G>} and \tcode{out_edges(g,u)} returns an \tcode{out_edge_range<G>}.
-    \item \tcode{index_adjacency_list<G>} — \tcode{adjacency_list} with \tcode{index_vertex_range}. All algorithms currently proposed for the Graph Library use this concept.
-    \item \tcode{bidirectional_adjacency_list<G>} — \tcode{adjacency_list} that also exposes \tcode{in_edges(g,u)} as an \tcode{in_edge_range<G>} with accessible \tcode{source_id}.
-    \item \tcode{index_bidirectional_adjacency_list<G>} — \tcode{bidirectional_adjacency_list} with \tcode{index_vertex_range}.
-    \item \tcode{mapped_adjacency_list<G>} — \tcode{adjacency_list} with \tcode{mapped_vertex_range}.
-    \item \tcode{mapped_bidirectional_adjacency_list<G>} — \tcode{bidirectional_adjacency_list} with \tcode{mapped_vertex_range}.
-\end{itemize}
+The adjacency list concepts combine the vertex and edge concepts into six main concepts
+covering three axes (index vs.\ mapped storage, unidirectional vs.\ bidirectional), plus
+two orthogonal refinements. All algorithms currently proposed for the Graph Library
+require \tcode{index\_adjacency\_list}. Figure~\ref{fig:adj_list_concepts} shows the
+full refinement hierarchy.
 
-A seventh, orthogonal concept describes a graph whose adjacency lists are sorted:
-\begin{itemize}
-    \item \tcode{ordered_vertex_edges<G>} — an \tcode{adjacency_list} in which each vertex's out-edges are ordered by ascending \tcode{target_id}. This is primarily a \emph{semantic} property: the concept can only confirm structurally that \tcode{out_edges(g,u)} is a \tcode{forward_range}, while the ascending-order guarantee is asserted by the graph author. Graphs that store edges in ordered containers (e.g.\ \tcode{set} or \tcode{map} keyed by target id) satisfy it; unordered storage (e.g.\ \tcode{vector} appended in arbitrary order, or \tcode{unordered_set}) generally does not. It is used by algorithms that rely on a linear set-intersection merge, such as triangle counting (see the Algorithms proposal).
-\end{itemize}
+\tcode{ordered\_vertex\_edges<G>} is a primarily \emph{semantic} concept: it can only
+confirm structurally that \tcode{out\_edges(g,u)} is a \tcode{forward\_range}, while the
+ascending-\tcode{target\_id} ordering guarantee is asserted by the graph author. Graphs
+that store edges in ordered containers (e.g.\ \tcode{set} or \tcode{map} keyed by target
+id) satisfy it; unordered storage (e.g.\ \tcode{vector} appended in arbitrary order, or
+\tcode{unordered\_set}) generally does not. It is used by algorithms that rely on a
+linear set-intersection merge, such as triangle counting (see the Algorithms proposal).
 
-The previous interface defined \tcode{basic_*} and \tcode{sourced_*} variants to distinguish edges with or without a source id.
-The descriptor design makes this distinction unnecessary: all edge descriptors carry source information, so the \tcode{basic_*}
-and \tcode{sourced_*} concept families have been removed.
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\textwidth]{D3130_Container_Interface/src/adjacency_list_concepts.pdf}
+    \caption{Adjacency list concept refinement hierarchy. Arrows denote refinement
+             (child concept requires parent). Dashed arrow indicates negation constraint.
+             All algorithms in this proposal require \tcode{index\_adjacency\_list}.}
+    \label{fig:adj_list_concepts}
+\end{figure}
 {\small
      \lstinputlisting{D3130_Container_Interface/src/concepts_adj_list.hpp}
 }
@@ -156,12 +152,6 @@ Table \ref{tab:graph_traits} summarizes the type traits in the Graph Container I
 \hdashline
     \tcode{has_basic_queries<G>} & concept & \tcode{has_degree<G> \&\& has_find_vertex<G> \&\& has_find_vertex_edge<G>} \\
     \tcode{has_full_queries<G>} & concept & \tcode{has_basic_queries<G> \&\& has_contains_edge<G, vertex_t<G>>} \\
-\hline
-    \tcode{define_adjacency_matrix<G> : false_type} & struct & Specialize for graph implementation to derive from \tcode{true_type} for edges stored as a square 2-dimensional array. \\
-    \tcode{is_adjacency_matrix<G>} & struct & \\
-    \tcode{is_adjacency_matrix_v<G>} & type alias & \\
-    \tcode{adjacency_matrix<G>} & concept & \\
-    \multicolumn{3}{l}{\emph{The adjacency\_matrix trait family is not yet in the reference implementation.}} \\
 \hline
 \end{tabular}}
 \caption{Graph Container Interface Type Traits}
@@ -228,179 +218,11 @@ No additional functionality is added beyond that provided by \tcode{runtime_erro
 \emph{While we believe the use of concepts is appropriate for graphs as a range-of-ranges, we are marking them as "For exposition only" 
 until we have consensus of whether they belong in the standard or not.}
 
-\subsubsection{Data Structs}
-
-\tcode{vertex_data}, \tcode{edge_data} and \tcode{neighbor_data} are aggregates used by
-views for structured-binding iteration. They are defined with multiple specializations
-that void-out unused members so that the structured binding is compact.
-
-\tcode{vertex_data<VId, V, VV>} has the following members depending on the template
-parameters (a \tcode{void} parameter omits the corresponding member):
-
-\begin{table}[h!]
-\begin{center}
-{\begin{tabular}{l l L{7.5cm}}
-\hline
-    \textbf{Members present} & \textbf{Specialization} & \textbf{Typical use} \\
-\hline
-    \tcode{id, vertex, value} & \tcode{<VId, V, VV>} & Full vertexlist with descriptor and value \\
-    \tcode{id, vertex}        & \tcode{<VId, V, void>} & Vertexlist with descriptor, no value \\
-    \tcode{id, value}         & \tcode{<VId, void, VV>} & Vertexlist with value, no descriptor \\
-    \tcode{id}                & \tcode{<VId, void, void>} & ID-only vertexlist \\
-    \tcode{vertex, value}     & \tcode{<void, V, VV>} & Descriptor-based, no id \\
-    \tcode{vertex}            & \tcode{<void, V, void>} & Descriptor only \\
-    \tcode{value}             & \tcode{<void, void, VV>} & Value only \\
-    (empty)                   & \tcode{<void, void, void>} & No members \\
-\hline
-\hline
-\end{tabular}}
-\caption{\tcode{vertex\_data} Specializations}
-\label{tab:vertex_data}
-\end{center}
-\end{table}
-
-\tcode{edge_data<VId, Sourced, E, EV>} has the following members. The \tcode{Sourced}
-boolean controls whether \tcode{source_id} is included. A \tcode{void} VId or EV omits
-the corresponding member; a \tcode{void} E omits the edge descriptor member.
-
-\begin{table}[h!]
-\begin{center}
-{\begin{tabular}{l l L{6.5cm}}
-\hline
-    \textbf{Members present} & \textbf{Specialization} & \textbf{Typical use} \\
-\hline
-    \tcode{source\_id, target\_id, edge, value} & \tcode{<VId,true,E,EV>} & Sourced incidence with descriptor and value \\
-    \tcode{source\_id, target\_id, edge}        & \tcode{<VId,true,E,void>} & Sourced incidence with descriptor \\
-    \tcode{source\_id, target\_id, value}       & \tcode{<VId,true,void,EV>} & Sourced incidence with value \\
-    \tcode{source\_id, target\_id}              & \tcode{<VId,true,void,void>} & Sourced incidence, IDs only \\
-    \tcode{target\_id, edge, value}             & \tcode{<VId,false,E,EV>} & Unsourced incidence with descriptor and value \\
-    \tcode{target\_id, edge}                    & \tcode{<VId,false,E,void>} & Unsourced incidence with descriptor \\
-    \tcode{target\_id, value}                   & \tcode{<VId,false,void,EV>} & Unsourced incidence with value \\
-    \tcode{target\_id}                          & \tcode{<VId,false,void,void>} & Target ID only \\
-\hline
-\hline
-\end{tabular}}
-\caption{\tcode{edge\_data} Specializations (VId present)}
-\label{tab:edge_data}
-\end{center}
-\end{table}
-
-\tcode{neighbor_data<VId, Sourced, V, VV>} is analogous to \tcode{edge_data} but replaces
-the edge descriptor with a target vertex descriptor. It is used by adjacency (neighbor)
-views.
-
-The following helper type aliases simplify the most common structured-binding patterns:
-
-\begin{table}[h!]
-\begin{center}
-{\begin{tabular}{l L{8cm}}
-\hline
-    \textbf{Alias} & \textbf{Definition} \\
-\hline
-    \tcode{copyable_vertex_t<VId, VV>}   & \tcode{vertex_data<VId, void, VV>} --- \texttt{\{id, value\}} \\
-    \tcode{copyable_edge_t<VId, EV>}     & \tcode{edge_data<VId, true, void, EV>} --- \texttt{\{source\_id, target\_id, value\}} \\
-    \tcode{copyable_neighbor_t<VId, VV>} & \tcode{neighbor_data<VId, true, void, VV>} --- \texttt{\{source\_id, target\_id, value\}} \\
-\hline
-\hline
-\end{tabular}}
-\caption{Helper type aliases for common structured-binding patterns}
-\label{tab:copyable_types}
-\end{center}
-\end{table}
-
-\subsection{Value Function Concepts}
-
-\tcode{vertex_value_function} and \tcode{edge_value_function} define the required
-interface for callables passed to views and algorithms to extract per-vertex or per-edge
-scalar values (e.g.\ a weight or a label). Both concepts use the two-argument
-\tcode{f(const G\&, descriptor)} convention so that stateless lambdas may be captured
-into \tcode{std::views} pipelines without holding a reference to the graph.
-
-\begin{lstlisting}
-template <class VVF, class Graph, class VertexDescriptor>
-concept vertex_value_function =
-    invocable<VVF, const Graph&, VertexDescriptor> &&
-    (!is_void_v<invoke_result_t<VVF, const Graph&, VertexDescriptor>>);
-
-template <class EVF, class Graph, class EdgeDescriptor>
-concept edge_value_function =
-    invocable<EVF, const Graph&, EdgeDescriptor> &&
-    (!is_void_v<invoke_result_t<EVF, const Graph&, EdgeDescriptor>>);
-\end{lstlisting}
-
-\tcode{basic_edge_weight_function} (defined in the algorithms proposal) refines
-\tcode{edge_value_function} with the additional requirement that the return type is
-arithmetic.
-
-\subsection{Vertex Property Map}
-
-Algorithms that maintain per-vertex state (visited flags, distances, component labels,
-etc.) need a container indexed by vertex ID. For index-based graphs a \tcode{vector} is
-natural; for mapped (key-based) graphs an \tcode{unordered_map} is required.
-\tcode{vertex_property_map<G, T>} abstracts over this difference.
-
-\begin{lstlisting}
-template <class G, class T>
-using vertex_property_map =
-    conditional_t<index_vertex_range<G>,
-                  vector<T>,
-                  unordered_map<vertex_id_t<G>, T>>;
-\end{lstlisting}
-
-Four helper functions complete the interface:
-
-\begin{table}[h!]
-\begin{center}
-\resizebox{\textwidth}{!}
-{\begin{tabular}{l L{9cm}}
-\hline
-    \textbf{Function} & \textbf{Description} \\
-\hline
-    \tcode{make_vertex_property_map(g, init)} & Eager factory: creates a map with every vertex pre-populated to \tcode{init}. O(V). \\
-    \tcode{make_vertex_property_map<G,T>(g)}  & Lazy factory: creates an empty map with capacity reserved. O(V) for index, O(1) for mapped. \\
-    \tcode{vertex_property_map_contains(m, uid)} & Returns \tcode{true} if \tcode{uid} has an entry (\tcode{uid < size(m)} for \tcode{vector}; \tcode{m.contains(uid)} for \tcode{unordered\_map}). \\
-    \tcode{vertex_property_map_get(m, uid, dflt)} & Returns the stored value or \tcode{dflt} if absent. Does not insert. \\
-\hline
-\hline
-\end{tabular}}
-\caption{Vertex Property Map Functions}
-\label{tab:vpm_func}
-\end{center}
-\end{table}
-
-Two further utilities let algorithms accept a caller-supplied property map without
-caring which underlying container backs it:
-
-\begin{lstlisting}
-// Per-vertex value type of a property-map container:
-//   vector<T> yields T (value\_type); unordered\_map<K,V> yields V (mapped\_type)
-template <class Container>
-using vertex_property_map_value_t = /* see prose */;
-
-// A container usable as a per-vertex property map for graph G:
-// it can be subscripted by the graph's vertex id.
-template <class M, class G>
-concept vertex_property_map_for =
-    requires(M& m, const vertex_id_t<G>& uid) {
-      { m[uid] } -> convertible_to<vertex_property_map_value_t<M>>;
-    };
-\end{lstlisting}
-
-\tcode{vertex_property_map_value_t<Container>} extracts the stored value type from
-either container shape (the \tcode{mapped_type} of an \tcode{unordered_map}, or the
-\tcode{value_type} of a \tcode{vector}). \tcode{vertex_property_map_for<M,G>} is the
-precise constraint for algorithm parameters such as \emph{Distances} or
-\emph{Predecessors}: it requires only that \tcode{m[uid]} is valid for the graph's
-\tcode{vertex_id_t<G>}, since algorithms subscript such maps by vertex id rather than
-iterating them as a range. Both \tcode{vector<T>} (index graphs) and
-\tcode{unordered_map<vertex_id_t<G>,T>} (mapped graphs) satisfy it.
-
 \subsection{Functions}
 
 Tables \ref{tab:graph_func}, \ref{tab:vertex_func} and \ref{tab:edge_func} summarize the primitive functions in the Graph Container Interface.
 used to access an adjacency graph, no matter its internal design and organization. Thus, it is designed 
-to be able to reflect all forms of adjacency graphs including a vector of lists, CSR-based graph and adjacency matrix.
-
+to be able to reflect all forms of adjacency graphs such as a vector of lists, CSR-based graph and adjacency matrix.
 
 \begin{table}[h!]
 \begin{center}
@@ -471,6 +293,8 @@ implementation. Specific graph implementations may have different characteristic
 \label{tab:vertex_func}
 \end{center}
 \end{table}
+
+\phil{The same edge type is required for both incoming and outgoing edge ranges. Consider enabling different edge types.}
 
 The default implementation for the \tcode{out_degree} and \tcode{in_degree} functions assumes that \tcode{out_edge_range_t<G>} or \tcode{in_edge_range_t<G>} is a sized range
 to have constant complexity. If the underlying container has a non-linear \tcode{size(R)} function, the degree functions will
@@ -685,6 +509,229 @@ determine how to get the appropriate value.
 
 \tcode{out_edges(g,uid,pid)} and \tcode{out_edges(g,u,pid)} filter the edges where the target is in the partition \tcode{pid} passed.
 This isn't needed for bipartite graphs. These partition-filtered \tcode{out_edges} overloads are not yet in the reference implementation.
+
+\subsection{Utility Types and Functions}
+
+\subsubsection{Vertex, Edge and Neighbor Data}
+\tcode{vertex_data}, \tcode{edge_data} and \tcode{neighbor_data} are used to provide structured
+definitions of the core data model associated with vertices, edges and neighbors. They're
+useful aggregates that show up in different contexts including for structured-binding iteration,
+and binding external data for use in graph construction.
+
+\paragraph{\tcode{struct vertex_data<VId, V, VV>}}\label{vertex-view}\mbox{} \\
+\tcode{vertex_data} is used to define or return vertex information. The \tcode{id} member is the vertex id, the \tcode{vertex} member is the vertex descriptor,
+and \tcode{value} is the result of the value function, if provided.
+
+{\small
+     \lstinputlisting{D3129_Views/src/vertex_data.hpp}
+}
+
+Specializations are defined with \tcode{V=void} or \tcode{VV=void} to suppress the existence of their associated member variables, 
+giving the following valid combinations in Table \ref{tab:vertex-view} . For instance, the second entry, \tcode{vertex_data<VId, V, void>} 
+has two members \tcode{\{id_type id; vertex_type vertex;\}} and \tcode{value_type} is \tcode{void}.
+
+\tcode{vertex_data<VId, V, VV>} has the following members depending on the template
+parameters (a \tcode{void} parameter omits the corresponding member):
+
+\begin{table}[h!]
+\begin{center}
+{\begin{tabular}{l l L{7.5cm}}
+\hline
+    \textbf{Members present} & \textbf{Specialization} & \textbf{Typical use} \\
+\hline
+    \tcode{id, vertex, value} & \tcode{<VId, V, VV>} & Full vertexlist with descriptor and value \\
+    \tcode{id, vertex}        & \tcode{<VId, V, void>} & Vertexlist with descriptor, no value \\
+    \tcode{id, value}         & \tcode{<VId, void, VV>} & Vertexlist with value, no descriptor \\
+    \tcode{id}                & \tcode{<VId, void, void>} & ID-only vertexlist \\
+    \tcode{vertex, value}     & \tcode{<void, V, VV>} & Descriptor-based, no id \\
+    \tcode{vertex}            & \tcode{<void, V, void>} & Descriptor only \\
+    \tcode{value}             & \tcode{<void, void, VV>} & Value only \\
+    %%(empty)                   & \tcode{<void, void, void>} & No members \\
+\hline
+\hline
+\end{tabular}}
+\caption{\tcode{vertex\_data} Specializations}
+\label{tab:vertex_data}
+\end{center}
+\end{table}
+
+\paragraph{\tcode{struct edge_data<VId, Sourced, E, EV>}}\label{edge-view}\mbox{} \\
+
+When \tcode{Sourced=true}, the \tcode{source_id} member is included. The \tcode{target_id} member always exists.
+
+{\small
+     \lstinputlisting{D3129_Views/src/edge_data.hpp}
+}
+
+\tcode{edge_data<VId, Sourced, E, EV>} has the following members. The \tcode{Sourced}
+boolean controls whether \tcode{source_id} is included. A \tcode{void} VId or EV omits
+the corresponding member; a \tcode{void} E omits the edge descriptor member.
+
+\begin{table}[h!]
+\begin{center}
+{\begin{tabular}{l l L{6.5cm}}
+\hline
+    \textbf{Members present} & \textbf{Specialization} & \textbf{Typical use} \\
+\hline
+    \tcode{source\_id, target\_id, edge, value} & \tcode{<VId,true,E,EV>} & Sourced incidence with descriptor and value \\
+    \tcode{source\_id, target\_id, edge}        & \tcode{<VId,true,E,void>} & Sourced incidence with descriptor \\
+    \tcode{source\_id, target\_id, value}       & \tcode{<VId,true,void,EV>} & Sourced incidence with value \\
+    \tcode{source\_id, target\_id}              & \tcode{<VId,true,void,void>} & Sourced incidence, IDs only \\
+    \tcode{target\_id, edge, value}             & \tcode{<VId,false,E,EV>} & Unsourced incidence with descriptor and value \\
+    \tcode{target\_id, edge}                    & \tcode{<VId,false,E,void>} & Unsourced incidence with descriptor \\
+    \tcode{target\_id, value}                   & \tcode{<VId,false,void,EV>} & Unsourced incidence with value \\
+    \tcode{target\_id}                          & \tcode{<VId,false,void,void>} & Target ID only \\
+\hline
+\hline
+\end{tabular}}
+\caption{\tcode{edge\_data} Specializations (VId present)}
+\label{tab:edge_data}
+\end{center}
+\end{table}
+
+\paragraph{\tcode{struct neighbor_data<VId, Sourced, V, VV>}}\label{neighbor-view}\mbox{} \\
+
+\tcode{neighbor_data} is used to return information for a neighbor vertex, through an edge. The \tcode{target_id} member always exists.
+The \tcode{target} member holds the neighbor's vertex descriptor when \tcode{V} is not \tcode{void}.
+
+{\small
+     \lstinputlisting{D3129_Views/src/neighbor_data.hpp}
+}
+
+\tcode{neighbor_data<VId, Sourced, V, VV>} is analogous to \tcode{edge_data} but replaces
+the edge descriptor with a target vertex descriptor. It is used by adjacency (neighbor)
+views.
+
+\begin{table}[h!]
+\begin{center}
+{\begin{tabular}{l l L{6.5cm}}
+\hline
+    \textbf{Members present} & \textbf{Specialization} & \textbf{Typical use} \\
+\hline
+    \tcode{source\_id, target\_id, target, value} & \tcode{<VId,true,V,VV>} & Sourced neighbor descriptor and value \\
+    \tcode{source\_id, target\_id, target}        & \tcode{<VId,true,V,void>} & Sourced neighbor descriptor \\
+    \tcode{source\_id, target\_id, value}         & \tcode{<VId,true,void,VV>} & Sourced neighbor with value \\
+    \tcode{source\_id, target\_id}                & \tcode{<VId,true,void,void>} & Sourced neighbor, IDs only \\
+    \tcode{target\_id, target, value}             & \tcode{<VId,false,V,VV>} & Unsourced neighbor descriptor and value \\
+    \tcode{target\_id, target}                    & \tcode{<VId,false,V,void>} & Unsourced neighbor descriptor \\
+    \tcode{target\_id, value}                     & \tcode{<VId,false,void,VV>} & Unsourced neighbor with value \\
+    \tcode{target\_id}                            & \tcode{<VId,false,void,void>} & Unsourced neighbor, IDs only \\
+\hline
+\hline
+\end{tabular}}
+\caption{\tcode{neighbor\_data} Specializations (VId present)}
+\label{tab:neighbor_data}
+\end{center}
+\end{table}
+
+\paragraph{Copyable vertex, edge, and neighbor types}
+
+The following helper type aliases simplify the most common structured-binding patterns:
+
+\begin{table}[h!]
+\begin{center}
+{\begin{tabular}{l L{8cm}}
+\hline
+    \textbf{Alias} & \textbf{Definition} \\
+\hline
+    \tcode{copyable_vertex_t<VId, VV>}   & \tcode{vertex_data<VId, void, VV>} --- \texttt{\{id, value\}} \\
+    \tcode{copyable_edge_t<VId, EV>}     & \tcode{edge_data<VId, true, void, EV>} --- \texttt{\{source\_id, target\_id, value\}} \\
+    \tcode{copyable_neighbor_t<VId, VV>} & \tcode{neighbor_data<VId, true, void, VV>} --- \texttt{\{source\_id, target\_id, value\}} \\
+\hline
+\hline
+\end{tabular}}
+\caption{Helper type aliases for common structured-binding patterns}
+\label{tab:copyable_types}
+\end{center}
+\end{table}
+
+\subsubsection{Value Function Concepts}
+
+\tcode{vertex_value_function} and \tcode{edge_value_function} define the required
+interface for callables passed to views and algorithms to extract per-vertex or per-edge
+scalar values (e.g.\ a weight or a label). Both concepts use the two-argument
+\tcode{f(const G\&, descriptor)} convention so that stateless lambdas may be captured
+into \tcode{std::views} pipelines without holding a reference to the graph.
+
+\begin{lstlisting}
+template <class VVF, class Graph, class VertexDescriptor>
+concept vertex_value_function =
+    invocable<VVF, const Graph&, VertexDescriptor> &&
+    (!is_void_v<invoke_result_t<VVF, const Graph&, VertexDescriptor>>);
+
+template <class EVF, class Graph, class EdgeDescriptor>
+concept edge_value_function =
+    invocable<EVF, const Graph&, EdgeDescriptor> &&
+    (!is_void_v<invoke_result_t<EVF, const Graph&, EdgeDescriptor>>);
+\end{lstlisting}
+
+\tcode{edge_weight_function} (defined in the algorithms proposal) refines
+\tcode{edge_value_function} with the additional requirement that the return type is
+arithmetic.
+
+\subsubsection{Vertex Property Map}
+
+Algorithms that maintain per-vertex state (visited flags, distances, component labels,
+etc.) need a container indexed by vertex ID. For index-based graphs a \tcode{vector} is
+natural; for mapped (key-based) graphs an \tcode{unordered_map} is required.
+\tcode{vertex_property_map<G, T>} abstracts over this difference.
+
+\begin{lstlisting}
+template <class G, class T>
+using vertex_property_map =
+    conditional_t<index_vertex_range<G>,
+                  vector<T>,
+                  unordered_map<vertex_id_t<G>, T>>;
+\end{lstlisting}
+
+Four helper functions complete the interface:
+
+\begin{table}[h!]
+\begin{center}
+\resizebox{\textwidth}{!}
+{\begin{tabular}{l L{9cm}}
+\hline
+    \textbf{Function} & \textbf{Description} \\
+\hline
+    \tcode{make_vertex_property_map(g, init)} & Eager factory: creates a map with every vertex pre-populated to \tcode{init}. O(V). \\
+    \tcode{make_vertex_property_map<G,T>(g)}  & Lazy factory: creates an empty map with capacity reserved. O(V) for index, O(1) for mapped. \\
+    \tcode{vertex_property_map_contains(m, uid)} & Returns \tcode{true} if \tcode{uid} has an entry (\tcode{uid < size(m)} for \tcode{vector}; \tcode{m.contains(uid)} for \tcode{unordered\_map}). \\
+    \tcode{vertex_property_map_get(m, uid, dflt)} & Returns the stored value or \tcode{dflt} if absent. Does not insert. \\
+\hline
+\hline
+\end{tabular}}
+\caption{Vertex Property Map Functions}
+\label{tab:vpm_func}
+\end{center}
+\end{table}
+
+Two further utilities let algorithms accept a caller-supplied property map without
+caring which underlying container backs it:
+
+\begin{lstlisting}
+// Per-vertex value type of a property-map container:
+//   vector<T> yields T (value\_type); unordered\_map<K,V> yields V (mapped\_type)
+template <class Container>
+using vertex_property_map_value_t = /* see prose */;
+
+// A container usable as a per-vertex property map for graph G:
+// it can be subscripted by the graph's vertex id.
+template <class M, class G>
+concept vertex_property_map_for =
+    requires(M& m, const vertex_id_t<G>& uid) {
+      { m[uid] } -> convertible_to<vertex_property_map_value_t<M>>;
+    };
+\end{lstlisting}
+
+\tcode{vertex_property_map_value_t<Container>} extracts the stored value type from
+either container shape (the \tcode{mapped_type} of an \tcode{unordered_map}, or the
+\tcode{value_type} of a \tcode{vector}). \tcode{vertex_property_map_for<M,G>} is the
+precise constraint for algorithm parameters such as \emph{Distances} or
+\emph{Predecessors}: it requires only that \tcode{m[uid]} is valid for the graph's
+\tcode{vertex_id_t<G>}, since algorithms subscript such maps by vertex id rather than
+iterating them as a range. Both \tcode{vector<T>} (index graphs) and
+\tcode{unordered_map<vertex_id_t<G>,T>} (mapped graphs) satisfy it.
+
 
 \section{Edgelist Interface}
 An edgelist is a range of values where we can get the source\_id and target\_id, and an optional edge\_value. It is similar to edges in an
