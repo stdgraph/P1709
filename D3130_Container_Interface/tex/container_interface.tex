@@ -523,7 +523,7 @@ and binding external data for use in graph construction.
 and \tcode{value} is the result of the value function, if provided.
 
 {\small
-     \lstinputlisting{D3129_Views/src/vertex_data.hpp}
+     \lstinputlisting{D3130_Container_Interface/src/vertex_data.hpp}
 }
 
 Specializations are defined with \tcode{V=void} or \tcode{VV=void} to suppress the existence of their associated member variables, 
@@ -560,7 +560,7 @@ parameters (a \tcode{void} parameter omits the corresponding member):
 When \tcode{Sourced=true}, the \tcode{source_id} member is included. The \tcode{target_id} member always exists.
 
 {\small
-     \lstinputlisting{D3129_Views/src/edge_data.hpp}
+     \lstinputlisting{D3130_Container_Interface/src/edge_data.hpp}
 }
 
 \tcode{edge_data<VId, Sourced, E, EV>} has the following members. The \tcode{Sourced}
@@ -595,7 +595,7 @@ the corresponding member; a \tcode{void} E omits the edge descriptor member.
 The \tcode{target} member holds the neighbor's vertex descriptor when \tcode{V} is not \tcode{void}.
 
 {\small
-     \lstinputlisting{D3129_Views/src/neighbor_data.hpp}
+     \lstinputlisting{D3130_Container_Interface/src/neighbor_data.hpp}
 }
 
 \tcode{neighbor_data<VId, Sourced, V, VV>} is analogous to \tcode{edge_data} but replaces

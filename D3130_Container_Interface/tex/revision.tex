@@ -75,10 +75,10 @@
 
 \begin{itemize}
       \item \textbf{Mapped vertices and edges}: vertex container may now be associative (e.g.\ \tcode{std::map}, 
-            \tcode{std::unordered_map}), enabling adjacency lists with non-integral vertex ids. Likewise,
-            an edge container/range may also be associative or include a key-only container such as \tcode{std::set}.
-            Related changes:
+            \tcode{std::unordered_map}). Likewise, an edge container/range may also be associative or include a 
+            key-only container such as \tcode{std::set}. Related changes:
             \begin{itemize}
+                  \item Support for non-integral vertex ids.
                   \item New concept \tcode{mapped_vertex_range} alongside \tcode{index_vertex_range}.
                   \item New \textit{raw-vertex-id-type} exposition-only type alias.
                   \item New \tcode{vertex_property_map<G,T>} utility type alias;
@@ -129,4 +129,6 @@
             paper now states only the normative recognition patterns (random-access / associative vertex
             patterns and the integral/\tcode{pair}/\tcode{tuple} edge element patterns), with the concrete
             container catalog, trade-off table and worked examples moved to that paper.
+      \item Moved \tcode{vertex_data}, \tcode{edge_data}, and \tcode{neighbor_data} descriptions from
+            \href{https://www.wg21.link/P3129}{P3129 Views}.
 \end{itemize}
