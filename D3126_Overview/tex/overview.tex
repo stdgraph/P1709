@@ -206,7 +206,7 @@ The reference library has been extended to support many of the features and capa
 \medskip
 
 \textbf{NWGraph} (\cite{REF_nwgraph_library} and \cite{REF_nwgraph_paper}) was published in 2022
-by Lumsdaine et al, bringing additional experience gained since creating boost::graph, to create a modern graph library using C++20 for its implementation 
+by Lumsdaine et al, bringing additional experience gained since creating boost::graph, to create a modern graph library using C++23 for its implementation 
 that was more accessible to the average developer. % with the latest algorithms.
 
 While NWGraph made important strides to introduce the idea of an adjacency list as a range-of-ranges and implemented many important algorithms,
@@ -255,7 +255,7 @@ Although the prior efforts have served, and do serve, important roles,
 they do not meet the needs or expectations of modern C++ development.
 We are currently
 unaware of any existing graph
-library that meets the same requirements and uses concepts and ranges from C++20.
+library that meets the same requirements and uses concepts and ranges from C++23.
 
 \phil{Comment on other graph libraries in github}
 
@@ -270,8 +270,7 @@ Additionally, \tcode{stack} and \tcode{queue} require memory allocation which co
 exception.
 
 \section{Language Requirements}
-The library targets C++23 as its baseline. \tcode{std::expected} from C++23 are used by the topological sort safe 
-view factories (\tcode{vertices_topological_sort_safe} and \tcode{edges_topological_sort_safe}). 
+The library targets C++23 as its baseline.
 
 The reference implementation provides backward compatibility to C++20 via an external \tcode{expected} library 
 (e.g., \tcode{tl::expected}). Switching it to require C++23 may limit those who can use it, so care will be

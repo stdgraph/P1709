@@ -130,5 +130,7 @@
             patterns and the integral/\tcode{pair}/\tcode{tuple} edge element patterns), with the concrete
             container catalog, trade-off table and worked examples moved to that paper.
       \item Moved \tcode{vertex_data}, \tcode{edge_data}, and \tcode{neighbor_data} descriptions from
-            \href{https://www.wg21.link/P3129}{P3129 Views}.
+            \href{https://www.wg21.link/P3129}{P3129 Views} to this paper.
+      \item Simplified the GCI interface by removing most GCI function overloads that take a vertex id as an argument.
+            \tcode{find_out_edge(g,u,v)} replaces all overloads that take a vertex id as an argument.
 \end{itemize}
