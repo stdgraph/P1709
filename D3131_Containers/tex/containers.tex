@@ -46,8 +46,7 @@ are only accessible through the types and functions in the Graph Container Inter
 $P$ is the number of partitions and is expected to be small, e.g. $P = 2$ for bipartite and $P \leq 10$ for typical 
 multi-partite graphs.
 
-The \tcode{is_directed} trait is not supported. If \tcode{compressed_graph} is intended to be used for an undirected
-graph, then the edge pairs must be included for both directions, (uid,vid) and (vid,uid), when constructing the graph.
+For undirected graphs, edge pairs must be included for both directions, (uid,vid) and (vid,uid), when constructing the graph.
 
 A public \tcode{operator[](vertex_id_t<G>)} is \emph{not} provided. The only value it could return is an
 internal CSR element that is not useful on its own, and exposing it would breach the rule that
@@ -130,6 +129,9 @@ the \tcode{copyable_edge}/\tcode{copyable_vertex} requirements in the Graph Cont
 \end{itemdescr}
 
 \section{Using Existing Data Structures}
+
+\phil{Use range-based descriptions. Concrete containers are also important, but stress that non-std containers can also be used.}
+
 Reasonable defaults have been defined for the adjacency list and edgelist using data structures and types
 in the standard library, with some adaptation for externally defined containers, out of the box that require
 no function overrides.

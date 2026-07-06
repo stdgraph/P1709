@@ -1,0 +1,104 @@
+// Concept hierarchy for graph::adj_list
+// Generate PDF: dot -Tpdf adjacency_list_concepts.dot -o adjacency_list_concepts.pdf
+
+digraph ConceptHierarchy {
+    rankdir = TB
+    size="6.5,9.5"
+    nodesep = 0.35
+    ranksep = 0.7
+    node [shape=box, style="filled,rounded", fontname="Helvetica", fontsize=12]
+    edge [fontname="Helvetica", fontsize=9]
+
+    // -- Primitive concepts --------------------------------------------------
+    // Foundational -- no prerequisites
+
+    node [fillcolor="#cce5ff"]  // light blue
+
+    basic_edge_c       [label="basic_edge<G,E>\n(shared with edge_list)"]
+    edge_c             [label="edge<G,E>"]
+    vertex_c           [label="vertex<G,V>"]
+    hashable_vertex_id [label="hashable_vertex_id<G>"]
+
+    // -- Range concepts ------------------------------------------------------
+
+    node [fillcolor="#d4edda"]  // light green
+
+    out_edge_range [label="out_edge_range<R,G>"]
+    in_edge_range  [label="in_edge_range<R,G>"]
+    vertex_range   [label="vertex_range<R,G>"]
+
+    // -- Vertex range refinements --------------------------------------------
+
+    node [fillcolor="#fff3cd"]  // light yellow
+
+    index_vertex_range  [label="index_vertex_range<G>"]
+    mapped_vertex_range [label="mapped_vertex_range<G>\nnot index_vertex_range<G>"]
+
+    // -- Core graph concepts -------------------------------------------------
+
+    node [fillcolor="#f8d7da"]  // light red/salmon
+
+    adjacency_list               [label="adjacency_list<G>"]
+    ordered_vertex_edges         [label="ordered_vertex_edges<G>\n(semantic: edges sorted\nby target_id)"]
+    bidirectional_adjacency_list [label="bidirectional_adjacency_list<G>"]
+
+    // -- Compound / specialised concepts -------------------------------------
+
+    node [fillcolor="#e2d9f3"]  // light purple
+
+    index_adjacency_list                [label="index_adjacency_list<G>"]
+    adjacency_matrix_c                  [label="adjacency_matrix<G>"]
+    mapped_adjacency_list               [label="mapped_adjacency_list<G>"]
+    index_bidirectional_adjacency_list  [label="index_bidirectional_adjacency_list<G>"]
+    mapped_bidirectional_adjacency_list [label="mapped_bidirectional_adjacency_list<G>"]
+
+    // -- Edges (arrows = "is required by" / "refines") -----------------------
+
+    // Shared edge floor -> adjacency-list edge refinement
+    basic_edge_c -> edge_c
+
+    // Primitives -> ranges
+    edge_c   -> out_edge_range
+    edge_c   -> in_edge_range
+    vertex_c -> vertex_range
+
+    // vertex_range -> vertex range refinements
+    vertex_range -> index_vertex_range
+    vertex_range -> mapped_vertex_range [style=dashed, label="  !index_vertex_range"]
+    hashable_vertex_id -> mapped_vertex_range
+
+    // Ranges -> adjacency_list
+    out_edge_range -> adjacency_list
+    vertex_range   -> adjacency_list
+
+    // adjacency_list -> refinements
+    adjacency_list -> ordered_vertex_edges
+    adjacency_list -> bidirectional_adjacency_list
+    in_edge_range  -> bidirectional_adjacency_list
+
+    // adjacency_list + vertex range kind -> compound concepts
+    adjacency_list     -> index_adjacency_list
+    index_vertex_range -> index_adjacency_list
+
+    index_adjacency_list -> adjacency_matrix_c
+
+    adjacency_list      -> mapped_adjacency_list
+    mapped_vertex_range -> mapped_adjacency_list
+
+    bidirectional_adjacency_list -> index_bidirectional_adjacency_list
+    index_vertex_range           -> index_bidirectional_adjacency_list
+
+    bidirectional_adjacency_list -> mapped_bidirectional_adjacency_list
+    mapped_vertex_range          -> mapped_bidirectional_adjacency_list
+
+    // -- Rank hints for cleaner layout ---------------------------------------
+    { rank=same; basic_edge_c; vertex_c; hashable_vertex_id }
+    { rank=same; edge_c }
+    { rank=same; out_edge_range; in_edge_range; vertex_range }
+    { rank=same; index_vertex_range; mapped_vertex_range }
+    { rank=same; adjacency_list }
+    { rank=same; ordered_vertex_edges; bidirectional_adjacency_list }
+    { rank=same; index_adjacency_list; mapped_adjacency_list;
+                 index_bidirectional_adjacency_list; mapped_bidirectional_adjacency_list }
+    { rank=same; adjacency_matrix_c }
+}

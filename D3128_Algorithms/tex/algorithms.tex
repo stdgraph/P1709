@@ -350,27 +350,22 @@ The visitor events mimic those used in the Boost Graph Library.
 {\small
       \lstinputlisting{D3128_Algorithms/src/visitor_vertex.hpp}
 }
-Each vertex event concept exists in two variants.
-The \textit{descriptor} variant (e.g.\ \lstinline{has_on_initialize_vertex}) requires an event
-function whose second argument is \lstinline{const vertex_t<G>&}.
-The \textit{ID} variant (e.g.\ \lstinline{has_on_initialize_vertex_id}) requires an event
-function whose second argument is \lstinline{const vertex_id_t<G>&}.
-The ID variant is useful when the visitor only needs the vertex identifier rather than the full
-vertex descriptor.  In both variants the first argument is \lstinline{const G&}.
+Each vertex event concept requires an event function whose second argument is \lstinline{const vertex_t<G>&},
+with the first argument being \lstinline{const G&}.
 
 The vertex events are called under the following conditions.
 \begin{itemize}
-      \item \lstinline{on_initialize_vertex(g, vdesc)} (or \lstinline{on_initialize_vertex(g, uid)})
+      \item \lstinline{on_initialize_vertex(g, u)}
             is called once for each vertex before the algorithm is run.
-      \item \lstinline{on_discover_vertex(g, vdesc)} (or \lstinline{on_discover_vertex(g, uid)})
+      \item \lstinline{on_discover_vertex(g, u)}
             is called once for each source vertex passed to the algorithm.
-      \item \lstinline{on_examine_vertex(g, vdesc)} (or \lstinline{on_examine_vertex(g, uid)})
+      \item \lstinline{on_examine_vertex(g, u)}
             is called for a vertex before any of its outgoing edges are examined.  It is possible
             that it will be called multiple times for the same vertex if paths are found to it
             from other vertices with a shorter distance.
-      \item \lstinline{on_start_vertex(g, vdesc)} (or \lstinline{on_start_vertex(g, uid)})
+      \item \lstinline{on_start_vertex(g, u)}
             is called for a vertex that is being examined.
-      \item \lstinline{on_finish_vertex(g, vdesc)} (or \lstinline{on_finish_vertex(g, uid)})
+      \item \lstinline{on_finish_vertex(g, u)}
             is called for a vertex that is being examined, after all its outgoing edges have been
             examined.
 \end{itemize}
@@ -415,14 +410,14 @@ Compute the breadth-first path from one or more \tcode{source} vertices to all r
 \setcellgapes{3pt}
 \makegapedcells
 \centering
-\begin{tabular}{|P{0.30\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|}
+\begin{tabular}{|P{0.30\textwidth}|P{0.22\textwidth}|P{0.22\textwidth}|}
 \hline
       \multirowcell{2}{
             \textbf{Complexity} \\
             $\mathcal{O}(|V| + |E|)$
             }
-      & \textbf{Directed?} Yes & \textbf{Cycles?} No & \textbf{Throws?} Yes \\
-      & \textbf{Multi-edge?} No & \textbf{Self-loops} Yes & \\
+      & \textbf{Cycles?} No & \textbf{Throws?} Yes \\
+      & \textbf{Multi-edge?} No & \\
 \hline
 \end{tabular}
 %\caption{Algorithm Example}
@@ -511,14 +506,14 @@ Traverse the depth-first path from one or more \tcode{source} vertices to all re
 \setcellgapes{3pt}
 \makegapedcells
 \centering
-\begin{tabular}{|P{0.30\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|}
+\begin{tabular}{|P{0.30\textwidth}|P{0.22\textwidth}|P{0.22\textwidth}|}
 \hline
       \multirowcell{2}{
             \textbf{Complexity} \\
             $\mathcal{O}(|V| + |E|)$
             }
-      & \textbf{Directed?} Yes & \textbf{Cycles?} No & \textbf{Throws?} No \\
-      & \textbf{Multi-edge?} Yes & \textbf{Self-loops} Yes & \\
+      & \textbf{Cycles?} No & \textbf{Throws?} Yes \\
+      & \textbf{Multi-edge?} No & \\
 \hline
 \end{tabular}
 %\caption{Algorithm Example}
@@ -601,14 +596,14 @@ A linear ordering of vertices such that for every directed edge (u,v) from verte
 \setcellgapes{3pt}
 \makegapedcells
 \centering
-\begin{tabular}{|P{0.30\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|}
+\begin{tabular}{|P{0.30\textwidth}|P{0.22\textwidth}|P{0.22\textwidth}|}
 \hline
       \multirowcell{2}{
             \textbf{Complexity} \\
                   $\mathcal{O}(|E|+|V|)$
             }
-      & \textbf{Directed?} Yes & \textbf{Cycles?} No & \textbf{Throws?} No \\
-      & \textbf{Multi-edge?} No & \textbf{Self-loops} Yes & \\
+      & \textbf{Cycles?} No & \textbf{Throws?} No \\
+      & \textbf{Multi-edge?} No & \\
 \hline
 \end{tabular}
 %\caption{Algorithm Example}
@@ -735,14 +730,14 @@ using non-negative weights.
 \setcellgapes{3pt}
 \makegapedcells
 \centering
-\begin{tabular}{|P{0.30\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|}
+\begin{tabular}{|P{0.30\textwidth}|P{0.22\textwidth}|P{0.22\textwidth}|}
 \hline
       \multirowcell{2}{
             \textbf{Complexity} \\
             $\mathcal{O}((|E| + |V|)\log{|V|})$
             }
-      & \textbf{Directed?} Yes & \textbf{Cycles?} No & \textbf{Throws?} Yes \\
-      & \textbf{Multi-edge?} No & \textbf{Self-loops} Yes & \\
+      & \textbf{Cycles?} No & \textbf{Throws?} Yes \\
+      & \textbf{Multi-edge?} No & \\
 \hline
 \end{tabular}
 %\caption{Algorithm Example}
@@ -1011,14 +1006,14 @@ Compute the shortest path and associated distance from vertex \tcode{source} to 
 \setcellgapes{3pt}
 \makegapedcells
 \centering
-\begin{tabular}{|P{0.30\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|}
+\begin{tabular}{|P{0.30\textwidth}|P{0.22\textwidth}|P{0.22\textwidth}|}
 \hline
       \multirowcell{2}{
             \textbf{Complexity} \\
                   $\mathcal{O}(|E| \cdot |V|)$ \\
             }
-      & \textbf{Directed?} Yes & \textbf{Cycles?} No & \textbf{Throws?} Yes \\
-      & \textbf{Multi-edge?} No & \textbf{Self-loops} Yes & \\
+      & \textbf{Cycles?} No & \textbf{Throws?} Yes \\
+      & \textbf{Multi-edge?} No & \\
 \hline
 \end{tabular}
 %\caption{Algorithm Example}
@@ -1295,14 +1290,14 @@ Count the number of triangles (3-cliques) in an undirected graph with sorted adj
 \setcellgapes{3pt}
 \makegapedcells
 \centering
-\begin{tabular}{|P{0.30\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|}
+\begin{tabular}{|P{0.30\textwidth}|P{0.22\textwidth}|P{0.22\textwidth}|}
 \hline
       \multirowcell{2}{
             \textbf{Complexity} \\
                   $\mathcal{O}(m^{3/2})$ \\
             }
-      & \textbf{Directed?} No & \textbf{Cycles?} Yes & \textbf{Throws?} No \\
-      & \textbf{Multi-edge?} No & \textbf{Self-loops} No & \\
+      & \textbf{Cycles?} Yes & \textbf{Throws?} No \\
+      & \textbf{Multi-edge?} No & \\
 \hline
 \end{tabular}
 %\caption{Algorithm Example}
@@ -1377,14 +1372,14 @@ $u \rightarrow v$, $v \rightarrow w$, and $u \rightarrow w$ all exist.
 \setcellgapes{3pt}
 \makegapedcells
 \centering
-\begin{tabular}{|P{0.30\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|}
+\begin{tabular}{|P{0.30\textwidth}|P{0.22\textwidth}|P{0.22\textwidth}|}
 \hline
       \multirowcell{2}{
             \textbf{Complexity} \\
                   $\mathcal{O}(m^{3/2})$ \\
             }
-      & \textbf{Directed?} Yes & \textbf{Cycles?} Yes & \textbf{Throws?} No \\
-      & \textbf{Multi-edge?} No & \textbf{Self-loops} No & \\
+      & \textbf{Cycles?} Yes & \textbf{Throws?} No \\
+      & \textbf{Multi-edge?} No & \\
 \hline
 \end{tabular}
 %\caption{Algorithm Example}
@@ -1461,14 +1456,14 @@ Vertices in components with no labelled vertex retain \tcode{empty_label} after 
 \setcellgapes{3pt}
 \makegapedcells
 \centering
-\begin{tabular}{|P{0.30\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|}
+\begin{tabular}{|P{0.30\textwidth}|P{0.22\textwidth}|P{0.22\textwidth}|}
 \hline
       \multirowcell{2}{
             \textbf{Complexity} \\
                   $\mathcal{O}(M)$ \\
             }
-      & \textbf{Directed?} Yes & \textbf{Cycles?} Yes & \textbf{Throws?} Yes \\
-      & \textbf{Multi-edge?} Yes & \textbf{Self-loops} Yes & \\
+      & \textbf{Cycles?} Yes & \textbf{Throws?} Yes \\
+      & \textbf{Multi-edge?} Yes & \\
 \hline
 \end{tabular}
 %\caption{Algorithm Example}
@@ -1562,14 +1557,14 @@ rooted at $v$ via back-edges. A vertex $u$ is an articulation point under one of
 \setcellgapes{3pt}
 \makegapedcells
 \centering
-\begin{tabular}{|P{0.30\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|}
+\begin{tabular}{|P{0.30\textwidth}|P{0.22\textwidth}|P{0.22\textwidth}|}
 \hline
       \multirowcell{2}{
             \textbf{Complexity} \\
                   $\mathcal{O}(|E|+|V|)$
             }
-      & \textbf{Directed?} Yes & \textbf{Cycles?} Yes & \textbf{Throws?} Yes \\
-      & \textbf{Multi-edge?} Yes & \textbf{Self-loops} Yes & \\
+      & \textbf{Cycles?} Yes & \textbf{Throws?} Yes \\
+      & \textbf{Multi-edge?} Yes & \\
 \hline
 \end{tabular}
 %\caption{Algorithm Example}
@@ -1644,14 +1639,14 @@ trivial single-vertex components. Articulation-point vertices appear in more tha
 \setcellgapes{3pt}
 \makegapedcells
 \centering
-\begin{tabular}{|P{0.30\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|}
+\begin{tabular}{|P{0.30\textwidth}|P{0.22\textwidth}|P{0.22\textwidth}|}
 \hline
       \multirowcell{2}{
             \textbf{Complexity} \\
                   $\mathcal{O}(|E|+|V|)$
             }
-      & \textbf{Directed?} Yes & \textbf{Cycles?} Yes & \textbf{Throws?} Yes \\
-      & \textbf{Multi-edge?} Yes & \textbf{Self-loops} Yes & \\
+      & \textbf{Cycles?} Yes & \textbf{Throws?} Yes \\
+      & \textbf{Multi-edge?} Yes & \\
 \hline
 \end{tabular}
 %\caption{Algorithm Example}
@@ -1723,14 +1718,14 @@ Find weakly connected components of a graph. Weakly connected components are sub
 \setcellgapes{3pt}
 \makegapedcells
 \centering
-\begin{tabular}{|P{0.30\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|}
+\begin{tabular}{|P{0.30\textwidth}|P{0.22\textwidth}|P{0.22\textwidth}|}
 \hline
       \multirowcell{2}{
             \textbf{Complexity} \\
                   $\mathcal{O}(|E|+|V|)$
             }
-      & \textbf{Directed?} No & \textbf{Cycles?} Yes & \textbf{Throws?} No \\
-      & \textbf{Multi-edge?} No & \textbf{Self-loops} Yes & \\
+      & \textbf{Cycles?} Yes & \textbf{Throws?} No \\
+      & \textbf{Multi-edge?} No & \\
 \hline
 \end{tabular}
 %\caption{Algorithm Example}
@@ -1792,14 +1787,14 @@ Find strongly connected components of a graph using Kosaraju's algorithm. Strong
 \setcellgapes{3pt}
 \makegapedcells
 \centering
-\begin{tabular}{|P{0.30\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|}
+\begin{tabular}{|P{0.30\textwidth}|P{0.22\textwidth}|P{0.22\textwidth}|}
 \hline
       \multirowcell{2}{
             \textbf{Complexity} \\
                   $\mathcal{O}(|E|+|V|)$
             }
-      & \textbf{Directed?} Yes & \textbf{Cycles?} Yes & \textbf{Throws?} No \\
-      & \textbf{Multi-edge?} No & \textbf{Self-loops} Yes & \\
+      & \textbf{Cycles?} Yes & \textbf{Throws?} No \\
+      & \textbf{Multi-edge?} No & \\
 \hline
 \end{tabular}
 %\caption{Algorithm Example}
@@ -1863,14 +1858,14 @@ directed path from every vertex in the set to every other vertex in the set.
 \setcellgapes{3pt}
 \makegapedcells
 \centering
-\begin{tabular}{|P{0.30\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|}
+\begin{tabular}{|P{0.30\textwidth}|P{0.22\textwidth}|P{0.22\textwidth}|}
 \hline
       \multirowcell{2}{
             \textbf{Complexity} \\
                   $\mathcal{O}(|E|+|V|)$
             }
-      & \textbf{Directed?} Yes & \textbf{Cycles?} Yes & \textbf{Throws?} Yes \\
-      & \textbf{Multi-edge?} Yes & \textbf{Self-loops} Yes & \\
+            & \textbf{Cycles?} Yes & \textbf{Throws?} Yes \\
+            & \textbf{Multi-edge?} Yes & \\
 \hline
 \end{tabular}
 \end{table}
@@ -1948,14 +1943,14 @@ Find a maximally independent set of vertices in a graph starting from a source v
 \setcellgapes{3pt}
 \makegapedcells
 \centering
-\begin{tabular}{|P{0.30\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|}
+\begin{tabular}{|P{0.30\textwidth}|P{0.22\textwidth}|P{0.22\textwidth}|}
 \hline
       \multirowcell{2}{
             \textbf{Complexity} \\
                   $\mathcal{O}(|E|)$
             }
-      & \textbf{Directed?} Yes & \textbf{Cycles?} No & \textbf{Throws?} No \\
-      & \textbf{Multi-edge?} No & \textbf{Self-loops} No & \\
+      & \textbf{Cycles?} No & \textbf{Throws?} No \\
+      & \textbf{Multi-edge?} No & \\
 \hline
 \end{tabular}
 %\caption{Algorithm Example}
@@ -2001,14 +1996,14 @@ Calculate the Jaccard coefficient of a graph
 \setcellgapes{3pt}
 \makegapedcells
 \centering
-\begin{tabular}{|P{0.30\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|}
+\begin{tabular}{|P{0.30\textwidth}|P{0.22\textwidth}|P{0.22\textwidth}|}
 \hline
       \multirowcell{2}{
             \textbf{Complexity} \\
                   $\mathcal{O}(|N|^3)$
             }
-      & \textbf{Directed?} Yes & \textbf{Cycles?} No & \textbf{Throws?} No \\
-      & \textbf{Multi-edge?} No & \textbf{Self-loops} No & \\
+      & \textbf{Cycles?} No & \textbf{Throws?} No \\
+      & \textbf{Multi-edge?} No & \\
 \hline
 \end{tabular}
 %\caption{Algorithm Example}
@@ -2063,14 +2058,14 @@ Find the minimum weight spanning tree of a graph using Kruskal's algorithm.
 \setcellgapes{3pt}
 \makegapedcells
 \centering
-\begin{tabular}{|P{0.30\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|}
+\begin{tabular}{|P{0.30\textwidth}|P{0.22\textwidth}|P{0.22\textwidth}|}
 \hline
       \multirowcell{2}{
             \textbf{Complexity} \\
             $\mathcal{O}(|E|)$
             }
-      & \textbf{Directed?} Yes & \textbf{Cycles?} No & \textbf{Throws?} No \\
-      & \textbf{Multi-edge?} No & \textbf{Self-loops} No & \\
+      & \textbf{Cycles?} No & \textbf{Throws?} No \\
+      & \textbf{Multi-edge?} No & \\
 \hline
 \end{tabular}
 %\caption{Algorithm Example}
@@ -2122,14 +2117,14 @@ rather than making a copy.  The input range must satisfy \lstinline{permutable<i
 \setcellgapes{3pt}
 \makegapedcells
 \centering
-\begin{tabular}{|P{0.30\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|}
+\begin{tabular}{|P{0.30\textwidth}|P{0.22\textwidth}|P{0.22\textwidth}|}
 \hline
       \multirowcell{2}{
             \textbf{Complexity} \\
             $\mathcal{O}(|E|\log{|E|})$
             }
-      & \textbf{Directed?} Yes & \textbf{Cycles?} No & \textbf{Throws?} No \\
-      & \textbf{Multi-edge?} No & \textbf{Self-loops} No & \\
+      & \textbf{Cycles?} No & \textbf{Throws?} No \\
+      & \textbf{Multi-edge?} No & \\
 \hline
 \end{tabular}
 \label{tab:algo_inplace_kruskal}
@@ -2186,14 +2181,14 @@ Delegates to \lstinline{dijkstra_shortest_paths} with a projecting combine funct
 \setcellgapes{3pt}
 \makegapedcells
 \centering
-\begin{tabular}{|P{0.30\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|P{0.20\textwidth}|}
+\begin{tabular}{|P{0.30\textwidth}|P{0.22\textwidth}|P{0.22\textwidth}|}
 \hline
       \multirowcell{2}{
             \textbf{Complexity} \\
             $\mathcal{O}(|E|log|V|)$
             }
-      & \textbf{Directed?} Yes & \textbf{Cycles?} No & \textbf{Throws?} Yes \\
-      & \textbf{Multi-edge?} No & \textbf{Self-loops} Yes & \\
+      & \textbf{Cycles?} No & \textbf{Throws?} Yes \\
+      & \textbf{Multi-edge?} No & \\
 \hline
 \end{tabular}
 %\caption{Algorithm Example}

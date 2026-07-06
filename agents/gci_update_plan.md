@@ -75,7 +75,7 @@ Phase J is last because it touches other papers and should only run once D3130 i
 | `descriptor_view.hpp` | `descriptor_view` + `descriptor_subrange_view` (11 lines) | `vertex_descriptor_view` + `edge_descriptor_view` |
 | `edgelist_concepts.hpp` | 1-arg `sourced_edgelist`, `sourced_index_edgelist`, `has_edge_value` | 2-arg `basic_sourced_edgelist`, `basic_sourced_index_edgelist`, `has_edge_value` |
 | `edgelist_types.hpp` | 1-arg type aliases, includes `edge_reference_t<EL>` | 2-arg type aliases, remove `edge_reference_t<EL>`, add `raw_vertex_id_t<EL>` |
-| `edgelist_typetraits.hpp` | `is_directed` only | Same (no change needed) |
+| `edgelist_typetraits.hpp` | Will be deleted | Same (no change needed) |
 
 ### New files to add
 

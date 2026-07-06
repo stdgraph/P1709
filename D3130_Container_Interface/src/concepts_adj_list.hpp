@@ -32,6 +32,13 @@ concept mapped_bidirectional_adjacency_list =
     bidirectional_adjacency_list<G> &&
     mapped_vertex_range<G>;
 
+template <class G>
+concept adjacency_matrix = index_adjacency_list<G> &&
+                           requires(G& g, vertex_t<G> u, vertex_t<G> v) {
+                             find_out_edge(g, u, v) -> std::forward_iterator;
+                             { contains_out_edge(g, u, v) } -> std::convertible_to<bool>;
+                           };
+
 // Semantic refinement: each vertex's out-edges are sorted by ascending
 // target\_id. The structural check below only confirms a forward edge range;
 // the ascending-order property is a semantic requirement the author asserts.

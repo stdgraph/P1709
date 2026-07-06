@@ -4,7 +4,7 @@ template <class G, class V>
 concept vertex = is_vertex_descriptor_v<remove_cvref_t<V>> &&
                  requires(G& g, const V& u, const vertex_id_t<G>& uid) {
                    vertex_id(g, u);
-                   find_vertex(g, uid);
+                   { find_vertex(g, uid) } -> std::forward_iterator;
                  };
 
 template <class R, class G>

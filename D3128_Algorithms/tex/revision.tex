@@ -53,27 +53,18 @@
 
 \subsection*{\paperno r4}
 \begin{itemize}
+      \item Changed C++ version requirements from C++20 to C++23 throughout all documents.
       \item Adopt value-based descriptor design throughout: \tcode{vertex_t<G>} and \tcode{edge_t<G>}
-            replace the former \tcode{vertex_reference_t<G>}, \tcode{edge_reference_t<G>},
-            \tcode{vertex_info}, and \tcode{edge_info} types.
-      \item Add \tcode{basic_edge_weight_function} and \tcode{edge_weight_function} concepts
-            using a 2-argument form \tcode{WF(G\&, edge_t<G>\&)}.
-      \item Add \tcode{ordered_vertex_edges<G>} concept for algorithms requiring sorted adjacency.
-      \item Rewrite vertex visitor concepts (\tcode{has_on_initialize_vertex}, etc.) to use
-            2-argument descriptor form \tcode{(const G\&, const vertex_t<G>\&)}.
-            Add corresponding \tcode{_id} variants accepting \tcode{vertex_id_t<G>}.
-      \item Rewrite edge visitor concepts (\tcode{has_on_examine_edge}, etc.) to use
-            2-argument form \tcode{(const G\&, const edge_t<G>\&)}.
+            value types replace the former \tcode{vertex_reference_t<G>} and \tcode{edge_reference_t<G>}.
+            Also added views \tcode{vertex_descriptor_view_t<G>} and \tcode{edge_descriptor_view_t<G>}
+            to provide consistent range wrapper for underlying vertex and edge ranges.
+      \item Add \tcode{ordered_vertex_edges<G>} semantic concept for algorithms requiring sorted adjacency.
       \item Add hardened preconditions section to each algorithm for C++26.  Reword
             existing clauses to conform to standard expectations; move statements formerly in
             \textit{Mandates} and \textit{Preconditions} to \textit{Hardened preconditions};
             add \textit{Throws} clauses where appropriate.
-      \item Add time and space complexity to every algorithm section.
-      \item New algorithms:
-            \begin{itemize}
-                  \item Tarjan's Strongly Connected Components.
-                  \item Minimum Spanning Tree: Inplace Kruskal.
-            \end{itemize}
+      \item Include space complexity in addition to time complexity to every algorithm section.
+      \item New algorithm: Minimum Spanning Tree: Inplace Kruskal.
       \item Replace raw container (range) predecessor and distance parameters with function objects
             (\tcode{PredecessorFn}, \tcode{DistanceFn}) constrained by new \tcode{predecessor_fn_for} and
             \tcode{distance_fn_for} concepts, enabling flexible storage strategies for per-vertex properties.
@@ -82,4 +73,7 @@
             a value-type trait, and a concept for uniform per-vertex storage across index and mapped graphs.
       \item Add an allocator parameter to algorithms that require internal containers such as a \tcode{stack}
             or \tcode{queue}.
+      \item Remove items in the algorithm summary box: \textit{Directed?} applies to the underlying characteristics 
+            of the graph, not the algorithm itself, and \textit{Multi-edge?} handling is described in the algorithm 
+            remarks section.
 \end{itemize}
